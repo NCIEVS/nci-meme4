@@ -443,11 +443,6 @@ public class HTTPRequestListener implements MEMERequestListener {
           // Attempt to get output stream
           //
         }
-        // bail on empty requests
-        if (request == null) {
-	    return;
-        }
-
         Writer out = null;
         try {
           out = new BufferedWriter(new OutputStreamWriter(socket.
@@ -733,9 +728,6 @@ public class HTTPRequestListener implements MEMERequestListener {
 
         // Look for "POST ... HTTP/1.1", GET ... HTTP/1.1
         String line = in.readLine();
-        if (line == null) {
-	    return null;
-        }
 
         String[] tokens = FieldedStringTokenizer.split(line, " ");
         if ( (!line.startsWith("POST ") && !line.startsWith("GET ")) ||
@@ -797,6 +789,8 @@ public class HTTPRequestListener implements MEMERequestListener {
           document.append(tokens[1]);
         } else if (method.equals("POST")) {
           while ( (line = in.readLine()) != null) {
+            //MEMEToolkit.trace("HTTPRequestListener.RequestHandler:getMEMEServerRequest() - " + line);
+
             // Determine if the document is a MASRequest or CGI params
             if (mas_request == false && line.indexOf("<MASRequest") != -1) {
               mas_request = true;
@@ -816,14 +810,8 @@ public class HTTPRequestListener implements MEMERequestListener {
         // Process request according to the type of document
         if (mas_request) {
           // Request is a MASRequest
-	    try {
           request = (MEMEServiceRequest) serializer.fromXML(new StringReader(
               document.toString()));
-	    } catch (Exception e) {
-		System.out.println("failed here");
-		e.printStackTrace();
-		throw e;
-	    }
         } else {
           // Request is a CGI parameters
           // service = ...&....&....&

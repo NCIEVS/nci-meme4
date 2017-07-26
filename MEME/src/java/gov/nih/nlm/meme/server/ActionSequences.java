@@ -57,10 +57,6 @@ import java.util.List;
  * Used to perform action sequences for testing/debugging purposes.
  *
  * @author MEME Group
- * 
- * CHANGES
- * 09/10/2007 JFW (1-DBSLD): Modify isReEntrant to take a SessionContext argument 
- * 
  */
 public class ActionSequences implements MEMEApplicationService {
 
@@ -126,10 +122,9 @@ public class ActionSequences implements MEMEApplicationService {
 
   /**
    * Returns <code>false</code>.
-   * @param context the {@link SessionContext}
    * @return <code>false</code>
    */
-  public boolean isReEntrant(SessionContext context) {
+  public boolean isReEntrant() {
     return false;
   }
 

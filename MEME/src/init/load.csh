@@ -2,7 +2,7 @@
 
 source $ENV_HOME/bin/env.csh
 
-set user=`$MIDSVCS_HOME/bin/get-oracle-pwd.pl -d $db`
+set user=`$MIDSVCS_HOME/bin/get-oracle-pwd.pl`
 #set db=`$MIDSVCS_HOME/bin/midsvcs.pl -s editing-db`
 
 echo "------------------------------------------------------"

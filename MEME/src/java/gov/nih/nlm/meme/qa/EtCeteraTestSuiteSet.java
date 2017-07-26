@@ -44,9 +44,9 @@ public class EtCeteraTestSuiteSet  extends TestSuiteSet {
    */
   public ITestSuite[] getTestSuites() {
     return new ITestSuite[] {
-        new RelConcurrencyCheck(), // [0]
-        new DBLockTest()           // [1]
-        //new RealTimeCUIAssignmentTest()
+        new RelConcurrencyCheck(),
+        new DBLockTest(),
+        new RealTimeCUIAssignmentTest()
     };
   }
 }

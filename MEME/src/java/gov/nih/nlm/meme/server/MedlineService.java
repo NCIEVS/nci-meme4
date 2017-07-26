@@ -6,42 +6,39 @@ package gov.nih.nlm.meme.server;
  * Object:  MedlineService
  *
  * Changes:
- *   06/19/2006 TTN (1-77HMD): fix data source type cast in MedlineService to process Medline data
  *   04/28/2006 TTN (1-77HMD): Added MedlineService to process Medline data
  *
  *****************************************************************************/
 
 
 
-import gov.nih.nlm.meme.common.Parameter;
+import java.text.SimpleDateFormat;
+import java.io.FileWriter;
+import java.io.BufferedWriter;
+import java.io.BufferedReader;
+import java.io.PrintWriter;
+import java.io.IOException;
+import java.text.DateFormat;
+import java.io.FileReader;
+import java.io.File;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Calendar;
 import gov.nih.nlm.meme.common.StageStatus;
-import gov.nih.nlm.meme.exception.BadValueException;
-import gov.nih.nlm.meme.exception.ExecException;
-import gov.nih.nlm.meme.exception.ExternalResourceException;
-import gov.nih.nlm.meme.exception.MEMEException;
 import gov.nih.nlm.meme.sql.MEMEDataSource;
 import gov.nih.nlm.meme.xml.MEMEServiceRequest;
+import gov.nih.nlm.meme.exception.ExecException;
+import gov.nih.nlm.meme.exception.BadValueException;
+import gov.nih.nlm.meme.exception.ExternalResourceException;
+import gov.nih.nlm.meme.exception.MEMEException;
+import gov.nih.nlm.meme.common.Parameter;
 import gov.nih.nlm.mrd.sql.MRDDataSource;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
+import gov.nih.nlm.mrd.server.ServerToolkit;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Handles requests related to map sets or mappings.
- * 
- * CHANGES
- * 09/10/2007 JFW (1-DBSLD): Modify isReEntrant to take a SessionContext argument 
- * 
+ *
  * @author MEME Group
  */
 public class MedlineService implements MEMEApplicationService {
@@ -56,7 +53,7 @@ public class MedlineService implements MEMEApplicationService {
      * @param context the {@link SessionContext}
      * @throws MEMEException if failed to process the request
      */
-	public void processRequest(SessionContext context) throws MEMEException{
+    public void processRequest(SessionContext context) throws MEMEException {
 
         // Get Service Request and function parameter
         MEMEServiceRequest request = context.getServiceRequest();
@@ -68,17 +65,17 @@ public class MedlineService implements MEMEApplicationService {
         } else if (function.equals("downloadMedlineBaseline")) {
             downloadMedlineBaseline();
         } else if (function.equals("parseMedlineBaseline")) {
-            parseMedlineBaseline(data_source,
+            parseMedlineBaseline(data_source.getDataSourceName(),
                                  (String) request.getParameter("context").
                                  getValue(),
                                  (String) request.getParameter("cutoff_date").
                                  getValue());
         } else if (function.equals("processMedlineBaseline")) {
-            processMedlineBaseline(data_source,
+            processMedlineBaseline(data_source.getDataSourceName(),
                                    (String) request.getParameter("context").
                                    getValue());
         } else if (function.equals("updateMedline")) {
-            updateMedline(data_source,
+            updateMedline(data_source.getDataSourceName(),
                           (String) request.getParameter("context").
                           getValue(),
                           (String) request.getParameter("cutoff_date").
@@ -139,26 +136,27 @@ public class MedlineService implements MEMEApplicationService {
 
     /**
      * Parses the Medline Baseline XML files by calling $MRD_HOME/bin/medline_parser.pl.
-     * @param data_source the data source name
+     * @param service the service name
      * @param cutoff_date the last date to process medline data
      * @param context either the release name or MID
      * @throws MEMEException if failed to parse the files
      */
-    public void parseMedlineBaseline(MEMEDataSource data_source, String context,
+    public void parseMedlineBaseline(String service, String context,
                                      String cutoff_date) throws
             MEMEException {
-    	final String service = data_source.getDataSourceName();
         DateFormat dateformat = new SimpleDateFormat(
                 "MM/dd/yyyy");
         if (cutoff_date == null) {
             cutoff_date = dateformat.format(Calendar.getInstance().
                                             getTime());
             if (!"MID".equals(context)) {
-                cutoff_date = dateformat.format(((MRDDataSource)data_source).
+                cutoff_date = dateformat.format(ServerToolkit.newMRDDataSource(
+                        service, null, null).
                                                 getReleaseInfo(context).
                                                 getReleaseDate());
             }
         }
+        final String service_name = service;
         final String release_date = cutoff_date;
         ServerToolkit.getThread(new Runnable() {
             public void run() {
@@ -182,7 +180,7 @@ public class MedlineService implements MEMEApplicationService {
                         ServerToolkit.exec(new String[] {
                                            meme_home +
                                            "/bin/medline_parser.pl",
-                                           "-db=" + service,
+                                           "-db=" + service_name,
                                            "-release_date=" + release_date,
                                            "-i",
                                            "medline*.xml"}
@@ -212,13 +210,13 @@ public class MedlineService implements MEMEApplicationService {
 
     /**
      * Process the Medline Baseline data by calling $MRD_HOME/bin/process_medline_data.csh.
-     * @param data_source the data source name
+     * @param service the service name
      * @param context either the release name or MID
      * @throws MEMEException if failed to process the data
      */
-    public void processMedlineBaseline(MEMEDataSource data_source, String context) throws
+    public void processMedlineBaseline(String service, String context) throws
             MEMEException {
-    	final String service = data_source.getDataSourceName();
+        final String service_name = service;
         final String db_mode = (!"MID".equals(context) ? "-mrd" : "");
         ServerToolkit.getThread(new Runnable() {
             public void run() {
@@ -244,14 +242,14 @@ public class MedlineService implements MEMEApplicationService {
                             ServerToolkit.exec(
                                     new String[] {
                                     meme_home + "/bin/process_medline_data.csh",
-                                    db_mode, "-i", service},
+                                    db_mode, "-i", service_name},
                                     new String[0],
                                     new File(medline_dir), writer);
                         } else {
                             ServerToolkit.exec(
                                     new String[] {
                                     meme_home + "/bin/process_medline_data.csh",
-                                    "-i", service},
+                                    "-i", service_name},
                                     new String[0],
                                     new File(medline_dir), writer);
                         }
@@ -271,12 +269,12 @@ public class MedlineService implements MEMEApplicationService {
     /**
      * Downloads, parses and process the Medline Update XML files by calling
      * $MRD_HOME/bin/update_medline_data.pl
-     * @param data_source the data source name
+     * @param service the service name
      * @param context either the release name or MID
      * @param cutoff_date the last date to process medline data
      * @throws MEMEException if failed to process the data
      */
-    public void updateMedline(MEMEDataSource data_source, String context,
+    public void updateMedline(String service, String context,
                               String cutoff_date) throws
             MEMEException {
         DateFormat dateformat = new SimpleDateFormat(
@@ -285,12 +283,13 @@ public class MedlineService implements MEMEApplicationService {
             cutoff_date = dateformat.format(Calendar.getInstance().
                                             getTime());
             if (!"MID".equals(context)) {
-                cutoff_date = dateformat.format(((MRDDataSource)data_source).
+                cutoff_date = dateformat.format(ServerToolkit.newMRDDataSource(
+                        service, null, null).
                                                 getReleaseInfo(context).
                                                 getReleaseDate());
             }
         }
-    	final String service = data_source.getDataSourceName();
+        final String service_name = service;
         final String release_date = cutoff_date;
         final String db_mode = (!"MID".equals(context) ? "-mrd" : "");
         ServerToolkit.getThread(new Runnable() {
@@ -315,7 +314,7 @@ public class MedlineService implements MEMEApplicationService {
                                 new String[] {
                                 meme_home + "/bin/update_medline_data.pl",
                                 db_mode,
-                                "-db=" + service,
+                                "-db=" + service_name,
                                 "-start_date=" + release_date,
                                 "-release_date=" + release_date,
                         },
@@ -568,11 +567,10 @@ public class MedlineService implements MEMEApplicationService {
 
     /**
      * Returns <code>false</code>.
-     * @param context the {@link SessionContext}
      * @return <code>false</code>
      */
-    public boolean isReEntrant(SessionContext context) {
-      return false;
+    public boolean isReEntrant() {
+        return false;
     }
 
 }

@@ -3,10 +3,8 @@
  * Package: gov.nih.nlm.meme.action
  * Object:  MolecularMergeAction
  *
- * 02/24/2009 BAC (1-GCLNT): Use local ranking algorithm for relationships.
- * 
  *****************************************************************************/
-//testing
+
 package gov.nih.nlm.meme.action;
 
 import gov.nih.nlm.meme.common.Atom;
@@ -401,11 +399,11 @@ public class MolecularMergeAction
           // Pick the one with the lowest rank
           // or pick the one with the lowest relationship_id
           // and delete it
-          if ( (getRank(concept_rels[i]).compareTo(getRank(concept_rels[j])) ==
+          if ( (concept_rels[i].getRank().compareTo(concept_rels[j].getRank()) ==
                 0 &&
                 concept_rels[i].getIdentifier().intValue() >
                 concept_rels[j].getIdentifier().intValue()) ||
-              getRank(concept_rels[i]).compareTo(getRank(concept_rels[j])) <
+              concept_rels[i].getRank().compareTo(concept_rels[j].getRank()) <
               0) {
             concept_rels[i].setDead(true);
             aa = new AtomicDeleteAction(concept_rels[i]);
@@ -457,20 +455,6 @@ public class MolecularMergeAction
 
   }
 
-  /** Simple ranking scheme for C level rels */
-  private String getRank(Relationship rel) {
-  	if (rel.isReleasable() && rel.getAuthority().toString().startsWith("E-")) {
-  		return "99";
-  	} else if (rel.isReleasable() && !rel.getAuthority().toString().startsWith("E-")) {
-  		return "88";
-  	} else if (rel.isWeaklyReleasable() && rel.getAuthority().toString().startsWith("E-")) {
-  		return "77";
-  	} else if (rel.isWeaklyReleasable() && !rel.getAuthority().toString().startsWith("E-")) {
-  		return "66";
-  	} else
-  	return "0000";
-  }
-  
   /**
    * Returns any conflicting relationships.
    * @param source An object {@link Concept} representation of source concept.

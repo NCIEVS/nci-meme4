@@ -14,13 +14,12 @@
 # -n (order by reverse frequency in the counts)
 # -s (list of STYs - if concept has ANY of these STYs the cluster is output)
 
-BEGIN
-{
 unshift @INC, "$ENV{ENV_HOME}/bin";
+
 require "env.pl";
-unshift @INC, "$ENV{EMS_HOME}/lib";
-unshift @INC, "$ENV{EMS_HOME}/bin";
-}
+
+use lib "$ENV{EMS_HOME}/lib";
+push @INC, "$ENV{EMS_HOME}/bin";
 
 use OracleIF;
 use EMSUtils;
@@ -40,7 +39,7 @@ EMSUtils->loadConfig;
 
 $db = $opt_d || Midsvcs->get($opt_s || 'editing-db');
 $user = $main::EMSCONFIG{ORACLE_USER};
-$password = GeneralUtils->getOraclePassword($user,$db);
+$password = GeneralUtils->getOraclePassword($user);
 $dbh = new OracleIF("db=$db&user=$user&password=$password");
 
 $logdir = $ENV{EMS_HOME} . "/log";
@@ -81,7 +80,7 @@ $sql = <<"EOD";
 create table $stytable as
 select /*+ INDEX(concept_id) */ cluster_id, attribute_value as sty from attributes a, $demotionstable b
 where  a.concept_id=b.concept_id
-and    a.attribute_name ='SEMANTIC_TYPE'
+and    a.attribute_name || '' ='SEMANTIC_TYPE'
 EOD
 $dbh->executeStmt($sql);
 

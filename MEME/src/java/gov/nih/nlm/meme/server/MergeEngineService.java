@@ -32,15 +32,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.HashMap;
 import java.util.Iterator;
 
 /**
  * Handles requests related to merge sets.
- * 
- * CHANGES
- * 09/10/2007 JFW (1-DBSLD): Implement isRunning and isReEntrant methods
- * 
+ *
  * @author MEME Group
  */
 public class MergeEngineService implements MEMEApplicationService {
@@ -48,8 +44,8 @@ public class MergeEngineService implements MEMEApplicationService {
   //
   // Fields
   //
-  
-  protected HashMap<String,String> running_merge_sets = new HashMap<String,String>();
+  public boolean is_running = false;
+  public String currently_running_set = null;
 
   //
   // Implementation of MEMEApplicationService interface
@@ -93,7 +89,6 @@ public class MergeEngineService implements MEMEApplicationService {
 
     MEMEServiceRequest request = context.getServiceRequest();
     MIDDataSource data_source = (MIDDataSource) context.getDataSource();
-    String data_source_name = (String) context.getDataSource().getDataSourceName();
 
     MIDActionEngine action_engine = (MIDActionEngine) data_source.
         getActionEngine();
@@ -109,9 +104,18 @@ public class MergeEngineService implements MEMEApplicationService {
     int work_id =
         (int) request.getParameter("work_id").getInt();
 
-    // Track running merge set
-
-    running_merge_sets.put(data_source_name,merge_set);
+    // Make sure only one merge set is running at a time
+    synchronized (this) {
+      if (is_running) {
+        ApplicationException ae = new ApplicationException(
+            "Failed to process merge set. Another merge " +
+            "set is currently running.");
+        ae.setDetail("merge_set", currently_running_set);
+        throw ae;
+      }
+      is_running = true;
+      currently_running_set = merge_set;
+    }
 
     // Wrap with a try so we can set
     // is_running=false if anything goes wrong
@@ -320,17 +324,17 @@ public class MergeEngineService implements MEMEApplicationService {
       } // end while loop
 
     } catch (MEMEException me) {
-      running_merge_sets.remove(data_source_name);
+      is_running = false;
       throw me;
     } catch (Exception e) {
-      running_merge_sets.remove(data_source_name);
+      is_running = false;
       MEMEException me = new MEMEException("Unexpected Exception");
       me.setEnclosedException(e);
       throw me;
     }
 
     // We are finished, another merge set may go
-    running_merge_sets.remove(data_source_name);
+    is_running = false;
 
     log.append("-------------------------------------------------\n")
         .append("Finished merge engine ...").append(new Date())
@@ -349,20 +353,19 @@ public class MergeEngineService implements MEMEApplicationService {
   }
 
   /**
-   * Returns <code>true</code> if any merge requests are running.
+   * Returns <code>false</code>.
    * @return <code>false</code>
    */
   public boolean isRunning() {
-    return !running_merge_sets.isEmpty();
+    return false;
   }
 
   /**
-   * Returns <code>true</code> if {@link SessionContext) is running a merge request.
-   * @param
+   * Returns <code>false</code>.
    * @return <code>false</code>
    */
-  public boolean isReEntrant(SessionContext context) {
-    return context.getDataSource() != null && running_merge_sets.containsKey((String) context.getDataSource().getDataSourceName());
+  public boolean isReEntrant() {
+    return false;
   }
 
 }

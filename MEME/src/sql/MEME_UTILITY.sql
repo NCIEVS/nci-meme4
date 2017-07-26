@@ -9,9 +9,6 @@ CREATE OR REPLACE PACKAGE MEME_UTILITY AS
  *
  * Version Information
  *
- * 02/22/2013 PM: Modified log_operation() to substring the err_msg and detail
- *                to specified length.
- * 08/29/2006 SL (1-C17ND)  Adding Oracle10g performance like analyze staments
  * 08/30/2005 3.21.2: log_progress takes an optional progress parameter.
  * 08/09/2005 3.21.1: map_sg_fields puts s_c_a query first and checks switch
  *                    This should allow mapping to always choose highest ranked
@@ -375,6 +372,15 @@ CREATE OR REPLACE PACKAGE MEME_UTILITY AS
       str IN VARCHAR2) RETURN VARCHAR2;
 
    PRAGMA RESTRICT_REFERENCES(md5, TRUST);
+
+   PROCEDURE map_sg_fields (
+      sg_id		IN VARCHAR2,
+      sg_type		IN VARCHAR2,
+      sg_qualifier	IN VARCHAR2,
+      sg_meme_id	OUT NUMBER,
+      sg_meme_data_type OUT VARCHAR2,
+      atom_id		OUT NUMBER
+  );
 
 END meme_utility;
 /
@@ -1300,7 +1306,7 @@ FUNCTION get_current_name(
 )
 RETURN VARCHAR2
 IS
-       c_name 	VARCHAR2(40);
+       c_name 	VARCHAR2(20);
 BEGIN
 
     SELECT current_name INTO c_name FROM source_version
@@ -1321,7 +1327,7 @@ FUNCTION get_previous_name(
 )
 RETURN VARCHAR2
 IS
-       p_name 	VARCHAR2(40);
+       p_name 	VARCHAR2(20);
 BEGIN
 
     SELECT previous_name INTO p_name FROM source_version
@@ -1516,8 +1522,8 @@ IS
 BEGIN
 
     initialize_trace('log_operation (2)');
-    err_msg := SUBSTR('(' || transaction_id || ',' || work_id || ',' ||
-	       authority || ',' || activity || ',' || detail || ')',1,3000);
+    err_msg := '(' || transaction_id || ',' || work_id || ',' ||
+	       authority || ',' || activity || ',' || detail || ')';
 
     local_t_id := transaction_id;
     IF transaction_id = 0 THEN
@@ -1534,7 +1540,7 @@ BEGIN
 	    NVL(max(row_sequence+1),1),
 	    log_operation.transaction_id, log_operation.work_id,
 	    log_operation.authority, log_operation.elapsed_time,
-	    SYSDATE, log_operation.activity, SUBSTR(log_operation.detail,1,4000)
+	    SYSDATE, log_operation.activity, log_operation.detail
 	FROM activity_log
 	WHERE work_id = log_operation.work_id;
     ELSE
@@ -1544,7 +1550,7 @@ BEGIN
 	     timestamp, activity, detail)
     	VALUES
     	    (local_t_id, work_id, authority, log_operation.elapsed_time,
-	    SYSDATE, activity, SUBSTR(detail,1,4000));
+	    SYSDATE, activity, detail);
     END IF;
 
 EXCEPTION
@@ -1552,7 +1558,6 @@ EXCEPTION
 	ROLLBACK;
 	meme_utility_error(method,location,1, err_msg || ': ' || SQLERRM);
 	RAISE meme_utility_exception;
-
 
 END log_operation;
 
@@ -1958,49 +1963,39 @@ BEGIN
 	 UNION 
 	 (SELECT concept_id_2, rownum
 	 FROM ' || table_name || ')    ';
-  
+   
+    location := '30a'; 
+    EXECUTE IMMEDIATE
+	'CREATE INDEX x_clid' || cluster_table || ' ON ' || cluster_table || ' 
+	    (cluster_id) COMPUTE STATISTICS PARALLEL';
+
+    location := '30b'; 
+    EXECUTE IMMEDIATE
+	'CREATE INDEX x_cid' || cluster_table || ' ON ' || cluster_table || ' 
+	    (concept_id) COMPUTE STATISTICS PARALLEL';
+
     LOOP
 	-- set cluster id to the min of the cluster ids of those other
 	-- concepts whose cluster ids match this one.
-        -- set cluster id to the min of the cluster ids of those other
-        -- concepts whose cluster ids match this one.
-        location := '40';
-        drop_it('table',cluster_table || '_1');
-        location := '40.1';
-        EXECUTE IMMEDIATE
-            'CREATE TABLE ' || cluster_table || '_1 AS
-             SELECT a.concept_id, min(g_par.cluster_id) cluster_id
-             FROM ' || cluster_table || ' a, ' || cluster_table || ' par,
-                  ' || cluster_table || ' g_par
-             WHERE par.cluster_id = a.cluster_id
-               AND par.concept_id = g_par.concept_id
-             GROUP BY a.concept_id';
+	location := '40';
+	EXECUTE IMMEDIATE
+	    'UPDATE ' || cluster_table || ' a
+	     SET cluster_id = 
+	 	(SELECT min(g_par.cluster_id)
+		 FROM ' || cluster_table || ' par, 
+		      ' || cluster_table || ' g_par
+		 WHERE par.cluster_id = a.cluster_id
+		   AND par.concept_id = g_par.concept_id)
+	     WHERE cluster_id IN
+ 		(SELECT a.cluster_id FROM dual
+		 MINUS
+ 		 SELECT min(g_par.cluster_id)
+ 		 FROM ' || cluster_table || ' par, 
+ 		      ' || cluster_table || ' g_par
+ 		 WHERE par.cluster_id = a.cluster_id
+   		   AND par.concept_id = g_par.concept_id) ';
 
-        -- Exit when this table matches cluster table
-        location := '40.11';
-        EXIT when exec_select(
-              'SELECT count(*) ct FROM (SELECT * FROM '||
-                 cluster_table||'_1 MINUS SELECT * FROM '||
-                 cluster_table||' )') = 0;
-
-        location := '40.2';
-        drop_it('table',cluster_table||'_2');
-        location := '40.3';
-        EXECUTE IMMEDIATE
-            'CREATE TABLE ' || cluster_table || '_2 AS
-             SELECT DISTINCT a.concept_id, b.cluster_id
-             FROM ' || cluster_table || ' a, ' || cluster_table || '_1 b
-             WHERE a.concept_id = b.concept_id';
-
-        location := '40.4';
-        drop_it('table',cluster_table);
-        location := '40.5';
-        EXECUTE IMMEDIATE
-            'CREATE TABLE ' || cluster_table || ' AS
-             SELECT * FROM ' || cluster_table || '_2';
-
-        location := '40.6';
-        drop_it('table',cluster_table||'_2');
+	EXIT WHEN SQL%ROWCOUNT = 0;
 
     END LOOP;	
 
@@ -2092,6 +2087,422 @@ BEGIN
     return lower(rawtohex(utl_raw.cast_to_raw(dbms_obfuscation_toolkit.md5(
 	input_string => str))));
 END;
+
+
+/* PROCEDURE map_sg_fields **************************************************
+ */
+
+PROCEDURE map_sg_fields (
+    sg_id		IN VARCHAR2,
+    sg_type		IN VARCHAR2,
+    sg_qualifier	IN VARCHAR2,
+    sg_meme_id		OUT NUMBER,
+    sg_meme_data_type	OUT VARCHAR2,
+    atom_id		OUT NUMBER
+) IS
+    map_sg_fields_exc 	EXCEPTION;
+    l_cui		VARCHAR2(100);
+    tmp_cui		VARCHAR2(100);
+    l_sg_qualifier	VARCHAR2(100);
+    l_field		VARCHAR2(100);
+    l_ct		NUMBER;
+BEGIN
+
+    initialize_trace('MAP_SG_FIELDS');
+
+    --
+    -- Map the ATOM_ID type
+    --
+    location := '10';
+    IF sg_type = 'ATOM_ID' THEN
+	sg_meme_id := to_number(sg_id);
+	sg_meme_data_type := 'C';
+ 	atom_id := sg_meme_id;
+	RETURN;
+    END IF;
+
+
+    --
+    -- Map the CONCEPT_ID type
+    --
+    location := '20';
+    IF sg_type = 'CONCEPT_ID' THEN
+	sg_meme_id := to_number(sg_id);
+	sg_meme_data_type := 'CS';
+ 	atom_id := 0;
+	RETURN;
+    END IF;
+
+    --
+    -- Map the SOURCE_ATOM_ID and SRC_ATOM_ID types
+    --
+    location := '30';
+    IF sg_type in ('SOURCE_ATOM_ID','SRC_ATOM_ID') THEN
+	EXECUTE IMMEDIATE 
+	  'SELECT local_row_id FROM source_id_map
+	   WHERE table_name = ''C'' AND source_row_id = :x'
+	INTO sg_meme_id USING sg_id;
+	sg_meme_data_type := 'C';
+ 	atom_id := sg_meme_id;
+	RETURN;
+    END IF;
+
+    --
+    -- Map the through cui_history for CUI types 
+    --
+    location := '40';
+    IF sg_type like 'CUI%' THEN
+	l_cui := sg_id;
+        LOOP
+            location := '40.1';
+	    tmp_cui := '';
+
+	    EXECUTE IMMEDIATE 
+	       'SELECT count(*) FROM cui_history WHERE cui1 = :x
+	 	AND relationship_name = ''SY'' '
+	    INTO l_ct USING l_cui;
+
+	    IF l_ct = 1 THEN
+    	        EXECUTE IMMEDIATE 
+	           'SELECT cui2 FROM cui_history WHERE cui1 = :x
+	 	    AND relationship_name = ''SY'' '
+	        INTO tmp_cui USING l_cui;
+	    ELSE
+	        EXIT;
+	    END IF;
+
+	    l_cui := tmp_cui;
+
+	END LOOP;
+    END IF;
+
+    --
+    -- CUI, CUI_ROOT_SOURCE
+    --
+    location := '50';
+    IF sg_type like 'CUI%' THEN
+	location := '50.1';
+        EXECUTE IMMEDIATE
+  	    'SELECT TO_NUMBER(SUBSTR(max_rank, INSTR(max_rank,''/'')+1,10)) FROM
+	     (SELECT MAX(a.rank || ''/'' || LPAD(a.atom_id,10,0) || ''/'' || 
+        	     LPAD(a.concept_id,10,0)) AS max_rank
+              FROM classes a
+              WHERE a.last_release_cui = :sg_id AND ''CUI'' = :sg_type
+              GROUP BY a.last_release_cui 
+              UNION ALL
+              SELECT MAX(a.rank || ''/'' || LPAD(a.atom_id,10,0) || ''/'' || 
+                         LPAD(a.concept_id,10,0))
+              FROM classes a
+              WHERE a.last_release_cui = :sg_id
+	        AND :sg_type IN (''CUI_STRIPPED_SOURCE'',''CUI_ROOT_SOURCE'')
+                AND a.source IN
+               (SELECT current_name FROM source_version WHERE source = :sg_qualifier)
+              GROUP BY a.last_release_cui)
+              UNION ALL
+              SELECT MAX(a.rank || ''/'' || LPAD(a.atom_id,10,0) || ''/'' || 
+                         LPAD(a.concept_id,10,0))
+              FROM classes a
+              WHERE a.last_release_cui = :sg_id
+	        AND :sg_type IN (''CUI_SOURCE'')
+                AND a.source = :sg_qualifier)
+              GROUP BY a.last_release_cui)'
+	INTO sg_meme_id USING l_cui, sg_type, 
+		l_cui, sg_type, sg_qualifier, 
+		l_cui, sg_type, sg_qualifier;
+
+	sg_meme_data_type := 'C';
+	atom_id := sg_meme_id;
+    END IF;
+
+    --
+    -- Map the CODE_*SOURCE type
+    --
+    location := '60';
+    IF sg_type in ('CODE_ROOT_SOURCE','CODE_STRIPPED_SOURCE','CODE_SOURCE') THEN
+	IF sg_type = 'CODE_SOURCE' THEN
+	   l_sg_qualifier := sg_qualifier;
+	ELSE
+	   EXECUTE IMMEDIATE
+	        'SELECT current_name FROM source_version WHERE source = :sg_qualifier'
+	   INTO l_sg_qualifier USING sg_qualifier;
+	END IF;
+
+ 	location := '60.1';
+	EXECUTE IMMEDIATE
+	   'SELECT NVL(SUBSTR(MAX(LPAD(termgroup_rank,5,0) || ''/'' || atom_id),
+                          INSTR(MAX(LPAD(termgroup_rank,5,0) || ''/'' || atom_id),''/'')+1),0)
+	    FROM source_classes_atoms 
+	    WHERE code = :sg_id AND source = :sg_qualifier AND switch != ''I'' '
+   	    INTO sg_meme_id USING sg_id, l_sg_qualifier;
+
+	IF sg_meme_id = 0 THEN
+ 	    location := '60.2';
+	    EXECUTE IMMEDIATE
+	    	'SELECT NVL(SUBSTR(MAX(rank || ''/'' || atom_id),
+                              INSTR(MAX(rank || ''/'' || atom_id),''/'')+1),0)
+	    	FROM classes WHERE code = :sg_id AND source = :sg_qualifier'
+	    INTO sg_meme_id USING sg_id, l_sg_qualifier;
+ 	END IF;
+
+	IF sg_meme_id = 0 THEN
+ 	    location := '60.3';
+	    EXECUTE IMMEDIATE
+	       'SELECT NVL(SUBSTR(MAX(LPAD(termgroup_rank,5,0) || ''/'' || atom_id),
+                              INSTR(MAX(LPAD(termgroup_rank,5,0) || ''/'' || atom_id),''/'')+1),0)
+	        FROM foreign_classes WHERE code = :sg_id AND source = :sg_qualifier'
+   	        INTO sg_meme_id USING sg_id, l_sg_qualifier;
+ 	END IF;
+
+	sg_meme_data_type := 'C';
+	atom_id := sg_meme_id;
+
+    END IF;
+
+
+    --
+    -- Map the CODE_*TERMGROUP type
+    --
+    location := '70';
+    IF sg_type in  ('CODE_TERMGROUP','CODE_ROOT_TERMGROUP','CODE_STRIPPED_TERMGROUP') THEN
+	IF sg_type = 'CODE_TERMGROUP' THEN
+	    l_sg_qualifier := sg_qualifier;
+	ELSE
+	    EXECUTE IMMEDIATE
+	        'SELECT current_name FROM source_version WHERE source = :sg_qualifier'
+	    INTO l_sg_qualifier USING SUBSTR(sg_qualifier,1,instr(sg_qualifier,'/')-1);
+	    l_sg_qualifier := l_sg_qualifier || '/' || 
+		SUBSTR(sg_qualifier,instr(sg_qualifier,'/')+1);
+	END IF;
+ 	location := '70.1';
+	EXECUTE IMMEDIATE
+	   'SELECT NVL(SUBSTR(MAX(LPAD(termgroup_rank,5,0) || ''/'' || atom_id),
+                          INSTR(MAX(LPAD(termgroup_rank,5,0) || ''/'' || atom_id),''/'')+1),0)
+	    FROM source_classes_atoms 
+	    WHERE code = :sg_id AND termgroup = :sg_qualifier AND switch != ''I'''
+   	    INTO sg_meme_id USING sg_id, l_sg_qualifier;
+
+	IF sg_meme_id = 0 THEN
+ 	    location := '70.2';
+	    EXECUTE IMMEDIATE
+	   	'SELECT NVL(SUBSTR(MAX(rank || ''/'' || atom_id),
+                              INSTR(MAX(rank || ''/'' || atom_id),''/'')+1),0)
+	    	FROM classes WHERE code = :sg_id AND termgroup = :sg_qualifier'
+	    INTO sg_meme_id USING sg_id, l_sg_qualifier;
+ 	END IF;
+
+	IF sg_meme_id = 0 THEN
+ 	    location := '70.3';
+	    EXECUTE IMMEDIATE
+	       'SELECT NVL(SUBSTR(MAX(LPAD(termgroup_rank,5,0) || ''/'' || atom_id),
+                              INSTR(MAX(LPAD(termgroup_rank,5,0) || ''/'' || atom_id),''/'')+1),0)
+	        FROM foreign_classes WHERE code = :sg_id AND termgroup = :sg_qualifier'
+   	        INTO sg_meme_id USING sg_id, l_sg_qualifier;
+ 	END IF;
+
+	sg_meme_data_type := 'C';
+	atom_id := sg_meme_id;
+
+    END IF;
+
+    --
+    -- Map the AUI
+    --
+    location := '71';
+    IF sg_type in  ('AUI') THEN
+ 	location := '71.1';
+	EXECUTE IMMEDIATE
+	   'SELECT NVL(SUBSTR(MAX(LPAD(termgroup_rank,5,0) || ''/'' || atom_id),
+                          INSTR(MAX(LPAD(termgroup_rank,5,0) || ''/'' || atom_id),''/'')+1),0)
+	    FROM source_classes_atoms WHERE aui = :sg_id AND switch != ''I'''
+   	    INTO sg_meme_id USING sg_id;
+	
+	IF sg_meme_id = 0 THEN
+ 	    location := '71.2';
+	    EXECUTE IMMEDIATE
+	       'SELECT NVL(SUBSTR(MAX(rank || ''/'' || atom_id),
+                              INSTR(MAX(rank || ''/'' || atom_id),''/'')+1),0)
+	    	FROM classes WHERE aui = :sg_id'
+	    INTO sg_meme_id USING sg_id;
+ 	END IF;
+
+	IF sg_meme_id = 0 THEN
+ 	    location := '71.3';
+	    EXECUTE IMMEDIATE
+	       'SELECT NVL(SUBSTR(MAX(LPAD(termgroup_rank,5,0) || ''/'' || atom_id),
+                              INSTR(MAX(LPAD(termgroup_rank,5,0) || ''/'' || atom_id),''/'')+1),0)
+	        FROM foreign_classes WHERE aui = :sg_id'
+   	        INTO sg_meme_id USING sg_id;
+ 	END IF;
+
+	sg_meme_data_type := 'C';
+	atom_id := sg_meme_id;
+
+    END IF;
+
+    --
+    -- Map the *SOURCE_[ACD]UI types
+    --
+    location := '80';
+    IF sg_type in ('SOURCE_AUI','ROOT_SOURCE_AUI','SOURCE_CUI','ROOT_SOURCE_CUI','SOURCE_DUI','ROOT_SOURCE_DUI') THEN
+	IF sg_type in ('SOURCE_AUI','SOURCE_CUI','SOURCE_DUI') THEN
+	    l_sg_qualifier := sg_qualifier;
+	ELSE
+	    EXECUTE IMMEDIATE
+	        'SELECT current_name FROM source_version WHERE source = :sg_qualifier'
+	    INTO l_sg_qualifier USING sg_qualifier;
+	END IF;
+
+	l_field := substr(sg_type,instr(sg_type,'_',-1)+1);
+ 	location := '80.1';
+	EXECUTE IMMEDIATE
+	   'SELECT NVL(SUBSTR(MAX(LPAD(termgroup_rank,5,0) || ''/'' || atom_id),
+                          INSTR(MAX(LPAD(termgroup_rank,5,0) || ''/'' || atom_id),''/'')+1),0)
+	    FROM source_classes_atoms 
+	    WHERE source_' || l_field || ' = :sg_id AND source = :sg_qualifier
+	      AND switch != ''I'' '
+   	    INTO sg_meme_id USING sg_id, l_sg_qualifier;
+
+	IF sg_meme_id = 0 THEN
+ 	    location := '80.2';
+	    EXECUTE IMMEDIATE
+	   	'SELECT NVL(SUBSTR(MAX(rank || ''/'' || atom_id),
+                              INSTR(MAX(rank || ''/'' || atom_id),''/'')+1),0)
+	    	FROM classes WHERE source_' || l_field || ' = :sg_id AND source = :sg_qualifier'
+	    INTO sg_meme_id USING sg_id, l_sg_qualifier;
+ 	END IF;
+
+	IF sg_meme_id = 0 THEN
+ 	    location := '80.3';
+	    EXECUTE IMMEDIATE
+	       'SELECT NVL(SUBSTR(MAX(LPAD(termgroup_rank,5,0) || ''/'' || atom_id),
+                              INSTR(MAX(LPAD(termgroup_rank,5,0) || ''/'' || atom_id),''/'')+1),0)
+	        FROM foreign_classes WHERE source_' || l_field || ' = :sg_id AND source = :sg_qualifier'
+   	        INTO sg_meme_id USING sg_id, l_sg_qualifier;
+ 	END IF;
+
+	sg_meme_data_type := 'C';
+	atom_id := sg_meme_id;
+
+    END IF;
+
+
+    --
+    -- Map the SOURCE_RUI type
+    -- We look in relationships, source_relationships, 
+    -- and then context_relationships
+    --
+    location := '90';
+    IF sg_type in ('SOURCE_RUI','ROOT_SOURCE_RUI') THEN
+	IF sg_type in ('SOURCE_RUI') THEN
+	    l_sg_qualifier := sg_qualifier;
+	ELSE
+	    EXECUTE IMMEDIATE
+	        'SELECT current_name FROM source_version WHERE source = :sg_qualifier'
+	    INTO l_sg_qualifier USING sg_qualifier;
+	END IF;
+
+ 	location := '90.1';
+	EXECUTE IMMEDIATE
+	   'SELECT NVL(SUBSTR(MAX(rank || ''/'' || relationship_id),
+                              INSTR(MAX(rank || ''/'' || relationship_id),''/'')+1),0)
+	    FROM relationships WHERE source_rui = :sg_id AND source = :sg_qualifier'
+	INTO sg_meme_id USING sg_id, l_sg_qualifier;
+
+	IF sg_meme_id = 0 THEN
+ 	    location := '90.2';
+	    EXECUTE IMMEDIATE
+	       'SELECT NVL(SUBSTR(MAX(rank || ''/'' || relationship_id),
+                              INSTR(MAX(rank || ''/'' || relationship_id),''/'')+1),0)
+	        FROM context_relationships WHERE source_rui = :sg_id AND source = :sg_qualifier'
+   	        INTO sg_meme_id USING sg_id, l_sg_qualifier;
+ 	END IF;
+
+	IF sg_meme_id = 0 THEN
+ 	    location := '90.2';
+	    EXECUTE IMMEDIATE
+	       'SELECT NVL(SUBSTR(MAX(LPAD(source_rank,5,0) || ''/'' || relationship_id),
+                              INSTR(MAX(LPAD(source_rank,5,0) || ''/'' || relationship_id),''/'')+1),0)
+	        FROM source_relationships WHERE source_rui = :sg_id AND source = :sg_qualifier'
+   	        INTO sg_meme_id USING sg_id, l_sg_qualifier;
+ 	END IF;
+
+	IF sg_meme_id = 0 THEN
+ 	    location := '90.3';
+	    EXECUTE IMMEDIATE
+	       'SELECT NVL(SUBSTR(MAX(LPAD(source_rank,5,0) || ''/'' || relationship_id),
+                              INSTR(MAX(LPAD(source_rank,5,0) || ''/'' || relationship_id),''/'')+1),0)
+	        FROM source_context_relationships WHERE source_rui = :sg_id AND source = :sg_qualifier'
+   	        INTO sg_meme_id USING sg_id, l_sg_qualifier;
+ 	END IF;
+	
+	sg_meme_data_type := 'R';
+	location := '90.4';
+	EXECUTE IMMEDIATE
+	   'SELECT atom_id_1 FROM
+	     (SELECT atom_id_1 FROM relationships WHERE relationship_id = :x
+	      UNION SELECT atom_id_1 FROM context_relationships WHERE relationship_id = :x
+	      UNION SELECT atom_id_1 FROM source_relationships WHERE relationship_id = :x
+	      UNION SELECT atom_id_1 FROM source_context_relationships WHERE relationship_id = :x)'
+	INTO atom_id USING sg_meme_id, sg_meme_id, sg_meme_id, sg_meme_id;
+
+    END IF;
+
+
+    location := '100';
+    IF sg_type in ('RUI') THEN
+ 	location := '100.1';
+	EXECUTE IMMEDIATE
+	   'SELECT NVL(SUBSTR(MAX(rank || ''/'' || relationship_id),
+                              INSTR(MAX(rank || ''/'' || relationship_id),''/'')+1),0)
+	    FROM relationships WHERE rui = :sg_id'
+	INTO sg_meme_id USING sg_id;
+
+	IF sg_meme_id = 0 THEN
+ 	    location := '100.2';
+	    EXECUTE IMMEDIATE
+	       'SELECT NVL(SUBSTR(MAX(rank || ''/'' || relationship_id),
+                              INSTR(MAX(rank || ''/'' || relationship_id),''/'')+1),0)
+	        FROM context_relationships WHERE rui = :sg_id'
+   	        INTO sg_meme_id USING sg_id;
+ 	END IF;
+
+	IF sg_meme_id = 0 THEN
+ 	    location := '100.2';
+	    EXECUTE IMMEDIATE
+	       'SELECT NVL(SUBSTR(MAX(LPAD(source_rank,5,0) || ''/'' || relationship_id),
+                              INSTR(MAX(LPAD(source_rank,5,0) || ''/'' || relationship_id),''/'')+1),0)
+	        FROM source_relationships WHERE rui = :sg_id'
+   	        INTO sg_meme_id USING sg_id;
+ 	END IF;
+
+	IF sg_meme_id = 0 THEN
+ 	    location := '100.3';
+	    EXECUTE IMMEDIATE
+	       'SELECT NVL(SUBSTR(MAX(LPAD(source_rank,5,0) || ''/'' || relationship_id),
+                              INSTR(MAX(LPAD(source_rank,5,0) || ''/'' || relationship_id),''/'')+1),0)
+	        FROM source_context_relationships WHERE rui = :sg_id'
+   	        INTO sg_meme_id USING sg_id;
+ 	END IF;
+	
+	sg_meme_data_type := 'R';
+	location := '100.4';
+	EXECUTE IMMEDIATE
+	   'SELECT atom_id_1 FROM
+	     (SELECT atom_id_1 FROM relationships WHERE relationship_id = :x
+	      UNION SELECT atom_id_1 FROM context_relationships WHERE relationship_id = :x
+	      UNION SELECT atom_id_1 FROM source_relationships WHERE relationship_id = :x
+	      UNION SELECT atom_id_1 FROM source_context_relationships WHERE relationship_id = :x)'
+	INTO atom_id USING sg_meme_id, sg_meme_id, sg_meme_id, sg_meme_id;
+
+    END IF;
+
+
+EXCEPTION
+    WHEN OTHERS THEN
+	meme_utility_error(method,location,1,SQLERRM);
+	RAISE meme_utility_exception;
+
+END map_sg_fields;
 
 
 

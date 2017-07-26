@@ -46,7 +46,7 @@ public class MergeEngineClientTest extends TestSuite {
     MergeEngineClient client = null;
 
     try {
-      client = new MergeEngineClient("");
+      client = new MergeEngineClient("apelon");
 
 	    //
 	    // 1.1. Test setMidService(String), getMidService()
@@ -55,8 +55,8 @@ public class MergeEngineClientTest extends TestSuite {
         + "getMidService() ... "
         + date_format.format(timestamp));
 
-      client.setMidService("");
-      if (client.getMidService().equals(""))
+      client.setMidService("apelon");
+      if (client.getMidService().equals("apelon"))
         addToLog("    1.1. Test Passed");
       else {
         addToLog("    1.1. Test Failed");

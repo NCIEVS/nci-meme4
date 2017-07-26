@@ -87,7 +87,7 @@ EOD
     $row .= $query->td({-rowspan=>$rowspan{$cluster_id}, -align=>'right'}, $cluster_id) . "\n";
 
     foreach $concept_id (@{ $cluster{$cluster_id} }) {
-      $url = $query->a({href=>$main::EMSCONFIG{MIDEMS3CONCEPTREPORTURL} . "?action=search&subaction=concept_id&arg=$concept_id&$DBget" . "#report"}, $concept_id);
+      $url = $query->a({href=>$main::EMSCONFIG{MIDCONCEPTREPORTURL} . "?action=search&subaction=concept_id&arg=$concept_id&$DBget" . "#report"}, $concept_id);
       $row .= $query->td($name{$concept_id} . " (" . $url . ")") . "\n";
       push @rows, $row;
       $row = "";

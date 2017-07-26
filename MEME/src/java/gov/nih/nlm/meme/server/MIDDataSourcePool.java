@@ -238,13 +238,11 @@ public class MIDDataSourcePool implements Initializable {
       // Get index.
       int i = active.indexOf(mds);
       // remove data source from active list
-      if (i != -1) {
-        mds = (MIDDataSource) active.remove(i);
-        if (active.size() >= active_size) {
-        throw new BadValueException(
+      mds = (MIDDataSource) active.remove(i);
+    }
+    if (active.size() >= active_size) {
+      throw new BadValueException(
           "Failed to return data source to active list.");
-        }
-      }
     }
 
     // add data source to inactive list

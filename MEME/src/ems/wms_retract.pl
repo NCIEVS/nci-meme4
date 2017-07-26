@@ -27,7 +27,7 @@ EOD
     my($form1, $form2);
     my(@d);
 
-    $form1 .= $query->start_form(-method=>'POST', -action=>$query->url(-absolute=>1));
+    $form1 .= $query->start_form(-method=>'POST', -action=>$query->url());
     $form1 .= $query->p . $query->submit({-value=>"Yes, I'm sure"});
     $form1 .= $query->hidden(-name=>'action', -value=>$action, -override=>1);
     $form1 .= $query->hidden(-name=>'worklist', -value=>$worklist, -override=>1);

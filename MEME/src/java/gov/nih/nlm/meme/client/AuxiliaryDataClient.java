@@ -33,10 +33,8 @@ import gov.nih.nlm.meme.exception.MEMEException;
 import gov.nih.nlm.meme.integrity.EnforcableIntegrityVector;
 import gov.nih.nlm.meme.integrity.IntegrityCheck;
 import gov.nih.nlm.meme.integrity.IntegrityVector;
-import gov.nih.nlm.meme.sql.MEMEConnection;
 import gov.nih.nlm.meme.xml.MEMEServiceRequest;
 
-import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -1254,7 +1252,7 @@ public class AuxiliaryDataClient extends ClientAPI {
    * @throws MEMEException if anything goes wrong
    */
   public MetaProperty getMetaProperty(String key, String key_qualifier,
-                                      String value, String description) throws MEMEException {//naveen UMLS-60 added description parameter to getMetaProperty method
+                                      String value) throws MEMEException {
 
     // Prepare request document
     MEMEServiceRequest request = getServiceRequest();
@@ -1262,7 +1260,6 @@ public class AuxiliaryDataClient extends ClientAPI {
     request.addParameter(new Parameter.Default("param1", key));
     request.addParameter(new Parameter.Default("param2", key_qualifier));
     request.addParameter(new Parameter.Default("param3", value));
-    request.addParameter(new Parameter.Default("param4", description));//naveen
 
     // Issue request
     request = getRequestHandler().processRequest(request);
@@ -1344,8 +1341,6 @@ public class AuxiliaryDataClient extends ClientAPI {
       MEMEException {
 
     // Prepare request document
-	  //MEMEConnection mEMEConnection = new MEMEConnection(new Connection());
-	  //mEMEConnection.cacheMetaProperties();
     MEMEServiceRequest request = getServiceRequest();
     request.addParameter(new Parameter.Default("function",
         "get_meta_props_by_key_qualifier"));

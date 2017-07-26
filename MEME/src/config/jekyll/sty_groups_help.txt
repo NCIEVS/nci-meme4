@@ -4,11 +4,13 @@ A list of semantic types for each group used in the Finder search:
 1. Organism Group
 Organism
 Plant
+Alga
 Fungus
 Virus
+Rickettsia/Chlamydia
 Bacterium
-Eukaryote
 Archaeon
+Invertebrate
 Vertebrate
 Amphibian
 Bird

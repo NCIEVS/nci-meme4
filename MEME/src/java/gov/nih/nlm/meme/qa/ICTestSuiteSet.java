@@ -3,9 +3,6 @@
  * Package: gov.nih.nlm.meme.qa
  * Object:  ICTestSuiteSet.java
  *
- * 12/07/2006 BAC (1-D0BIJ): Remove DT_I8 test.
- * 06/07/2006 RBE (1-BEYL1): Added MGV_SCUI & MGV_SDUI
- * 
  *****************************************************************************/
 package gov.nih.nlm.meme.qa;
 
@@ -46,8 +43,6 @@ import gov.nih.nlm.meme.qa.ic.MGV_PNTest;
 import gov.nih.nlm.meme.qa.ic.MGV_RX1Test;
 import gov.nih.nlm.meme.qa.ic.MGV_RX2Test;
 import gov.nih.nlm.meme.qa.ic.MGV_RXCUITest;
-import gov.nih.nlm.meme.qa.ic.MGV_SCUITest;
-import gov.nih.nlm.meme.qa.ic.MGV_SDUITest;
 import gov.nih.nlm.meme.qa.ic.MGV_STYTest;
 import gov.nih.nlm.meme.qa.ic.MVS_RX3Test;
 
@@ -98,32 +93,30 @@ public class ICTestSuiteSet extends TestSuiteSet{
         new DT_I3Test(),		// 12
         new DT_I3BTest(),		// 13
         new DT_I4Test(),		// 14
-        //new DT_I8Test(),		
-        new MGV_A4Test(),		// 15
-        new MGV_ADHOCTest(),	// 16
-        new MGV_BTest(),		// 17
-        new MGV_B2Test(),		// 18
-        new MGV_CTest(),		// 19
-        new MGV_DTest(),		// 20
-        new MGV_ETest(),		// 21
-        new MGV_FTest(),		// 22
-        new MGV_GTest(),		// 23
-        new MGV_H1Test(),		// 24
-        new MGV_H2Test(),		// 25
-        new MGV_ITest(),		// 26
-        new MGV_JTest(),		// 27
-        new MGV_KTest(),		// 28
-        new MGV_MTest(),		// 29
-        new MGV_MMTest(),		// 30
-        new MGV_MUITest(),		// 31
-        new MGV_PNTest(),		// 32
-        new MGV_RXCUITest(),	// 33
-        //new MGV_STYTest(),		//
-        new MGV_RX1Test(),		// 34
-        new MGV_RX2Test(),		// 35
-        new MVS_RX3Test(),		// 36
-        new MGV_SCUITest(),		// 37
-        new MGV_SDUITest() // 38
+        new DT_I8Test(),		// 15
+        new MGV_A4Test(),		// 16
+        new MGV_ADHOCTest(),	// 17
+        new MGV_BTest(),		// 18
+        new MGV_B2Test(),		// 19
+        new MGV_CTest(),		// 20
+        new MGV_DTest(),		// 21
+        new MGV_ETest(),		// 22
+        new MGV_FTest(),		// 23
+        new MGV_GTest(),		// 24
+        new MGV_H1Test(),		// 25
+        new MGV_H2Test(),		// 26
+        new MGV_ITest(),		// 27
+        new MGV_JTest(),		// 28
+        new MGV_KTest(),		// 29
+        new MGV_MTest(),		// 30
+        new MGV_MMTest(),		// 31
+        new MGV_MUITest(),		// 32
+        new MGV_PNTest(),		// 33
+        new MGV_RXCUITest(),	// 34
+        new MGV_STYTest(),		// 35
+        new MGV_RX1Test(),		// 36
+        new MGV_RX2Test(),		// 37
+        new MVS_RX3Test()
     };
   }
 }

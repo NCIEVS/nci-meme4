@@ -33,7 +33,7 @@ import gov.nih.nlm.swing.FontSizeManager;
 
 /**
  * {@link JDialog} used to present a user with a list of choices.
- * Slightly modified version of util class with the following
+ * Slightly modified version of Apelon's class with the following
  * changes:
  * <ul>
  * <li>Allows multiple items initial selection;

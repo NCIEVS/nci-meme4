@@ -151,7 +151,7 @@ public class QAReportParser {
           }
           qa.setReasons( (QAComparisonReason[]) reasons.toArray(new
               QAComparisonReason[] {}));
-           differences.add(qa);
+          differences.add(qa);
         } else if (element.equals("QAResult")) {
           QAResult qa = new QAResult();
           qa.setName(attributes.getValue("name"));
@@ -267,70 +267,28 @@ public class QAReportParser {
                   QAResult[] {}));
             }
           } else if (compareTo.equals("Previous")) {
-        	for(Iterator iterator = differences.iterator(); iterator.hasNext();) {
-        		QAComparison qa = (QAComparison)iterator.next();
-                qa.setShouldHaveReason(data_source.shouldBeExplainedBySRCQA(target, qa));
-              if(data_source.isExplainedBySRCQA(target, qa)) {
-            	  qa.addReason(data_source.getSRCQAReason(target, qa));
-              }
-        	}
             qaReport.setMinorPreviousQAComparisons( (QAComparison[])
                 differences.
                 toArray(new
                         QAComparison[] {}));
             if (!notInOther.isEmpty()) {
-            	for(Iterator iterator = notInOther.iterator(); iterator.hasNext();) {
-            		QAResult qa = (QAResult)iterator.next();
-                    qa.setShouldHaveReason(data_source.shouldBeExplainedBySRCQA(target, qa));
-                    if(data_source.isExplainedBySRCQA(target, release_name, previous, qa)) {
-                  	  qa.addReason(data_source.getSRCQAReason(target, release_name, previous, qa));
-                    }
-            	}
               qaReport.setMetaNotMinorPrevious( (QAResult[]) notInOther.toArray(new
                   QAResult[] {}));
             }
             if (!missing.isEmpty()) {
-            	for(Iterator iterator = missing.iterator(); iterator.hasNext();) {
-            		QAResult qa = (QAResult)iterator.next();
-                    qa.setShouldHaveReason(data_source.shouldBeExplainedBySRCQA(target, qa));
-                    if(data_source.isExplainedBySRCQA(target, previous, release_name,  qa)) {
-                  	  qa.addReason(data_source.getSRCQAReason(target, previous, release_name, qa));
-                    }
-            	}
               qaReport.setMinorPreviousNotMeta( (QAResult[]) missing.toArray(new
                   QAResult[] {}));
             }
           } else if (compareTo.equals("PreviousMajor")) {
-          	for(Iterator iterator = differences.iterator(); iterator.hasNext();) {
-        		QAComparison qa = (QAComparison)iterator.next();
-                qa.setShouldHaveReason(data_source.shouldBeExplainedBySRCQA(target, qa));
-              if(data_source.isExplainedBySRCQA(target, qa)) {
-            	  qa.addReason(data_source.getSRCQAReason(target, qa));
-              }
-        	}
             qaReport.setMajorPreviousQAComparisons( (QAComparison[])
                 differences.
                 toArray(new
                         QAComparison[] {}));
             if (!notInOther.isEmpty()) {
-            	for(Iterator iterator = notInOther.iterator(); iterator.hasNext();) {
-            		QAResult qa = (QAResult)iterator.next();
-                    qa.setShouldHaveReason(data_source.shouldBeExplainedBySRCQA(target, qa));
-                    if(data_source.isExplainedBySRCQA(target, release_name, previous, qa)) {
-                  	  qa.addReason(data_source.getSRCQAReason(target, release_name, previous, qa));
-                    }
-            	}
               qaReport.setMetaNotMajorPrevious( (QAResult[]) notInOther.toArray(new
                   QAResult[] {}));
             }
             if (!missing.isEmpty()) {
-            	for(Iterator iterator = missing.iterator(); iterator.hasNext();) {
-            		QAResult qa = (QAResult)iterator.next();
-                    qa.setShouldHaveReason(data_source.shouldBeExplainedBySRCQA(target, qa));
-                    if(data_source.isExplainedBySRCQA(target, previous, release_name,  qa)) {
-                  	  qa.addReason(data_source.getSRCQAReason(target, previous, release_name, qa));
-                    }
-            	}
               qaReport.setMajorPreviousNotMeta( (QAResult[]) missing.toArray(new
                   QAResult[] {}));
             }
@@ -352,7 +310,6 @@ public class QAReportParser {
         }
         active.remove(element);
       } catch (Exception e) {
-    	  e.printStackTrace();
         throw new SAXException(
             "Problem parsing QAReport. error message: " + e.getMessage());
       }

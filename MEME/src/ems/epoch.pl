@@ -28,7 +28,7 @@ EOD
     ]));
     $html .= $query->p;
 
-    $form .= $query->start_form(-method=>'POST', -action=>$query->url(-absolute=>1));
+    $form .= $query->start_form(-method=>'POST', -action=>$query->url());
     $form .= "Change the current epoch from: " . $query->em($currentepoch) . " to " . $query->textfield({-name=>'epoch', -size=>3, -maxlength=>3});
     $form .= $query->submit(-value=>'OK');
     $form .= $DBpost;
@@ -50,24 +50,22 @@ EOD
       &printhtml({title=>'Change Epoch', h1=>"Change Epoch", body=>$html, printandexit=>1});
     }
     EMSUtils->setCurrentEpoch($dbh, $epoch);
-    $bin_type = "ALL";
-    foreach $bin_name (EMSUtils->getBinNames($dbh, $bin_type)) {
-		$bininfo = EMSUtils->getBininfo($dbh, $bin_name);
-		my(%b) = ();
-		$b{bin_name} = $bininfo->{bin_name};
-		$b{bin_type} = $bininfo->{bin_type};
-		$b{nextWorklistNum} = 1;
-		$b{nextChemWorklistNum} = 1;
-		$b{nextNonchemWorklistNum} = 1;
-		$b{nextClinicalWorklistNum} = 1;
-	    $b{nextOtherWorklistNum} = 1;
-		EMSUtils->updateBininfo($dbh, \%b);
+    foreach $bin_type (qw(ME QA AH)) {
+      foreach $bin_name (EMSUtils->getBinNames($dbh, $bin_type)) {
+	$bininfo = EMSUtils->getBininfo($dbh, $bin_name);
+
+	my(%b) = ();
+	$b{bin_name} = $bininfo->{bin_name};
+	$b{bin_type} = $bininfo->{bin_type};
+	$b{nextWorklistNum} = 1;
+	$b{nextChemWorklistNum} = 1;
+	$b{nextNonchemWorklistNum} = 1;
+	EMSUtils->updateBininfo($dbh, \%b);
+      }
     }
 
 # create the subdirectory in data/reports
-    #$reportsdir = $NV{EMS_LOG_DIR}{LOG_DIR} . "/reports/$epoch";
-    #modified on 10/11/2006, yaoh, for $ENV
-    $reportsdir = $ENV{EMS_LOG_DIR} . "/reports/$epoch";
+    $reportsdir = $ENV{EMS_HOME} . "/log/reports/$epoch";
     unless (-e $reportsdir) {
       unless (mkdir $reportsdir, 0775) {
 	$html = "ERROR: failed to create directory: $reportsdir";

@@ -25,7 +25,7 @@ sub do_stycooc {
 This page shows the frequency of co-occurrences of two or more STYs
 and allows checklists to be made from the matching concepts.
 EOD
-    $html .= $query->start_form(-method=>'POST', -action=>$query->url(-absolute=>1));
+    $html .= $query->start_form(-method=>'POST', -action=>$query->url());
     $html .= $DBpost;
 
     $html .= "Select the degree of co-occurrence: ";
@@ -66,7 +66,7 @@ EOD
       $dbh->executeStmt($sql);
 
       $dbh->dropTable($styattributes);
-      $sql = "create table $styattributes as select concept_id, attribute_value from attributes where attribute_name ='SEMANTIC_TYPE'";
+      $sql = "create table $styattributes as select concept_id, attribute_value from attributes where attribute_name || '' ='SEMANTIC_TYPE'";
       $dbh->executeStmt($sql);
       $dbh->createIndex($styattributes, "concept_id", "x1_" . $styattributes);
       $dbh->createIndex($styattributes, "attribute_value", "x2_" . $styattributes);
@@ -171,7 +171,7 @@ sub make_sql {
 
     push @{ $x[0] }, $t . ".attribute_value";
     push @{ $x[1] }, "$attributes $t";
-#    push @{ $x[2] }, $t . ".attribute_name ='SEMANTIC_TYPE'";
+#    push @{ $x[2] }, $t . ".attribute_name || ''='SEMANTIC_TYPE'";
     push @{ $x[3] }, $t . ".concept_id=" . $s . ".concept_id" if $i>0;
     push @{ $x[4] }, $s . ".attribute_value<" . $t . ".attribute_value" if $i>0;
 

@@ -258,7 +258,7 @@ sub PrintFooter {
 	      <address><a href="$cgi?db=$db">Back to Index</a></address>
             </td>
 	    <td ALIGN=RIGHT VALIGN=TOP NOSAVE>
-	      <font size="-1"><address>Contact: <a href="mailto:bcarlsen\@msdinc.com">Brian A. Carlsen</a></address>
+	      <font size="-1"><address>Contact: <a href="mailto:carlsen\@apelon.com">Brian A. Carlsen</a></address>
 	      <address>Generated on:},scalar(localtime),qq{</address>
               <address>This page took $elapsed_time seconds to generate.</address>
 	      <address>};
@@ -470,7 +470,7 @@ sub PrintINDEX {
 sub PrintCHECK_LOCKS {
 
   # set variables
-  $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl -d $db`;
+  $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl`;
   ($user,$password) = split /\//, $userpass;
   chop($password);
   
@@ -597,7 +597,7 @@ where a.object_id=b.object_id
 sub PrintLIST_SOURCES {
 
   # set variables
-  $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl -d $db`;
+  $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl`;
   ($user,$password) = split /\//, $userpass;
   chop($password);
   
@@ -661,7 +661,7 @@ order by 2 desc
 sub PrintLIST_ATN {
 
   # set variables
-  $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl -d $db`;
+  $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl`;
   ($user,$password) = split /\//, $userpass;
   chop($password);
   
@@ -725,7 +725,7 @@ that are "new" with respect to the previous release.</p>
 sub PrintKILL {
 
   # set variables
-  $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl -d $db`;
+  $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl`;
   ($user,$password) = split /\//, $userpass;
   chop($password);
   
@@ -893,7 +893,7 @@ sub Handle_set_preference {
      return);
 
   # set variables
-  $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl -d $db`;
+  $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl`;
   ($user,$password) = split /\//, $userpass;
   chop($password);
   
@@ -946,7 +946,7 @@ sub Handle_remove_temporary_tables {
      return);
 
   # set variables
-  $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl -d $db`;
+  $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl`;
   ($user,$password) = split /\//, $userpass;
   chop($password);
   
@@ -991,7 +991,7 @@ sub Handle_fix_concept_reports {
      return);
 
   # set variables
-  $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl -d $db`;
+  $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl`;
   ($user,$password) = split /\//, $userpass;
   chop($password);
   
@@ -1237,7 +1237,7 @@ sub Handle_matrixinit {
      return);
 
   # set variables
-  $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl -d $db`;
+  $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl`;
   ($user,$password) = split /\//, $userpass;
   chop($password);
   
@@ -1269,7 +1269,7 @@ sub Handle_matrixupdate {
      return);
 
   # set variables
-  $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl -d $db`;
+  $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl`;
   ($user,$password) = split /\//, $userpass;
   chop($password);
   
@@ -1345,7 +1345,7 @@ sub Handle_mthpt {
      return);
 
   # set variables
-  $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl -d $db`;
+  $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl`;
   ($user,$password) = split /\//, $userpass;
   chop($password);
   
@@ -1585,7 +1585,7 @@ sub Handle_delete_dup_crels {
      return);
 
   # set variables
-  $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl -d $db`;
+  $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl`;
   ($user,$password) = split /\//, $userpass;
   chop($password);
   
@@ -1762,7 +1762,7 @@ sub Handle_delete_empty_concepts {
      return);
 
   # set variables
-  $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl -d $db`;
+  $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl`;
   ($user,$password) = split /\//, $userpass;
   chop($password);
   
@@ -1975,7 +1975,7 @@ sub Handle_resolve_nec {
      return);
 
   # set variables
-  $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl -d $db`;
+  $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl`;
   ($user,$password) = split /\//, $userpass;
   chop($password);
   
@@ -2213,35 +2213,6 @@ sub Handle_resolve_nec {
     ((print L "<span id=red>Error executing create 3 ($DBI::errstr).</span>")
      &&  return);
 
-  # Find cases of editor entered PN atoms
-   $dbh->do(qq{
-        CREATE TABLE ${uniq}_3 AS
-        with lst as
-        (SELECT atom_id
-        FROM classes WHERE source = 'MTH' AND termgroup = 'MTH/PN'
-        AND concept_id IN 
-          (SELECT concept_id FROM ${uniq}_1)
-          and authority  like 'E-%')
-        select atom_id as row_id from lst
-        minus         
-        select atom_id from (
-           select atom_id, atom_name, SUBSTR(atom_name,INSTR(atom_name,' ',-1)+1) sab
-           from atoms a where atom_id in (select atom_id from lst) 
-           ) where sab in (select current_name from 
-           source_version union select previous_name from source_version)
-    }) ||
-    ((print L "<span id=red>Error executing create 4 ($DBI::errstr).</span>")
-     &&  return);
-
-  # Remove all cases for concepts where there is editor
-  # entered PN atom.
-  $dbh->do(qq{
-        DELETE FROM ${uniq}_2 a WHERE row_id IN
-        (SELECT row_id from ${uniq}_3)
-    }) ||
-    ((print L "<span id=red>Error executing delete 4 ($DBI::errstr).</span>")
-     &&  return);
-
   $sh = $dbh->prepare(qq{
               SELECT COUNT(*) FROM ${uniq}_2
     }) ||
@@ -2287,24 +2258,6 @@ sub Handle_resolve_nec {
   $sh->execute || 
     ((print L "<span id=red>Error executing drop 4 ($DBI::errstr).</span>")
      &&  return);
-     
-     
-  ####################################################################
-  # delete from table1, the atomIDs that have matching concept_id with
-  # with atoms in table 3. This is becuase we are retaining
-  # Editor's original PN atom and hence, MAINTENANCE task should not enter
-  # duplicate ones.
-  ###################################################################   
-  $dbh->do(qq{
-        DELETE FROM ${uniq}_1 a WHERE concept_id IN
-        (SELECT a.concept_id FROM ${uniq}_1 a
-         INTERSECT
-         SELECT concept_id from classes where atom_id in (select * from ${uniq}_3))
-    }) ||
-    ((print L "<span id=red>Error executing delete 3 ($DBI::errstr).</span>")
-     &&  return);
-
-
     
   $sh = $dbh->prepare(qq{
               SELECT COUNT(*) FROM ${uniq}_1
@@ -2339,7 +2292,6 @@ sub Handle_resolve_nec {
     BEGIN
       MEME_UTILITY.drop_it('table', '${uniq}_1');
       MEME_UTILITY.drop_it('table', '${uniq}_2');
-      MEME_UTILITY.drop_it('table', '${uniq}_3');
     END;}) ||
     ((print L "<span id=red>Error preparing drop 5 ($DBI::errstr).</span>")
      &&  return);
@@ -2364,7 +2316,7 @@ sub Handle_set_ranks {
      return);
 
   # set variables
-  $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl -d $db`;
+  $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl`;
   ($user,$password) = split /\//, $userpass;
   chop($password);
   

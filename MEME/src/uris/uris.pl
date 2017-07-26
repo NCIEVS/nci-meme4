@@ -20,25 +20,24 @@ use lib "$ENV{URIS_HOME}/bin";
 # action=<URIS action>
 # other action-specific params
 
+#use lib "/site/umls/lib/perl";
+#use lib "/site/umls/uris-2.0/src";
 
-
-
-
-#use lib "$ENV{EXT_LIB}";
-#use lib "$ENV{URIS_HOME}/lib";
-#use lib "$ENV{URIS_HOME}/bin";
-$urisTopDir="/umls_prod/URIS_Root";
+#$urisTopDir="/net/umls-source/umls/Releases/urisqa";
+$urisTopDir="$ENV{URISTOP_DIR}";
 
 use File::Path;
 use File::Basename;
 use XML::Simple;
 use Data::Dumper;
-#use ParallelExec;
+use GeneralUtils;
+use ParallelExec;
+
 use UrisUtils;
 
-$urisSrcDir = "$ENV{URIS_HOME}/bin";
+$urisSrcDir = "/site/umls/uris-2.0/src";
 $uristitle = "UMLS Release Information System v2.0";
-$urisconfig = "$ENV{URIS_HOME}/etc/uris.config";
+$urisconfig = "$urisTopDir/uris.config";
 
 # Environment
 $cgi = $ENV{'SCRIPT_NAME'};
@@ -66,4 +65,3 @@ if ($@) {
 }
 &$action;
 exit 0;
-

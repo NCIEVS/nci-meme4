@@ -8,7 +8,6 @@
 #
 #
 # Changes:
-# 07/05/2007 JFW (1-ENJU5): Restrict results from all_tables to tables owned by MEOW, MTH
 # 03/03/2006 RBE (1-AJV1Z): Fixed SQL injection error
 #
 # Version Information
@@ -112,7 +111,7 @@ use DBD::Oracle;
 #
 # open connection
 #
-$userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl -d $db`;
+$userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl`;
 chop($userpass);
 ($user,$password) = split /\//, $userpass;
 $dbh = DBI->connect("dbi:Oracle:$db",$user,$password) ||
@@ -139,8 +138,7 @@ if ($all) {
    };
 } elsif ($table) {
   $query = qq{   SELECT owner, table_name FROM all_tables
-   WHERE owner in ('MTH','MEOW')
-   AND table_name = upper('$table') };
+   WHERE table_name = upper('$table') };
 } else {
   $query = "SELECT 'MTH', table_name FROM meme_tables";
 }
@@ -173,8 +171,7 @@ foreach $f (@f) {
     $dbh = DBI->connect("dbi:Oracle:$db",$user,$password) ||
       die "Could not connect to $db: $! $?\n";
     $dbh->{LongReadLen} = 4194302;
-    # causing oracle 11g perf problems
-    #$dbh->{RowCacheSize} = 1000000;
+    $dbh->{RowCacheSize} = 1000000;
     $dbh->do(qq{ALTER SESSION SET NLS_DATE_FORMAT = 'DD-mon-YYYY HH24:MI:SS'});
     &DumpTable($schema,$table,$dir);
     print "    Dumped $schema.$table\n";

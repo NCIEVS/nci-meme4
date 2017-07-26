@@ -70,7 +70,7 @@ public class ClientTestSuiteSet extends TestSuiteSet {
     		new MEMERelaEditorKitTest(),				 // 10
     		new MergeEngineClientTest(),				 // 11
     		new WorklistClientTest(),						 // 12
-    		new ReportsClientTest()              // 13
+    		new ReportsClientTest()
     };
   }
 

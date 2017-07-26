@@ -61,12 +61,6 @@ midsvcs stream tcp nowait nobody \
    to the host and port where the MID Services server is running 
    (necessary for installations that do not run a server)
    
-Dependencies
------------------------
-Subsystem Dependencies
-  $ENV_HOME
-  $SAFEBOX_HOME
-  
 UPDATE
 ------
 Same as install

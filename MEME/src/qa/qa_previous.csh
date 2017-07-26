@@ -44,9 +44,7 @@ echo "target:                 $target"
 echo ""
 
 echo "    Generating counts for $minor_release $target ... `/bin/date`"
-if ($target != "MetaMorphoSys") then
 $MRD_HOME/bin/qa_counts.csh $minor_dir $db $minor_release $target &
-endif
 
 if ($minor_release != $major_release) then
     echo "    Generating counts for $major_release $target ... `/bin/date`"

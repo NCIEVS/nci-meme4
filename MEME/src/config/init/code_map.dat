@@ -241,7 +241,6 @@ SOURCE_CUI|sg_type|indicates that a generic field contains a source asserted con
 SOURCE_AUI|sg_type|indicates that a generic field contains a source asserted atom id|
 SOURCE_DUI|sg_type|indicates that a generic field contains a source asserted descriptor id|
 SOURCE_RUI|sg_type|indicates that a generic field contains a source asserted relationship id|
-RUI|sg_type|Relationship unique identifier|
 DR|table_name|dead_relationships|
 DCR|table_name|dead_context_relationships|
 DA|table_name|dead_attributes|
@@ -517,69 +516,3 @@ STRIPPED_SOURCE_CUI|no_remap_sg_type|Do not remap this type|
 STRIPPED_SOURCE_DUI|no_remap_sg_type|Do not remap this type|
 STRIPPED_SOURCE_AUI|no_remap_sg_type|Do not remap this type|
 STRIPPED_SOURCE_RUI|no_remap_sg_type|Do not remap this type|
-map_sg_id_field|valid_code_type|Maps an sg_type to a core table field for the sg_id.|
-map_sg_qual_field|valid_code_type|Maps an sg_type to a core table field for the qualifier.|
-map_sg_table|valid_code_type|Maps an sg_type to the corresponding core table.|
-CODE_SOURCE|map_sg_id_field|code|
-CODE_TERMGROUP|map_sg_id_field|code|
-SOURCE_CUI|map_sg_id_field|source_cui|
-SOURCE_AUI|map_sg_id_field|source_aui|
-SOURCE_DUI|map_sg_id_field|source_dui|
-SOURCE_RUI|map_sg_id_field|source_rui|
-ROOT_SOURCE_AUI|map_sg_id_field|source_aui|
-ROOT_SOURCE_CUI|map_sg_id_field|source_cui|
-ROOT_SOURCE_DUI|map_sg_id_field|source_dui|
-ROOT_SOURCE_RUI|map_sg_id_field|source_rui|
-CODE_ROOT_TERMGROUP|map_sg_id_field|code|
-CODE_ROOT_SOURCE|map_sg_id_field|code|
-RUI|map_sg_id_field|rui|
-AUI|map_sg_id_field|aui|
-ATOM_ID|map_sg_id_field|atom_id|
-CONCEPT_ID|map_sg_id_field|concept_id|
-CUI|map_sg_id_field|last_release_cui|
-CUI_SOURCE|map_sg_id_field|last_release_cui|
-CUI_ROOT_SOURCE|map_sg_id_field|last_release_cui|
-SRC_ATOM_ID|map_sg_id_field|src_atom_id|
-SRC_REL_ID|map_sg_id_field|src_rel_id|
-CODE_SOURCE|map_sg_qual_field|source|
-CODE_TERMGROUP|map_sg_qual_field|termgroup|
-SOURCE_CUI|map_sg_qual_field|source|
-SOURCE_AUI|map_sg_qual_field|source|
-SOURCE_DUI|map_sg_qual_field|source|
-SOURCE_RUI|map_sg_qual_field|source|
-ROOT_SOURCE_AUI|map_sg_qual_field|root_source|
-ROOT_SOURCE_CUI|map_sg_qual_field|root_source|
-ROOT_SOURCE_DUI|map_sg_qual_field|root_source|
-ROOT_SOURCE_RUI|map_sg_qual_field|root_source|
-CODE_ROOT_TERMGROUP|map_sg_qual_field|root_termgroup|
-CODE_ROOT_SOURCE|map_sg_qual_field|root_source|
-RUI|map_sg_qual_field|none|
-AUI|map_sg_qual_field|none|
-ATOM_ID|map_sg_qual_field|none|
-CONCEPT_ID|map_sg_qual_field|none|
-CUI|map_sg_qual_field|none|
-CUI_SOURCE|map_sg_qual_field|source|
-CUI_ROOT_SOURCE|map_sg_qual_field|root_source|
-SRC_ATOM_ID|map_sg_qual_field|none|
-SRC_REL_ID|map_sg_qual_field|none|
-CODE_SOURCE|map_sg_table|classes|
-CODE_TERMGROUP|map_sg_table|classes|
-SOURCE_CUI|map_sg_table|classes|
-SOURCE_AUI|map_sg_table|classes|
-SOURCE_DUI|map_sg_table|classes|
-SOURCE_RUI|map_sg_table|relationships|
-ROOT_SOURCE_AUI|map_sg_table|classes|
-ROOT_SOURCE_CUI|map_sg_table|classes|
-ROOT_SOURCE_DUI|map_sg_table|classes|
-ROOT_SOURCE_RUI|map_sg_table|relationships|
-CODE_ROOT_TERMGROUP|map_sg_table|classes|
-CODE_ROOT_SOURCE|map_sg_table|classes|
-RUI|map_sg_table|relationships|
-AUI|map_sg_table|classes|
-ATOM_ID|map_sg_table|classes|
-CONCEPT_ID|map_sg_table|classes|
-CUI|map_sg_table|classes|
-CUI_SOURCE|map_sg_table|classes|
-CUI_ROOT_SOURCE|map_sg_table|classes|
-SRC_ATOM_ID|map_sg_table|classes|
-SRC_REL_ID|map_sg_table|relationships|

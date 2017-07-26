@@ -8,16 +8,11 @@
 package gov.nih.nlm.mrd.sql;
 
 import gov.nih.nlm.meme.action.LoggedAction;
-import gov.nih.nlm.meme.common.MRDAtom;
-import gov.nih.nlm.meme.common.MRDConcept;
-import gov.nih.nlm.meme.common.MRDRelationship;
 import gov.nih.nlm.meme.common.Source;
-import gov.nih.nlm.meme.common.Termgroup;
 import gov.nih.nlm.meme.exception.BadValueException;
 import gov.nih.nlm.meme.exception.DataSourceException;
 import gov.nih.nlm.meme.exception.MEMEException;
 import gov.nih.nlm.meme.sql.MEMEDataSource;
-import gov.nih.nlm.mrd.common.QAComparison;
 import gov.nih.nlm.mrd.common.QAComparisonReason;
 import gov.nih.nlm.mrd.common.QAReason;
 import gov.nih.nlm.mrd.common.QAResult;
@@ -293,137 +288,4 @@ public interface MRDDataSource extends MEMEDataSource {
    */
   public Source[] getSourceByType(int type, ReleaseInfo release_info) throws
       BadValueException, DataSourceException;
-
-
-  /**
-   * Indicates where or not this result should be explained by MCoMQA results.
-   * @param target An object {@link String} representation of target name.
-   * @param result An object {@link QAResult} representation of qa result.
-   * @return <code>true</code> if so, <code>false</code> otherwise
-   * @throws DataSourceException if failed to get the result.
-   */
-  public boolean shouldBeExplainedBySRCQA(String target, QAResult result) throws DataSourceException;
-
-  /**
-   * Indicates where or not this result should be explained by MCoMQA results.
-   * @param target An object {@link String} representation of target name.
-   * @param compare An object {@link QAComparison} representation of qa comparison.
-   * @return <code>true</code> if so, <code>false</code> otherwise
-   * @throws DataSourceException if failed to get the result.
-   */
-  public boolean shouldBeExplainedBySRCQA(String target, QAComparison compare) throws DataSourceException;
-
-
-  /**
-   * Indicates where or not this result is explained by MCoMQA results.
-   * @param target An object {@link String} representation of target name.
-   * @param relase An object {@link String} representation of release name.
-   * @param previous_relase An object {@link String} representation of previous release name.
-   * @param result An object {@link QAResult} representation of qa result.
-   * @return <code>true</code> if so, <code>false</code> otherwise
-   * @throws DataSourceException if failed to get the result.
-   */
-  public boolean isExplainedBySRCQA(String target, String release, String previous_release, QAResult result) throws DataSourceException;
-
-
-  /**
-   * Indicates where or not this result is explained by MCoMQA results.
-   * @param target An object {@link String} representation of target name.
-   * @param compare An object {@link QAComparison} representation of qa comparison.
-   * @return <code>true</code> if so, <code>false</code> otherwise
-   * @throws DataSourceException if failed to get the result.
-   */
-  public boolean isExplainedBySRCQA(String target, QAComparison compare) throws DataSourceException;
-
-
-  /**
-   * Get the SRC QAReason for the QAComparison.
-   * @param target An object {@link String} representation of target name.
-   * @param compare An object {@link QAComparison} representation of qa comparison.
-   * @return QAReason
-   * @throws DataSourceException if failed to get the qareason.
-   */
-  public QAReason getSRCQAReason(String target, QAComparison compare) throws DataSourceException;
-
-  /**
-   * Get the SRC QAReason for the QAResult.
-   * @param target An object {@link String} representation of target name.
-   * @param relase An object {@link String} representation of release name.
-   * @param previous_relase An object {@link String} representation of previous release name.
-   * @param result An object {@link QAResult} representation of qa result.
-   * @return QAReason
-   * @throws DataSourceException if failed to get the qareason.
-   */
-  public QAReason getSRCQAReason(String target, String release, String previous_release, QAResult result) throws DataSourceException;
-
-  public MRDConcept getConcept(String cui) throws DataSourceException, BadValueException;
-
-  public Termgroup getMRDTermgroup(String termgroup_name, Source source) throws DataSourceException, BadValueException;
-
-  public String getAUIName(String aui) throws DataSourceException, BadValueException;
-  public String getCUIName(String cui) throws DataSourceException, BadValueException;
-  public String getLongAttributeValue(String hashCode)  throws DataSourceException, BadValueException;
-  public String getCUIForConceptId(int conceptId) throws DataSourceException, BadValueException;
-  
-  /**
-   * Gets the cui for the specified aui.
-   * @param aui
-   * @return
-   * @throws DataSourceException
-   * @throws BadValueException
-   */
-  public String getCUIForAUI(String aui) throws DataSourceException,BadValueException;
-  
-  /**
-   * Gets the list of MRD Atoms matching code.
-   * @param code
-   * @param size
-   * @return
-   * @throws DataSourceException
-   * @throws BadValueException
-   */
-  public MRDAtom[] getMRDAtomsForCode(String code, int size) throws DataSourceException,BadValueException;
-  
-  /**
-   * Get the list of MRD Atoms matching TTY.
-   * @param tty
-   * @param source
-   * @param size
-   * @return
-   * @throws DataSourceException
-   * @throws BadValueException
-   */
-  public MRDAtom[] getMRDAtomsForTty(String tty, String source, int size) throws DataSourceException,BadValueException;
-  
-  /**
-   * Gets the list of MRD relationships matching the relationship Name.
-   * @param rel
-   * @param rela
-   * @param source
-   * @param size
-   * @return
-   * @throws DataSourceException
-   * @throws BadValueException
-   */
-  public MRDRelationship[] getMRDRelationsForRelName(String rel, String rela, String source, int size) throws DataSourceException,BadValueException;
-  
-  /**
-   * Gets the list of MRD relationships matching the Relation Attribute
-   * @param rela
-   * @param rel
-   * @param source
-   * @param size
-   * @return
-   * @throws DataSourceException
-   * @throws BadValueException
-   */
-  public MRDRelationship[] getMRDRelationsForRelAttribute(String rela, String rel, String source, int size) throws DataSourceException,BadValueException;
-  
-  public Source getSource_MRDConceptReport(String source_name) throws DataSourceException,
-  BadValueException;
-  
-  /**
-   * Gets the list of source roots.
-   */
-  public Source[] getMRDSources() throws DataSourceException, BadValueException;
 }

@@ -3,8 +3,6 @@
  * Package: gov.nih.nlm.meme.sql
  * Object:  AttributeMapper
  *
- * 02/24/2009 BAC (1-GCLNT): Sets attribute rank to 0.
- * 
  *****************************************************************************/
 package gov.nih.nlm.meme.sql;
 
@@ -202,7 +200,7 @@ public interface AttributeMapper {
       attr.setLevel(rs.getString("ATTRIBUTE_LEVEL").charAt(0));
       attr.setName(rs.getString("ATTRIBUTE_NAME"));
       attr.setValue(rs.getString("ATTRIBUTE_VALUE"));
-      attr.setRank(new Rank.Default(0));
+      attr.setRank(new Rank.Default(rs.getInt("RANK")));
 
       //
       // Populate atom and concept

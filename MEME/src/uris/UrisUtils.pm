@@ -10,14 +10,7 @@ require "env.pl";
 package UrisUtils;
 
 #use lib "/site/umls/lib/perl";
-#use lib "/share_nfs/perl/5.8.6/lib/site_perl";
-#use lib "/share_nfs/perl/5.8.6/lib/5.8.6";
-#use lib "/share_nfs/perl/5.8.6/lib";
-#use lib "/umls_prod/Webapp_Root/meme4/cgi-bin";
-#use lib "/umls_prod/Webapp_Root/meme4/cgi-bin/lib";
-push @INC, "$ENV{EMS_HOME}/lib";
-use lib "$ENV{EMS_HOME}/lib";
-use lib "$ENV{URIS_HOME}/lib";
+use lib "$ENV{EXT_LIB}";
 
 use Getopt::Std;
 use XML::Simple;
@@ -131,7 +124,7 @@ sub fieldcount {
   $prop->{table} = basename($prop->{file}) unless $prop->{table};
   die "FILE: $prop->{file} does not exist in UrisUtils->fieldcount" unless -e $prop->{file};
 
-  $cmd = "/bin/gawk -F\'" . ($prop->{sep} || '|') . "\' \'";
+  $cmd = "/bin/nawk -F\'" . ($prop->{sep} || '|') . "\' \'";
   if ($prop->{restrictions}) {
     my($r);
     my(@x);
@@ -177,7 +170,7 @@ sub fieldcount {
   if ($prop->{groupindex}) {
     my($i) = $prop->{groupindex};
     my(%g);
-    $cmd .= "|/bin/gawk -F'|' '{print \$$i}'|/bin/sort|/bin/uniq -c|";
+    $cmd .= "|/bin/nawk -F'|' '{print \$$i}'|/bin/sort|/bin/uniq -c|";
     open(C, $cmd) || die "Cannot open pipe to $cmd\n";
     while (<C>) {
       chomp;

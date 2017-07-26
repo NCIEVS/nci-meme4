@@ -2,9 +2,7 @@
  *
  * Package: gov.nih.nlm.meme.sql
  * Object:  AtomMapper
- * CHANGES
- *  11/15/2006 BAC (1-CTLDV): Change to atom rank to ensure SUI,AUI parts are always 9 digits
- *  
+ *
  *****************************************************************************/
 package gov.nih.nlm.meme.sql;
 
@@ -131,18 +129,15 @@ public interface AtomMapper {
       atom.setLUI(new StringIdentifier(rs.getString("LUI")));
       if (rs.getString("LAST_RELEASE_CUI") != null) {
         atom.setLastReleaseCUI(new CUI(rs.getString("LAST_RELEASE_CUI")));
+        // last_release_rank column is currently being ignored
+
         // Expand the rank
       }
-      if (rs.getString("AUI") != null) {
-          atom.setAUI(new AUI(rs.getString("AUI")));
-        }
-      atom.setLastReleaseRank(new Rank.Default(rs.getInt("LAST_RELEASE_RANK")));
       StringBuffer extended_rank = new StringBuffer(30);
-      extended_rank.append(rs.getString("RANK").substring(0,1))
-      	  .append(10000 + atom.getTermgroup().getRank().intValue())
+      extended_rank.append(rs.getString("RANK").substring(0, 1))
+          .append(10000 + atom.getTermgroup().getRank().intValue())
           .append(rs.getInt("LAST_RELEASE_RANK"))
-          .append(999999999 - atom.getSUI().intValue())
-          .append(999999999 - (atom.getAUI() == null ? 1 : atom.getAUI().intValue()))
+          .append(atom.getSUI().toString())
           .append(10000000000L + atom.getIdentifier().intValue());
       atom.setRank(new Rank.Default(extended_rank.toString()));
       if (rs.getString("LAST_ASSIGNED_CUI") != null) {
@@ -160,7 +155,9 @@ public interface AtomMapper {
         atom.setSourceDescriptorIdentifier(new Identifier.Default(
             rs.getString("SOURCE_DUI")));
       }
-      
+      if (rs.getString("AUI") != null) {
+        atom.setAUI(new AUI(rs.getString("AUI")));
+      }
       return true;
     }
 

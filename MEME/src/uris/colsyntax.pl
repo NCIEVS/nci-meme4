@@ -5,7 +5,7 @@ require "env.pl";
 
 use lib "$ENV{EXT_LIB}";
 
-#!@PATH_TO_PERL@
+#!/share_nfs/perl/5.8.6/bin/perl
 
 # Column syntax by regexp
 # suresh@nlm.nih.gov

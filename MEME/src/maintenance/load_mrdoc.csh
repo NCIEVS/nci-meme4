@@ -6,8 +6,6 @@
 # REMARKS: This script is used to process a MRDOC.RRF file into the MID.
 #
 # Changes:
-#   07/24/2006 JFW (1-BQVYJ): fix tty_class handling ("tty_class being removed")
-#   06/15/2006 BAC (1-AVWUX): fix to tty_class handling.
 #   04/11/2006 JFW (1-AVWUX): Handle tty_class.
 #   03/20/2006 BAC (noticket): Added
 #
@@ -55,7 +53,7 @@ endif
 # If you are running this script by hand and not as a script
 # you have to run the following commands to set $user and $work_id
 ###################################################################
-set user=`$MIDSVCS_HOME/bin/get-oracle-pwd.pl -d $db`
+set user=`$MIDSVCS_HOME/bin/get-oracle-pwd.pl`
 set work_id=0
 
 echo "-------------------------------------------------"
@@ -204,7 +202,6 @@ $ORACLE_HOME/bin/sqlplus -s $user@$db <<EOF >&! /tmp/t.$$.log
     exec MEME_UTILITY.drop_it('table','t2');    
     CREATE TABLE t2 AS
     SELECT dockey,value,type,expl FROM t1 WHERE type='tty_class'
-       AND value IN (SELECT value FROM meme_properties WHERE key='tty_class')
     MINUS
     SELECT key_qualifier,value,key,description FROM meme_properties WHERE key='tty_class';
     BEGIN
@@ -218,7 +215,7 @@ $ORACLE_HOME/bin/sqlplus -s $user@$db <<EOF >&! /tmp/t.$$.log
     exec MEME_UTILITY.drop_it('table','t2');    
     CREATE TABLE t2 AS
     SELECT key_qualifier,value,key,description FROM meme_properties WHERE key='tty_class'
-       AND value IN (SELECT value FROM t1 WHERE type='tty_class')
+    AND value in (select value from t1 where type='tty_class')
     MINUS
     SELECT dockey,value,type,expl FROM t1 WHERE type='tty_class';
     BEGIN

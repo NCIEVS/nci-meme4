@@ -3,8 +3,6 @@
  * Package: gov.nih.nlm.meme.client
  * Object:  ContentViewClient
  *
- * 10/30/2007 TTN (1-FN4GD): add paginated feature to getContentViewMembers method 
- *
  *****************************************************************************/
 package gov.nih.nlm.meme.client;
 
@@ -423,12 +421,10 @@ public class ContentViewClient extends ClientAPI {
        * Returns all {@link ContentViewMember}s for the specified {@link ContentView}
    * (<B>SERVER CALL</B>)
    * @param cv the {@link ContentView}
-   * @param start the start index
-   * @param end the end index
        * @return all {@link ContentViewMember}s for the specified {@link ContentView}
    * @throws MEMEException if anything goes wrong
    */
-  public ContentViewMember[] getContentViewMembers(ContentView cv, int start, int end) throws
+  public ContentViewMember[] getContentViewMembers(ContentView cv) throws
       MEMEException {
 
     // Prepare request document
@@ -436,8 +432,6 @@ public class ContentViewClient extends ClientAPI {
     request.addParameter(new Parameter.Default("function",
                                                "get_content_view_members"));
     request.addParameter(new Parameter.Default("content_view", cv));
-    request.addParameter(new Parameter.Default("start", start));
-    request.addParameter(new Parameter.Default("end", end));
 
     // Issue request
     request = getRequestHandler().processRequest(request);

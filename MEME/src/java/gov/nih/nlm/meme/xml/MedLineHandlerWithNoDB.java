@@ -6,6 +6,7 @@
  *****************************************************************************/
 package gov.nih.nlm.meme.xml;
 
+import gov.nih.nlm.meme.exception.BadValueException;
 import gov.nih.nlm.util.OrderedHashMap;
 
 import java.io.BufferedWriter;
@@ -20,6 +21,8 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
+import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -46,16 +49,16 @@ public class MedLineHandlerWithNoDB
   private HashSet active = new HashSet();
 
   // Map of heading names to atom_ids and codes
-  //private Map hid = new Hashtable();
+  private Map hid = new Hashtable();
 
   // Map of QA attributes for current version MSH/TQ atoms
-  //private Map qa = new Hashtable();
+  private Map qa = new Hashtable();
 
   private Pattern p_year_month_month, p_year_month_day, p_year_month_year_month,
       p_year, p_year_year, p_year_day, p_year_month, p_year_month_day_day,
       p_year_month_day_year_month_day,
       p_year_month_day_month_day, p_year_month_day_day_day, p_year_season,
-      p_year_year_season, p_year_season_season,
+      p_year_year_season, p_year_season_season,p_year_dash,
   	  general_pattern;
 
   private OrderedHashMap patterns = new OrderedHashMap();
@@ -64,7 +67,7 @@ public class MedLineHandlerWithNoDB
   private String[] months;
   private Map seasons_to_month = new Hashtable();
   private Map month_to_abbr = new Hashtable();
-  //private Set error_seen = new HashSet();
+  private Set error_seen = new HashSet();
   private Map dbPatterns = new Hashtable();
   private boolean ignore_record;
   private boolean has_subheadings;
@@ -76,14 +79,14 @@ public class MedLineHandlerWithNoDB
   private boolean heading_major_topic;
   private String heading_string;
   private String citation_set_id;
-  //private String subheading_qa;
+  private String subheading_qa;
   private String medline_date;
   private String season;
   private String day;
   private String month;
   private String year;
   private int sct;
-  //private String heading_id;
+  private String heading_id;
   private String subheading_set_id;
   private String pub_date;
   private String med;
@@ -301,7 +304,7 @@ public class MedLineHandlerWithNoDB
       while(patternIterator.hasNext()) {
    	   String key = (String)patternIterator.next();
    	   String value = (String)dbPatterns.get(key);
-   	   //Iterator macrosIterator = macros.keySet().iterator();
+   	   Iterator macrosIterator = macros.keySet().iterator();
 	   	Iterator iterator = macros.keySet().iterator();
 	    while (iterator.hasNext()) {
 	      String macro = (String) iterator.next();

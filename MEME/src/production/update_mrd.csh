@@ -75,7 +75,7 @@ endif
 #
 if ($#argv == 1) then
     set mrd_db = $1;
-    set user=`$MIDSVCS_HOME/bin/get-oracle-pwd.pl -d $mrd_db`
+    set user=`$MIDSVCS_HOME/bin/get-oracle-pwd.pl`
 else
    echo "Usage: update_mrd.csh <mrd_database>"
     exit 1

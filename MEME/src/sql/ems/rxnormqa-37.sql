@@ -1,5 +1,6 @@
 # 37.  Concepts expressed in terms of their precise ingredients (components
 #      whose name does not match its base ingredient).
+# SELECT distinct scdc.atom_id, scdc.concept_id, inga.atom_id as ing_id
 
 SELECT distinct scdc.concept_id
 FROM classes scdc, atoms scdca, atoms inga, relationships scdcin

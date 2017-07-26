@@ -46,7 +46,7 @@ unless ($ENV{MEME_HOME}) {
 #
 # Edit for platform
 #
-$java = "$ENV{JAVA_HOME}/bin/java -server -Xms200M -Xmx2000M ";
+$java = "$ENV{JAVA_HOME}/bin/java -server -Xms200M -Xmx800M ";
 
 #
 # edit classpath

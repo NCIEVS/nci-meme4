@@ -2,7 +2,6 @@
  * Package:     gov.nih.nlm.util
  * Object:      MultiMap.java
  * Changes
- *  06/05/2006 BAC (1-BECAZ): add clear method
  *  04/10/2006 TTN (1-AV6X1) : use synchronizedMap
  *
  ***********************************************************************/
@@ -38,15 +37,6 @@ public class MultiMap {
   public MultiMap() {
     super();
 
-  }
-
-  /**
-   * Clears the map using the specified "top" key.
-   * @param top_key the top key
-   */
-  public void clear(Object top_key) {
-    Map m = (Map) data.get(top_key);
-    if (m != null) m.clear();
   }
 
   /**

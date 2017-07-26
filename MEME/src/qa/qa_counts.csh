@@ -6,19 +6,7 @@
 # Generates QA counts for the specified target.
 #
 # Changes
-# 08/05/2010 BAC (1-RDJQ1): add code for Optimization target
-# 03/04/2009 BAC (noticket): small refinement to attr/rel suppr tallie
-# 03/02/2009 SL:Added Count by SAB|REL|RELA|SUPPRESSIBLE (sab_rel_rela_supp_tally)
-# 02/12/2009 SL (Per TTN): Fixed the SAB, SATUI query for MRSAT
-# 01/07/2009 TTN (1-K2M9X): use the list of MRXW* files for languages
-# 12/10/2007 TTN (1-F7U5S): fix extra " in  SAB,SATUI tally
-# 09/10/2007 TTN (1-F7U5S): the patterns used in sed tools doesn't work in linux and also change it to use tallyfield.pl
-# 07/17/2007 SL ( 1-EG2V7  -- MRSAB gold build difference in CXTY
-# 07/17/2007 SL  (1-EG3HV/EG3IT)  -- Error in MRSAT validation (sab_satui_tally)
-# 01/25/2007 BAC (1-DCSRV): Update -Xmx parameter in java calls
-# 08/01/2006 BAC (1-BTEW5): If jre/solaris fails, try jre/linux
-# 03/09/2006 TTN (1-AM5U9): add ts,stt,ispref counts in MetaMorphoSys
-# 09/26/2012 MAJ: Added ActiveSubset processing
+#   03/09/2006 TTN (1-AM5U9): add ts,stt,ispref counts in MetaMorphoSys
 #
 # Version Information
 # 1.0.5 09/17/2002: Harvested from QA.AMBIG.csh
@@ -66,16 +54,7 @@ set target=$4
 
 if ($target == "DOC") then
    set qa_file = qa_doc_$release
-   touch $qa_file
-
-else if ($target == "ActiveSubset") then
-   set qa_file = qa_activesubset_$release
-   touch $qa_file
-
-else if ($target == "Optimization") then
-   set qa_file = qa_optimization_$release
-   touch $qa_file
-
+   echo "no counts for DOC" >! $qa_file
 else if ($target == "MRAUI") then
    #
    # Handle environment
@@ -146,19 +125,12 @@ else if ($target == "MRAUI") then
    if ($status != 0) exit 1
 
    #
-   # ver Tally
+   # REL by VER
    #
-   tallyfield.pl '$3' $mraui |\
+   cut -d\| -f 3,4 $mraui | sort -u |\
+    tallyfield.pl '$2' |\
    $PATH_TO_PERL -ne 's/[\t ]+/\~/g; print unless /=======|total/i;' |\
-    sed 's/^/ver_tally\~/' >> $qa_file
-   if ($status != 0) exit 1
-
-   #
-   # ver,rel,rela Tally
-   #
-   tallyfield.pl '$3$4$5' $mraui |\
-   $PATH_TO_PERL -ne 's/[\t ]+/\~/g; print unless /=======|total/i;' |\
-    sed 's/^/ver_rel_rela_tally\~/' >> $qa_file
+    sed 's/^/rel_ver_tally\~/' >> $qa_file
    if ($status != 0) exit 1
 
 else if ($target == "AMBIG") then
@@ -229,6 +201,20 @@ else if ($target == "MRMAP") then
     echo "row_cnt~~$rcnt" >! $qa_file
 
     #
+    # Unique FROMEXPR Count
+    #
+    set fromexprcnt=`cut -d\| -f 9 $mrmap | sort -u | wc -l`
+    if ($status != 0) exit 1
+    echo "fromexpr_cnt~~$fromexprcnt" >> $qa_file
+
+    #
+    # Unique TOEXPR Count
+    #
+    set toexprcnt=`cut -d\| -f 17 $mrmap | sort -u | wc -l`
+    if ($status != 0) exit 1
+    echo "toexpr_cnt~~$toexprcnt" >> $qa_file
+
+    #
     # Unique MAPSETCUI,MAPSUBSETID,MAPRANK,FROMID,TOID
     #
     set keycnt=`cut -d\| -f 1,3,4,7,15 $mrmap | sort -u | wc -l`
@@ -236,28 +222,13 @@ else if ($target == "MRMAP") then
     echo "key_cnt~~$keycnt" >> $qa_file
 
     #
-    # SAB,FROMEXPR Tally
+    # MAPSETSAB,MAPSETCUI Tally
     #
-    cut -d\| -f2,9 $mrmap | sort -u | tallyfield.pl '$1' |\
+    tallyfield.pl '$2$1' $mrmap |\
      $PATH_TO_PERL -ne 's/[\t ]+/\~/g; print unless /=======|total/i;' |\
-     sed 's/^/sab_fromexpr_tally\~/' >> $qa_file
+     sed 's/^/sab_cui_tally\~/' >> $qa_file
     if ($status != 0) exit 1
 
-    #
-    # SAB,TOEXPR Tally
-    #
-    cut -d\| -f2,17 $mrmap | sort -u | tallyfield.pl '$1' |\
-     $PATH_TO_PERL -ne 's/[\t ]+/\~/g; print unless /=======|total/i;' |\
-     sed 's/^/sab_toexpr_tally\~/' >> $qa_file
-    if ($status != 0) exit 1
-
-    #
-    # SAB Tally
-    #
-    tallyfield.pl '$2' $mrmap |\
-     $PATH_TO_PERL -ne 's/[\t ]+/\~/g; print unless /=======|total/i;' |\
-     sed 's/^/sab_tally\~/' >> $qa_file
-    if ($status != 0) exit 1
 
     #
     # REL Tally
@@ -351,7 +322,58 @@ else if ($target == "MRCOC") then
 
 else if ($target == "MRCONSO" || $target == "MetaMorphoSys" ) then
 
-    
+    if ($target == "MetaMorphoSys" ) then
+
+    #
+    # Handle environment
+    #
+
+    set mmsys=$dir/../MMSYS
+    set config=$dir/../MMSYS/config
+
+    rm -r -f ${dir}SUBSET
+    mkdir ${dir}SUBSET
+
+    #
+    # Generate a "keep everything" config file
+    #
+    echo "    Verify config file fo keep all subset"
+    $PATH_TO_PERL -pe ' \
+       $dir = "'$dir'"; \
+       s/^(source_paths)=.*/$1=$dir/; \
+       s/^(subsetname)=.*/$1=${dir}SUBSET/; \
+       s/^(.*)\.remove_utf8=true/$1.remove_utf8=false/; \
+       s/^(mmsys_input_stream)=.*/$1=gov.nih.nlm.mms.RichMRMetamorphoSysInputStream/; \
+       s/^(mmsys_output_stream)=.*/$1=gov.nih.nlm.mms.RichMRMetamorphoSysOutputStream/; \
+       s/^(.*)\.selected_sources=.*/$1.selected_sources=/; ' \
+       $config/mmsys.prop.sav >! $config/mmsys.prop.sav2
+       cp -f $config/mmsys.prop.sav $config/mmsys.prop.sav.bak
+       mv -f $config/mmsys.prop.sav2 $config/mmsys.prop.sav
+
+    #
+    # Run MMSYS
+    #
+    echo "    Verify run MMSYS does not fail"
+    pushd $dir/../MMSYS >> /dev/null
+    setenv JAVA_HOME jre/solaris
+    setenv CLASSPATH ".:./lib/mms.jar:./lib/objects.jar"
+    $JAVA_HOME/bin/java -Xms200M -Xmx600M gov.nih.nlm.mms.MetamorphoSys >&! /tmp/x$$.log
+    if ($status != 0) then
+        echo "ERROR: Running MMSYS failed: $status"
+   	cat /tmp/x$$.log | sed 's/^/  /'
+    endif
+    rm -r -f /tmp/x$$.log
+
+    set dir = ${dir}SUBSET
+
+    #
+    # Cleanup
+    #
+    mv -f $config/mmsys.prop.sav.bak $config/mmsys.prop.sav
+    popd >> /dev/null
+
+    endif
+
     #
     # Convert target into lower case
     #
@@ -444,19 +466,17 @@ else if ($target == "MRCONSO" || $target == "MetaMorphoSys" ) then
     echo "ls_cnt~~$ls_cnt" >> $qa_file
 
     #
+    # NOCODE count
+    #
+    set ct=`fgrep -c '|NOCODE|' $mrconso`
+    echo "nocode_cnt~NOCODE~$ct" >> $qa_file
+
+    #
     # Counts by LAT
     #
     tallyfield.pl '$2' MRCONSO.tmp1.$$ | \
 	$PATH_TO_PERL -ne 's/[\t ]+/\~/g; print unless /=======|TOTAL/i;'|\
-	sed 's/|/\//; s/^/lang_tally\~/' >> $qa_file
-    if ($status != 0) exit 1
-
-    #
-    # LAT,SAB,TTY tally
-    #
-    tallyfield.pl '$12$2$13' $mrconso | \
-	$PATH_TO_PERL -ne 's/[\t ]+/\~/g; print unless /=======|TOTAL/i;'|\
-	sed 's/^/sab_lat_tty_tally\~/' >> $qa_file
+	sed 's/\|/\//; s/^/lang_tally\~/' >> $qa_file
     if ($status != 0) exit 1
 
     if ($target == "MetaMorphoSys" ) then
@@ -540,11 +560,27 @@ else if ($target == "MRCONSO" || $target == "MetaMorphoSys" ) then
     endif
 
     #
+    # SAB,TTY Tally
+    #
+    tallyfield.pl '$12$13' $mrconso |\
+     $PATH_TO_PERL -ne 's/[\t ]+/\~/g; print unless /=======|total/i;' |\
+     sed 's/\|/\//; s/^/termgrp_tally\~/' >> $qa_file
+    if ($status != 0) exit 1
+
+    #
     # SAB, SUPPRESS Tally
     #
     tallyfield.pl '$12$17' $mrconso |\
     $PATH_TO_PERL -ne 's/[\t ]+/\~/g; print unless /=======|total/i;' |\
      sed 's/^/sab_suppress_tally\~/' >> $qa_file
+    if ($status != 0) exit 1
+
+    #
+    # SAB, Restriction level Tally
+    #
+    tallyfield.pl '$12$16' $mrconso |\
+    $PATH_TO_PERL -ne 's/[\t ]+/\~/g; print unless /=======|total/i;' |\
+     sed 's/^/sab_srl_tally\~/' >> $qa_file
     if ($status != 0) exit 1
 
     #
@@ -592,9 +628,18 @@ else if ($target == "MRCONSO" || $target == "MetaMorphoSys" ) then
     #
     # SAB,TTY (suppressible) tally
     #
-    tallyfield.pl '$12$13$17' $mrconso |\
+    $PATH_TO_PERL -ne 'split /\|/; print if($_[16] eq "E" || $_[16] eq "Y")' $mrconso |\
+       tallyfield.pl '$12$13' |\
     $PATH_TO_PERL -ne 's/[\t ]+/\~/g; print unless /=======|total/i;' |\
      sed 's/^/suppr_termgrp_tally\~/' >> $qa_file
+    if ($status != 0) exit 1
+
+    #
+    # Count SUPPRESSIBLE
+    #
+    tallyfield.pl '$17' $mrconso |\
+    $PATH_TO_PERL -ne 's/[\t ]+/\~/g; print unless /=======|total/i;' |\
+     sed 's/^/suppress_tally\~/' >> $qa_file
     if ($status != 0) exit 1
 
     #
@@ -700,13 +745,13 @@ else if ($target == "MRCUI") then
      sed 's/^/rel_tally\~/' >> $qa_file
     if ($status != 0) exit 1
 
-   #
-   # ver,rel,rela Tally
-   #
-   tallyfield.pl '$2$3$4' $mrcui |\
-   $PATH_TO_PERL -ne 's/[\t ]+/\~/g; print unless /=======|total/i;' |\
-    sed 's/^/ver_rel_rela_tally\~/' >> $qa_file
-   if ($status != 0) exit 1
+    #
+    # Count by REL,VER
+    #
+    tallyfield.pl '$3$2' $mrcui |\
+     $PATH_TO_PERL -ne 's/[\t ]+/\~/g; print unless /=======|total/i;' |\
+     sed 's/^/rel_ver_tally\~/' >> $qa_file
+    if ($status != 0) exit 1
 
     #
     # Unique DELETED.CUI Count
@@ -936,6 +981,14 @@ else if ($target == "MRDEF") then
     if ($status != 0) exit 1
 
     #
+    # SUPPRESSIBLE tally
+    #
+    tallyfield.pl '$7' $mrdef |\
+    $PATH_TO_PERL -ne 's/[\t ]+/\~/g; print unless /=======|TOTAL/i;' |\
+    sed 's/^/suppress_tally\~/' >> $qa_file
+    if ($status != 0) exit 1
+
+    #
     # MIN,MAX Definition
     #
     $PATH_TO_PERL -ne 'split /\|/; print length($_[5]),"\n";' $mrdef |\
@@ -1062,23 +1115,6 @@ else if ($target == "MRHIER") then
     if ($status != 0) exit 1
 
     #
-    # SAB,HCD Tally
-    #
-	cut -d\| -f 5,8 $mrhier | sort -u |\
-      tallyfield.pl '$1' |\
-     $PATH_TO_PERL -ne 's/[\t ]+/\~/g; print unless /=======|total/i;' |\
-     sed 's/^/sab_hcd_tally\~/' >> $qa_file
-    if ($status != 0) exit 1
-
-    #
-    # SAB,RELA Tally
-    #
-	awk -F\| '$4 != "" {print $5"|"$6}' $mrhier | tallyfield.pl '$1$2'  |\
-     $PATH_TO_PERL -ne 's/[\t ]+/\~/g; print unless /=======|total/i;' |\
-     sed 's/^/sab_rela_tally\~/' >> $qa_file
-    if ($status != 0) exit 1
-
-    #
     # RELA Tally
     #
     tallyfield.pl '$6' $mrhier |\
@@ -1163,12 +1199,7 @@ else if ($target == "MRFILESCOLS") then
     #
     # Count sum BTS column
     #
-    foreach f (`cut -f1 -d\| $mrfiles`)
-         set  size = `grep $f $mrfiles |cut -f6 -d\|`
-         echo "file_bts_cnt~$f~$size" >> $qa_file
-    end
-    #awk -F\| '{ total += $6 } END {print "bts_cnt~~",total}' $mrfiles >> $qa_file
-    #awk -F\| '{print "file_bts_cnt~$1~$6"}' $mrfiles >> $qa_file
+    awk -F\| '{ total += $6 } END {print "bts_cnt~~",total}' $mrfiles >> $qa_file
     if ($status != 0) exit 1
 
     #
@@ -1403,11 +1434,35 @@ else if ($target == "MRREL") then
     if ($status != 0) exit 1
 
     #
-    # SAB,REL,RELA,STYPE1,STYPE2 tally
+    # SL tally
     #
-    tallyfield.pl '$11$4$8$3$7' $mrrel|\
+    tallyfield.pl '$12' $mrrel |\
     $PATH_TO_PERL -ne 's/[\t ]+/\~/g; print unless /=======|total/i;' |\
-    sed 's/^/s_r_r_t1_t2_tally\~/' >> $qa_file
+    sed 's/^/sl_tally\~/' >> $qa_file
+    if ($status != 0) exit 1
+
+    #
+    # SAB,SL tally
+    #
+    tallyfield.pl '$11$12' $mrrel |\
+    $PATH_TO_PERL -ne 's/[\t ]+/\~/g; print unless /=======|total/i;' |\
+    sed 's/^/sab_sl_tally\~/' >> $qa_file
+    if ($status != 0) exit 1
+
+    #
+    # REL,SAB,SL tally
+    #
+    tallyfield.pl '$4$11$12' $mrrel |\
+    $PATH_TO_PERL -ne 's/[\t ]+/\~/g; print unless /=======|total/i;' |\
+    sed 's/^/r_s_s_tally\~/' >> $qa_file
+    if ($status != 0) exit 1
+
+    #
+    # REL,RELA,SAB,SL tally
+    #
+    tallyfield.pl '$4$8$11$12' $mrrel|\
+    $PATH_TO_PERL -ne 's/[\t ]+/\~/g; print unless /=======|total/i;' |\
+    sed 's/^/r_r_s_s_tally\~/' >> $qa_file
     if ($status != 0) exit 1
 
     #
@@ -1417,6 +1472,14 @@ else if ($target == "MRREL") then
     tallyfield.pl '$4$8$11$12' |\
     $PATH_TO_PERL -ne 's/[\t ]+/\~/g; print unless /=======|total/i;' |\
     sed 's/^/rrss_selfref_tally\~/' >> $qa_file
+    if ($status != 0) exit 1
+
+    #
+    # Count SUPPRESSIBLE
+    #
+    tallyfield.pl '$15' $mrrel |\
+    $PATH_TO_PERL -ne 's/[\t ]+/\~/g; print unless /=======|total/i;' |\
+     sed 's/^/suppress_tally\~/' >> $qa_file
     if ($status != 0) exit 1
 
     #
@@ -1442,13 +1505,27 @@ else if ($target == "MRREL") then
     if ($status != 0) exit 1
 
     #
-    # SL: Count by SAB|REL|RELA|SUPPRESSIBLE (sab_rel_rela_supp_tally)
+    # SAB with SRUI count
     #
-    $PATH_TO_PERL -ne 'split /\|/; print if $_[14] ne "N";' $mrrel |\
-    tallyfield.pl '$11$4$8$15' |\
-    $PATH_TO_PERL -ne 's/[\t ]+/\~/g; print unless /=======|total/i;' |\
-    sed 's/^/suppr_rel_rela_tally\~/' >> $qa_file
+    set sab_with_srui_cnt=`awk -F\| '$10 != "" {print $11}' $mrrel | sort -u | wc -l`
     if ($status != 0) exit 1
+    echo "sab_with_srui_cnt~~$sab_with_srui_cnt" >> $qa_file
+
+    #
+    # SAB with RG count
+    #
+    set sab_with_rg_cnt=`awk -F\| '$13 != "" {print $11}' $mrrel | sort -u | wc -l`
+    if ($status != 0) exit 1
+    echo "sab_with_rg_cnt~~$sab_with_rg_cnt" >> $qa_file
+
+    #
+    # SAB with DIR count
+    #
+    set sab_with_dir_cnt=`awk -F\| '$14 != "" {print $11}' $mrrel | sort -u | wc -l`
+    if ($status != 0) exit 1
+    echo "sab_with_dir_cnt~~$sab_with_dir_cnt" >> $qa_file
+
+
 
 else if ($target == "MRSAB") then
 
@@ -1471,29 +1548,18 @@ else if ($target == "MRSAB") then
     echo "row_cnt~~$rcnt" >! $qa_file
 
     #
-    # CXTY tally
+    # VCUI Count
     #
-
-    #	$PATH_TO_PERL -ne 'split /\|/; print "$_[16]\n" if $_[10] eq ""   ;' $mrsab |sort |uniq -c |sed 's/^[ \t]*//g'|sed 's/\([^ ]*\) \([^ ]*\)/\2~\1/' |\
-    awk -F\| '$11==""  && $22=="Y"{print $17}' $mrsab | tallyfield.pl '$1' |\
-    $PATH_TO_PERL -ne 's/[\t ]+/\~/g; print unless /=======|total/i;' |\
-    sed 's/^/cxty_tally\~/' >> $qa_file
+    set vcui_cnt=`$PATH_TO_PERL -ne 'split /\|/; print "$_[0]\n" if $_[0] ne "";' $mrsab | sort -u | wc -l`;
     if ($status != 0) exit 1
+    echo "vcui_cnt~~$vcui_cnt" >> $qa_file
 
     #
-    # LAT Count
+    # RCUI Count
     #
-    set lat_cnt=`$PATH_TO_PERL -ne 'split /\|/; print "$_[19]\n";' $mrsab | sort -u | wc -l`;
+    set rcui_cnt=`$PATH_TO_PERL -ne 'split /\|/; print "$_[1]\n";' $mrsab | sort -u | wc -l`;
     if ($status != 0) exit 1
-    echo "lat_cnt~~$lat_cnt" >> $qa_file
-
-    #
-    # LAT tally
-    #
-    awk -F\| '$11==""  && $22=="Y"{print $20}' $mrsab | tallyfield.pl '$1' |\
-    $PATH_TO_PERL -ne 's/[\t ]+/\~/g; print unless /=======|total/i;' |\
-    sed 's/^/lat_tally\~/' >> $qa_file
-    if ($status != 0) exit 1
+    echo "rcui_cnt~~$rcui_cnt" >> $qa_file
 
     #
     # VSAB Count
@@ -1515,6 +1581,13 @@ else if ($target == "MRSAB") then
     set sf_cnt=`$PATH_TO_PERL -ne 'split /\|/; print "$_[5]\n";' $mrsab | sort -u | wc -l`;
     if ($status != 0) exit 1
     echo "sf_cnt~~$sf_cnt" >> $qa_file
+
+    #
+    # Source Family, Language Count
+    #
+    set sf_lat_cnt=`$PATH_TO_PERL -ne 'split /\|/; print "$_[5]|$_[19]\n";' $mrsab | sort -u | wc -l`;
+    if ($status != 0) exit 1
+    echo "sf_lat_cnt~~$sf_lat_cnt" >> $qa_file
 
 
 else if ($target == "MRSAT") then
@@ -1544,6 +1617,13 @@ else if ($target == "MRSAT") then
     echo "cui_cnt~~$cui_cnt" >> $qa_file
 
     #
+    # Unique LUI Count
+    #
+    set lui_cnt=`$PATH_TO_PERL -ne 'split /\|/; print "$_[1]\n" if $_[1]' $mrsat | sort -u | wc -l`
+    if ($status != 0) exit 1
+    echo "lui_cnt~~$lui_cnt" >> $qa_file
+
+    #
     # Unique SUI Count
     #
     set sui_cnt=`$PATH_TO_PERL -ne 'split /\|/; print "$_[2]\n" if $_[2]' $mrsat | sort -u | wc -l`
@@ -1565,6 +1645,13 @@ else if ($target == "MRSAT") then
     echo "cls_cnt~~$cls_cnt" >> $qa_file
 
     #
+    # Unique CUI,SUI Count
+    #
+    set cs_cnt=`$PATH_TO_PERL -ne 'split /\|/; print "$_[0]$_[2]\n" if $_[2]' $mrsat | sort -u | wc -l`
+    if ($status != 0) exit 1
+    echo "cs_cnt~~$cs_cnt" >> $qa_file
+
+    #
     # Unique CUI,UI Count
     #
     set cu_cnt=`$PATH_TO_PERL -ne 'split /\|/; print "$_[0]$_[3]\n" if $_[3]' $mrsat | sort -u | wc -l`
@@ -1572,21 +1659,27 @@ else if ($target == "MRSAT") then
     echo "cm_cnt~~$cu_cnt" >> $qa_file
 
     #
-    # SAB,SATUI tally
+    # Unique SATUI Count
     #
-    $PATH_TO_PERL -ne 'split /\|/; print "$_[7]|$_[9]\n" if $_[7]' $mrsat | sort -u | tallyfield.pl '$2' |\
-    $PATH_TO_PERL -ne 's/[\t ]+/\~/g; print unless /=======|total/i;' |\
-     sed 's/^/sab_satui_tally\~/' >> $qa_file
+    set satui_cnt=`$PATH_TO_PERL -ne 'split /\|/; print "$_[7]\n" if $_[7]' $mrsat | sort -u | wc -l`
     if ($status != 0) exit 1
-    
+    echo "satui_cnt~~$satui_cnt" >> $qa_file
+
+    #
+    # SAB by distinct SCD Tally
+    #
+    $PATH_TO_PERL -ne 'split /\|/; print "$_[5]|$_[9]\n"' $mrsat | sort -u |\
+    tallyfield.pl '$2'  |\
+    $PATH_TO_PERL -ne 's/[\t ]+/\~/g; print unless /=======|total/i;' |\
+     sed 's/^/code_sab_tally\~/' >> $qa_file
+    if ($status != 0) exit 1
+
     #
     # ATN tally
     #
-   # Because of the changes in atn names ( can have spaces) below is modified
-     cut -f9 -d\| $mrsat | sed 's/ /\@/' |sort |uniq -c |awk '{print $2"~"$1}' |sed 's/^/atn_tally\~/' |sed 's/\@/ /' >> $qa_file
- #    tallyfield.pl '$9' $mrsat |\
- #    $PATH_TO_PERL -ne 's/[\t ]+/\~/g; print unless /=======|total/i;' |\
- #     sed 's/^/atn_tally\~/' >> $qa_file
+    tallyfield.pl '$9' $mrsat |\
+    $PATH_TO_PERL -ne 's/[\t ]+/\~/g; print unless /=======|total/i;' |\
+     sed 's/^/atn_tally\~/' >> $qa_file
     if ($status != 0) exit 1
 
     #
@@ -1606,25 +1699,21 @@ else if ($target == "MRSAT") then
     if ($status != 0) exit 1
 
     #
-    # Count by SAB|ATN|STYPE
+    # ATN,SAB tally
     #
-    # Because of the changes in atn names ( can have spaces) below is modified
-
-      cut -f5,9,10 -d\|  $mrsat |awk -F\| '{print $3"|"$2"|"$1}' | sed 's/ /\@/' |sort |uniq -c | awk '{print $2"~"$1}' |sed 's/\@/ /g'|sed 's/^/sab_atn_stype_tally\~/' >> $qa_file
- #    tallyfield.pl '$10$9$5' $mrsat |\
- #    $PATH_TO_PERL -ne 's/[\t ]+/\~/g; print unless /=======|total/i;' |\
- #    sed 's/^/sab_atn_stype_tally\~/' >> $qa_file
-    if ($status != 0) exit 1
-    
-    
-    #
-    # Count by SAB|ATN|SUPPRESSIBLE
-    #
-    $PATH_TO_PERL -ne 'split /\|/; print if $_[11] ne "N"' $mrsat |\
-    tallyfield.pl '$10$9$12' |\
+    tallyfield.pl '$9$10' $mrsat |\
     $PATH_TO_PERL -ne 's/[\t ]+/\~/g; print unless /=======|total/i;' |\
-    sed 's/^/suppr_atn_tally\~/' >> $qa_file
+     sed 's/^/atn_sab_tally\~/' >> $qa_file
     if ($status != 0) exit 1
+
+    #
+    # SUPPRESS tally
+    #
+    tallyfield.pl '$12' $mrsat |\
+    $PATH_TO_PERL -ne 's/[\t ]+/\~/g; print unless /=======|total/i;' |\
+     sed 's/^/suppress_tally\~/' >> $qa_file
+    if ($status != 0) exit 1
+
 
 else if ($target == "MRSTY") then
 
@@ -1725,6 +1814,13 @@ else if ($target == "MRDOC") then
     echo "dockey_cnt~~$key_cnt" >> $qa_file
 
     #
+    # Unique Value Count
+    #
+    set value_cnt=`awk -F\| '$2!=""{print $2}' $mrdoc | sort -u | wc -l`
+    if ($status != 0) exit 1
+    echo "value_cnt~~$value_cnt" >> $qa_file
+
+    #
     # Unique Type,Key Count
     #
     set type_dockey_cnt=`cut -d\| -f3,1 $mrdoc | sort -u | wc -l`
@@ -1763,18 +1859,21 @@ else if ($target == "MRX") then
     #
     # Get language
     #
-    ls $mrxw* | sed 's/MRXW_//' | sed 's/\.RRF//' | sed 's/.*\///' | sort -u -o mrx.lats.$$
+    set mu=`$MIDSVCS_HOME/bin/get-oracle-pwd.pl`
+    $MEME_HOME/bin/dump_table.pl -u $mu -d $db \
+	-q "select lat from language" >! mrx.lats.$$
+    if ($status != 0) exit 1
 
     #
     # Unique CUI,LUI,SUI Count for MRXNS_ENG.RRF, MRXNW_ENG.RRF, MRXW.*.RRF
     #
     set ns_cnt=`$PATH_TO_PERL -ne 'split /\|/; print "$_[2]|$_[3]|$_[4]\n";' $mrxns | sort -u | wc -l`
     if ($status != 0) exit 1
-    echo "cls_file_cnt~MRXNS_ENG~$ns_cnt" >> $qa_file
+    echo "cls_cnt~MRXNS_ENG~$ns_cnt" >> $qa_file
 
     set nw_cnt=`$PATH_TO_PERL -ne 'split /\|/; print "$_[2]|$_[3]|$_[4]\n";' $mrxnw | sort -u | wc -l`
     if ($status != 0) exit 1
-    echo "cls_file_cnt~MRXNW_ENG~$nw_cnt" >> $qa_file
+    echo "cls_cnt~MRXNW_ENG~$nw_cnt" >> $qa_file
 
     foreach f (`cat mrx.lats.$$`)
 	if (!(-e $mrxw$f.RRF)) then
@@ -1783,7 +1882,7 @@ else if ($target == "MRX") then
 	endif
 	set cls_cnt=`$PATH_TO_PERL -ne 'split /\|/; print "$_[2]|$_[3]|$_[4]\n";' $mrxw$f.RRF | sort -u | wc -l`
 	if ($status != 0) exit 1
-	echo "cls_file_cnt~MRXW_$f~$cls_cnt" >> $qa_file
+	echo "cls_cnt~MRXW_$f~$cls_cnt" >> $qa_file
     end
     rm -f mrx.lats.$$
 

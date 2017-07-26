@@ -50,7 +50,7 @@ public class ConceptMappingClientTest extends TestSuite {
     ConceptMappingClient client = null;
 
     try {
-      client = new ConceptMappingClient("");
+      client = new ConceptMappingClient("apelon-db");
 
 	    //
 	    // 1.1. Test setMidService(String), getMidService()
@@ -59,8 +59,8 @@ public class ConceptMappingClientTest extends TestSuite {
         + "getMidService() ... "
         + date_format.format(timestamp));
 
-      client.setMidService("");
-      if (client.getMidService().equals(""))
+      client.setMidService("apelon");
+      if (client.getMidService().equals("apelon"))
         addToLog("    1.1. Test Passed");
       else {
         addToLog("    1.1. Test Failed");

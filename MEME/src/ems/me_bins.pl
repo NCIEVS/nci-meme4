@@ -55,7 +55,7 @@ sub do_me_bins {
     $binnum++;
     $binconfig = EMSUtils->getBinconfig($dbh, $MECONFIGTABLE, $bin);
     $bininfo = EMSUtils->getBininfo($dbh, $bin);
-    $rowspan = ($binconfig->{content_type} eq "MIXED" ? 4 : 1);
+    $rowspan = ($binconfig->{content_type} eq "MIXED" ? 3 : 1);
 
     $row .= $query->td({-rowspan=>$rowspan, align=>'right'}, $binnum);
 
@@ -87,21 +87,12 @@ sub do_me_bins {
       push @rows, $row;
 
       $row = "";
-      $row .= $query->td($query->strong("Clinical"));
-      $row .= $query->td({-align=>'right'}, $bininfo->{clinicalClusters}+0);
-      $row .= $query->td({-align=>'right'}, $bininfo->{clinicalUneditableClusters});
-      $row .= $query->td({-align=>'right'}, $bininfo->{clinicalClusters}-$bininfo->{clinicalUneditableClusters});
+      $row .= $query->td($query->strong("Nonchem"));
+      $row .= $query->td({-align=>'right'}, $bininfo->{nonchemClusters}+0);
+      $row .= $query->td({-align=>'right'}, $bininfo->{nonchemUneditableClusters});
+      $row .= $query->td({-align=>'right'}, $bininfo->{nonchemClusters}-$bininfo->{nonchemUneditableClusters});
 
-      $row .= $query->td(&action_table($binconfig, $bininfo, "clinical"));
-      push @rows, $row;
-
-      $row = "";
-      $row .= $query->td($query->strong("Other"));
-      $row .= $query->td({-align=>'right'}, $bininfo->{otherClusters}+0);
-      $row .= $query->td({-align=>'right'}, $bininfo->{otherUneditableClusters});
-      $row .= $query->td({-align=>'right'}, $bininfo->{otherClusters}-$bininfo->{otherUneditableClusters});
-
-      $row .= $query->td(&action_table($binconfig, $bininfo, "other"));
+      $row .= $query->td(&action_table($binconfig, $bininfo, "nonchem"));
       push @rows, $row;
 
     } else {
@@ -136,32 +127,25 @@ sub do_me_bins {
       $total{chem}{all} += $bininfo->{chemClusters};
       $total{chem}{editable} += $bininfo->{chemClusters}-$bininfo->{chemUneditableClusters};
       $total{chem}{uneditable} += $bininfo->{chemUneditableClusters};
-      $total{clinical}{all} += $bininfo->{clinicalClusters};
-      $total{clinical}{editable} += $bininfo->{clinicalClusters}-$bininfo->{clinicalUneditableClusters};
-      $total{clinical}{uneditable} += $bininfo->{clinicalUneditableClusters};
-      $total{other}{all} += $bininfo->{otherClusters};
-      $total{other}{editable} += $bininfo->{otherClusters}-$bininfo->{otherUneditableClusters};
-      $total{other}{uneditable} += $bininfo->{otherUneditableClusters};
+      $total{nonchem}{all} += $bininfo->{nonchemClusters};
+      $total{nonchem}{editable} += $bininfo->{nonchemClusters}-$bininfo->{nonchemUneditableClusters};
+      $total{nonchem}{uneditable} += $bininfo->{nonchemUneditableClusters};
     } elsif ($binconfig->{content_type} eq "CHEM") {
       $total{chem}{all} += $bininfo->{chemClusters};
       $total{chem}{editable} += $bininfo->{chemClusters}-$bininfo->{chemUneditableClusters};
       $total{chem}{uneditable} += $bininfo->{chemUneditableClusters};
-    } elsif ($binconfig->{content_type} eq "CLINICAL") {
-      $total{clinical}{all} += $bininfo->{clinicalClusters};
-      $total{clinical}{editable} += $bininfo->{clinicalClusters}-$bininfo->{clinicalUneditableClusters};
-      $total{clinical}{uneditable} += $bininfo->{clinicalUneditableClusters};
-    } elsif ($binconfig->{content_type} eq "OTHER") {
-      $total{other}{all} += $bininfo->{otherClusters};
-      $total{other}{editable} += $bininfo->{otherClusters}-$bininfo->{otherUneditableClusters};
-      $total{other}{uneditable} += $bininfo->{otherUneditableClusters};
+    } elsif ($binconfig->{content_type} eq "NONCHEM") {
+      $total{nonchem}{all} += $bininfo->{nonchemClusters};
+      $total{nonchem}{editable} += $bininfo->{nonchemClusters}-$bininfo->{nonchemUneditableClusters};
+      $total{nonchem}{uneditable} += $bininfo->{nonchemUneditableClusters};
     }
   }
-  $row .= $query->td({colspan=>3, rowspan=>4}, "Total cluster count for all editable bins");
+  $row .= $query->td({colspan=>3, rowspan=>3}, "Total cluster count for all editable bins");
   $row .= $query->td("Total");
   $row .= $query->td({align=>'right'}, $total{all}{all});
   $row .= $query->td({align=>'right'}, $total{all}{uneditable});
   $row .= $query->td({align=>'right'}, $total{all}{editable});
-  $row .= $query->td({colspan=>2, rowspan=>4}, "");
+  $row .= $query->td({colspan=>2, rowspan=>3}, "");
   push @rows, $row;
 
   $row = "";
@@ -172,17 +156,10 @@ sub do_me_bins {
   push @rows, $row;
 
   $row = "";
-  $row .= $query->td("Clinical");
-  $row .= $query->td({align=>'right'}, $total{clinical}{all});
-  $row .= $query->td({align=>'right'}, $total{clinical}{uneditable});
-  $row .= $query->td({align=>'right'}, $total{clinical}{editable});
-  push @rows, $row;
-
-  $row = "";
-  $row .= $query->td("Other");
-  $row .= $query->td({align=>'right'}, $total{other}{all});
-  $row .= $query->td({align=>'right'}, $total{other}{uneditable});
-  $row .= $query->td({align=>'right'}, $total{other}{editable});
+  $row .= $query->td("Nonchem");
+  $row .= $query->td({align=>'right'}, $total{nonchem}{all});
+  $row .= $query->td({align=>'right'}, $total{nonchem}{uneditable});
+  $row .= $query->td({align=>'right'}, $total{nonchem}{editable});
   push @rows, $row;
 
   $html .= $query->table({border=>1, cellpadding=>5, cellspacing=>0, width=>'90%'}, $query->Tr(\@rows));
@@ -209,7 +186,6 @@ sub action_table {
   return $query->br if $binconfig->{editable} ne 'Y';
   if ($content_type eq "all" || !$content_type) {
     push @d, [$query->a({href=>$url2 . "action=update_counts&bin_name=" . $binconfig->{bin_name}}, "Refresh counts")];
-    push @d, [$query->a({href=>'https://wiki.nlm.nih.gov/confluence/display/UE/Unimed+Bin+Comments#UnimedBinComments-'.$binconfig->{bin_name}}, "Comments")];
   }
   if (
       (uc($binconfig->{content_type}) ne "MIXED" || lc($content_type) ne "all" || !$content_type)) {

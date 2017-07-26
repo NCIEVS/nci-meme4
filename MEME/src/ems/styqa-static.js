@@ -33,7 +33,7 @@ function styaddfn() {
 
 function textaddfn() {
   var neg = "";
-  var word = document.styframe.textfield.value.toLowerCase();
+  var word = document.styframe.textfield.value;
   var whitespace = /[\s]/;
   var result = word.match(whitespace);
 
@@ -47,17 +47,12 @@ function textaddfn() {
   } else {
     neg = "";
   }
-  if (document.styframe.textexact.checked == true) {
-	    exact = "";
-	  } else {
-	    exact = "%";
-	  }
   if (document.styframe.textselected.value == "") {
     nl = "";
   } else {
     nl = "\n";
   }
-  document.styframe.textselected.value = document.styframe.textselected.value + nl + neg + exact + word + exact;
+  document.styframe.textselected.value = document.styframe.textselected.value + nl + neg + word;
   cleartext();
 }
 
@@ -96,27 +91,15 @@ function clearsources() {
   }
 }
 
-/* clears the TTY elements */
-function clearttys() {
-  for (i=0; i<document.styframe.ttylist.length; i++) {
-    if (document.styframe.ttylist.options[i].selected) {
-      document.styframe.ttylist.options[i].selected=0;
-    }
-  }
-}
-
-
 function reinittext() {
   document.styframe.textfield.value="";
   document.styframe.textnegate.checked = false;
-  document.styframe.textexact.checked = true;
   document.styframe.textselected.value = "";
 }
 
 function cleartext() {
   document.styframe.textfield.value="";
   document.styframe.textnegate.checked = false;
-  document.styframe.textexact.checked = true;
 }
 
 function verify() {

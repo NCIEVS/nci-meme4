@@ -28,19 +28,15 @@ the editing and management of the Metathesaurus.
 <b>Concept Reports</b>
 
 <li><a href="/cgi-oracle-meowusers/concept-report-mid.pl">Database</a></li>
-<li><a href="/cgi-oracle-meowusers/ems3-concept-report-mid.pl">EMS3 Database</a></li>
 <br>
 <br>
 
 <b>Tools</b>
-<li><a href="/cgi-bin/ems3.pl">EMS 3</a></li>
-<li><a href="/cgi-bin/wms3.pl">WMS 3</a></li>
-<li><a href="/cgi-oracle-meowusers/ems.pl">EMS 2.1</a> - deprecated</li>
-<li><a href="/cgi-oracle-meowusers/wms.pl">WMS 2.1</a> - deprecated</li>
+<li><a href="/cgi-oracle-meowusers/ems.pl">EMS</a></li>
+<li><a href="/cgi-oracle-meowusers/wms.pl">WMS</a></li>
 <li><a href="/cgi-oracle-meowusers/ems.pl?action=table_help">Table Help</a></li>
 <li>LVG: <a href="/cgi-bin/lvgcgi.pl?version=lvg2005">LVG2005</a></li>
 <li><a href="/cgi-oracle-nlmlti/oracle-sessions.pl">Oracle Sessions</a></li>
-<li><a href="/cgi-lti-oracle/db_request.cgi">Database Tracking</a></li>
 <br>
 <br>
 <b>Miscellaneous</b><li><a href="phone.html">Phone List</a></li>
@@ -72,11 +68,9 @@ the editing and management of the Metathesaurus.
 <ul>
  <li><a href="/styfile.html">2004 Semantic Types</a></li><li><a href="/Manual/Complete_Training_Manual.pdf">Editing Manual</a></li><li><a href="/Sources/sources.html">Source Information</a></li>
  <li><a href="/cgi-oracle-meowusers/oracle-termgroup.pl">Term Type Precedence</a></li>
-<li><a href="https://gforge.nci.nih.gov/docman/index.php?group_id=129&selected_doc_group_id=2051&language_id=1">Meta Editi\
-ng Guide - v5., May 30, 2009</a></li>
 </ul>
 </ul>
-<ul><li><b><a href="apelon.html">Additional Online tools Index</a></b></li></ul>
+<ul><li><b><a href="apelon.html">Apelon Online Documentation Index</a></b></li></ul>
 <ul></ul>
 <ul>
 <li><b>Meeting Information</b></li>
@@ -91,9 +85,9 @@ ng Guide - v5., May 30, 2009</a></li>
 </tbody></table>
 <hr>
 <address>
-Contact:
-<a href="mailto:bcarlsen@msdinc.com">Brian Carlsen</a><br>
+Contact: <a href="mailto:aweinrich@apelon.com">Adam Weinrich</a>
+or <a href="mailto:bcarlsen@apelon.com">Brian Carlsen</a><br>
 Created: December 10, 2004<br>
-Last modified on: 04/10/2007<br>
+Last modified on: May 23, 2006<br>
 </address>
 </body></html>

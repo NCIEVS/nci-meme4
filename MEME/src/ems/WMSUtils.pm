@@ -20,7 +20,7 @@ use Symbol;
 # ids=>{idtype=>concept_id, atom_id or cui, cluster_id=>, list=>[]}
 # clusters=>[{idtype=>, cluster_id=>, list=>[]}, ...]
 # file=>{clustered=>true or false, idtype=>concept_id, atom_id or cui, name=>}
-# reporttype=> 1 is standard, 2 is abbreviated, 3 is for w/o contexts
+# reporttype=> 1 is standard, 2 is abbreviated
 
 # maxreviewedrels=> (specifies the maximum number of reviewed relationships)
 # lat=> (comma separated list of languages to restrict to)
@@ -124,9 +124,6 @@ sub xreports {
     push @scriptopts, "-url_release_for_cui=" . $optref->{'-url_release_for_cui'};
     push @scriptopts, "-url_release_for_sty=" . $optref->{'-url_release_for_sty'};
   }
-if ($optref->{reporttype} eq "3") {
-   push @scriptopts, "-reporttype=3";
-}
   if ($optref->{outputformat} eq "enscript") {
     push @scriptopts, "-enscript";
   }
@@ -230,7 +227,7 @@ sub file2report {
   foreach $key (keys %$optref) {
     $o{$key} = $optref->{$key};
   }
-  if ($optref->{reporttype}==1 || $optref->{reporttype}==3) {
+  if ($optref->{reporttype}==1) {
     return WMSUtils->xreports(\%o);
   } else {
     return WMSUtils->report_2(\%o);

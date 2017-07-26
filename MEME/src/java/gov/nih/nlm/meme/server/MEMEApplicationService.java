@@ -11,10 +11,7 @@ import gov.nih.nlm.meme.exception.MEMEException;
 
 /**
  * Generically represents an application service.
- * 
- * CHANGES
- * 09/10/2007 JFW (1-DBSLD): Modify isReEntrant to take a SessionContext argument 
- * 
+ *
  * @author MEME Group
  */
 public interface MEMEApplicationService {
@@ -48,11 +45,8 @@ public interface MEMEApplicationService {
   /**
    * Returns <code>true</code> if the server is currently running and
    * this is a re entrant, <code>false</code> otherwise.
-   * @param context the {@link SessionContext} containing the request
    * @return <code>boolean</code>
    */
-  public boolean isReEntrant(SessionContext context);
-
-
+  public boolean isReEntrant();
 
 }

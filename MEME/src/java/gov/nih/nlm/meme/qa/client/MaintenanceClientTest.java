@@ -3,7 +3,6 @@
  * Package: gov.nih.nlm.meme.qa.client
  * Object:  MaintenanceClientTest
  *
- * 03/22/2007 BAC (1-D0BIJ): Remove "exec" tests (not platform-specific), and
  * 01/30/2006 RBE (1-763IU): File created
  * 
  *****************************************************************************/
@@ -52,8 +51,8 @@ public class MaintenanceClientTest extends TestSuite {
     AdminClient admin_client = null;
 
     try {
-      client = new MaintenanceClient("");
-      admin_client = new AdminClient("");
+      client = new MaintenanceClient("apelon");
+      admin_client = new AdminClient("apelon");
 
 	    //
 	    // 1.1. Test setMidService(String), getMidService()
@@ -62,8 +61,8 @@ public class MaintenanceClientTest extends TestSuite {
         + "getMidService() ... "
         + date_format.format(timestamp));
 
-      client.setMidService("");
-      if (client.getMidService().equals(""))
+      client.setMidService("apelon");
+      if (client.getMidService().equals("apelon"))
         addToLog("    1.1. Test Passed");
       else {
         addToLog("    1.1. Test Failed");
@@ -181,19 +180,16 @@ public class MaintenanceClientTest extends TestSuite {
       client.loadTable(table_name);
       client.executeQuery("BEGIN MEME_UTILITY.drop_it('table', '" + table_name + "'); END;");
       admin_client.setSystemStatus("log_actions", la_value);
-      //admin_client.setSystemStatus("log_actions", "OFF");
+      admin_client.setSystemStatus("log_actions", "OFF");
 
 	    //
 	    // 6.1. Test exec(String[], String[])
 	    //
       addToLog(
-          "    6.1. Test exec(String[], String[]) ... "
+        "    6.1. Test exec(String[], String[]) ... "
         + date_format.format(timestamp));
-      addToLog(
-          "        Cannot test in platform-independent way"
-        + date_format.format(timestamp));
-      //String[] command = new String[] { "C:\\Program Files\\Internet Explorer\\iexplore.exe" };
-      //client.exec(command, new String[0]);
+      String[] command = new String[] { "C:\\Program Files\\Internet Explorer\\iexplore.exe" };
+      client.exec(command, new String[0]);
 
 	    //
 	    // 7.1. Test logOperation(String, String, String, int, int, int)

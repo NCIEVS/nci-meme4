@@ -14,6 +14,7 @@ import gov.nih.nlm.meme.qa.ui.TestSuiteAtuiSG;
 import gov.nih.nlm.meme.qa.ui.TestSuiteAtuiSG2;
 import gov.nih.nlm.meme.qa.ui.TestSuiteAtuiTBR;
 import gov.nih.nlm.meme.qa.ui.TestSuiteRuiC;
+import gov.nih.nlm.meme.qa.ui.TestSuiteRuiNlm03;
 import gov.nih.nlm.meme.qa.ui.TestSuiteRuiP;
 import gov.nih.nlm.meme.qa.ui.TestSuiteRuiS;
 import gov.nih.nlm.meme.qa.ui.TestSuiteRuiSG;
@@ -57,19 +58,17 @@ public class UITestSuiteSet extends TestSuiteSet {
         new TestSuiteAtuiS(),            // 2
         new TestSuiteAtuiSG(),           // 3
         new TestSuiteAtuiSG2(),          // 4
+        //new TestSuiteAtuiSRC(),
         new TestSuiteAtuiTBR(),          // 5
+        //new TestSuiteAtuiTbrSrc(),
         new TestSuiteRuiC(),             // 6
-        new TestSuiteRuiP(),             // 7
-        new TestSuiteRuiS(),             // 8
-        new TestSuiteRuiSG(),            // 9
-        new TestSuiteRuiTBR()            // 10
-        // SRC tests no longer used
-        //  new TestSuiteAtuiSRC(),
-        //  new TestSuiteAtuiTbrSrc(),
-        //  new TestSuiteRuiSRC(),
-        //  new TestSuiteRuiTbrSrc()
-        // NLM03 tests no longer used
-        //  new TestSuiteRuiNlm03(),
+        new TestSuiteRuiNlm03(),         // 7
+        new TestSuiteRuiP(),             // 8
+        new TestSuiteRuiS(),             // 9
+        new TestSuiteRuiSG(),            // 10
+        //new TestSuiteRuiSRC(),
+        new TestSuiteRuiTBR()            // 11
+        //new TestSuiteRuiTbrSrc()
     };
   }
 

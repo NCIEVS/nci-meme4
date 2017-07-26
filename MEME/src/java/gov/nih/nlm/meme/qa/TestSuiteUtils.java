@@ -21,9 +21,12 @@ import gov.nih.nlm.meme.common.Concept;
 import gov.nih.nlm.meme.common.Relationship;
 import gov.nih.nlm.meme.exception.MEMEException;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.sql.Date;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Properties;
 
 /**
  * Provides utility functions to test suites

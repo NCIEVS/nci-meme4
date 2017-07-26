@@ -13,13 +13,12 @@
 # -c (alternate config file)
 # -w (one or more worklist names comma separated)
 
-BEGIN
-{
 unshift @INC, "$ENV{ENV_HOME}/bin";
+
 require "env.pl";
-unshift @INC, "$ENV{EMS_HOME}/lib";
-unshift @INC, "$ENV{EMS_HOME}/bin";
-}
+
+use lib "$ENV{EMS_HOME}/lib";
+push @INC, "$ENV{EMS_HOME}/bin";
 
 use Getopt::Std;
 getopts("d:w:c:");

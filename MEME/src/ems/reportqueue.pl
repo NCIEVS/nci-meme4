@@ -6,7 +6,7 @@
 # start= (where to start from)
 # n= (how many to show)
 sub do_reportqueue {
-  my($REPORTSDIR) = $ENV{EMS_LOG_DIR} . "/requests";
+  my($REPORTSDIR) = $ENV{EMS_HOME} . "/log";
   my($html);
   my($limit) = 100;
   my($n) = $query->param('n') || 10;

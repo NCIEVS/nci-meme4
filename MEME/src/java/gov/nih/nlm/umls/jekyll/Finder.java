@@ -1,7 +1,5 @@
 /*
  * Finder.java
- * * Version Information
- * 03/06/2007 3.12.4 SL (1-DNO15) : Adding a new function find_concepts_by_ndc to retrieve the NDC Concepts
  */
 
 package gov.nih.nlm.umls.jekyll;
@@ -9,7 +7,6 @@ package gov.nih.nlm.umls.jekyll;
 import gov.nih.nlm.meme.MEMEToolkit;
 import gov.nih.nlm.meme.MIDServices;
 import gov.nih.nlm.meme.client.FinderClient;
-import gov.nih.nlm.meme.common.Code;
 import gov.nih.nlm.meme.common.Concept;
 import gov.nih.nlm.meme.common.SemanticType;
 import gov.nih.nlm.meme.common.Source;
@@ -76,8 +73,6 @@ public class Finder extends JFrame {
     private final String NORM_STRING_CMD = "norm.string.cmd";
 
     private final String EXACT_STRING_CMD = "exact.string.cmd";
-    
-    private final String NDC_STRING_CMD = "ndc.string.cmd";
 
     private final String[] NUMBER_OF_RESULTS_TO_RETURN = { "5", "10", "25",
             "50", "100", "No Limit" };
@@ -294,21 +289,12 @@ public class Finder extends JFrame {
                 "exactStrRadioButton.mnemonic").charAt(0));
         exact_str_radiobt.setActionCommand(EXACT_STRING_CMD);
 
-        JRadioButton ndc_str_radiobt = new JRadioButton();
-        ndc_str_radiobt.setText(resources
-                .getString("ndcStrRadioButton.label"));
-        ndc_str_radiobt.setMnemonic(resources.getString(
-                "ndcStrRadioButton.mnemonic").charAt(0));
-        ndc_str_radiobt.setActionCommand(NDC_STRING_CMD);
-        
         b = Box.createHorizontalBox();
         b.add(any_norm_word_radiobt);
         b.add(Box.createHorizontalStrut(5));
         b.add(norm_str_radiobt);
         b.add(Box.createHorizontalStrut(5));
         b.add(exact_str_radiobt);
-        b.add(Box.createHorizontalStrut(5));
-        b.add(ndc_str_radiobt);
         contents.add(
                 "gridx=1,gridy=2,fill=NONE,anchor=WEST,insets=[12,12,0,11]", b);
 
@@ -320,7 +306,6 @@ public class Finder extends JFrame {
         button_group.add(any_norm_word_radiobt);
         button_group.add(norm_str_radiobt);
         button_group.add(exact_str_radiobt);
-        button_group.add(ndc_str_radiobt);
         // making a lowercase word default search method
         button_group.setSelected(word_radiobt.getModel(), true);
 
@@ -651,11 +636,9 @@ public class Finder extends JFrame {
                         } else if (cmd.equals(NORM_STRING_CMD)) {
                             concepts = finder_client
                                     .findNormalizedStringMatches(string);
-                        } else if (cmd.equals(EXACT_STRING_CMD)) {
+                        } else {
                             concepts = finder_client
                                     .findExactStringMatches(string);
-                        } else if (cmd.equals(NDC_STRING_CMD)) {
-                        	concepts = finder_client.findConceptsByNDC(Code.newCode(string));
                         }
 
                         setNormResults(string, cmd);

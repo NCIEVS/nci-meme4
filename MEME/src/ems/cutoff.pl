@@ -21,7 +21,7 @@ This does not affect the EMS/WMS directly, but does the other tools
 that are used to edit the database content, e.g., Jekyll.
 EOD
     $html .= $query->p;
-    $form .= $query->start_form(-method=>'POST', -action=>$query->url(-absolute=>1));
+    $form .= $query->start_form(-method=>'POST', -action=>$query->url());
     $form .= "Cutoff editing? " . $query->radio_group({-name=>'cutoff', -default=>$current, -values=>["Yes", "No"]});
     $form .= $query->p . $query->submit;
     $form .= $query->hidden(-name=>'action', -value=>$action, -override=>1);

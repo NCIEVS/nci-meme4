@@ -7,4 +7,4 @@ where a.concept_id=b.concept_id
   and b.attribute_name='RXCUI'
   and a.tobereleased not in ('N','n')
   and b.tobereleased not in ('N','n')
-  and a.attribute_value != b.attribute_value;
+  and a.attribute_value != b.attribute_value

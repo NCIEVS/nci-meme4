@@ -4,8 +4,8 @@
 # Arguments: start|stop|pid|restart
 #
 # Changes: 20051212 BAC: no longer needs to run as root
-# 01/12/2006 BAC (1-D8MTJ): change in ps command to kill server.
 #
+
 unshift @INC,"$ENV{ENV_HOME}/bin";
 require "env.pl";
 
@@ -85,7 +85,7 @@ sub restart {
 
 sub get_pids {
   my(@x);
-  open(PS, "/bin/ps -ef |/bin/grep java | grep $ENV{LVG_HOME} | grep -v grep |") || die "Cannot start ps\n";
+  open(PS, "/bin/ps -ef |/bin/grep $servername|grep -v grep|") || die "Cannot start ps\n";
   while (<PS>) {
     chomp;
     @_ = split /\s+/, $_;

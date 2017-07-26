@@ -5,13 +5,12 @@
 # suresh@nlm.nih.gov - 2/2000 - ported to Oracle
 # suresh@nlm.nih.gov - 3/2005 - EMS 3 framework
 
-BEGIN
-{
 unshift @INC, "$ENV{ENV_HOME}/bin";
+
 require "env.pl";
-unshift @INC, "$ENV{EMS_HOME}/lib";
-unshift @INC, "$ENV{EMS_HOME}/bin";
-}
+
+use lib "$ENV{EMS_HOME}/lib";
+push @INC, "$ENV{EMS_HOME}/bin";
 use OracleIF;
 use GeneralUtils;
 
@@ -26,7 +25,7 @@ use Getopt::Std;
 
 getopts("d:u:");
 
-$dbh = new OracleIF({ db=>$opt_d, user=>$opt_u, password=>GeneralUtils->getOraclePassword($opt_u,$opt_d) });
+$dbh = new OracleIF({ db=>$opt_d, user=>$opt_u, password=>GeneralUtils->getOraclePassword($opt_u) });
 die "Oracle not available for $opt_d: $DBI::errstr\n" if (!defined($dbh) || $DBI::errstr);
 
 $sql = <<"EOD";

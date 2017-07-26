@@ -104,7 +104,10 @@ foreach $file (map { "$dir/$_" } sort keys %cuifile) {
       last unless $cui;
 
 # CUI1 of MRCUI should NOT be in MRCONSO!
-      if (($f =~ /^MRCUI/) && ($cuiindex eq $colindex{$f}{CUI1})) {
+#      if (($f =~ /^MRCUI/) && ($cuiindex eq $colindex{$f}{CUI1})) {
+
+
+      if ((($f =~ /^MRCUI/) || ($f =~ /^MRAUI/))&& ($cuiindex eq $colindex{$f}{CUI1})) {
 
 
 	if ($isacui{$cui}) {
@@ -112,7 +115,7 @@ foreach $file (map { "$dir/$_" } sort keys %cuifile) {
 	  $error++;
 	}
       } else {
-	if ($f !~ /^MRAUI/ && !$isacui{$cui}) {
+	unless ($isacui{$cui}) {
 	  print STDERR "ERROR: CUI: $cui in file: $f, line: $linenum is not in MRCONSO/MRSO\n" ;
 	  $error++;
 	}

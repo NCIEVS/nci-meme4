@@ -2,9 +2,9 @@
 #      different case-insensitive strings (ISUI).
 
 SELECT concept_id FROM classes
-WHERE source = (SELECT current_name FROM source_version WHERE source='RXNORM')
-  AND tty in ('SCD','SBD','SCDC','SBDC','SCDF','SBDF')
+WHERE source like 'RXNORM%'
+  AND termgroup like 'RXNORM%/SCD'
   AND tobereleased in ('Y','y')
-GROUP BY concept_id HAVING count(distinct tty||isui)>1;
+GROUP BY concept_id HAVING count(distinct isui)>1;
 
 

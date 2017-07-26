@@ -102,12 +102,6 @@ public class ClassesFrame extends JFrame implements JekyllConstants,
 
     private final int TABLE_TBR_COLUMN = 9;
     
-    private final int TABLE_SUPPRESSIBILITY_COLUMN = 10;
-    
-    private final int TABLE_ROOT_SOURCE_COLUMN = 11;
-    
-    private final int TABLE_BASE_AMBIGUITY_FLAG_COLUMN = 12;
-    
    // private final int TABLE_RXCUI_COLUMN = 5;
 
     // Components
@@ -329,7 +323,7 @@ public class ClassesFrame extends JFrame implements JekyllConstants,
                 }
             }
         };
-        atomsModel.setColumnCount(13);
+        atomsModel.setColumnCount(10);
         atomsModel.setRowCount(0);
         /*
          * Soma Lanka: Changed the method to call getBoldTableWithToolTipEnabled from getBoldTable
@@ -379,29 +373,14 @@ public class ClassesFrame extends JFrame implements JekyllConstants,
         // Rank column, hidden.
         columnName = atomsTable.getColumnName(TABLE_RANK_COLUMN);
         column = atomsTable.getColumn(columnName);
-        
-        
+
         // TBR column, hidden.
         columnName = atomsTable.getColumnName(TABLE_TBR_COLUMN);
         TableColumn tbr_column = atomsTable.getColumn(columnName);
-        
-        //      Suppressible Column, hidden
-        columnName = atomsTable.getColumnName(TABLE_SUPPRESSIBILITY_COLUMN);
-        TableColumn supp_column = atomsTable.getColumn(columnName);
-//      RootSource Column, hidden
-        columnName = atomsTable.getColumnName(TABLE_ROOT_SOURCE_COLUMN);
-        TableColumn root_source_column = atomsTable.getColumn(columnName);
-        
-        // Base Ambiguity Flag column, hidden
-        columnName = atomsTable.getColumnName(TABLE_BASE_AMBIGUITY_FLAG_COLUMN);
-        TableColumn base_ambiguity_flag_column = atomsTable.getColumn(columnName);
 
         // Hiding columns
         atomsTable.removeColumn(column);
         atomsTable.removeColumn(tbr_column);
-        atomsTable.removeColumn(supp_column);
-        atomsTable.removeColumn(root_source_column);
-        atomsTable.removeColumn(base_ambiguity_flag_column);
 
         atomsTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         JTextField tf = new JTextField();
@@ -411,12 +390,6 @@ public class ClassesFrame extends JFrame implements JekyllConstants,
         StringTableCellRenderer renderer = new StringTableCellRenderer(atomsTable, atomsModel);
         renderer.setColumnIndex(StringTableCellRenderer.TBR_IDENTIFIER,
                 TABLE_TBR_COLUMN);
-        renderer.setColumnIndex(StringTableCellRenderer.SUPP_IDENTIFIER,
-        		TABLE_SUPPRESSIBILITY_COLUMN);
-        renderer.setColumnIndex(StringTableCellRenderer.SOURCE_IDENTIFIER,
-        		TABLE_ROOT_SOURCE_COLUMN);
-        renderer.setColumnIndex(StringTableCellRenderer.BASE_AMBIGUITY_FLAG,
-        		TABLE_BASE_AMBIGUITY_FLAG_COLUMN);        
         atomsTable.setDefaultRenderer(String.class, renderer);
         atomsTable.setDefaultRenderer(Integer.class, renderer);
 
@@ -709,12 +682,11 @@ public class ClassesFrame extends JFrame implements JekyllConstants,
                         row.add(atoms[i].getTermgroup().toString()); // termgroup
                         row.add(atoms[i].getCode().toString()); // code
                         if (atoms[i].getTermgroup().toString().startsWith("MSH") ||
-                        		atoms[i].getTermgroup().toString().startsWith("RXNORM") ||
-                        		atoms[i].getTermgroup().toString().startsWith("NCI")) {
+                        		atoms[i].getTermgroup().toString().startsWith("RXNORM")) {
                             row
                                     .add((atoms[i].getSourceConceptIdentifier() == null) ? ""
                                             : atoms[i].getSourceConceptIdentifier()
-                                                    .toString()); // MUI/RXCUI/NCI
+                                                    .toString()); // MUI/RXCUI
                         } else if ((atom_rxcui_map != null && atom_rxcui_map.containsKey(atoms[i].getIdentifier()))){
                         	row
                             .add((atom_rxcui_map.get(atoms[i].getIdentifier())== null) ? ""
@@ -729,14 +701,7 @@ public class ClassesFrame extends JFrame implements JekyllConstants,
                         row.add(Integer.valueOf(atoms[i].getTermgroup()
                                 .getRank().toString())); // rank
                         row.add(String.valueOf(atoms[i].getTobereleased())); // tbr
-                        row.add(String.valueOf(atoms[i].getSuppressible())); // suppressible
-                        row.add(String.valueOf(atoms[i].getSource().getRootSourceAbbreviation()));
 
-                        if (isRxNormBaseAmbiguous(atoms[i])) {
-                            row.add("Y"); //The atom is RxNorm with "AMBIGUITY_FLAG" ATN set to "Base" value
-                        } /*else {
-                        	row.add("");
-                        }*/
                         atomsModel.addRow(row);
 
                         listOfAtoms.add(atoms[i]);
@@ -1665,14 +1630,6 @@ public class ClassesFrame extends JFrame implements JekyllConstants,
                 row.add(Integer.valueOf(atoms[i].getTermgroup().getRank()
                         .toString())); // rank
                 row.add(String.valueOf(atoms[i].getTobereleased())); // tbr
-                row.add(String.valueOf(atoms[i].getSuppressible())); // suppressible
-                row.add(String.valueOf(atoms[i].getSource().getRootSourceAbbreviation()));
-                if (isRxNormBaseAmbiguous(atoms[i])) {
-                    row.add("Y"); //The atom is RxNorm with "AMBIGUITY_FLAG" ATN set to "Base" value
-                } /*else {
-                	row.add("");
-                }*/
-
 
                 dataVector.add(row);
 
@@ -1730,22 +1687,4 @@ public class ClassesFrame extends JFrame implements JekyllConstants,
             atomsTable.setSortState(-1, false);
         }
     }
-    
-    private boolean isRxNormBaseAmbiguous(Atom atom)
-    {
-  	  boolean retVal = false;
-// Only check for the existence of AMBIGUITY_FLAG=Base condition, irrespective of source.  	 
-//  	  if (!"RXNORM".equals(atom.getSource().getRootSourceAbbreviation()))
-//  		  return retVal;
-  	  final Attribute[] flags = atom.getAttributesByName("AMBIGUITY_FLAG");
-  	  for (Attribute attribute : flags)
-  	  if ("Base".equals(attribute.getValue()) && attribute.isReleasable())
-//  			  && "RXNORM".equals(attribute.getSource().getRootSourceAbbreviation())  
-  	  {
-  		  retVal = true; 
-  		  break; 
-  	  }
-  	  return retVal;
-    }
-
 }

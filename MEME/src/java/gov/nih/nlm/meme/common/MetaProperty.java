@@ -225,14 +225,12 @@ public class MetaProperty implements Comparable {
       if (p == null) {
         return false;
       }
-      
       if (getIdentifier() == null || p.getIdentifier() == null) {
-        return (getKey() + getKeyQualifier() + getValue() + getDescription()).equals(
-            p.getKey() + p.getKeyQualifier() + p.getValue() + p.getDescription()); // naveen UMLS-60: updated equals method to compare description attribute of objects
+        return (getKey() + getKeyQualifier() + getValue()).equals(
+            p.getKey() + p.getKeyQualifier() + p.getValue());
       } else {
         return getIdentifier().equals(p.getIdentifier());
       }
-      
     } else {
       return false;
     }
@@ -243,7 +241,7 @@ public class MetaProperty implements Comparable {
    * @return the <code>int</code> hashcode
    */
   public int hashCode() {
-    return (getKey() + getKeyQualifier() + getValue() + getDescription()).hashCode(); //naveen UMLS-60 added description attribute to the hashcode
+    return (getKey() + getKeyQualifier() + getValue()).hashCode();
   }
 
   /**

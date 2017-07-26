@@ -1,14 +1,14 @@
 # Merged SNOMED hierarchies - excluding known permitted combinations
-# bcarlsen@msdinc.com
+# carlsen@apelon.com
 
 select distinct c1.concept_id, rownum as cluster_id
 from classes c1, classes c2, atoms a1, atoms a2 where
 c1.atom_id = a1.atom_id and
 c2.atom_id = a2.atom_id and
-c1.source= (select current_name from source_version where source='SNOMEDCT_US') and
+c1.source= (select current_name from source_version where source='SNOMEDCT') and
 c1.tty='FN' and
 c1.tobereleased in ('Y', 'y') and
-c2.source= (select current_name from source_version where source='SNOMEDCT_US') and
+c2.source= (select current_name from source_version where source='SNOMEDCT') and
 c2.tty='FN' and
 c2.tobereleased in ('Y', 'y') and
 

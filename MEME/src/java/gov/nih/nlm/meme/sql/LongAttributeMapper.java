@@ -16,6 +16,7 @@ import gov.nih.nlm.meme.common.ContextFormatter;
 import gov.nih.nlm.meme.exception.BadValueException;
 import gov.nih.nlm.meme.exception.DataSourceException;
 import gov.nih.nlm.meme.exception.MissingDataException;
+import gov.nih.nlm.meme.server.Statistics;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

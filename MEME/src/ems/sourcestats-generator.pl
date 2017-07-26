@@ -10,15 +10,12 @@
 # -d database
 # -s (one or more sources - VSAB or RSAB OK)
 # -n (regenerate for the 'n' most stale sources or sources without data in the cache)
-# -g (show what will be run, don't run it)
 
-BEGIN
-{
 unshift @INC, "$ENV{ENV_HOME}/bin";
+
 require "env.pl";
-unshift @INC, "$ENV{EMS_HOME}/lib";
-unshift @INC, "$ENV{EMS_HOME}/bin";
-}
+
+use lib "$ENV{EMS_HOME}/lib";
 
 use OracleIF;
 use EMSUtils;
@@ -28,7 +25,7 @@ use Midsvcs;
 use EMSNames;
 use EMSTables;
 
-
+push @INC, "$ENV{EMS_HOME}/bin";
 require "utils.pl";
 
 use File::Basename;
@@ -36,7 +33,7 @@ use Getopt::Std;
 use DBI qw(:sql_types);
 use CGI;
 
-getopts("d:s:n:g");
+getopts("d:s:n:");
 
 $query = new CGI;
 
@@ -53,7 +50,7 @@ system "/bin/touch $logfile" unless -e $logfile;
 
 $db = $opt_d || Midsvcs->get('editing-db');
 $oracleuser = $EMSCONFIG{ORACLE_USER};
-$oraclepassword = GeneralUtils->getOraclePassword($oracleuser,$db);
+$oraclepassword = GeneralUtils->getOraclePassword($oracleuser);
 $dbh = new OracleIF("db=$db&user=$oracleuser&password=$oraclepassword");
 die "ERROR: Database $db is unavailable\n" unless $dbh;
 
@@ -67,16 +64,7 @@ EMSTables->createTable($dbh, $SOURCESTATSTABLE);
 $opt_n = 1 unless ($opt_s || $opt_n);
 
 @allvsabs = MIDUtils->getSources($dbh, "versioned");
-my(%allvsabs) = map { $_ => 1 } @allvsabs;
-%insertion_date = map { $_ => MIDUtils->sourceInsertionDate($dbh, $_) } @allvsabs;
 %knownsource = map { $_ => 1 } @allvsabs;
-
-foreach $r ($dbh->selectAllAsRef("select vsab, generation_date from $SOURCESTATSTABLE order by generation_date asc")) {
-  $vsab = $r->[0];
-  push @cachedvsabs, $vsab;
-  $cachedvsabs{$vsab}++;
-  $cached_date{$vsab} = $r->[1];
-}
 
 if ($opt_s) {
 
@@ -92,18 +80,18 @@ if ($opt_s) {
 
 # all new sources first, then stale but current sources
   my($n) = 0;
+  my(@cachedvsabs) = $dbh->selectAllAsArray("select vsab from $SOURCESTATSTABLE order by generation_date asc");
 
-  foreach $vsab (sort date_compare @allvsabs) {
-    next if $cachedvsabs{$vsab};
-    push @vsabs, MIDUtils->makeVersionedSAB($dbh, $vsab);
+  foreach $s (@allvsabs) {
+    next if grep { $_ eq $s } @cachedvsabs;
+    push @vsabs, MIDUtils->makeVersionedSAB($dbh, $s);
     $n++;
     last if $n >= $opt_n;
   }
-
-  foreach $vsab (@cachedvsabs) {
-    next unless $allvsabs{$vsab};
+  foreach $s (@cachedvsabs) {
+    next if grep { $_ eq $s } @allvsabs;
     last if $n >= $opt_n;
-    push @vsabs, MIDUtils->makeVersionedSAB($dbh, $vsab);
+    push @vsabs, MIDUtils->makeVersionedSAB($dbh, $s);
     $n++;
   }
 }
@@ -133,11 +121,6 @@ sub doit {
   my($width) = {-width=>'50%'};
   my($tmptable) = $dbh->tempTable($EMSNames::PREFIX . "_");
   my($tmpindex) = "x_" . $dbh->tempTable($EMSNames::PREFIX . "_");
-
-  if ($opt_g) {
-    print join('|', $vsab, $insertion_date{$vsab}, $cached_date{$vsab}), "\n";
-    return;
-  }
 
   &log("\n" . "-" x 10 . $now . " ($vsab) " . "-" x 10 . "\n");
   &log("EMS_HOME: " . $ENV{EMS_HOME});
@@ -202,7 +185,7 @@ EOD
 
     $sql = <<"EOD";
 select attribute_value, count(distinct concept_id) as c, count(distinct concept_id)/$numConcepts*100.0 as w from attributes
-where  attribute_name ='SEMANTIC_TYPE'
+where  attribute_name || ''='SEMANTIC_TYPE'
 and    concept_id in (select distinct concept_id from $classes where source=$vsabq)
 group  by attribute_value
 order  by count(*) desc
@@ -369,11 +352,6 @@ EOD
   $html .= $query->p . "(Time taken: " .  GeneralUtils->sec2hms(time-$t) . ")";
   &log("Time taken for context rels: " .  GeneralUtils->sec2hms(time-$t));
   $t = time;
-
-#------------------ place holders requested by LO
-  $html .= $query->h1("Mappings");
-  $html .= "Sources that map " . $query->em("to") . " " . $vsab . "." . $query->p;
-  $html .= "Sources that map " . $query->em("from") . " " . $vsab . "." . $query->p;
 
 #----------------------------------------
   @rows = ();
@@ -624,17 +602,6 @@ EOD
 
   &log("\nDone generating data for $vsab in " . GeneralUtils->sec2hms(time-$starttime));
   return;
-}
-
-sub date_compare {
-  my($d1, $d2);
-
-  $d1 = $insertion_date{$b};
-  $d2 = $insertion_date{$a};
-  my($sql) = "select months_between(to_date(" . $dbh->quote($d1) . "), to_date(" . $dbh->quote($d2) . ")) from dual";
-  my($x) = $dbh->selectFirstAsScalar($sql);
-
-  return ($x > 0 ? 1 : $x < 0 ? -1 : 0);
 }
 
 sub log {

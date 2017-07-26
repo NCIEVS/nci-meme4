@@ -1,4 +1,4 @@
-#!@PATH_TO_PERL@
+#!/site/bin/perl5
 
 # Script to make the test checklist
 
@@ -8,13 +8,7 @@
 # EMS_HOME (required)
 # EMS_CONFIG (optional)
 
-BEGIN
-{
-unshift @INC, "$ENV{ENV_HOME}/bin";
-require "env.pl";
-unshift @INC, "$ENV{EMS_HOME}/lib";
-unshift @INC, "$ENV{EMS_HOME}/bin";
-}
+use lib $ENV{EMS_HOME} . "/lib";
 
 use Getopt::Std;
 use EMSUtils;
@@ -29,7 +23,7 @@ foreach (100..999) {
 }
 close(T);
 
-$cmd = $ENV{EMS_HOME} . "/bin/make-checklist.pl -c chk_testconcepts < $tmpfile";
+$cmd = $ENV{EMS_HOME} . "/scripts/make-checklist.pl -c chk_testconcepts < $tmpfile";
 eval { system $cmd; };
 die $@ if $@;
 unlink $tmpfile;

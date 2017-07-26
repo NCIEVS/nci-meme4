@@ -11,7 +11,6 @@
 *   Authority: BAC
 *   Date: 05/16/2005
 *
-* 06/28/2007 JFW (1-EL38F): added obsolete_ui
 *  05/16/2005 3.15.0: Released
 *  05/12/2005 3.14.1: +src_obsolete_qa_results
 *  12/13/2004 3.14.0: Released
@@ -138,7 +137,6 @@ DROP PUBLIC SYNONYM mom_norm_exclude_list;
 DROP PUBLIC SYNONYM qa_adjustment;
 DROP PUBLIC SYNONYM qa_diff_adjustment;
 DROP PUBLIC SYNONYM qa_diff_results;
-DROP PUBLIC SYNONYM obsolete_ui;
 DROP PUBLIC SYNONYM nhsty;
 DROP PUBLIC SYNONYM normstr;
 DROP PUBLIC SYNONYM normwrd;
@@ -290,7 +288,6 @@ CREATE PUBLIC SYNONYM mom_norm_exclude_list FOR mth.mom_norm_exclude_list;
 CREATE PUBLIC SYNONYM qa_adjustment FOR mth.qa_adjustment;
 CREATE PUBLIC SYNONYM qa_diff_adjustment FOR mth.qa_diff_adjustment;
 CREATE PUBLIC SYNONYM qa_diff_results FOR mth.qa_diff_results;
-CREATE PUBLIC SYNONYM obsolete_ui FOR mth.obsolete_ui;
 CREATE PUBLIC SYNONYM nhsty FOR mth.nhsty;
 CREATE PUBLIC SYNONYM normstr FOR mth.normstr;
 CREATE PUBLIC SYNONYM normwrd FOR mth.normwrd;

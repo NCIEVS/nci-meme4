@@ -15,7 +15,7 @@ import gov.nih.nlm.meme.common.Source;
 import gov.nih.nlm.meme.exception.BadValueException;
 import gov.nih.nlm.meme.exception.DataSourceException;
 import gov.nih.nlm.util.FieldedStringTokenizer;
-import gov.nih.nlm.meme.MEMEToolkit;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -135,9 +135,8 @@ public class MappingMapper extends AttributeMapper.Default {
       SQLException,
       DataSourceException, BadValueException {
 
-	Attribute attr = null;
-    LongAttributeMapper long_attribute_mapper = new LongAttributeMapper(mds);
-    
+    Attribute attr = null;
+
     if (rs.getString("ATTRIBUTE_NAME").equals("XMAP") &&
         rs.getString("TOBERELEASED").toLowerCase().equals("y")) {
 
@@ -151,38 +150,6 @@ public class MappingMapper extends AttributeMapper.Default {
       populate(rs, mds, mapping);
 
       String av = rs.getString("ATTRIBUTE_VALUE");
-      
-      if (av.startsWith("<>Long_Attribute<>:"))
-      {
-    	  attr = new Attribute.Default();
-    	  
-          populate(rs, mds, attr);
-    	  long_attribute_mapper.populate(rs, mds, attr);
-    	  
-    	    	  
-    	  String text_value = attr.getValue();
-    	  
-    	  String[] lValues = FieldedStringTokenizer.split(text_value, "~");
-    	     
-    	  MapObject mo = new MapObject.Default();
-          mo.setMapObjectIdentifier(new Identifier.Default(lValues[5]));
-          if (to_source != null) {
-            mo.setMapObjectSource(to_source);
-          }
-          mapping.setTo(mo);
-          to.put(mo.getMapObjectIdentifier().toString(), mo);
-          mo = new MapObject.Default();
-          mo.setMapObjectIdentifier(new Identifier.Default(lValues[2]));
-          if (from_source != null) {
-            mo.setMapObjectSource(from_source);
-          }
-          mapping.setFrom(mo);
-          from.put(mo.getMapObjectIdentifier().toString(), mo);
-          
-          mapping.setValue(text_value);
-          attr = mapping;
-    	  return attr;
-      }
       //
       // (MAPSUBSETID, MAPRANK, FROMID, REL, RELA, TOID
       //  MAPRULE, MAPTYPE, MAPATN, MAPATV, MAPSID, MAPRES)

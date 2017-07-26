@@ -6,13 +6,8 @@ CREATE OR REPLACE PACKAGE MEME_OPERATIONS AS
  *
  * This package contains code for regular MID maintenance work
  *
- * Changes
- * 12/29/2006 BAC (1-D57ST): use DISTINCT concept_id select in query that drives
- *                           classes update
- * 11/07/2006 BAC (1-CR3QB): Needed fixes to get_atom_editing_rank calls.
- *
  * Version Information
- * 03/06/2007 3.12.4 SL (1-DNO15) : Adding a new funtion to retrieve the NDC Code.
+ *
  * 02/28/2006 3.12.3 BAC (1-754X9) : Bug fix for AUI fix
  * 02/03/2006 3.12.2 TTN (1-754X9) : Extend AUI to 8 chars. Pad AUI to fixed length
  * 10/12/2005 3.12.1: fix to bad_assignments logic to use only last_release_cui
@@ -135,11 +130,7 @@ CREATE OR REPLACE PACKAGE MEME_OPERATIONS AS
         all_flag            IN VARCHAR2 := MEME_CONSTANTS.NO,
         qa_flag             IN VARCHAR2 := MEME_CONSTANTS.YES
     ) RETURN INTEGER;
-	-- 
-	-- Get NDC normalized code
-    --
-	FUNCTION Get_Norm_Ndc(v_ndc IN VARCHAR2) 
-                RETURN VARCHAR2;
+
 END meme_operations;
 /
 SHOW ERRORS
@@ -326,65 +317,6 @@ BEGIN
     -- This procedure requires SET SERVEROUTPUT ON
 
 END self_test;
-
---************************* Get the normalized NDC code *******************
-FUNCTION Get_Norm_Ndc(v_ndc IN VARCHAR2) 
-                RETURN VARCHAR2 
-IS
-        ret_ndc     VARCHAR2(50);  
-        v_format       VARCHAR2(50); 
-
-BEGIN 
-        IF LENGTH(v_ndc) - LENGTH(REPLACE(v_ndc,'-')) = 2 
-        THEN 
-          v_format := LENGTH(SUBSTR(v_ndc,1, INSTR(v_ndc,'-') -1)) 
-                   ||'-'||LENGTH(SUBSTR(v_ndc,INSTR(v_ndc,'-')+1, INSTR(v_ndc,'-',1,2) - INSTR(v_ndc,'-')-1))
-                   ||'-'||LENGTH(SUBSTR(v_ndc,INSTR(v_ndc,'-',1,2) +1));                                                                                      
-    	END IF;              
-        IF  v_format IS NOT NULL 
-        THEN 
-                IF v_format = '6-4-2' 
-                THEN 
-                ret_ndc := SUBSTR(v_ndc,2,5)||SUBSTR(v_ndc,8,4)||SUBSTR(v_ndc,13,2) ; 
-                ELSIF v_format = '6-4-1' 
-            THEN 
-                ret_ndc := SUBSTR(v_ndc,2,5)||SUBSTR(v_ndc,8,4)||'0'||SUBSTR(v_ndc,13,1) ; 
-                ELSIF v_format = '6-3-2' 
-                THEN 
-                    ret_ndc := SUBSTR(v_ndc,2,5)||'0'||SUBSTR(v_ndc,8,3)||SUBSTR(v_ndc,12,2) ; 
-                ELSIF v_format = '6-3-1' 
-                THEN 
-                    ret_ndc := SUBSTR(v_ndc,2,5)||'0'||SUBSTR(v_ndc,8,3)||'0'||SUBSTR(v_ndc,12,1) ; 
-                ELSIF v_format = '5-4-2' 
-                THEN 
-                    ret_ndc := SUBSTR(v_ndc,1,5)||SUBSTR(v_ndc,7,4)||SUBSTR(v_ndc,12,2) ; 
-                ELSIF v_format = '5-4-1' 
-                THEN 
-                    ret_ndc := SUBSTR(v_ndc,1,5)||SUBSTR(v_ndc,7,4)||'0'||SUBSTR(v_ndc,12,1) ; 
-                ELSIF v_format = '5-3-2' 
-                THEN 
-                    ret_ndc := SUBSTR(v_ndc,1,5)||'0'||SUBSTR(v_ndc,7,3)||SUBSTR(v_ndc,11,2) ; 
-                ELSIF v_format = '4-4-2' 
-                THEN 
-                    ret_ndc := '0'||SUBSTR(v_ndc,1,4)||SUBSTR(v_ndc,6,4)||SUBSTR(v_ndc,11,2) ; 
-                END IF; 
-        -- If NDC passed has 11 digits without any '-' then return input NDC as Normalized NDC value 
-    ELSIF INSTR(v_ndc,'-') = 0 AND LENGTH(v_ndc) = 11 
-        THEN    
-          ret_ndc := v_ndc; 
-        END IF; 
-         IF ret_ndc is NULL
-         THEN
-           ret_ndc :=v_ndc;
-        END IF;
-         -- Replace '*' with '0' as some of NDC from MTHFDA contain * instead of 0      
-        RETURN REPLACE(ret_ndc,'*','0'); 
-
-        EXCEPTION 
-          WHEN OTHERS THEN 
-            NULL; 
-END Get_Norm_Ndc; 
-
 
 --************************* MEME_OPERATIONS_ERROR ***************************
 PROCEDURE meme_operations_error (
@@ -653,8 +585,15 @@ BEGIN
              SELECT concept_id, cui, max(rank) as rank
          FROM
          (SELECT /*+ parallel(a) */ a.concept_id, a.last_release_cui cui,
-                MEME_RANKS.get_atom_editing_rank(b.rank, c.release_rank,
-                 a.last_release_rank, a.sui , a.aui, a.atom_id)
+                b.rank || LPAD(c.release_rank,4,0) ||
+                 a.last_release_rank || a.sui ||
+                 LPAD(
+                  SUBSTR(a.aui,
+                         INSTR(a.aui,
+                               (SELECT value FROM code_map 
+                                WHERE code = ''AUI'' AND type = ''ui_prefix''))+1),                  
+                  (SELECT value FROM code_map 
+                   WHERE code = ''AUI'' AND type = ''ui_length''),''0'') 
                  || ''1'' as rank
              FROM ' || suspect_atoms || ' a, tobereleased_rank b,
                 termgroup_rank c
@@ -663,8 +602,15 @@ BEGIN
            AND a.last_release_cui IS NOT NULL
           UNION ALL
            SELECT /*+ parallel(a) */ a.concept_id, a.last_assigned_cui,
-                MEME_RANKS.get_atom_editing_rank(b.rank, c.release_rank,
-                 a.last_release_rank, a.sui , a.aui, a.atom_id)
+                b.rank || LPAD(c.release_rank,4,0) ||
+                 a.last_release_rank || a.sui ||
+                 LPAD(
+                  SUBSTR(a.aui,
+                   INSTR(a.aui,
+                         (SELECT value FROM code_map 
+                          WHERE code = ''AUI'' AND type = ''ui_prefix''))+1),
+                  (SELECT value FROM code_map 
+                   WHERE code = ''AUI'' AND type = ''ui_length''),''0'')
                  || ''0'' as rank
               FROM ' || suspect_atoms || ' a, tobereleased_rank b,
                 termgroup_rank c
@@ -1035,7 +981,7 @@ BEGIN
     ct := 0;
     location := '390.2';
     OPEN curvar FOR
-        'SELECT DISTINCT a.concept_id, a.cui
+        'SELECT a.concept_id, a.cui
          FROM ' || cui_assignment || ' a, classes b
          WHERE a.concept_id = b.concept_id
            AND nvl(last_assigned_cui,''null'') != nvl(a.cui,''null'') ';

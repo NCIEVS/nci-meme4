@@ -9,10 +9,10 @@
 #
 # Configure environment
 #
-setenv ENV_HOME /umls_prod/umls_apps/env
-setenv ENV_FILE $ENV_HOME/etc/env.prop.midp.chin
+setenv ENV_HOME /d5/MEME4
+setenv ENV_FILE $ENV_HOME/etc/env.prop
 source $ENV_HOME/bin/env.csh
-setenv LOG_HOME /umls_prod/log_root/meme/
+setenv LOG_HOME $MEME_HOME/log
 set date=`/bin/date +%Y%m%d`
 set logfile="${LOG_HOME}/nightly_tasks.$date.log"
 
@@ -32,10 +32,10 @@ echo >>&! $logfile
 #
 # Get database and user info
 #
-
-set database=`$MIDSVCS_HOME/bin/midsvcs.pl -s editing-db`
+set user=`$MIDSVCS_HOME/bin/get-oracle-pwd.pl`
+set database=`$MIDSVCS_HOME/bin/midsvcs.pl -s production-db`
 echo "database: $database" >>&! $logfile
-set user=`$MIDSVCS_HOME/bin/get-oracle-pwd.pl -d $database`
+
 #
 # Save state of dba_cutoff and cutoff editing
 #
@@ -65,11 +65,11 @@ echo >>&! $logfile
     #
     echo "TASK: Shutting down server ...`/bin/date`" >>&! $logfile
     set port=`$MIDSVCS_HOME/bin/midsvcs.pl -s meme-server-port`
-    $MEME_HOME/bin/meme_server_occs.sh stop $port | sed 's/^/      /' >>&! $logfile
+    $MEME_HOME/bin/meme_server.sh stop $port | sed 's/^/      /' >>&! $logfile
     echo "TASK DONE: Shutting down server `/bin/date`" >>&! $logfile
 	echo >>&! $logfile
     echo "TASK: Staring down server ...`/bin/date`" >>&! $logfile
-    $MEME_HOME/bin/meme_server_occs.sh start $port $database | sed 's/^/      /' >>&! $logfile
+    $MEME_HOME/bin/meme_server.sh start $port $database | sed 's/^/      /' >>&! $logfile
     echo "TASK DONE: Staring down server `/bin/date`" >>&! $logfile
 	echo >>&! $logfile
 
@@ -88,12 +88,7 @@ echo >>&! $logfile
 #    $MEME_HOME/bin/assign_cuis.pl $database | sed 's/^/      /' >>&! $logfile
 #    echo "TASK DONE: Run CUI assignment `/bin/date`" >>&! $logfile
 #	echo >>&! $logfile
-    #
-    # Recompute preferred names
-    #
-    echo "TASK: Remove redundant MTH/TMs ...`/bin/date`" >>&! $logfile
-    $MEME_HOME/bin/mthtm.pl -d MERGED $database MTH | sed 's/^/      /' >>&! $logfile
-    echo "TASK DONE: Remove redundant MTH/TMs ...`/bin/date`" >>&! $logfile
+
     #
     # Recompute preferred names
     #

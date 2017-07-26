@@ -23,18 +23,17 @@ import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * WARNING: DEPRECATED - DO NOT USE THIS CLASS
- * @deprecated
- */
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+
 public class MedlineConverter {
 	 private int heading_id;
 	 private String subheading_qa;
-	 private static String user, password, host, sid;
+	 private static String user, password, host, sid, xml;
 	  private Set error_seen = new HashSet();
-	 private static PrintWriter coc_heading, coc_subheading;
+	 private static PrintWriter coc_heading, coc_subheading, todel;
 //	 contains the names of the active tags
-//	  private HashSet active = new HashSet();
+	  private HashSet active = new HashSet();
 
 	  // Map of heading names to atom_ids and codes
 	  private Map hid = new Hashtable();

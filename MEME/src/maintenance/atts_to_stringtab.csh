@@ -6,7 +6,6 @@
 # Remarks:  converts attributes.src. Call with -help for more info
 #
 # Changes:
-# 02/24/2009 BAC (1-GCLNT): Better error reporting (for parallelization)
 # 12/22/2005 BAC (1-719SM): use open ":utf8"  added to perl call
 #
 # Version info
@@ -60,12 +59,12 @@ endif
 # get variables
 set dir=$1
 if (! (-d $dir)) then
-    echo "ERROR $dir is not a directory."
+    echo "$dir is not a directory."
     exit 1
 endif
 set file=$dir/attributes.src
 if (!(-e $file)) then
-    echo "ERROR $file does not exist."
+    echo "$file does not exist."
     exit 1
 endif
 set cur_dir=`pwd`
@@ -118,10 +117,6 @@ $perl -e ' \
     } \
   }; \
   close(STR);' $offset ${file}.bak >! $file
-if ($status != 0) then
-    echo "ERROR: something went wrong"
-    exit 1
-endif
 
 cd $cur_dir
 

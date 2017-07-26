@@ -2,8 +2,7 @@
  *
  * Package: gov.nih.nlm.meme.client
  * Object:  FinderClient
- * Version Information
- * 03/06/2007 3.12.4 SL (1-DNO15) : Adding a new function find_concepts_by_ndc to retrieve the NDC Concepts
+ *
  *****************************************************************************/
 package gov.nih.nlm.meme.client;
 
@@ -522,49 +521,6 @@ public class FinderClient extends ClientAPI {
     return (Concept[]) request.getReturnValue("concepts_by_code").getValue();
   }
 
-  
-  /**
-   * Finds {@link Concept}s with at least one{@link Atom} having a matching
-   * code (<B>SERVER CALL</B>).
-   * Restricts search based on the way this instance has been configured.
-   * @param code the {@link Code}
-   * @return all {@link Concept}s matching the criteria
-   * @throws MEMEException if anything goes wrong
-   */
-  public Concept[] findConceptsByNDC(Code code) throws MEMEException {
-
-    // Prepare request document
-    MEMEServiceRequest request = getServiceRequest();
-    request.addParameter(new Parameter.Default("function",
-                                               "find_concepts_by_ndc"));
-    request.addParameter(new Parameter.Default("code", code));
-    request.addParameter(new Parameter.Default("max_result_count",
-                                               max_result_count));
-    request.addParameter(new Parameter.Default("semantic_types", stys));
-    request.addParameter(new Parameter.Default("sources", sources));
-    request.addParameter(new Parameter.Default("releasable",
-                                               new Boolean(releasable)));
-    request.addParameter(new Parameter.Default("chemical",
-                                               new Boolean(chemical)));
-    request.addParameter(new Parameter.Default("non_chemical",
-                                               new Boolean(non_chemical)));
-
-    // Issue request
-    request = getRequestHandler().processRequest(request);
-
-    // Handle exceptions
-    Exception[] exceptions = request.getExceptions();
-    if (exceptions.length > 0) {
-      throw (MEMEException) exceptions[0];
-    }
-
-    // Process and return response
-    return (Concept[]) request.getReturnValue("concepts_by_ndc").getValue();
-  }
-
-  
-  
-  
   /**
    * Finds {@link Concept}s with at least one{@link Atom} having a matching
    * string (<B>SERVER CALL</B>).
@@ -603,7 +559,7 @@ public class FinderClient extends ClientAPI {
     return (Concept[]) request.getReturnValue("exact_string").getValue();
 
   }
-  
+
   /**
    * Finds {@link Concept}s with at least one{@link Atom} having a matching
    * normalized string (<B>SERVER CALL</B>).

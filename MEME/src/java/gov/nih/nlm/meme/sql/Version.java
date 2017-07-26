@@ -65,7 +65,7 @@ import java.util.Date;
  * <dd>
  * {@link ActionEngine} has more rigorous methodology for handling actions and
  * inter-operating with MRD.
-     * {@link MEMEDataSourceFactory} accepts a name like "cheek_midp"
+     * {@link MEMEDataSourceFactory} accepts a name like "apollo.lexical.com_apelon"
  * where it is machine/sid separated by _.  If this form exists without a _, it
  * is assumed that the machine has the suffix ".nlm.nih.gov".
      * {@link MEMEConnectionQueries} does not refer to <code>operations_queue</code>.

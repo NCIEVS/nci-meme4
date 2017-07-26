@@ -35,7 +35,7 @@ import javax.swing.event.EventListenerList;
      * should be disabled and when it should be re-enabled.  For a full test-example
  * please see {@link TestFinderFrame}.
  *
- * @author  Brian Carlsen (bcarlsen@msdinc.com)
+ * @author  Brian Carlsen (bcarlsen@apelon.com)
  */
 
 public class ChangeDataSourceAction extends AbstractAction {

@@ -15,14 +15,11 @@
 # action=<WMS action>
 # db=alternate database - default is that pointed to by editing-db MID service
 
-BEGIN
-{
 unshift @INC, "$ENV{ENV_HOME}/bin";
-require "env.pl";
-unshift @INC, "$ENV{EMS_HOME}/lib";
-unshift @INC, "$ENV{EMS_HOME}/bin";
-}
 
+require "env.pl";
+
+use lib "$ENV{EMS_HOME}/lib";
 use Getopt::Std;
 use Archive::Zip;
 use Data::Dumper;
@@ -52,6 +49,7 @@ EMSUtils->loadConfig;
 #$ENV{LVGIF_HOME} = $EMSCONFIG{LVGIF_HOME};
 #$ENV{DBPASSWORD_HOME} = $EMSCONFIG{DBPASSWORD_HOME};
 
+
 # WMS specific vars
 $wmstimestamp = time;
 $SESSIONID = sprintf("%d:%s", $wmstimestamp, $ENV{REMOTE_ADDR});
@@ -72,11 +70,9 @@ $EMSCONFIG{LEVEL0NICKNAME} = "level0" unless $EMSCONFIG{LEVEL0NICKNAME};
 
 $db = $query->param('db') || Midsvcs->get($opt_s || 'editing-db');
 $oracleuser = $EMSCONFIG{ORACLE_USER};
-$oraclepassword = GeneralUtils->getOraclePassword($oracleuser,$db);
+$oraclepassword = GeneralUtils->getOraclePassword($oracleuser);
 eval { $dbh = new OracleIF("db=$db&user=$oracleuser&password=$oraclepassword"); };
 &printhtml({db=>$db, body=>"Database: $db is unavailable", printandexit=>1}) if ($@ || !$dbh);
-#modify for time format, alter oracle session
-$dbh->executeStmt("alter session set NLS_DATE_FORMAT='dd-MON-yyyy hh24:mi:ss'");
 #$ENV{ORACLE_HOME} = $EMSCONFIG{ORACLE_HOME};
 
 # Used for HTTP GETs
@@ -136,7 +132,7 @@ if ($emsaccess eq "CLOSED" && ($action ne 'db' && $action ne "access")) {
   my($html) = "The EMS and WMS are currently closed for use for database " . $query->b($db);
 
   $html .= $query->p;
-  $html .= $query->start_form(-method=>'POST', -action=>$query->url(-absolute=>1));
+  $html .= $query->start_form(-method=>'POST', -action=>$query->url());
   $html .= $query->hidden(-name=>'action', -value=>'db', -override=>1);
   $html .= $query->submit(-value=>"Change DB");
   $html .= $DBpost;
@@ -152,7 +148,7 @@ if ($emsaccess eq "CLOSED" && ($action ne 'db' && $action ne "access")) {
   &printhtml({body=>$html . ".", printandexit=>1});
 }
 
-$logdir = $ENV{EMS_LOG_DIR} . "/log";
+$logdir = $ENV{EMS_HOME} . "/log";
 mkpath $logdir, 0775;
 $tmpdir = $logdir;
 chomp($currentyear = `/bin/date "+%Y"`);

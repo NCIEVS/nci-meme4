@@ -25,9 +25,6 @@ public class StringTableCellRenderer extends DefaultTableCellRenderer {
     static final String TBR_IDENTIFIER = "Tbr";
     static final String UNDO_IDENTIFIER = "Undo";
     static final String SORT_RANK_IDENTIFIER = "Sort Rank";
-    static final String SUPP_IDENTIFIER = "Suppressible";
-    static final String SOURCE_IDENTIFIER = "Source";
-    static final String BASE_AMBIGUITY_FLAG = "Base_ambig";
     // Fields
     private SortableJTable s_table = null;
     private TableModel model = null;
@@ -35,9 +32,6 @@ public class StringTableCellRenderer extends DefaultTableCellRenderer {
     protected int tbr_column = -1;
     protected int undo_column = -1;
     protected int sort_rank_column = -1;
-    protected int supp_column = -1;
-    protected int rsab_column = -1;
-    protected int base_ambig_column = -1;
 
     // Constructor
     public StringTableCellRenderer(SortableJTable table, TableModel model) {
@@ -64,12 +58,6 @@ public class StringTableCellRenderer extends DefaultTableCellRenderer {
             undo_column = index;
         } else if (identifier.equals(SORT_RANK_IDENTIFIER)) {
             sort_rank_column = index;
-        } else if (identifier.equals(SUPP_IDENTIFIER)) {
-        	supp_column = index;
-        } else if (identifier.equals(SOURCE_IDENTIFIER)) {
-        	rsab_column = index;
-        }else if (identifier.equals(BASE_AMBIGUITY_FLAG)) {
-        	base_ambig_column = index;
         }
     }
 
@@ -82,9 +70,6 @@ public class StringTableCellRenderer extends DefaultTableCellRenderer {
         String tbr = null;
         boolean undo = false;
         String sort_rank = null;
-        String suppressible = null;
-        String rsab = null;
-        String baseAmbiguity = null;
         if (status_column != -1) {
             status = (String) model.getValueAt(s_table.mapIndex(row),
                     status_column);
@@ -100,19 +85,6 @@ public class StringTableCellRenderer extends DefaultTableCellRenderer {
             sort_rank = ((String) model.getValueAt(s_table.mapIndex(row),
                     sort_rank_column));
         }
-        if (supp_column != -1) {
-        	suppressible = ((String) model.getValueAt(s_table.mapIndex(row),
-                    supp_column));
-        }
-        if (rsab_column != -1) {
-        	rsab = ((String) model.getValueAt(s_table.mapIndex(row),
-                    rsab_column));
-        }
-        if (base_ambig_column != -1) {
-        	baseAmbiguity = ((String) model.getValueAt(s_table.mapIndex(row),
-                    base_ambig_column));
-        }
-
         if (isSelected) {
             setBackground(table.getSelectionBackground());
         } else {
@@ -122,26 +94,10 @@ public class StringTableCellRenderer extends DefaultTableCellRenderer {
                 && (sort_rank.startsWith(RelationshipsFrame.JUST_EDITED))) {
             setForeground(new Color(252, 2, 251)); // Purple
             // color
-        } else if (baseAmbiguity != null && tbr != null
-        			&& (tbr.equals(String.valueOf(CoreData.FV_RELEASABLE)) || 
-        					tbr.equals(String.valueOf(CoreData.FV_WEAKLY_RELEASABLE))) ){
-      		setForeground(new Color(255, 128, 0)); // Orange
-      	  /**
-             * Soma: Adding a logic if the source is RxNorm, and the suppressiblity is 'O' set the row as purple.
-             */
-        } else if ((suppressible != null) &&
-                suppressible.equals("O") &&
-                rsab != null &&
-                (rsab.startsWith("RXNORM") ||
-                 rsab.startsWith("GO"))&& !((tbr != null)
-                && tbr.equals(String.valueOf(CoreData.FV_WEAKLY_UNRELEASABLE))
-                && ((status == null) || !status.equals(String
-                        .valueOf(CoreData.FV_STATUS_DEMOTED))))){
-      		setForeground(new Color(252, 2, 251)); // Purple
+        }
         // logic added on 12/22/2004:
         // if tbr == n and datum is a demotion, it should appear in red
-
-        } else if ((tbr != null)
+        else if ((tbr != null)
                 && tbr.equals(String.valueOf(CoreData.FV_WEAKLY_UNRELEASABLE))
                 && ((status == null) || !status.equals(String
                         .valueOf(CoreData.FV_STATUS_DEMOTED)))) {
@@ -149,14 +105,11 @@ public class StringTableCellRenderer extends DefaultTableCellRenderer {
         } else if ((sort_rank != null)
                 && (sort_rank.startsWith(RelationshipsFrame.NEEDS_REVIEW))) {
             setForeground(Color.red);
-          
         } else if ((status != null)
                 && (status.equals(String
                         .valueOf(CoreData.FV_STATUS_NEEDS_REVIEW)) || status
                         .equals(String.valueOf(CoreData.FV_STATUS_DEMOTED)))) {
             setForeground(Color.red);
-
-        
         } else {
             setForeground(table.getForeground());
         }

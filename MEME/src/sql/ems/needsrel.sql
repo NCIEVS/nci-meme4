@@ -4,7 +4,7 @@ select a.concept_id, r from (
   WHERE
   C1.CONCEPT_ID <> C2.CONCEPT_ID
   AND C1.CODE = C2.CODE
-  AND C1.SOURCE = (select current_name from source_version where source='SNOMEDCT_US')
+  AND C1.SOURCE = (select current_name from source_version where source='SNOMEDCT')
   AND C2.SOURCE = C1.SOURCE
   AND C1.TTY = 'FN'
   AND C2.TTY = 'PT'

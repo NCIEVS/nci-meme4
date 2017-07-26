@@ -2,7 +2,6 @@
  *
  * Package: gov.nih.nlm.mrd.client
  * Object:  ReleaseClient
- *   03/08/2007 TTN (1-DKB57): Add Finish Release method
  *
  *****************************************************************************/
 
@@ -17,7 +16,7 @@ import gov.nih.nlm.mrd.common.QAReport;
 import gov.nih.nlm.mrd.common.QAResult;
 import gov.nih.nlm.mrd.common.ReleaseInfo;
 import gov.nih.nlm.mrd.common.ReleaseTarget;
-import gov.nih.nlm.meme.common.StageStatus;
+import gov.nih.nlm.mrd.common.StageStatus;
 
 /**
  * Generically represents the API used to build a Metathesaurus release.
@@ -335,29 +334,6 @@ public abstract class ReleaseClient extends ClientAPI {
   }
 
   /**
-   * Requests that the server finish the specified release.  In the
-   * background, this creates the log file in log/Finished.log
-   * @param release the {@link ReleaseInfo}
-   * @throws MEMEException if failed to finish release
-   */
-  public void finishRelease(ReleaseInfo release) throws MEMEException {
-    // Prepare request document
-    MEMEServiceRequest request = getServiceRequest();
-
-    request.addParameter(new Parameter.Default("function", "finishRelease"));
-    request.addParameter(new Parameter.Default("releaseinfo", release));
-
-    // Issue request
-    request = getRequestHandler().processRequest(request);
-
-    // Handle exceptions
-    Exception[] exceptions = request.getExceptions();
-    if (exceptions.length > 0) {
-      throw (MEMEException) exceptions[0];
-    }
-  }
-
-  /**
    * Indicates whether or not the specified release is ready to be built.
    * @param release_name the release name
    * @return true if all prerequisites for build are finished
@@ -380,30 +356,6 @@ public abstract class ReleaseClient extends ClientAPI {
     }
     return ( (Boolean) request.getReturnValue("isReadyForBuild").getValue()).
         booleanValue();
-  }
-
-  /**
-   * Indicates whether or not the specified release is already finished.
-   * @param release_name the release name
-   * @return true if the release is finished
-   * @throws MEMEException if failed to process the request
-   */
-  public StageStatus getReleaseStatus(String release_name) throws MEMEException {
-    // Prepare request document
-    MEMEServiceRequest request = getServiceRequest();
-
-    request.addParameter(new Parameter.Default("function", "getReleaseStatus"));
-    request.addParameter(new Parameter.Default("release_name", release_name));
-
-    // Issue request
-    request = getRequestHandler().processRequest(request);
-
-    // Handle exceptions
-    Exception[] exceptions = request.getExceptions();
-    if (exceptions.length > 0) {
-      throw (MEMEException) exceptions[0];
-    }
-    return (StageStatus) request.getReturnValue("releaseStatus").getValue();
   }
 
   /**

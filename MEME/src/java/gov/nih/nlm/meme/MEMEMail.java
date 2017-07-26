@@ -233,19 +233,19 @@ public class MEMEMail {
     System.out.println(
         "--------------------------------------------------------");
     System.out.println("from: test@test.com");
-    System.out.println("to[0]: bcarlsen@msdinc.com");
-    System.out.println("to[1]: bcarlsen@msdinc.com");
-    System.out.println("cc[0]: bcarlsen@msdinc.com");
-    System.out.println("bcc[0]: bcarlsen@msdinc.com");
-    System.out.println("smtp_host: mailfwd.nih.gov");
+    System.out.println("to[0]: carlsen@apelon.com");
+    System.out.println("to[1]: bcarlsen@apelon.com");
+    System.out.println("cc[0]: carlsen@apelon.com");
+    System.out.println("bcc[0]: carlsen@apelon.com");
+    System.out.println("smtp_host: mail.apelon.com");
     System.out.println("subject: test");
     System.out.println("message_text: this is a test");
     MEMEMail mail = new MEMEMail();
     mail.from = "test@test.com";
-    mail.to = new String[] {"bcarlsen@msdinc.com", "bcarlsen@msdinc.com"};
-    mail.cc = new String[] {"bcarlsen@msdinc.com"};
-    mail.bcc = new String[] {"bcarlsen@msdinc.com"};
-    mail.smtp_host = "mailfwd.nih.gov";
+    mail.to = new String[] {"carlsen@apelon.com", "bcarlsen@apelon.com"};
+    mail.cc = new String[] {"carlsen@apelon.com"};
+    mail.bcc = new String[] {"carlsen@apelon.com"};
+    mail.smtp_host = "mail.apelon.com";
     subject = "test";
     message_text = "This message is a test.";
 
@@ -273,7 +273,7 @@ public class MEMEMail {
     // Make it fail (null from);
     System.out.println("\nTest 3:  Fail: null from");
     System.out.println("----------------------------------");
-    mail.smtp_host = "mailfwd.nih.gov";
+    mail.smtp_host = "mail.apelon.com";
     mail.from = null;
     try {
       mail.send(subject, message_text);
@@ -309,8 +309,8 @@ public class MEMEMail {
     // Make it fail (bad smtp host)
     System.out.println("\nTest 6:  Fail: illegal SMTP host");
     System.out.println("----------------------------------");
-    mail.to = new String[] {"bcarlsen@msdinc.com", "bcarlsen@msdinc.com"};
-    mail.smtp_host = "badmail.xxx.com";
+    mail.to = new String[] {"carlsen@apelon.com", "carlsen@apelon.com"};
+    mail.smtp_host = "badmail.apelon.com";
     try {
       mail.send(subject, message_text);
       System.out.println("Message sent successfully ..." + (new Date()) + "\n");
@@ -321,7 +321,7 @@ public class MEMEMail {
     // Make it fail (bad smtp host)
     System.out.println("\nTest 6:  Fail: illegal recipient");
     System.out.println("----------------------------------");
-    mail.smtp_host = "mailfwd.nih.gov";
+    mail.smtp_host = "mail.apelon.com";
     mail.to = new String[] {"badmail"};
     mail.cc = null;
     mail.bcc = null;

@@ -19,9 +19,7 @@ import gov.nih.nlm.util.FieldedStringTokenizer;
 import java.lang.reflect.Constructor;
 import java.sql.Driver;
 import java.sql.DriverManager;
-import java.sql.SQLException;
 import java.util.Properties;
-import oracle.jdbc.OracleDriver;
 
 /**
  * Responsible for creating the "right" kind of
@@ -70,77 +68,61 @@ public class MEMEDataSourceFactory {
 
     String jdbc_string = null;
     String service = properties.getProperty("service");
-    
+
     if (service.endsWith("-db")) {
       service = MIDServices.getService(service);
+
+      // Append -jdbc to service name and look up using MIDService
     }
-    
-    // Append -jdbc to service name and look up using MIDService
     String jdbc_service = service + "-jdbc";
     jdbc_string = MIDServices.getService(jdbc_service);
 
     String ds_name = null;
     String machine = null;
     String db_name = null;
-    String[] fields = FieldedStringTokenizer.split(service, "_");
-    machine = fields[0];
-    
-    if (jdbc_string == null || jdbc_string == "") {
-    	// naveen: UMLS:136: do nothing if length is 1; set db_name if length = 2; throw exception otherwise
-    	if (fields.length == 2) {
-        db_name = fields[1];
-        
-    	}else if (fields.length == 1){
-    		
-    	}else {
-    		DataSourceConnectionException dsce = new DataSourceConnectionException(
-            "Failed to connect to data source.");
-    		dsce.setDetail("service", service);
-    		throw dsce;
-    	}
 
-      // Construct jdbc string
+    if (jdbc_string == null || jdbc_string == "") {
+      String[] fields = FieldedStringTokenizer.split(service, "_");
       if (fields.length == 2) {
-    	  if (machine.indexOf(".") == -1) {
-    		  jdbc_string = "jdbc:oracle:thin:@" + machine + ".nlm.nih.gov:1521:" + db_name;
-        
-    	  } else {
-    		  jdbc_string = "jdbc:oracle:thin:@" + machine + ":1521:" + db_name;
-    	  }
+        machine = fields[0];
+        db_name = fields[1];
+      } else {
+        DataSourceConnectionException dsce = new DataSourceConnectionException(
+            "Failed to connect to data source.");
+        dsce.setDetail("service", service);
+        throw dsce;
       }
 
+      // Construct jdbc string
+      if (machine.indexOf(".") == -1) {
+        jdbc_string = "jdbc:oracle:thin:@" + machine + ".nlm.nih.gov:1521:" +
+            db_name;
+      } else {
+        jdbc_string = "jdbc:oracle:thin:@" + machine + ":1521:" + db_name;
+      }
     } else {
-    	
-    	if (fields.length == 2) {
       // Extract the 1st 18 char that must be "jdbc:oracle:thin:@" and
       // this will give something like machine:1521:db_name.
-    		FieldedStringTokenizer st = new FieldedStringTokenizer(jdbc_string.substring(18), ":");
+      FieldedStringTokenizer st =
+          new FieldedStringTokenizer(jdbc_string.substring(18), ":");
 
       // Only care about the machine and db_name, so here skip the 2nd token
-    		machine = st.nextToken().toString();
-    		st.nextToken();
-    		db_name = st.nextToken().toString();
-      
-    		// If machine is like oa.nlm.nih.gov, make it just oa
-    		if (machine.indexOf('.') != -1) {
-    			machine = machine.substring(0, machine.indexOf('.'));
-    		}
-    	}
+      machine = st.nextToken().toString();
+      st.nextToken();
+      db_name = st.nextToken().toString();
+
+      // If machine is like oa.nlm.nih.gov, make it just oa
+      if (machine.indexOf('.') != -1) {
+        machine = machine.substring(0, machine.indexOf('.'));
+      }
     }
-    
+
     // Set data source name
-    if (fields.length == 2)
-    	ds_name = machine + "_" + db_name;
-    
-    // naveen: UMLS:136: length will be 1 when conneting to db as a data service(example dmid1) not as host:port:db 
-    if (fields.length == 1){
-    	// this is no good for NCI-META
-        // jdbc_string = "jdbc:oracle:thin:@" + machine;
-    	ds_name = machine;
-    }
-    	
+    ds_name = machine + "_" + db_name;
+
     // Service must be set correctly here
     service = jdbc_string;
+
     // Get the username and password
     String user = properties.getProperty("user");
     String password = properties.getProperty("password");
@@ -160,7 +142,6 @@ public class MEMEDataSourceFactory {
           Class.forName("java.sql.Connection")};
       constructor = connection_class.getConstructor(args);
     } catch (Exception e) {
-    	MEMEToolkit.logComment("Failed to get the Connection class\n" + e.toString());
       ReflectionException re = new ReflectionException(
           "Constructor failed.");
       re.setDetail("class", connection_class.getName());
@@ -173,13 +154,9 @@ public class MEMEDataSourceFactory {
       props.setProperty("CHARSET", "UTF8");
       props.put("user",user);
       props.put("password",password);
-     
-      // naveen: UMLS:136: setting TNS_ADMIN to get db details from tnsnames.ora
-      System.setProperty("oracle.net.tns_admin", System.getenv("TNS_ADMIN"));     
- 
       MEMEConnection conn =
           (MEMEConnection) constructor.newInstance(new Object[] {
-          DriverManager.getConnection(service, props)});    
+          DriverManager.getConnection(service, props)});
       conn.setServiceName(properties.getProperty("service"));
       conn.setDataSourceName(ds_name);
       if (!conn.isCacheLoaded()) {
@@ -193,15 +170,13 @@ public class MEMEDataSourceFactory {
 
       return source;
 
-    }catch (Exception e) {
-    	MEMEToolkit.logComment("Failed to open the datasource" + e.toString() + "user [" + user + "] password [" + password + "]");
+    } catch (Exception e) {
       DataSourceConnectionException dsce = new DataSourceConnectionException(
           "Failed to open data source.", e);
       dsce.setDetail("driver_class", properties.getProperty("driver_class"));
       dsce.setDetail("service", properties.getProperty("service"));
       dsce.setDetail("user", properties.getProperty("user"));
       dsce.setDetail("connection", properties.getProperty("connection"));
-      MEMEToolkit.logComment("exception cause: " + e.getCause());
       throw dsce;
     }
   }

@@ -6,7 +6,6 @@
 # Wrapper script for starting MEME application server.
 #
 # Version Information
-# 4.10.1 07/12/2007  Increasing the memory parameter to 2GB (Soma Lanka)
 # 4.10.0 03/23/2005:  More generous memeory parameters (2GB max)
 # 4.9.0 05/16/2003:  Headless
 # 4.8.0 05/12/2003:  Released
@@ -63,7 +62,7 @@ chop($time);
 #
 # Set java stuff
 #
-$java = "$ENV{JAVA_HOME}/bin/java -server -Xms200M -Xmx2000M ";
+$java = "$ENV{JAVA_HOME}/bin/java -server -Xms200M -Xmx800M ";
 $class = "gov.nih.nlm.meme.server.MEMEApplicationServer";
 
 #
@@ -207,7 +206,7 @@ if ($badargs) {
 #
 # look up user/password
 #
-$userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl -d $db`;
+$userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl`;
 chop($userpass);
 ($user,$pass) = split /\//, $userpass;
 $options{"meme.mid.user.default"} = $user;

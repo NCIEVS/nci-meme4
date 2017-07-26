@@ -19,6 +19,8 @@ import gov.nih.nlm.meme.client.ServerChangeListener;
 import gov.nih.nlm.meme.exception.MEMEException;
 import gov.nih.nlm.swing.DecreaseFontAction;
 import gov.nih.nlm.swing.GlassComponent;
+import gov.nih.nlm.swing.RearrangeWindowLayoutManager;
+import gov.nih.nlm.umls.jekyll.WorkFilesFrame.RearrangeWindowLayoutAction;
 import gov.nih.nlm.umls.jekyll.swing.ListDialog;
 import gov.nih.nlm.util.BrowserLauncher;
 
@@ -26,7 +28,9 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Event;
 import java.awt.Insets;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
@@ -58,6 +62,8 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.border.LineBorder;
 
+import com.Ostermiller.util.PasswordDialog;
+
 import samples.accessory.StringGridBagLayout;
 
 /**
@@ -74,7 +80,7 @@ public class MainFrame extends JFrame implements DataSourceChangeListener,
     // Components
     private GlassComponent glass_comp = null;
 
-    //private MainFrameTF versionTF = null;
+    private MainFrameTF versionTF = null;
 
     private MainFrameTF dbTF = null;
 
@@ -354,7 +360,7 @@ public class MainFrame extends JFrame implements DataSourceChangeListener,
     private JMenu buildEditMenu() {
         JMenu menu = null;
         JMenuItem item = null;
-        //Action a = null;
+        Action a = null;
 
         menu = new JMenu();
         menu.setText(resources.getString("editMenu.label"));
@@ -442,11 +448,11 @@ public class MainFrame extends JFrame implements DataSourceChangeListener,
          * BAC: data driven from the jnlp file (12/21/2005)
          */
         item
-                .setText("Change Password form http://" + System.getProperty("jnlp.meow.url") + "/webapps-meme-editors/changePasswordform.do");
+                .setText("Change Password form http://" + System.getProperty("meow.url") + "/webapps-meme-editors/changePasswordform.do");
         item.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 try {
-                BrowserLauncher.openURL("http://" + System.getProperty("jnlp.meow.url") + "/webapps-meme-editors/changePasswordform.do");
+                BrowserLauncher.openURL("http://" + System.getProperty("meow.url") + "/webapps-meme-editors/changePasswordform.do");
                 } catch (IOException ex) {
                     MEMEToolkit.notifyUser("Failed to open URL.\n"
                             + "Log file may contain more information.");
@@ -668,7 +674,7 @@ public class MainFrame extends JFrame implements DataSourceChangeListener,
     class WorkFilesFrameAction extends AbstractAction {
 
         // Private Fields
-       //private Component target = null;
+        private Component target = null;
 
         // constructor
         public WorkFilesFrameAction(Component comp) {
@@ -678,7 +684,7 @@ public class MainFrame extends JFrame implements DataSourceChangeListener,
             putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(
                     KeyEvent.VK_W, InputEvent.CTRL_MASK));
 
-            //target = comp;
+            target = comp;
         }
 
         public void actionPerformed(ActionEvent e) {
@@ -701,7 +707,7 @@ public class MainFrame extends JFrame implements DataSourceChangeListener,
      * @see AbstractAction
      */
     class ConceptIdFrameAction extends AbstractAction {
-      //  private Component target = null;
+        private Component target = null;
 
         // constructor
         public ConceptIdFrameAction(Component comp) {
@@ -712,7 +718,7 @@ public class MainFrame extends JFrame implements DataSourceChangeListener,
             // 	    putValue(Action.ACCELERATOR_KEY,
             // KeyStroke.getKeyStroke(KeyEvent.VK_W, InputEvent.CTRL_MASK));
 
-            //target = comp;
+            target = comp;
         }
 
         public void actionPerformed(ActionEvent e) {

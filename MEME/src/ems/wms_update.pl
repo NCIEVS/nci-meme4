@@ -62,7 +62,7 @@ all the worklists are set to correct values before submitting
 the form.  It will overwrite the old data with the new if changed.
 EOD
     $html .= $query->p;
-    $html .= $query->start_form(-method=>'POST', -action=>$query->url(-absolute=>1));
+    $html .= $query->start_form(-method=>'POST', -action=>$query->url());
     $html .= $DBpost;
     $html .= $query->hidden(-name=>'doit', -value=>1, -override=>1);
     $html .= $query->hidden(-name=>'action', -value=>$action, -override=>1);
@@ -198,7 +198,7 @@ EOD
 }
 
 sub current_editors {
-  my($sql) = "select distinct initials from editors where cur=" . $dbh->quote('Y') . "order by initials";
+  my($sql) = "select distinct initials from editors where cur=" . $dbh->quote('Y');
   my(@editors) = $dbh->selectAllAsArray($sql);
   return [ $na, @editors ];
 }

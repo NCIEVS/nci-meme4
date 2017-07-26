@@ -1,6 +1,5 @@
 /*
  * AttributesFrame.java
- *  * Modfied: Soma Lanka : Changes related to Attribute printing
  */
 
 package gov.nih.nlm.umls.jekyll;
@@ -8,7 +7,6 @@ package gov.nih.nlm.umls.jekyll;
 import gov.nih.nlm.meme.MEMEToolkit;
 import gov.nih.nlm.meme.action.MolecularChangeAttributeAction;
 import gov.nih.nlm.meme.action.MolecularDeleteAttributeAction;
-
 import gov.nih.nlm.meme.common.Atom;
 import gov.nih.nlm.meme.common.Attribute;
 import gov.nih.nlm.meme.common.Concept;
@@ -22,18 +20,12 @@ import gov.nih.nlm.swing.GlassComponent;
 import gov.nih.nlm.swing.IncreaseFontAction;
 import gov.nih.nlm.umls.jekyll.swing.EditableTableModel;
 import gov.nih.nlm.umls.jekyll.swing.ResizableJTable;
-import gov.nih.nlm.util.HTMLDocumentRenderer;
-import gov.nih.nlm.util.SystemToolkit;
-import gov.nih.nlm.umls.jekyll.swing.TestReportFrame;
 
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.Event;
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
 import java.net.SocketException;
 import java.util.Iterator;
 import java.util.ResourceBundle;
@@ -44,7 +36,6 @@ import javax.swing.Action;
 import javax.swing.Box;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JButton;
-import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -53,11 +44,8 @@ import javax.swing.JMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
-import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.table.TableColumn;
-import javax.swing.text.html.HTMLDocument;
-import javax.swing.text.html.StyleSheet;
 
 import samples.accessory.StringGridBagLayout;
 
@@ -77,7 +65,7 @@ import samples.accessory.StringGridBagLayout;
  */
 public class AttributesFrame extends JFrame implements Refreshable,
         JekyllConstants {
-	 static private double TITLE_SCALE = 1.5;
+
     /**
      * Resource bundle with default locale
      */
@@ -97,11 +85,6 @@ public class AttributesFrame extends JFrame implements Refreshable,
     private final int TABLE_STATUS_COLUMN = 5;
 
     private final int TABLE_TBR_COLUMN = 6;
-    private JTable _printItem;
-
-	private String Footer = null;
-
-	private String Header = null;
 
     // Various components
     private GlassComponent glass_comp = null;
@@ -113,15 +96,14 @@ public class AttributesFrame extends JFrame implements Refreshable,
     private JTextField targetConceptIdTF = null;
 
     private JTextField countTF = null;
-    
-    final HTMLDocumentRenderer hdr = new HTMLDocumentRenderer();
+
     private EditableTableModel attrsModel = null;
 
     private ResizableJTable attrsTable = null;
 
     // Fields
     CloseAction close_action = new CloseAction(this);
-    PrintAction print_action = new PrintAction(this);
+
     private Concept current_concept = null;
 
     private Vector listOfAttrs = new Vector();
@@ -213,16 +195,13 @@ public class AttributesFrame extends JFrame implements Refreshable,
         countTF.setForeground(LABEL_FG);
         countTF.setMinimumSize(countTF.getPreferredSize());
         countTF.setText(resources.getString("countTextField.text"));
-//      "Print" button
-
-        JButton printButton = GUIToolkit.getButton(print_action);
 
         // box container
         b = Box.createHorizontalBox();
         b.add(countLabel);
         b.add(Box.createHorizontalStrut(5));
         b.add(countTF);
-        b.add(printButton);
+
         contents.add(
                 "gridx=1,gridy=1,fill=NONE,anchor=EAST,insets=[12,12,0,11]", b);
 
@@ -275,12 +254,13 @@ public class AttributesFrame extends JFrame implements Refreshable,
         attrsTable.setDefaultRenderer(String.class, renderer);
         sp = new JScrollPane(attrsTable);
         contents
-        .add(
-                "gridx=0,gridy=2,gridwidth=2,fill=BOTH,anchor=CENTER,weightx=1.0,weighty=1.0,insets=[12,12,12,11]",
-                sp);
-        
-        // adding a menu       
+                .add(
+                        "gridx=0,gridy=2,gridwidth=2,fill=BOTH,anchor=CENTER,weightx=1.0,weighty=1.0,insets=[12,12,12,11]",
+                        sp);
+
+        // adding a menu
         setJMenuBar(buildMenuBar());
+
     } // initComponents()
 
     private JMenuBar buildMenuBar() {
@@ -435,32 +415,7 @@ public class AttributesFrame extends JFrame implements Refreshable,
     // --------------------------------
     // Inner Classes
     // --------------------------------
-    class PrintAction extends AbstractAction {
-    	//
-    	//    	 Private Fields
-    	//
-    	private Component target = null;
-   
-    	// Constructor
 
-    	public PrintAction(Component comp) {
-    		putValue(Action.NAME, "Print");
-    		putValue(Action.SHORT_DESCRIPTION, "Print sorted Attributes");
-    		putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_P));
-    		putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_P,Event.CTRL_MASK));
-    		putValue("Background", Color.orange);
-    		target = comp;
-
-    	}
-    	public void actionPerformed(ActionEvent e){
-    		try {
-    		     attrsTable.setSortState(2,true);
-    		     printTable();
-    		   } catch (Exception ex) {
-    				MEMEToolkit.notifyUser( glass_comp,ex.toString());
-    			}
-    	}
-    }
     /**
      * Deletes selected attribute(s).
      * 
@@ -726,101 +681,4 @@ public class AttributesFrame extends JFrame implements Refreshable,
             attrsTable.setSortState(-1, false);
         }
     }
-    
-    
-
-	private void printTable() {
-		final StringBuffer strbuf = new StringBuffer();
-		strbuf.setLength(0);
-	    strbuf.append("<table width=\"800\"><tr><td align=\"center\"><B> <FONT SIZE=\"30\"> Concept ID " + conceptIdTF.getText() + "</FONT></B></TD></TR></TABLE>" );
-	    strbuf.append("<p>");
-	    strbuf.append("<table border=\"2\" align=\"left\" width=\"800\">");
-	    // Create a Header Row
-	    strbuf.append("<tr>");
-	    int colcount = attrsTable.getColumnCount();
-	    int j=0;
-	    String width;
-		for (int i=0; i < colcount; i++) {
-			
-			if (i == 3) {
-				width = "200";
-			} else {
-				width = "150";
-			}
-			strbuf.append("<td align=\"center\" colspan=\"1\" width=\"" + width + "\">");
-			strbuf.append("<B><FONT SIZE=\"4\">" + attrsTable.getColumnModel().getColumn(i).getHeaderValue() + "</FONT></B></td>");
-		}
-		strbuf.append("</tr>");
-	    for (int row = 0; row < attrsTable.getRowCount(); row++) {
-	    	if (attrsTable.getValueAt(row,2)!= null &&
-	    			attrsTable.getValueAt(row,2).toString() != null
-	    			&& !attrsTable.getValueAt(row,2).toString().trim().equalsIgnoreCase("CONTEXT")) {
-		    	strbuf.append("<tr>");
-		    		for (int col = 0; col < attrsTable.getColumnCount(); col++) {
-						if (col == 3) {
-							width = "200";
-						} else {
-							width = "150";
-						}
-						strbuf.append("<td align=\"left\" colspan=\"1\" style=\"WORD-BREAK:BREAK-ALL;\" width=\"" + width + "\">");
-						Object temp = attrsTable.getValueAt(row, col);
-						if (temp == null) {
-							strbuf.append(" ");
-						}
-						else {
-							strbuf.append( "<FONT SIZE=\"2\">" + temp.toString() + "</FONT>");
-						}
-						strbuf.append("</td>");
-					} 
-					strbuf.append("</tr>");
-	    	}
-		}
-	    strbuf.append("</table>");
-	    
-	    Thread t = new Thread(new Runnable() {
-            public void run() {
-                TestReportFrame tr_frame = null;
-                String stylesText = "table.color1 {";
-                stylesText += " color: #ffffff;";
-                stylesText += " background-color: #435772;";
-                stylesText += "}";
-                stylesText += "td.color2 {";
-                stylesText += " color: #ffffff;";
-                stylesText += " background-color: #cc3300;";
-                stylesText += "}";
-                StyleSheet styles = new StyleSheet();
-                styles.addRule(stylesText);
-
-                HTMLDocument doc = new HTMLDocument();
-                doc.setParser(new javax.swing.text.html.parser.ParserDelegator());
-                try {
-                    tr_frame = JekyllKit.getReportFrame();
-                    tr_frame.enableGlassPane();
-                    hdr.setOnePagePerSheet();
-                    hdr.setTitle(conceptIdTF.getText());
-                    JEditorPane editor = new JEditorPane();
-                    editor.setContentType("text/html");
-                    //editor.setDocument(doc);
-                    editor.setText(
-                            "<html><head><style> a {text-decoration: none; }</style></head><body>" +
-                            strbuf.toString()
-                            + "</body></html>");
-                    editor
-                            .setText("<html><head></head><body>"
-                                    + strbuf.toString()
-                                    + "</body></html>");
-                    //HTMLDocument doc = (HTMLDocument)editor.getDocument();
-                    hdr.print(editor);
-                    tr_frame.disableGlassPane();     
-                } catch (Exception e) {
-                    if (tr_frame != null) {
-                        tr_frame.disableGlassPane();
-                    }
-                    MEMEToolkit.handleError(e);
-                }
-                ;
-            }
-        });
-        t.start();
-	}
 }

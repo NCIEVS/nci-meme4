@@ -7,13 +7,7 @@ CREATE OR REPLACE PACKAGE MEME_RANKS AS
  * This file contains the MEME_RANKS package
  *
  * Version Information
- * 02/24/2009 BAC (1-GCLNT): Stop ranking attributes/rels.
- * 11/20/2006 BAC (1-CV1JN): MEME_RANKS.get_atom_editing_rank bug when AUI is null.  It was reusing
- *                    aui_prefix, even when no longer set, producing an incorrect-length
- *                    rank value.
- * 11/15/2006 BAC (1-CTLDV): Change to atom rank to ensure SUI,AUI parts are always 9 digits
- * 10/10/2006 BAC (1-CEQ4Z): Fix to algorithm ranking functions
- * 08/31/2006 TTN (1-C261E): add ranking algorithm functions
+ *
  * 03/23/2006 BAC (1-AR2HF): changed set_ranks params to have classes_flag
  *      be the only default "yes" case.
  * 12/30/2004  3.16.0: Released
@@ -94,10 +88,6 @@ CREATE OR REPLACE PACKAGE MEME_RANKS AS
     location		VARCHAR2(10);
     err_msg		VARCHAR2(256);
     method		VARCHAR2(256);
-    
-    sui_prefix_length INTEGER := -1;
-    aui_prefix_length VARCHAR2(10) := -1;
-    aui_prefix VARCHAR2(20) := null;
 
     PROCEDURE initialize_trace ( method  IN VARCHAR2 );
     PRAGMA restrict_references (initialize_trace,WNDS,RNDS);
@@ -187,6 +177,14 @@ CREATE OR REPLACE PACKAGE MEME_RANKS AS
 
     PRAGMA restrict_references (rank_atom,WNDS);
 
+    FUNCTION rank_atom_for_release (
+    	atom_id IN INTEGER,
+	termgroup IN VARCHAR2,
+	foreign_flag IN VARCHAR2 := MEME_CONSTANTS.NO
+    ) RETURN VARCHAR2;
+
+    PRAGMA restrict_references (rank_atom_for_release,WNDS);
+
     FUNCTION calculate_preferred_atom (
 	concept_id IN INTEGER
     ) RETURN INTEGER;
@@ -221,6 +219,13 @@ CREATE OR REPLACE PACKAGE MEME_RANKS AS
     ) RETURN VARCHAR2;
 
     PRAGMA restrict_references (rank_relationship,WNDS);
+
+    FUNCTION get_preferred_relationship (
+	concept_id_1 IN INTEGER,
+	concept_id_2 IN INTEGER
+    ) RETURN INTEGER;
+
+    PRAGMA restrict_references (get_preferred_relationship,WNDS);
 
     FUNCTION set_relationship_rank (
 	relationship_id IN INTEGER,
@@ -345,25 +350,24 @@ CREATE OR REPLACE PACKAGE MEME_RANKS AS
 	work_id	 		INTEGER := 0
     );
 
-    FUNCTION get_atom_editing_rank (
-    	tobereleased_rank IN VARCHAR2,
-    	termgroup_release_rank IN VARCHAR2,
-    	last_release_rank IN VARCHAR2,
-    	sui IN VARCHAR2,
-    	aui IN VARCHAR2,
-    	atom_id IN INTEGER
+    FUNCTION pflag_c (
+	atom_id 		INTEGER,
+	concept_id		INTEGER,
+        foreign_flag IN VARCHAR2 := MEME_CONSTANTS.NO
     ) RETURN VARCHAR2;
 
-    PRAGMA restrict_references (get_atom_editing_rank,WNDS);
-
-    FUNCTION get_atom_release_rank (
-    	termgroup_release_rank IN VARCHAR2,
-    	last_release_rank IN VARCHAR2,
-    	sui IN VARCHAR2,
-    	aui IN VARCHAR2
+    FUNCTION pflag_l (
+       atom_id			INTEGER,
+       concept_id		INTEGER,
+       foreign_flag IN VARCHAR2 := MEME_CONSTANTS.NO
     ) RETURN VARCHAR2;
 
-    PRAGMA restrict_references (get_atom_release_rank,WNDS);
+    FUNCTION pflag_s (
+       atom_id			INTEGER,
+       concept_id		INTEGER,
+       foreign_flag IN VARCHAR2 := MEME_CONSTANTS.NO
+    ) RETURN VARCHAR2;
+
 END meme_ranks;
 /
 SHOW ERRORS
@@ -565,10 +569,10 @@ BEGIN
 	return rank_atom_as_number(row_id,MEME_CONSTANTS.NO,MEME_CONSTANTS.YES);
     ELSIF table_name = MEME_CONSTANTS.TN_ATTRIBUTES OR
           lower(table_name) = lower(MEME_CONSTANTS.LTN_ATTRIBUTES) THEN
-	return 0;
+	return rank_attribute_as_number(row_id);
     ELSIF table_name = MEME_CONSTANTS.TN_RELATIONSHIPS OR
           lower(table_name) = lower(MEME_CONSTANTS.LTN_RELATIONSHIPS) THEN
-	return 0;
+	return rank_relationship_as_number(row_id);
     ELSIF table_name = MEME_CONSTANTS.TN_CONCEPT_STATUS OR
           lower(table_name) = lower(MEME_CONSTANTS.LTN_CONCEPT_STATUS) THEN
 	return 0;
@@ -577,10 +581,10 @@ BEGIN
 	return rank_atom_as_number(row_id,MEME_CONSTANTS.YES);
     ELSIF table_name = MEME_CONSTANTS.TN_SOURCE_ATTRIBUTES OR
           lower(table_name) = 'source_attributes' THEN
-	return 0;
+	return rank_attribute_as_number(row_id,MEME_CONSTANTS.YES);
     ELSIF table_name = MEME_CONSTANTS.TN_SOURCE_RELATIONSHIPS OR
           lower(table_name) = 'source_relationships' THEN
-	return 0;
+	return rank_relationship_as_number(row_id,MEME_CONSTANTS.YES);
     ELSIF table_name = MEME_CONSTANTS.TN_SOURCE_CONCEPT_STATUS OR
           lower(table_name) = 'source_concept_status' THEN
 	return 0;
@@ -603,10 +607,10 @@ BEGIN
 	return set_atom_rank(row_id,field_name);
     ELSIF table_name = MEME_CONSTANTS.TN_ATTRIBUTES OR
 	upper(table_name) = MEME_CONSTANTS.LTN_ATTRIBUTES THEN
-	return 0;
+	return set_attribute_rank(row_id,field_name);
     ELSIF table_name = MEME_CONSTANTS.TN_RELATIONSHIPS OR
 	upper(table_name) = MEME_CONSTANTS.LTN_RELATIONSHIPS THEN
-	return 0;
+	return set_relationship_rank(row_id,field_name);
     END IF;
 
     RETURN 0;
@@ -709,7 +713,7 @@ IS
 BEGIN
     -- strip off SUI and atom_id parts
     rank := rank_atom(atom_id,source_flag,foreign_flag);
-    return to_number(substr(rank,1,6));
+    return to_number(substr(rank,0,length(rank)-(MEME_CONSTANTS.ID_LENGTH*2)));
 
 END rank_atom_as_number;
 
@@ -756,14 +760,21 @@ BEGIN
 	arank := to_char(trank);
     END IF;
 
-    SELECT nvl(max(release_rank),-1) INTO trank
+    SELECT nvl(max(rank),-1) INTO trank
     FROM termgroup_rank WHERE termgroup = atom_row.termgroup;
     IF trank = -1 THEN
 	return MEME_CONSTANTS.EMPTY_RANK;
+    ELSE
+	arank := arank || LPAD(trank,4,'0');
     END IF;
-    
-    arank := get_atom_editing_rank(arank, trank, atom_row.last_release_rank, 
-    			atom_row.sui, atom_row.aui, atom_row.atom_id);
+
+    arank := arank || NVL(atom_row.last_release_rank,0);
+
+    -- Use SUI
+    arank := arank || LPAD(REPLACE(atom_row.sui,'S'),
+			   MEME_CONSTANTS.ID_LENGTH,'0');
+
+    arank := arank || LPAD(atom_row.atom_id,MEME_CONSTANTS.ID_LENGTH,'0');
 
     return arank;
 
@@ -774,6 +785,63 @@ EXCEPTION
 	RETURN MEME_CONSTANTS.EMPTY_RANK;
 
 END rank_atom;
+
+/* FUNCTION RANK_ATOM_FOR_RELEASE **********************************************
+ * Function for ranking atoms
+ * The rank is:  tobereleased termgroup_rank last_release_rank atom_id mm#
+ * For MTH/MM atoms, slightly different
+ */
+FUNCTION rank_atom_for_release (
+    atom_id		IN INTEGER,
+    termgroup		IN VARCHAR2,
+    foreign_flag	IN VARCHAR2 := MEME_CONSTANTS.NO
+)
+RETURN VARCHAR2
+IS
+    concept_id		INTEGER;
+    bracket_number	INTEGER;
+    stripped_string  	VARCHAR2(4000);
+    arank		VARCHAR2(256);
+    trank		INTEGER;
+    mlrr		INTEGER;
+BEGIN
+
+    IF termgroup != 'MTH/MM' THEN
+	return rank_atom(atom_id,'N',foreign_flag)||'00';
+    END IF;
+
+    SELECT concept_id,
+	  MEME_UTILITY.strip_string(atom_name) as ss,
+	  MEME_UTILITY.get_bracket_number(atom_name) as bn
+	INTO rank_atom_for_release.concept_id, stripped_string, bracket_number
+    FROM classes a, atoms b
+    WHERE a.atom_id = rank_atom_for_release.atom_id
+      AND b.atom_id = rank_atom_for_release.atom_id;
+
+    SELECT NVL(max(rank_atom(a.atom_id)),MEME_CONSTANTS.EMPTY_RANK) into arank
+	   --NVL(max(last_release_rank),0) into mlrr
+    FROM classes a, atoms b
+    WHERE a.atom_id = b.atom_id
+      AND a.atom_id != rank_atom_for_release.atom_id
+      AND LOWER(b.atom_name) =
+	  LOWER(stripped_string)
+      AND a.concept_id = rank_atom_for_release.concept_id
+      -- Do NOT compare MMs to PNs
+      AND termgroup != 'MTH/PN';
+
+    IF arank != MEME_CONSTANTS.EMPTY_RANK THEN
+	RETURN arank || LPAD(100-bracket_number,2,0);
+    END IF;
+
+    return arank;
+
+EXCEPTION
+
+    WHEN OTHERS THEN
+	MEME_UTILITY.PUT_MESSAGE('MEME_RANKS::RANK_ATOM: Error => ' || SQLERRM);
+	RETURN MEME_CONSTANTS.EMPTY_RANK;
+
+END rank_atom_for_release;
 
 /* FUNCTION CALCULATE_PREFERRED_ATOM *******************************************
  * Function to get the preferred atom for a concept
@@ -841,8 +909,8 @@ IS
 BEGIN
     -- Add SUI to calculation
     SELECT 
-      NVL(max(get_atom_editing_rank(tbr.rank, tr.release_rank, last_release_rank,  
-	      sui, aui,  atom_id)),
+      NVL(max(tbr.rank||lpad(tr.rank,5,0)||last_release_rank || 
+	      sui || LPAD(atom_id,MEME_CONSTANTS.ID_LENGTH,'0')),
 	  MEME_CONSTANTS.EMPTY_RANK) INTO max_rank
     FROM classes a, tobereleased_rank tbr, termgroup_rank tr
     WHERE concept_id = get_preferred_atom.concept_id
@@ -900,9 +968,6 @@ EXCEPTION
 END set_atom_rank;
 
 /* FUNCTION AFFECTS_RELATIONSHIP_RANK ******************************************
- *
- * DEPRECATED: do not rank relationships
- *
  */
 FUNCTION affects_relationship_rank(
     field_name IN VARCHAR2
@@ -911,14 +976,24 @@ RETURN BOOLEAN
 IS
     fn		VARCHAR2(50);
 BEGIN
-	RETURN FALSE;
+    fn := LOWER(field_name);
+    -- As the rank algorithm changes, this should change
+    IF	fn = 'tobereleased' OR
+	fn = 'status' OR
+	fn = 'level' OR
+	fn = 'source_of_label' OR
+	fn = 'relationship_name' OR
+	fn = 'relationship_id' OR
+	fn = LOWER(MEME_CONSTANTS.NO_FIELDS_CHANGED)
+    THEN
+	RETURN TRUE;
+    END IF;
+
+    RETURN FALSE;
 
 END affects_relationship_rank;
 
 /* FUNCTION RANK_RELATIONSHIP_AS_NUMBER ****************************************
- *
- * DEPRECATED
- *
  */
 FUNCTION rank_relationship_as_number (
     relationship_id		IN INTEGER,
@@ -927,7 +1002,7 @@ FUNCTION rank_relationship_as_number (
 RETURN INTEGER
 IS
 BEGIN
-    return 0;
+    return rank_to_number(rank_relationship(relationship_id,source_flag));
 END rank_relationship_as_number;
 
 /* FUNCTION RANK_RELATIONSHIPS *************************************************
@@ -945,7 +1020,94 @@ IS
      rrank  varchar2(30);
      trank  INTEGER;
 BEGIN
-    return '0';
+
+-- ranking:  tobereleased (level status) relationship_name source_rank
+--
+-- Return relationship id if any invalid values occur.
+--
+
+--    MEME_UTILITY.PUT_MESSAGE('RANK_RELATIONSHIP::relationship_id ' || relationship_id);
+
+    IF source_flag = MEME_CONSTANTS.TN_SOURCE_CXT_RELATIONSHIPS THEN
+      	SELECT relationship_level, status, relationship_name,
+	    source_of_label, relationship_id, tobereleased
+	  INTO
+	 	relationship_row.relationship_level,
+	 	relationship_row.status,
+	 	relationship_row.relationship_name,
+	 	relationship_row.source_of_label,
+	 	relationship_row.relationship_id,
+	 	relationship_row.tobereleased
+    	FROM source_context_relationships
+	WHERE relationship_id = rank_relationship.relationship_id;
+    ELSIF source_flag = MEME_CONSTANTS.YES THEN
+      	SELECT relationship_level, status, relationship_name,
+	    source_of_label, relationship_id, tobereleased
+	  INTO
+	 	relationship_row.relationship_level,
+	 	relationship_row.status,
+	 	relationship_row.relationship_name,
+	 	relationship_row.source_of_label,
+	 	relationship_row.relationship_id,
+	 	relationship_row.tobereleased
+    	FROM source_relationships
+	WHERE relationship_id = rank_relationship.relationship_id;
+    ELSE
+      	SELECT * into relationship_row
+    	FROM relationships
+	WHERE relationship_id = rank_relationship.relationship_id;
+    END IF;
+
+    trank := get_tobereleased_rank(relationship_row.tobereleased);
+
+    IF trank = -1 THEN
+	return MEME_CONSTANTS.EMPTY_RANK;
+    ELSE
+	rrank := to_char(trank);
+    END IF;
+
+    trank := get_level_status_rank('R',
+		   	relationship_row.relationship_level,
+			relationship_row.status );
+    IF trank = -1 THEN
+	return MEME_CONSTANTS.EMPTY_RANK;
+    ELSE
+	rrank := rrank || LPAD(trank,2,'0');
+    END IF;
+
+    trank := get_relationship_name_rank(
+			relationship_row.relationship_name);
+    IF trank = -1 THEN
+	return MEME_CONSTANTS.EMPTY_RANK;
+    ELSE
+	rrank := rrank || LPAD(trank,2,'0');
+    END IF;
+
+    -- Since only one concept level relationship can exist
+    -- between a pair of rels and concept level rels do not
+    -- necessarily have valid SABs, ignore source_authority rank.
+
+    IF relationship_row.relationship_level != MEME_CONSTANTS.CONCEPT_LEVEL THEN
+	trank := get_source_authority_rank(
+		relationship_row.source_of_label,
+		relationship_row.source_of_label);
+	IF trank = -1 THEN
+	    -- If source doesn't exist return 0
+--	    rrank := rrank || '0000';
+	    return MEME_CONSTANTS.EMPTY_RANK;
+	ELSE
+	    rrank := rrank || LPAD(trank,4,'0');
+	END IF;
+
+    ELSE
+
+	rrank := rrank || MEME_CONSTANTS.MTH_RANK;
+
+    END IF;
+
+    rrank := rrank || LPAD(relationship_row.relationship_id,MEME_CONSTANTS.ID_LENGTH,'0');
+
+    return rrank;
 
 EXCEPTION
    WHEN OTHERS THEN
@@ -955,6 +1117,58 @@ EXCEPTION
 END rank_relationship;
 
 
+/* FUNCTION GET_PREFERRED_RELATIONSHIPS ****************************************
+ * Function to get the preferred atom for a concept
+ */
+FUNCTION get_preferred_relationship (
+	concept_id_1 IN INTEGER,
+	concept_id_2 IN INTEGER
+)
+RETURN integer
+
+IS
+
+    preferred_rel_id	integer;
+    CURSOR relationships_cursor IS
+	SELECT relationship_id FROM relationships
+	WHERE concept_id_1 = get_preferred_relationship.concept_id_1
+	  AND concept_id_2 = get_preferred_relationship.concept_id_2
+	UNION SELECT relationship_id FROM relationships
+	WHERE concept_id_1 = get_preferred_relationship.concept_id_2
+	  AND concept_id_2 = get_preferred_relationship.concept_id_1;
+
+    relationship_id	INTEGER;
+    max_rank		VARCHAR2(256);
+    current_rank	VARCHAR2(256);
+
+BEGIN
+
+    initialize_trace('get_preferred_relationship');
+
+    location := '0';
+    OPEN relationships_cursor;
+    max_rank := MEME_CONSTANTS.EMPTY_RANK;
+    LOOP
+	location := '10';
+	FETCH relationships_cursor INTO relationship_id;
+	EXIT WHEN relationships_cursor%NOTFOUND;
+
+	location := '20';
+	err_msg := 'Error ranking relationship (' || relationship_id || ')';
+	current_rank := rank_relationship(relationship_id);
+	err_msg := '';
+	IF current_rank > max_rank THEN
+	    max_rank := current_rank;
+	END IF;
+    END LOOP; -- relationships_cursor
+    location := '30';
+    CLOSE relationships_cursor;
+
+    preferred_rel_id := to_number(substr(max_rank,length(max_rank)-(MEME_CONSTANTS.ID_LENGTH-1)));
+
+    return  NVL(preferred_rel_id,0);
+
+END get_preferred_relationship;
 
 /* FUNCTION SET_RELATIONSHIP_RANK **********************************************
  */
@@ -968,6 +1182,18 @@ IS
 BEGIN
 
    initialize_trace('set_relationship_rank');
+
+   location := '5';
+   IF affects_relationship_rank(changed_field) = FALSE THEN
+ 	RETURN 0;
+   END IF;
+
+   location := '10';
+   rrank := rank_relationship(relationship_id);
+
+   location := '20';
+   UPDATE relationships SET rank = rank_to_number(rrank)
+   WHERE relationship_id = set_relationship_rank.relationship_id;
 
    RETURN 0;
 
@@ -985,9 +1211,6 @@ EXCEPTION
 END set_relationship_rank;
 
 /* FUNCTION AFFECTS_ATTRIBUTE_RANK *********************************************
- *
- * DEPRECATED - DO NOT RANK ATTRIBUTES
- *
  */
 FUNCTION affects_attribute_rank(
     field_name IN VARCHAR2
@@ -996,13 +1219,21 @@ RETURN BOOLEAN
 IS
     fn		VARCHAR2(50);
 BEGIN
-	RETURN FALSE;
+    fn := LOWER(field_name);
+    -- As the rank algorithm changes, this should change
+    IF	fn = 'tobereleased' OR
+	fn = 'source' OR
+	fn = 'attribute_id' OR
+	fn = LOWER(MEME_CONSTANTS.NO_FIELDS_CHANGED)
+    THEN
+	RETURN TRUE;
+    END IF;
+
+    RETURN FALSE;
+
 END affects_attribute_rank;
 
 /* FUNCTION RANK_ATTRIBUTE_AS_NUMBER *******************************************
- *
- * DEPRECATED - DO NOT RANK ATTRIBUTES
- *
  */
 FUNCTION rank_attribute_as_number (
     attribute_id		IN INTEGER,
@@ -1012,14 +1243,11 @@ RETURN INTEGER
 IS
 BEGIN
 
-    return 0;
+    return rank_to_number(rank_attribute(attribute_id,source_flag));
 
 END rank_attribute_as_number;
 
 /* FUNCTION RANK_ATTRIBUTE *****************************************************
- *
- * DEPRECATED - DO NOT RANK ATTRIBUTES
- *
  */
 FUNCTION rank_attribute (
 	attribute_id	IN INTEGER,
@@ -1033,7 +1261,38 @@ IS
     trank  		integer;
     arank  		varchar2(30);
 BEGIN
-    RETURN 0;
+
+    IF source_flag = MEME_CONSTANTS.YES THEN
+    	SELECT tobereleased, source, attribute_id
+		into attribute_row.tobereleased,
+		     attribute_row.source,
+		     attribute_row.attribute_id
+    	FROM source_attributes WHERE attribute_id = rank_attribute.attribute_id;
+    ELSE
+    	SELECT * into attribute_row
+    	FROM attributes WHERE attribute_id = rank_attribute.attribute_id;
+    END IF;
+
+    trank := get_tobereleased_rank(attribute_row.tobereleased);
+
+    IF trank = -1 THEN
+	return MEME_CONSTANTS.EMPTY_RANK;
+    ELSE
+	arank := arank || to_char(trank);
+    END IF;
+
+    trank := get_source_authority_rank(
+		attribute_row.source,
+		attribute_row.source);
+    IF trank = -1 THEN
+	return MEME_CONSTANTS.EMPTY_RANK;
+    ELSE
+	arank := arank || LPAD(trank,4,'0');
+    END IF;
+
+    arank := arank || LPAD(attribute_row.attribute_id,MEME_CONSTANTS.ID_LENGTH,'0');
+
+    RETURN arank;
 
 EXCEPTION
    WHEN OTHERS THEN
@@ -1043,9 +1302,6 @@ EXCEPTION
 END rank_attribute;
 
 /* FUNCTION SET_ATTRIBUTE_RANK *************************************************
- *
- * DEPRECATED - DO NOT RANK ATTRIBUTES
- *
  */
 FUNCTION set_attribute_rank (
     attribute_id	IN INTEGER,
@@ -1057,6 +1313,17 @@ IS
 BEGIN
 
    initialize_trace('set_attribute_rank');
+
+   IF affects_attribute_rank(changed_field) = FALSE THEN
+	RETURN 0;
+   END IF;
+
+   location := '10';
+   arank := rank_attribute(attribute_id);
+
+   location := '10';
+   UPDATE attributes SET rank =  rank_to_number(arank)
+   WHERE attribute_id = set_attribute_rank.attribute_id;
 
    RETURN 0;
 
@@ -1498,9 +1765,190 @@ BEGIN
 
     END IF;
 
-        -- DEPRECATED - DO NOT RANK RELATIONSHIPS
+    IF relationships_flag = MEME_CONSTANTS.YES THEN
 
-        -- DEPRECATED - DO NOT RANK ATTRIBUTES
+    	-- Remember: Any time this ranking code is changed,
+    	-- 		 The code for rank_relationship must be changed;
+    	-- Only recompute for those where source_rank changed.
+
+	-- Reset counts
+    	ct := 0;
+
+	-- Start timing
+    	MEME_UTILITY.timing_start;
+
+	-- First get SOURCE_LEVEL and PROCESSED_LEVEL rels
+    	location := '70';
+	err_msg := 'Error opening relationships (1) cursor';
+	UPDATE /*+ parallel(r) */ relationships r
+	SET (source_rank, rank) =
+	  (SELECT sr.rank,
+	       to_number(tbr.rank || LPAD(lsr.rank,2,'0') ||
+			LPAD(ir.rank,2,'0') || LPAD(sr.rank,2,'0'))
+ 	   FROM tobereleased_rank tbr, level_status_rank lsr,
+	 	inverse_relationships ir, source_rank sr
+	   WHERE r.source = sr.source
+	     AND r.tobereleased = tbr.tobereleased
+	     AND r.relationship_level = lsr.level_value
+	     AND r.status = lsr.status
+	     AND lsr.table_name = 'R'
+	     AND r.relationship_name = ir.relationship_name)
+	WHERE r.relationship_level = 'S'
+          AND (source, source_rank) IN
+	 (SELECT /*+ parallel(a) */ a.source, source_rank 
+	  FROM relationships a, source_rank b WHERE a.source = b.source
+	  MINUS SELECT source, rank FROM source_rank);
+
+
+	ct := SQL%ROWCOUNT;
+
+	COMMIT;
+
+    	MEME_UTILITY.timing_stop;
+    	MEME_UTILITY.PUT_MESSAGE('Rows updated: ' || ct || '.');
+    	MEME_UTILITY.PUT_MESSAGE('Elapsed time: ' ||
+				 MEME_UTILITY.elapsed_time );
+
+   	location := '110';
+	err_msg := 'Error logging operation';
+	MEME_UTILITY.sub_timing_stop;
+    	MEME_UTILITY.log_operation(
+	   authority => MEME_CONSTANTS.SYSTEM_AUTHORITY,
+	   activity => 'Set core table ranks',
+	   detail => 'Set relationships rank (' || ct || ' rows).',
+	   transaction_id => 0,
+	   work_id => local_work_id,
+	   elapsed_time => MEME_UTILITY.sub_elapsed_time);
+	MEME_UTILITY.sub_timing_start;
+
+   	location := '120';
+	err_msg := 'Error clearing meme_progress';
+	MEME_UTILITY.reset_progress (local_work_id);
+
+	-- Reset counters
+    	ct := 0;
+
+	-- Start timing
+    	MEME_UTILITY.timing_start;
+
+	-- Get CONCEPT_LEVEL rels
+    	location := '130';
+	err_msg := 'Error opening relationships (2) cursor';
+
+	UPDATE /*+ parallel(r) */ relationships r
+	SET (source_rank, rank) =
+	  (SELECT MEME_CONSTANTS.MTH_RANK,
+	       to_number(tbr.rank || LPAD(lsr.rank,2,'0') ||
+			LPAD(ir.rank,2,'0') || MEME_CONSTANTS.MTH_RANK)
+ 	   FROM tobereleased_rank tbr, level_status_rank lsr,
+	 	inverse_relationships ir
+	   WHERE r.tobereleased = tbr.tobereleased
+	      and r.relationship_level = lsr.level_value
+	      and r.status = lsr.status
+	      and lsr.table_name = 'R'
+	      and r.relationship_name = ir.relationship_name)
+	WHERE (r.relationship_level = 'C' OR
+	       r.source like MEME_CONSTANTS.EDITOR_PREFIX)
+	  AND source_rank != MEME_CONSTANTS.MTH_RANK;
+
+	ct := SQL%ROWCOUNT;
+
+	COMMIT;
+
+	MEME_UTILITY.timing_stop;
+    	MEME_UTILITY.PUT_MESSAGE('Rows updated: ' || ct || '.');
+    	MEME_UTILITY.PUT_MESSAGE('Elapsed time: ' ||
+				 MEME_UTILITY.elapsed_time );
+
+   	location := '170';
+	err_msg := 'Error logging operation';
+	MEME_UTILITY.sub_timing_stop;
+    	MEME_UTILITY.log_operation(
+	   authority => MEME_CONSTANTS.SYSTEM_AUTHORITY,
+	   activity => 'Set core table ranks',
+	   detail => 'Set C level relationships rank (' || ct || ' rows).',
+	   transaction_id => 0,
+	   work_id => local_work_id,
+	   elapsed_time => MEME_UTILITY.sub_elapsed_time);
+	MEME_UTILITY.sub_timing_start;
+
+   	location := '180';
+	err_msg := 'Error clearing meme_progress';
+	MEME_UTILITY.reset_progress (local_work_id);
+
+    END IF;
+
+    IF attributes_flag = MEME_CONSTANTS.YES THEN
+
+    	-- Remember: Any time this ranking code is changed,
+    	-- 		 The code for rank_attribute must be changed;
+    	-- Only recompute for those where source_rank changed.
+
+	-- Reset counters
+    	ct := 0;
+
+	-- Start timing
+	MEME_UTILITY.timing_start;
+
+	-- All SOURCE_LEVEL attributes should have sources in source_rank
+  	-- CONCEPT_LEVEL attributes dont need a source rank, use MEME_CONSTANTS.MTH_RANK.
+    	location := '190';
+	err_msg := 'Error opening attributes cursor';
+
+	UPDATE /*+ parallel(a) */ attributes a
+	SET (source_rank, rank) =
+	  (SELECT sr.rank,
+	       to_number(tbr.rank || LPAD(sr.rank,4,'0'))
+	   FROM source_rank sr,
+		 tobereleased_rank tbr
+	   WHERE a.source=sr.source
+   	     AND a.tobereleased = tbr.tobereleased)
+	WHERE attribute_level = 'S'
+          AND (source, source_rank) IN
+	 (SELECT /*+ parallel(att) */ att.source, source_rank 
+	  FROM attributes att, source_rank b WHERE a.source = b.source
+	  MINUS SELECT source, rank FROM source_rank);
+
+	ct := SQL%ROWCOUNT;
+
+	COMMIT;
+
+	UPDATE /*+ parallel(a) */ attributes a
+	SET (source_rank, rank) =
+	  (SELECT MEME_CONSTANTS.MTH_RANK,
+	       to_number(tbr.rank || MEME_CONSTANTS.MTH_RANK)
+	   FROM source_rank sr,
+		 tobereleased_rank tbr
+	   WHERE a.source=sr.source
+   	     AND a.tobereleased = tbr.tobereleased)
+	WHERE attribute_level = 'C'
+	  AND source_rank != MEME_CONSTANTS.MTH_RANK;
+
+	ct := ct +  SQL%ROWCOUNT;
+
+	COMMIT;
+
+	MEME_UTILITY.timing_stop;
+    	MEME_UTILITY.PUT_MESSAGE('Rows updated: ' || ct || '.' );
+    	MEME_UTILITY.PUT_MESSAGE('Elapsed time: ' ||
+				 MEME_UTILITY.elapsed_time );
+
+	location := '230';
+	err_msg := 'Error logging operation';
+	MEME_UTILITY.sub_timing_stop;
+    	MEME_UTILITY.log_operation(
+	   authority => MEME_CONSTANTS.SYSTEM_AUTHORITY,
+	   activity => 'Set core table ranks',
+	   detail => 'Set attributes rank (' || ct || ' rows).',
+	   transaction_id => 0,
+	   work_id => local_work_id,
+	   elapsed_time => MEME_UTILITY.sub_elapsed_time);
+
+	location := '240';
+	err_msg := 'Error clearing meme_progress';
+	MEME_UTILITY.reset_progress (local_work_id);
+
+    END IF;
 
 EXCEPTION
 
@@ -1573,9 +2021,9 @@ BEGIN
     err_msg := 'SQL error';
     query :=
 	   'CREATE TABLE ' || t1 || ' AS 
-    	    SELECT 
-		   max(MEME_RANKS.get_atom_editing_rank(tbr.rank,tr.release_rank,
-		   last_release_rank, sui, aui, atom_id))
+    	    SELECT /*+ PARALLEL(c) */
+		   max(tbr.rank || LPAD(tr.rank,4,0) || c.last_release_rank ||
+                       sui || LPAD(atom_id,10,0))
                    AS max_rank,
 		   concept_id 
   	    FROM classes c, termgroup_rank tr, tobereleased_rank tbr
@@ -1661,94 +2109,170 @@ EXCEPTION
 
 END set_preference;
 
-FUNCTION get_atom_editing_rank (
-	tobereleased_rank IN VARCHAR2,
-    termgroup_release_rank IN VARCHAR2,
-    last_release_rank IN VARCHAR2,
-    sui IN VARCHAR2,
-    aui IN VARCHAR2,
-    atom_id IN INTEGER
-) 
+/* FUNCTION PFLAG_C *********************************************************
+ * This function will return 'C' if atom_id is the preferred concept, 
+ * otherwise it will return 'X'.
+ */
+FUNCTION pflag_c(
+   atom_id    IN INTEGER,
+   concept_id IN INTEGER,
+   foreign_flag IN VARCHAR2 := MEME_CONSTANTS.NO
+)
 RETURN VARCHAR2
 IS
- rank 	VARCHAR2(100);
- sui_prefix VARCHAR2(10);
+   t_rank     		VARCHAR2(50);
+   t_bn			INTEGER;
+   t_termgroup     	VARCHAR2(40);
 BEGIN
-	IF sui_prefix_length = -1 THEN
-		sui_prefix := MEME_UTILITY.get_value_by_code('SUI','ui_prefix');
-		IF sui_prefix IS NULL THEN
-			sui_prefix_length := 0;
-		ELSE
-			sui_prefix_length := LENGTH(sui_prefix);
-		END IF;
-	END IF;
-	IF aui_prefix_length = -1 THEN
-		aui_prefix := MEME_UTILITY.get_value_by_code('AUI','ui_prefix');
-		IF aui_prefix IS NULL THEN
-			aui_prefix_length := 0;
-		ELSE
-			aui_prefix_length := LENGTH(aui_prefix);
-		END IF;
-	END IF;
-	rank := get_atom_editing_rank.tobereleased_rank || LPAD(get_atom_editing_rank.termgroup_release_rank,4,0) || get_atom_editing_rank.last_release_rank ||
-                       (999999999 - 
-  						SUBSTR(get_atom_editing_rank.sui, sui_prefix_length + 1))
-                        || 
-                       (999999999 - 
-  						SUBSTR(NVL(get_atom_editing_rank.aui,  aui_prefix || '1'), aui_prefix_length + 1))
-                        || LPAD(atom_id,10,0);
-	return rank;
-                
-EXCEPTION
 
-    WHEN OTHERS THEN
-	MEME_UTILITY.PUT_MESSAGE('MEME_RANKS::GET_ATOM_EDITING_RANK: Error => ' || SQLERRM);
-	RETURN MEME_CONSTANTS.EMPTY_RANK;
+   -- foreign is a bit different
+   IF foreign_flag != MEME_CONSTANTS.NO THEN
 
-END get_atom_editing_rank;
+       SELECT MAX(rank_atom_for_release(a.atom_id, 'DUMMY', 
+			a.language)) INTO t_rank
+       FROM foreign_classes a, classes b
+       WHERE a.eng_atom_id=b.atom_id
+       AND b.concept_id = pflag_c.concept_id
+       AND a.tobereleased in ('Y','y')
+       AND b.tobereleased in ('Y','y')
+       AND a.language = foreign_flag;
 
-FUNCTION get_atom_release_rank (
-    termgroup_release_rank IN VARCHAR2,
-    last_release_rank IN VARCHAR2,
-    sui IN VARCHAR2,
-    aui IN VARCHAR2
-) 
+       IF t_rank = rank_atom_for_release(
+			pflag_c.atom_id, 'DUMMY', foreign_flag ) THEN
+          RETURN 'C';
+       ELSE
+	  RETURN 'X';
+       END IF;
+   END IF;
+
+   /* Only releasable atoms should be considered */
+   SELECT MAX(rank_atom_for_release(atom_id, termgroup)) INTO t_rank
+   FROM classes WHERE concept_id = pflag_c.concept_id
+    AND tobereleased in ('Y','y');
+
+   SELECT termgroup INTO t_termgroup
+   FROM classes WHERE atom_id = pflag_c.atom_id;
+
+   IF t_rank = rank_atom_for_release(pflag_c.atom_id, t_termgroup) THEN
+      RETURN 'C';
+   END IF;
+
+   RETURN 'X';
+
+END pflag_c;
+
+/* FUNCTION PFLAG_L ************************************************************
+ * This function will return 'L' if atom_id is the highest rank term,
+ * otherwise it will return 'X'.
+ */
+FUNCTION pflag_l(
+   atom_id    IN INTEGER,
+   concept_id IN INTEGER,
+   foreign_flag IN VARCHAR2 := MEME_CONSTANTS.NO
+)
 RETURN VARCHAR2
 IS
- rank 	VARCHAR2(100);
- sui_prefix VARCHAR2(10);
+   t_lui      		VARCHAR2(10);
+   t_rank     		VARCHAR2(50);
+   t_bn			INTEGER;
+   t_termgroup     	VARCHAR2(40);
 BEGIN
-	IF sui_prefix_length = -1 THEN
-		sui_prefix := MEME_UTILITY.get_value_by_code('SUI','ui_prefix');
-		IF sui_prefix IS NULL THEN
-			sui_prefix_length := 0;
-		ELSE
-			sui_prefix_length := LENGTH(sui_prefix);
-		END IF;
-	END IF;
-	IF aui_prefix_length = -1 THEN
-		aui_prefix := MEME_UTILITY.get_value_by_code('AUI','ui_prefix');
-		IF aui_prefix IS NULL THEN
-			aui_prefix_length := 0;
-		ELSE
-			aui_prefix_length := LENGTH(aui_prefix);
-		END IF;
-	END IF;
-  rank := LPAD(get_atom_release_rank.termgroup_release_rank,4,0) || get_atom_release_rank.last_release_rank ||
-                       (999999999 - 
-  						SUBSTR(get_atom_release_rank.sui, sui_prefix_length + 1))
-                        || 
-                       (999999999 - 
-  						SUBSTR(get_atom_release_rank.aui, aui_prefix_length + 1));
-	return rank;
-                
-EXCEPTION
 
-    WHEN OTHERS THEN
-	MEME_UTILITY.PUT_MESSAGE('MEME_RANKS::GET_ATOM_RELEASE_RANK: Error => ' || SQLERRM);
-	RETURN MEME_CONSTANTS.EMPTY_RANK;
+   -- foreign is a bit different
+   IF foreign_flag != MEME_CONSTANTS.NO THEN
 
-END get_atom_release_rank;
+       SELECT MAX(rank_atom_for_release(a.atom_id, 'DUMMY', 
+			a.language)) INTO t_rank
+       FROM foreign_classes a, classes b, foreign_classes c
+       WHERE a.eng_atom_id=b.atom_id
+       AND b.concept_id = pflag_l.concept_id
+       AND a.tobereleased in ('Y','y')
+       AND b.tobereleased in ('Y','y')
+       AND a.language = c.language
+       AND a.lui = c.lui
+       AND c.atom_id = pflag_l.atom_id
+       AND b.atom_id != c.atom_id;
+
+       IF t_rank = rank_atom_for_release(
+			pflag_l.atom_id, 'DUMMY', foreign_flag ) THEN
+          RETURN 'L';
+       ELSE
+	  RETURN 'X';
+       END IF;
+   END IF;
+
+   SELECT lui, termgroup INTO t_lui, t_termgroup FROM classes
+   WHERE atom_id = pflag_l.atom_id;
+
+   /* Only releasable atoms should be considered */
+   SELECT MAX(rank_atom_for_release(atom_id, termgroup)) INTO t_rank
+   FROM classes WHERE lui = t_lui AND concept_id = pflag_l.concept_id
+    AND tobereleased in ('Y','y');
+
+   IF t_rank = rank_atom_for_release(pflag_l.atom_id, t_termgroup) THEN
+      RETURN 'L';
+   END IF;
+
+   RETURN 'X';
+
+END pflag_l;
+
+/* FUNCTION PFLAG_S ************************************************************
+ * This function will return 'S' if atom_id is the highest rank string,
+ * otherwise it will return 'X'.
+ */
+FUNCTION pflag_s(
+   atom_id    IN INTEGER,
+   concept_id IN INTEGER,
+   foreign_flag IN VARCHAR2 := MEME_CONSTANTS.NO
+)
+RETURN VARCHAR2
+IS
+   t_sui      		VARCHAR2(10);
+   t_rank     		VARCHAR2(50);
+   t_bn			INTEGER;
+   t_termgroup     	VARCHAR2(40);
+BEGIN
+
+   -- foreign is a bit different
+   IF foreign_flag != MEME_CONSTANTS.NO THEN
+
+       SELECT MAX(rank_atom_for_release(a.atom_id, 'DUMMY', 
+			a.language)) INTO t_rank
+       FROM foreign_classes a, classes b, foreign_classes c
+       WHERE a.eng_atom_id=b.atom_id
+       AND b.concept_id = pflag_s.concept_id
+       AND a.tobereleased in ('Y','y')
+       AND b.tobereleased in ('Y','y')
+       AND a.language = c.language
+       AND a.lui = c.lui
+       AND a.sui = c.sui
+       AND c.atom_id = pflag_s.atom_id
+       AND b.atom_id != c.atom_id;
+
+       IF t_rank = rank_atom_for_release(
+			pflag_s.atom_id, 'DUMMY', foreign_flag ) THEN
+          RETURN 'S';
+       ELSE
+	  RETURN 'X';
+       END IF;
+   END IF;
+
+   SELECT sui, termgroup INTO t_sui, t_termgroup FROM classes
+   WHERE atom_id = pflag_s.atom_id;
+
+   /* Only releasable atoms should be considered */
+   SELECT MAX(rank_atom_for_release(atom_id, termgroup)) INTO t_rank
+   FROM classes WHERE sui = t_sui AND concept_id = pflag_s.concept_id
+    AND tobereleased in ('Y','y');
+
+   IF t_rank = rank_atom_for_release(pflag_s.atom_id, t_termgroup) THEN
+      RETURN 'S';
+   END IF;
+
+   RETURN 'X';
+
+END pflag_s;
 
 /* PROCEDURE HELP **************************************************************
  */

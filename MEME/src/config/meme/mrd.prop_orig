@@ -25,7 +25,7 @@ meme.server.bootstrap.classes=gov.nih.nlm.meme.server.MIDDataSourcePool,gov.nih.
 
 # The list of MEMEApplicationService classes which
 # provide services to the outside world
-meme.server.services.classes=gov.nih.nlm.meme.server.CGIShutdownServer,gov.nih.nlm.meme.server.AdminService,gov.nih.nlm.mrd.server.FullMRFilesReleaseGenerator,gov.nih.nlm.meme.server.DummyService,gov.nih.nlm.meme.server.AuxiliaryDataService,gov.nih.nlm.mrd.server.ConceptReportGenerator
+meme.server.services.classes=gov.nih.nlm.meme.server.CGIShutdownServer,gov.nih.nlm.meme.server.AdminService,gov.nih.nlm.mrd.server.FullMRFilesReleaseGenerator,gov.nih.nlm.meme.server.DummyService,gov.nih.nlm.meme.server.AuxiliaryDataService
 
 # LVG configuration file.
 meme.lvg.config.file=/site/etc/lvg/lvg2005.hsqldb.properties

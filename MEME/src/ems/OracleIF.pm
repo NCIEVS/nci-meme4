@@ -4,13 +4,11 @@
 # Use this package to access an Oracle database
 package OracleIF;
 
-BEGIN
-{
 unshift @INC, "$ENV{ENV_HOME}/bin";
+
 require "env.pl";
-unshift @INC, "$ENV{EMS_HOME}/lib";
-unshift @INC, "$ENV{EMS_HOME}/bin";
-}
+
+use lib "$ENV{EMS_HOME}/lib";
 
 use DBI;
 use DBD::Oracle;
@@ -654,9 +652,9 @@ sub createIndex {
 #  return if $self->colHasIndex($table, $col);
 
   unless ($index) {
-    $index = sprintf("x_%s_%d_%02d", $table, $$, rand(100));
+    $index = sprintf("x_%s_%d_%2d", $table, $$, rand(100));
     if (length($index)>30) {
-      $index = sprintf("x_%s_%d_%02d", substr(GeneralUtils->str2random($table), 0, 20), $$, rand(100))
+      $index = sprintf("x_%s_%d_%2d", substr(GeneralUtils->str2random($table), 0, 20), $$, rand(100))
     }
 #    $index = "x_" . substr($table, 0, 12) . "_$$_" . substr($col, 0, 10) if (length($index) > 30);
     $index = substr($index, 0, 30);
@@ -763,7 +761,7 @@ sub connect {
   return 0 if (defined $self->{dbh});
 
   my($user) = $self->{user} || 'meow';
-  my($password) = $self->{password} || GeneralUtils->getOraclePassword($user,$db);
+  my($password) = $self->{password} || GeneralUtils->getOraclePassword($user);
   my($db) = $self->{db} || Midsvcs->get('editing-db');
 
   if ($self->{failquietly}) {
@@ -778,7 +776,7 @@ sub connect {
   if ($self->{failquietly}) {
     return 1 if (($@ || $DBI::errstr) || !$self->{dbh});
   } else {
-    die "ERROR: failed to connect to Oracle database $db\n" if (($@ || $DBI::errstr) || !$self->{dbh});
+    die "ERROR: failed to connect to Oracle database\n" if (($@ || $DBI::errstr) || !$self->{dbh});
   }
   return 0;
 }

@@ -9,8 +9,6 @@
  *              attributes
  *  09/17/2002: Class name has been changes from "UMLSRelationship"
  *              to "RelSemantics".
- *  10/20/2009: SL:Adding has_gene and gene_for RT rela for 
- *  			Rela Editor based on the requirenment from Laura
  *
  ***********************************************************************/
 
@@ -66,12 +64,8 @@ public class RelSemantics {
     attr_values.put("scd_of", null);
     attr_values.put("has_dose_form", "RT");
     attr_values.put("dose_form_of", "RT");
-    attr_values.put("has_gene","RT");
-    attr_values.put("gene_for","RT");
     attr_values.put("has_form", "BT");
     attr_values.put("form_of", "NT");
-    attr_values.put("gene_for","RT");
-    attr_values.put("has_gene","RT");
     attr_values.put("mapped_to", null);
     attr_values.put("mapped_from", null);
   }

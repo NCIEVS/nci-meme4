@@ -3,7 +3,6 @@
  * Package: gov.nih.nlm.meme.qa.ic
  * Object:  MGV_MTest
  * 
- * 12/07/2006 BAC (1-D0BIJ): Replace "MDR80" with current version (via lookup)
  * 01/05/2006 RBE (1-72TW3): File created
  *
  *****************************************************************************/
@@ -17,7 +16,6 @@ import gov.nih.nlm.meme.client.EditingClient;
 import gov.nih.nlm.meme.common.Atom;
 import gov.nih.nlm.meme.common.CUI;
 import gov.nih.nlm.meme.common.Concept;
-import gov.nih.nlm.meme.common.Source;
 import gov.nih.nlm.meme.exception.MEMEException;
 import gov.nih.nlm.meme.integrity.MGV_M;
 import gov.nih.nlm.meme.qa.TestSuite;
@@ -111,17 +109,8 @@ public class MGV_MTest extends TestSuite{
 
       // Set up target concept
       target = new Concept.Default();
-      Source[] sources = client.getSources();
-      Source src = null;
-      for (int i=0; i<sources.length; i++) {
-      	if (sources[i].getStrippedSourceAbbreviation().equals("MDR") &&
-      			sources[i].isCurrent()) {
-      		src = sources[i];
-      	  break;
-      	}
-      }
-      atom.setSource(src);
-      atom.setTermgroup(client.getTermgroup(src.getSourceAbbreviation()+ "/PT"));
+      atom.setTermgroup(client.getTermgroup("MDR80/PT"));
+      atom.setSource(client.getSource("MDR80"));
       atom.setLastReleaseCUI(new CUI("C0000003"));
       atom.setConcept(target);     
       target.addAtom(atom);

@@ -19,7 +19,7 @@ select concept_id, rownum as cluster_id from
   and   concept_id in
     (
       select concept_id from attributes
-      where  attribute_name='SEMANTIC_TYPE'
+      where  attribute_name||''='SEMANTIC_TYPE'
       and    attribute_value='Clinical Drug'
     )
   minus

@@ -18,6 +18,8 @@ require "env.pl";
 # -b <newer version>
 
 use lib "$ENV{EXT_LIB}";
+#use lib "/site/umls/release";
+#use lib "/site/umls/uris-2.0/src";
 use lib "$ENV{URIS_HOME}/lib";
 use lib "$ENV{URIS_HOME}/bin";
 
@@ -40,78 +42,94 @@ die "Need path to the older META contents in -a" unless -d $dir_a;
 die "Need path to the newer META contents in -b" unless -d $dir_b;
 
 # ATUIs should be identical if values in these columns are the same
-@col1 = qw(METAUI STYPE ATN SAB ATV SATUI);
-@col2 = qw(CUI ATN SAB ATV SATUI);
-foreach $col (@col1) {
-  $colnum1{$col} = UrisUtils->getColIndex($dir_a, "MRSAT.RRF", $col);
-}
-foreach $col (@col2) {
-  $colnum2{$col} = UrisUtils->getColIndex($dir_a, "MRSAT.RRF", $col);
+@col = qw(CODE ATN SAB ATV);
+foreach $col (@col) {
+  $colnum{$col} = UrisUtils->getColIndex($dir_a, "MRSAT.RRF", $col);
 }
 $atuiindex = UrisUtils->getColIndex($dir_a, "MRSAT.RRF", 'ATUI');
-$stypeindex = UrisUtils->getColIndex($dir_a,"MRSAT.RRF", 'STYPE');
-$atnindex = UrisUtils->getColIndex($dir_a,"MRSAT.RRF", 'ATN');
+$stypeindex = UrisUtils->getColIndex($dir_a, "MRSAT.RRF", 'STYPE');
 
-$tmpa = "./$version_a.$$";
-$tmpb = "./$version_b.$$";
+$tmpa = "/tmp/$version_a.$$";
+$tmpb = "/tmp/$version_b.$$";
 
-&dump($dir_a, "MRSAT.RRF", $tmpa);
-#FOr Concept level attributes, CUI, CODE, SAB,ATN,ATV are unique.
-# for source level attributes AUI CODE SAB ATN ATV are unique.
-&check_uniq($tmpa);
-&dump($dir_b, "MRSAT.RRF", $tmpb);
-&check_uniq($tmpb);
+&dump($dir_a, $tmpa);
+&dump($dir_b, $tmpb);
 
-#$cmd = "/bin/comm -3 $tmpa $tmpb";
-$cmd  = "join  -j 1 -t'|' $tmpa $tmpb"; 
-#$cmd  = "diff -c $tmpa $tmpb";
+$cmd = "/bin/comm -3 $tmpa $tmpb";
 open(C, "$cmd|") || die "ERROR: Cannot open temporary files";
 while (<C>) {
   chomp;
+  s/^\s*//;
   @x = split /\|/, $_;
-  if ($x[1] eq $x[2]) {
-  } else {
-    print STDERR $_, "\n";
+  print STDERR $_, "\n";
+  if ($errors++ > 100) {
+    print STDERR "Too many errors.. exiting\n";
+    last;
   }
 }
 close(C);
 unlink $tmpa, $tmpb;
 exit 0;
 
+# computes MD5 of all the fields that should make an ATUI unique
 sub dump {
-  my($dir, $file, $outputfile) = @_;
+  my($dir, $outputfile) = @_;
   my(@x, $x);
   my($cmd);
-  my($path) = UrisUtils->getPath($dir, $file);
+  my($mrsat) = UrisUtils->getPath($dir, 'MRSAT');
+  my($mrconso) = UrisUtils->getPath($dir, 'MRCONSO');
   my($key);
   my($md5gen) = Digest::MD5->new;
+  my(%mrconsoref);
 
-  open(O, "|/bin/sort -T . > $outputfile") || die "ERROR: Cannot open $outputfile";
-  open(M, $path) || die "ERROR: Cannot open $path";
+# this is needed to look up S*UIs in MRCONSO
+  open(MRCONSO, UrisUtils->getPath($dir,"MRCONSO")) || die "ERROR: Cannot open MRCONSO";
+  $mrconsoref{mrconsofd} = \*MRCONSO;
+  $mrconsoref{sauiindex} = UrisUtils->getColIndex($dir_a, "MRCONSO.RRF", 'SAUI');
+  $mrconsoref{scuiindex} = UrisUtils->getColIndex($dir_a, "MRCONSO.RRF", 'SCUI');
+  $mrconsoref{sduiindex} = UrisUtils->getColIndex($dir_a, "MRCONSO.RRF", 'SDUI');
+  $mrconsoref{cuiindex} = UrisUtils->getColIndex($dir_a, "MRCONSO.RRF", 'CUI');
+  $mrconsoref{auiindex} = UrisUtils->getColIndex($dir_a, "MRCONSO.RRF", 'AUI');
+
+  open(O, "|/bin/sort > $outputfile") || die "ERROR: Cannot open $outputfile";
+#  open(M, $path) || die "ERROR: Cannot open $path";
+open(M, UrisUtils->getPath($dir_a, "MRSAT.RRF")) || die "ERROR: Cannot open $d/MRSAT.RRF";
   while (<M>) {
     chomp;
     @x = split /\|/, $_;
-    $md5gen->reset;
-    if ($x[$stypeindex] =~ /^CUI/ ) {
-	    foreach $col (@col2) {
-	      $md5gen->add($x[$colnum2{$col}]);
-	    }
-    } else {
-	    foreach $col (@col1) {
-	      $md5gen->add($x[$colnum1{$col}]);
-	    }
+    if (grep { $_ eq $x[$stypeindex]} qw(CUI AUI CODE)) {
+      my($r) = &cuiaui2source(\%mrconsoref);
+    #  $ui = 
     }
-           print O join("|", $md5gen->hexdigest, $x[$atuiindex]), "\n";
+
+    $md5gen->reset;
+    foreach $col (@col) {
+      $md5gen->add($x[$colnum{$col}]);
+    }
+    print O join("|", $md5gen->hexdigest, $x[$atuiindex]), "\n";
   }
   close(M);
   close(O);
+
+  close(MRCONSO);
   return;
 }
 
-sub check_uniq {
- my($file) = @_;
-  $ct = `cut -f1 -d"|" $file | uniq -d |wc -l`;
-  if ($ct != 0) {
-   print STDERR "INVALID ATUIS. " . "\n";
+# Given a CUI and AUI, returns source ui's in a ref
+sub cuiaui2source {
+  my($ref) = @_;
+  my(%sourceref);
+
+  return if (GeneralUtils->seekstr($ref->{mrconsofd}, $ref->{cui}) == -1);
+  while ($ref->{mrconsofd}) {
+    chomp;
+    @x = split /\|/, $_;
+    last if $x[$ref->{cuiindex}] ne $ref->{cui};
+    next if $x[$ref->{auiindex}] ne $ref->{aui};
+    $sourceref->{saui} = $x[$ref->{sauiindex}];
+    $sourceref->{scui} = $x[$ref->{scuiindex}];
+    $sourceref->{sdui} = $x[$ref->{sduiindex}];
+    last;
   }
+  return \%sourceref;
 }

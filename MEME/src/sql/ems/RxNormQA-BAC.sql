@@ -132,7 +132,7 @@ WHERE a.concept_id=b.concept_id
   AND b.source not like 'VANDF%'
   AND b.source not like 'MTHFDA%'
   AND b.source not like 'MDDB%'
-  AND attribute_name = 'SEMANTIC_TYPE'
+  AND attribute_name||'' = 'SEMANTIC_TYPE'
   AND attribute_value = 'Clinical Drug'
 MINUS
 (SELECT concept_id from classes
@@ -206,7 +206,7 @@ SELECT DISTINCT a.concept_id
 FROM attributes a, classes b
 WHERE a.concept_id=b.concept_id
   AND b.source like 'MMX%'
-  AND attribute_name = 'SEMANTIC_TYPE'
+  AND attribute_name||'' = 'SEMANTIC_TYPE'
   AND attribute_value = 'Clinical Drug'
 MINUS
 (SELECT concept_id from classes
@@ -232,7 +232,7 @@ SELECT DISTINCT a.concept_id
 FROM attributes a, classes b
 WHERE a.concept_id=b.concept_id
   AND b.source like 'MMSL%'
-  AND attribute_name = 'SEMANTIC_TYPE'
+  AND attribute_name||'' = 'SEMANTIC_TYPE'
   AND attribute_value = 'Clinical Drug'
 MINUS
 (SELECT concept_id from classes
@@ -258,7 +258,7 @@ SELECT DISTINCT a.concept_id
 FROM attributes a, classes b
 WHERE a.concept_id=b.concept_id
   AND b.source like 'VANDF%'
-  AND attribute_name = 'SEMANTIC_TYPE'
+  AND attribute_name||'' = 'SEMANTIC_TYPE'
   AND attribute_value = 'Clinical Drug'
 MINUS
 (SELECT concept_id from classes
@@ -284,7 +284,7 @@ SELECT DISTINCT a.concept_id
 FROM attributes a, classes b
 WHERE a.concept_id=b.concept_id
   AND b.source like 'MDDB%'
-  AND attribute_name = 'SEMANTIC_TYPE'
+  AND attribute_name||'' = 'SEMANTIC_TYPE'
   AND attribute_value = 'Clinical Drug'
 MINUS
 (SELECT concept_id from classes
@@ -310,7 +310,7 @@ SELECT DISTINCT a.concept_id
 FROM attributes a, classes b
 WHERE a.concept_id=b.concept_id
   AND b.source like 'NDDF%'
-  AND attribute_name = 'SEMANTIC_TYPE'
+  AND attribute_name||'' = 'SEMANTIC_TYPE'
   AND attribute_value = 'Clinical Drug'
 MINUS
 (SELECT concept_id from classes
@@ -336,7 +336,7 @@ SELECT DISTINCT a.concept_id
 FROM attributes a, classes b
 WHERE a.concept_id=b.concept_id
   AND b.source like 'MTHFDA%'
-  AND attribute_name = 'SEMANTIC_TYPE'
+  AND attribute_name||'' = 'SEMANTIC_TYPE'
   AND attribute_value = 'Clinical Drug'
 MINUS
 (SELECT concept_id from classes
@@ -381,7 +381,7 @@ SELECT DISTINCT a.concept_id
 FROM attributes a, classes b
 WHERE a.concept_id=b.concept_id
   AND b.source like 'SNMI%'
-  AND attribute_name = 'SEMANTIC_TYPE'
+  AND attribute_name||'' = 'SEMANTIC_TYPE'
   AND attribute_value = 'Clinical Drug'
 MINUS
 (SELECT concept_id from classes
@@ -407,7 +407,7 @@ SELECT DISTINCT a.concept_id
 FROM attributes a, classes b
 WHERE a.concept_id=b.concept_id
   AND b.source like 'RCD%'
-  AND attribute_name = 'SEMANTIC_TYPE'
+  AND attribute_name||'' = 'SEMANTIC_TYPE'
   AND attribute_value = 'Clinical Drug'
 MINUS
 (SELECT concept_id from classes

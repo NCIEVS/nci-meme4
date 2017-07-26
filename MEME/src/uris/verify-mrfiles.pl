@@ -6,9 +6,8 @@ require "env.pl";
 use lib "$ENV{EXT_LIB}";
 use lib "$ENV{URIS_HOME}/lib";
 use lib "$ENV{URIS_HOME}/bin";
-use encoding 'utf8';
 
-#!@PATH_TO_PERL@
+#!/share_nfs/perl/5.8.6/bin/perl
 
 # Does MRFILES speak the truth?
 # suresh@nlm.nih.gov

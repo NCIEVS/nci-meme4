@@ -72,7 +72,7 @@ import javax.swing.event.ListSelectionListener;
  * but really only accesses methods for finding concepts
  * and generating checklists.
  *
- * @author Brian Carlsen (bcarlsen@msdinc.com)
+ * @author Brian Carlsen (bcarlsen@apelon.com)
  */
 public class TestFinderFrame extends JFrame implements DataSourceChangeListener,
     ServerChangeListener {

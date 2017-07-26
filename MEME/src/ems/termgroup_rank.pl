@@ -1,7 +1,7 @@
 # Displays the contents of the termgroup_rank table
 # suresh@nlm.nih.gov 7/97
 # suresh@nlm.nih.gov 3/06 - EMS3 mods
-# SL: Adding the Feature to sort by rank or release rank (Per Brian's Request)
+
 # CGI params
 # db=
 # sortby=
@@ -14,8 +14,7 @@ sub do_termgroup_rank {
 
   $sql = "select $cols from TERMGROUP_RANK";
   $sql .= " order by $sortby" if $sortby;
-  $sql .= " desc" if ($sortby eq "RELEASE_RANK" || $sortby eq "RANK");
-  
+
   $n=0;
   my(@u) = map { $query->a({-href=>$query->url() . "?$DBget&action=$action&sortby=$_"}, $_) } @cols;
   push @d, ['', @u];

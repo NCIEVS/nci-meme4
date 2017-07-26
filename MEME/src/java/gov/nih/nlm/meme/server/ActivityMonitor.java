@@ -7,11 +7,9 @@
 
 package gov.nih.nlm.meme.server;
 
-// DEPRECATE THIS, 
-// if it needs to be brougnt back, see: https://blog.idrsolutions.com/2012/05/replacing-the-deprecated-java-jpeg-classes-for-java-7/
-//import com.sun.image.codec.jpeg.JPEGCodec;
-//import com.sun.image.codec.jpeg.JPEGEncodeParam;
-//import com.sun.image.codec.jpeg.JPEGImageEncoder;
+import com.sun.image.codec.jpeg.JPEGCodec;
+import com.sun.image.codec.jpeg.JPEGEncodeParam;
+import com.sun.image.codec.jpeg.JPEGImageEncoder;
 import gov.nih.nlm.meme.MEMEToolkit;
 import gov.nih.nlm.meme.exception.BadValueException;
 import gov.nih.nlm.meme.exception.DataSourceException;
@@ -54,10 +52,7 @@ import java.awt.image.BufferedImage;
 /**
  * Used to generate graphs of editing performance.  May not work anymore
  * as it requires browsers to connect directly.
- * 
- * CHANGES
- * 09/10/2007 JFW (1-DBSLD): Modify isReEntrant to take a SessionContext argument 
- * 
+ *
  * @author MEME Group
  */
 public class ActivityMonitor implements MEMEApplicationService {
@@ -132,11 +127,11 @@ public class ActivityMonitor implements MEMEApplicationService {
       x.write("Connection: close\n");
       x.write("\n");
       x.flush();
-      //      JPEGImageEncoder encoder = JPEGCodec.createJPEGEncoder(out);
-      //JPEGEncodeParam param = encoder.getDefaultJPEGEncodeParam(image);
-      //param.setQuality(0.75f, false);
-      //encoder.setJPEGEncodeParam(param);
-      //encoder.encode(image);
+      JPEGImageEncoder encoder = JPEGCodec.createJPEGEncoder(out);
+      JPEGEncodeParam param = encoder.getDefaultJPEGEncodeParam(image);
+      param.setQuality(0.75f, false);
+      encoder.setJPEGEncodeParam(param);
+      encoder.encode(image);
       out.flush();
       out.close();
     } catch (IOException ioe) {
@@ -164,10 +159,9 @@ public class ActivityMonitor implements MEMEApplicationService {
 
   /**
    * Returns <code>false</code>.
-   * @param context the {@link SessionContext}
    * @return <code>false</code>
    */
-  public boolean isReEntrant(SessionContext context) {
+  public boolean isReEntrant() {
     return false;
   }
 

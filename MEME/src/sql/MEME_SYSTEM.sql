@@ -7,8 +7,7 @@ CREATE OR REPLACE PACKAGE MEME_SYSTEM AS
  * that used by other MEME software.
  *
  * Version Information
- * 06/22/2009 BAC (1-MD04R): meme_indexes has UNIQUENESS
- *  08/29/2006 SL (1-C17ND)  Adding Oracle10g performance like analyze staments
+ *
  * 03/25/2005 4.20.0: Released
  * 03/23/2005 4.19.1: No longer COALESCE tablespaces
  * 06/14/2004 4.19.0: Gather stats using DBMS_STATS instead of analyze table.
@@ -512,11 +511,9 @@ BEGIN
    location := '40';
    MEME_UTILITY.put_message('Insert into meme_indexes.');
    INSERT INTO meme_indexes (index_name, table_name, pct_free, pct_increase,
-      initial_extent, next_extent, min_extents, max_extents, tablespace_name,
-      index_type, uniqueness)
+      initial_extent, next_extent, min_extents, max_extents, tablespace_name)
    SELECT index_name, table_name, pct_free, pct_increase,
-      initial_extent, next_extent, min_extents, max_extents, tablespace_name,
-      index_type, uniqueness
+      initial_extent, next_extent, min_extents, max_extents, tablespace_name
    FROM user_indexes
    WHERE table_name = register_table.table_name
    AND index_type in ('BITMAP','NORMAL');
@@ -801,8 +798,7 @@ IS
    exists_flag		       INTEGER;
    reindex_exception	       EXCEPTION;
 
-   bitmap_clause           VARCHAR2(50);
-   unique_clause           VARCHAR2(50);
+   bitmap_clause  	       VARCHAR2(50);
    end_clause	  	       VARCHAR2(50);
    parallel_clause	       VARCHAR2(50);
 
@@ -857,16 +853,9 @@ BEGIN
 
       -- Is it a bitmap index
       IF upper(index_row.index_type) = 'BITMAP' THEN
-    bitmap_clause := ' BITMAP ';
+	bitmap_clause := ' BITMAP ';
       ELSE
-    bitmap_clause := '';
-      END IF;
-      
-      -- Is it a bitmap index
-      IF upper(index_row.uniqueness) = 'UNIQUE' THEN
-    unique_clause := ' UNIQUE ';
-      ELSE
-    unique_clause := '';
+	bitmap_clause := '';
       END IF;
 
       -- Index is not a primary key
@@ -891,8 +880,7 @@ BEGIN
 	    MEME_UTILITY.drop_it('index',index_row.index_name);
 
 	    cols := RTRIM(cols,', ');
-	    query := 'CREATE ' || unique_clause || bitmap_clause || 
-	       ' INDEX ' || index_row.index_name || ' ON ' ||
+	    query := 'CREATE ' || bitmap_clause || ' INDEX ' || index_row.index_name || ' ON ' ||
 	       UPPER(table_name) || ' ( ' || cols || ' ) ' || 
 	       ' PCTFREE ' || index_row.pct_free || 
 	       ' STORAGE ( INITIAL ' || index_row.initial_extent || 
@@ -932,20 +920,20 @@ BEGIN
 	 -- If the rebuild_flag is NO, recreate
   	 -- the primary key by disabling and enabling it 
 	 -- and then computing statistics
-	 --IF rebuild_flag = MEME_CONSTANTS.NO THEN
+	 IF rebuild_flag = MEME_CONSTANTS.NO THEN
 
-	   -- location := '90';
-	   -- query := 'ALTER TABLE ' || table_name ||
-       --       ' DISABLE PRIMARY KEY';
-	   -- local_exec(query);
+	    location := '90';
+	    query := 'ALTER TABLE ' || table_name ||
+		       ' DISABLE PRIMARY KEY';
+	    local_exec(query);
 
 	    -- Enable the primary key
-	   -- location := '100';
-	   -- query := 'ALTER TABLE ' || table_name ||
-	   --    ' ENABLE PRIMARY KEY';
-	   -- local_exec(query);
+	    location := '100';
+	    query := 'ALTER TABLE ' || table_name ||
+	       parallel_clause || ' ENABLE PRIMARY KEY';
+	    local_exec(query);
 
-	 --END IF;
+	 END IF;
 
 	 -- Rebuild the index
 	 location := '110';
@@ -1198,10 +1186,10 @@ BEGIN
    MEME_UTILITY.put_message('Insert into meme_indexes.');
    INSERT INTO meme_indexes (index_name, table_name, pct_free, pct_increase,
       initial_extent, next_extent, min_extents, max_extents, tablespace_name,
-	index_type, uniqueness)
+	index_type)
    SELECT index_name, table_name, pct_free, pct_increase,
       initial_extent, next_extent, min_extents, max_extents, tablespace_name,
-	index_type, uniqueness
+	index_type
    FROM user_indexes
    WHERE table_name IN (SELECT table_name FROM meme_tables
 			MINUS 
@@ -1228,8 +1216,6 @@ EXCEPTION
 END refresh_meme_indexes;
 
 /* PROCEDURE ANALYZE ************************************************************
- *  Soma 1g changing analyze statement
- *  BAC: cannot estimate here, need to actually analyze entire table
  */
 PROCEDURE analyze(
    table_name		       IN VARCHAR2
@@ -1237,8 +1223,7 @@ PROCEDURE analyze(
 IS
 BEGIN
     DBMS_STATS.gather_table_stats (
-	ownname => 'MTH', tabname => table_name, estimate_percent=>100,
-	method_opt=> 'for all indexed columns size auto',
+	ownname => 'MTH', tabname => table_name,
  	degree => 8, cascade => TRUE);
 END analyze;
 
@@ -2113,8 +2098,8 @@ BEGIN
      'set db = $1'||CHR(10)||
      'set wms_user = '||''''||LOWER(MEME_CONSTANTS.WMS_USER)||''''||CHR(10)||
      'set mid_user = '||''''||LOWER(MEME_CONSTANTS.MID_USER)||''''||CHR(10)||
-     'set wms_userpw = `$MIDSVCS_HOME/bin/get-oracle-pwd.pl -u $wms_user -d $db`'||CHR(10)||
-     'set mid_userpw = `$MIDSVCS_HOME/bin/get-oracle-pwd.pl -u $mid_user -d $db`'||CHR(10)||CHR(10)||
+     'set wms_userpw = `$MIDSVCS_HOME/bin/get-oracle-pwd.pl -u $wms_user`'||CHR(10)||
+     'set mid_userpw = `$MIDSVCS_HOME/bin/get-oracle-pwd.pl -u $mid_user`'||CHR(10)||CHR(10)||
      'echo "-------------------------------------------------------------"'||CHR(10)||
      'echo "Starting ...`/bin/date`"'||CHR(10)||
      'echo "-------------------------------------------------------------"'||CHR(10)||CHR(10)||

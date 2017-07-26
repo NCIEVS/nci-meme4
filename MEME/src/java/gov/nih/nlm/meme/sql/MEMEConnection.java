@@ -2,22 +2,12 @@
  *
  * Package: gov.nih.nlm.meme.sql
  * Object:  MEMEConnection
- * Version Information
- * 10/30/2007 TTN (1-FN4GD): add paginated feature to getContentViewMembers method 
- * 07/31/2007 BAC (1-EUZVV): rel directionality flag is Y or null.
- * 04/17/2007 BAC (1-E0JWB): New getNullLui() method.
- * 03/06/2007 3.12.4 SL (1-DNO15) : Implementing the new interface findNDCConceptsFromCode to retrieve the NDC Code.
- * 03/02/2007 TTN (1-D3BQF): add SRC_REL_ID sg_type
- * 11/15/2006 BAC (1-CTLDV):  Change to atom rank to ensure SUI,AUI parts are always 9 digits
- * 08/31/2006 TTN(1-C261E): use the same ranking algorithm as in MEME_RANKS
- * 08/16/2006 BAC(1-BU75X): fix to cache clearing (sources,termgroups,rela)
- * 08/03/2006 BAC(1-BU75X): clear caches properly before re-cacheing.
- * 05/24/2006 RBE (1-BA55P) : Preventing certain errors from sending mail
  * 04/10/2006 TTN (1-AV6X1) : do not need to set keys map when using MultiMap
  * 02/27/2006 TTN (1-AHNAL) : add code and cascade field to content_view_members
  *                            fix add and remove cv_member to use the new columns
  * 02/03/2006 RBE (1-76X3H): support the additional parameter (set_ranks) in
  *  	MEME_SOURCE_PROCESSING.insert_ranks()
+ *
  * 02/03/2006 TTN (1-754X9) : Extend AUI to 8 chars. Pad AUI to fixed length
  *
  *****************************************************************************/
@@ -1629,7 +1619,7 @@ public abstract class MEMEConnection
       pstmt.setString(54, source.getReleaseUrlList());
       pstmt.setString(55, source.getInternalUrlList());
       pstmt.setString(56,
-                      source.getRelationshipDirectionalityFlag() ? "Y" : null);
+                      source.getRelationshipDirectionalityFlag() ? "Y" : "N");
       pstmt.setString(57, source.getSourceAbbreviation());
 
       int rowcount = pstmt.executeUpdate();
@@ -3281,9 +3271,9 @@ public abstract class MEMEConnection
    */
   public void populateConcept(Concept concept, Ticket ticket) throws
       DataSourceException, BadValueException {
-	MEMEToolkit.trace("MEMEConnection.populateConcept(Concept, Ticket)...");
+    MEMEToolkit.trace("MEMEConnection.populateConcept(Concept, Ticket)...");
 
-	Set excluded_atoms = new HashSet();
+    Set excluded_atoms = new HashSet();
     String language = null;
 
     //
@@ -4011,19 +4001,19 @@ public abstract class MEMEConnection
             //
           }
           if (attr.getValue() != null &&
-                  attr.getValue().startsWith("<>Long_Attribute<>:") &&
-                  ticket.expandLongAttributes()) {
-                try {
-                  long_attribute_mapper.populate(rs, this, attr);
-                }
-                catch (SQLException se) {
-                  long_attribute_mapper.close();
-                  DataSourceException dse = new DataSourceException(
-                      "Failed to load long attribute.", attr, se);
-                  throw dse;
-                }
-              }
-          
+              attr.getValue().startsWith("<>Long_Attribute<>:") &&
+              ticket.expandLongAttributes()) {
+            try {
+              long_attribute_mapper.populate(rs, this, attr);
+            }
+            catch (SQLException se) {
+              long_attribute_mapper.close();
+              DataSourceException dse = new DataSourceException(
+                  "Failed to load long attribute.", attr, se);
+              throw dse;
+            }
+          }
+
           //
           // Connect atom and attribute
           //
@@ -5160,14 +5150,14 @@ public abstract class MEMEConnection
       return READ_ATTRIBUTES +
           ticket.getDataTypeRestriction(Attribute.class) +
           (ticket.readRelationships() ? "" :
-           " AND NVL(sg_type,'null') NOT IN ('SOURCE_RUI', 'RUI', 'ROOT_SOURCE_RUI', 'SRUI', 'ROOT_SRUI')") +
+           " AND NVL(sg_type,'null') NOT IN ('SOURCE_RUI', 'ROOT_SOURCE_RUI', 'SRUI', 'ROOT_SRUI')") +
           ticket.getDataTypeOrderBy(Attribute.class);
     }
     else if (type == Atom.class) {
       return READ_ATOM_ATTRIBUTES +
           ticket.getDataTypeRestriction(Attribute.class) +
           (ticket.readRelationships() ? "" :
-           " AND NVL(sg_type,'null') NOT IN ('SOURCE_RUI', 'RUI', 'ROOT_SOURCE_RUI', 'SRUI', 'ROOT_SRUI')") +
+           " AND NVL(sg_type,'null') NOT IN ('SOURCE_RUI', 'ROOT_SOURCE_RUI', 'SRUI', 'ROOT_SRUI')") +
           ticket.getDataTypeOrderBy(Attribute.class);
     }
     else if (type == Relationship.class) {
@@ -6063,32 +6053,6 @@ public abstract class MEMEConnection
   }
 
   /**
-   * Finds the null LUI.
-   * @param param the {@link SearchParameter}.
-   * @return the {@link Iterator}.
-   * @throws DataSourceException if failed to find a matching string.
-   */
-  public LUI getNullLUI() throws DataSourceException {
-    // Execute the query
-    try {
-      PreparedStatement pstmt = prepareStatement("SELECT DISTINCT lui FROM string_ui WHERE norm_string IS NULL");
-      final ResultSet rs = pstmt.executeQuery();
-      String lui = null;
-      while (rs.next()) {
-      	lui = rs.getString("LUI");
-      }
-      if (lui != null)
-        return new LUI(lui);
-    }
-    catch (Exception e) {
-      DataSourceException dse = new DataSourceException(
-          "Failed to find null LUI.", "", e);
-      throw dse;
-    }
-    return null;
-  }
-
-  /**
    * Implements {@link MEMEDataSource#findStrings(SearchParameter)}.
    * @param param the {@link SearchParameter}.
    * @return the {@link Iterator}.
@@ -6446,94 +6410,7 @@ public abstract class MEMEConnection
       throw dse;
     }
   }
-  /**
-   * Implements {@link MEMEDataSource#findConceptsFromString(SearchParameter[], Ticket)}.
-   * @param params An array of object {@link SearchParameter}.
-   * @param ticket the {@link Ticket}.
-   * @return the {@link Iterator}.
-   * @throws DataSourceException if failed to find a matching concepts.
-   */
-  public Iterator findNDCConceptsFromCode(String code,
-                                         Ticket ticket) throws
-      DataSourceException {
 
-    // Use empty ticket if not ticket is specified
-    if (ticket == null) {
-      ticket = Ticket.getEmptyTicket();
-
-    }
-    MEMEToolkit.trace(
-        "MEMEConnection.findConceptsFromString(SearchParameter[])...", true);
-
-    // Build up a query that searches for concept_ids
-    // First get the normalized string and then query
-    // 
-    if (code.indexOf('-') == -1  && code.length() == 12 && code.substring(0,1).equals("0")) {
-    	code = code.substring(1);
-    }
-    if (code.indexOf('-') == -1  && code.length() == 10) {
-    	code = '0'+ code;
-    }
-    String query_code = "{? = call MEME_OPERATIONS.Get_Norm_Ndc('" + code + "')}";
-    MEMEToolkit.trace(
-    "MEMEConnection.findConceptsFromString(SearchParameter[])..." + query_code, true);
-
-    StringBuffer query = new StringBuffer(500);
-    // Execute the query
-    try {
-    	
-    	CallableStatement cstmt = prepareCall(query_code);
-        cstmt.registerOutParameter(1, Types.VARCHAR);
-        cstmt.execute();
-        String norm_code = cstmt.getString(1);
-        MEMEToolkit.trace(
-        	    "Return data )...[" + norm_code + "]", true);
-        cstmt.close();
-	    query.append("SELECT DISTINCT concept_id, preferred_atom_id, status")
-	        .append(" FROM concept_status")
-	        .append(" WHERE concept_id IN")
-	        .append(" (SELECT concept_id FROM attributes ")
-	        .append(" WHERE attribute_name = 'NDC' AND ");
-	    query.append("MEME_OPERATIONS.Get_Norm_Ndc(attribute_value) = MEME_OPERATIONS.Get_Norm_Ndc('" + code +"') AND (");
-/*	    if (!code.substring(0,1).equals("0")) {
-	    	query.append("attribute_value like '0" + code.substring(0,2) + "%' OR ");
-	    	 query.append("attribute_value like '" + code.substring(0, 2) + "%' )");
-	    } else { */
-	      
-	    	query.append("attribute_value like '" + norm_code.substring(0,3) + "%' OR ");
-	    	 query.append("attribute_value like '" + norm_code.substring(1, 3) + "%' )");
-//	    }
-	    query.append(")");
-	
-	    MEMEToolkit.trace(query.toString(), true);
-	
-	
-	      PreparedStatement pstmt = prepareStatement(query.toString());
-	      final ResultSet rs = pstmt.executeQuery();
-	      final Ticket l_ticket = ticket;
-	      // Return an iterator that returns MolecularActions object
-	      return new ResultSetIterator(rs, this,
-	                                   new ResultSetMapper() {
-	        public Object map(ResultSet rs, MEMEDataSource mds) throws SQLException,
-	            MEMEException {
-	          Concept concept = new Concept.Default(rs.getInt("CONCEPT_ID"));
-	          if (rs.getInt("PREFERRED_ATOM_ID") != 0) {
-	            concept.setPreferredAtom(getAtomWithName(rs.getInt(
-	                "PREFERRED_ATOM_ID"), l_ticket));
-	          }
-	          concept.setStatus(rs.getString("STATUS").charAt(0));
-	          return concept;
-	        }
-	      }
-	      );
-    }
-    catch (Exception e) {
-      DataSourceException dse = new DataSourceException(
-          "Failed to find matching concepts.", query, e);
-      dse.setDetail("query", query.toString());
-      throw dse;
-    }
-  }
   /**
    * Implements {@link MEMEDataSource#findConceptsFromWords(SearchParameter, Ticket)}.
    * @param param the {@link SearchParameter}.
@@ -6960,8 +6837,6 @@ public abstract class MEMEConnection
           sab.startsWith("RESCUE") || sab.startsWith("L-")) {
         l_sab = "MTH";
       }
-    } else {
-      source_rank_cache.clear(getDataSourceName());
     }
     final String is_current_query = "SELECT COUNT(*) AS CT " +
         "FROM source_version WHERE current_name = ?";
@@ -7292,11 +7167,8 @@ public abstract class MEMEConnection
         "rank, release_rank, suppressible FROM termgroup_rank";
     if (tg != null) {
       tr_query = tr_query + " WHERE termgroup = '" + tg + "'";
-    } else {
-    	termgroup_rank_cache.clear(getDataSourceName());
     }
-    
-  	try {
+    try {
       Statement tr_stmt = createStatement();
       ResultSet rs = tr_stmt.executeQuery(tr_query);
 
@@ -7334,10 +7206,9 @@ public abstract class MEMEConnection
    * Puts the semantic type into cache.
    * @throws DataSourceException if failed to cache semantic types.
    */
-  protected void cacheSemanticTypes() throws DataSourceException {
+  private void cacheSemanticTypes() throws DataSourceException {
     MEMEToolkit.logComment("  Cache semantic types", true);
 
-    sty_cache.clear(getDataSourceName());
     // Query to look up STYs
     final String sty_query =
         "SELECT semantic_type, is_chem, chem_type, editing_chem, ui, stn, def " +
@@ -7388,8 +7259,6 @@ public abstract class MEMEConnection
   protected void cacheRelInverses() throws DataSourceException {
     MEMEToolkit.logComment("  Cache relationship inverses", true);
 
-    inverse_rel_cache.clear(getDataSourceName());
-    
     // Look up inverse relationship names
     final String rel_query =
         "SELECT relationship_name, inverse_name " +
@@ -7436,8 +7305,6 @@ public abstract class MEMEConnection
 
     if (rela != null) {
       rela_query = rela_query + " AND relationship_attribute = '" + rela + "'";
-    } else {
-      inverse_rela_cache.clear(getDataSourceName());
     }
 
     try {
@@ -7469,11 +7336,9 @@ public abstract class MEMEConnection
    * Puts the languages into cache.
    * @throws DataSourceException if failed to cache languages.
    */
-  protected void cacheLanguages() throws DataSourceException {
+  private void cacheLanguages() throws DataSourceException {
     MEMEToolkit.logComment("  Cache languages", true);
 
-    lat_cache.clear(getDataSourceName());
-    
     final String query = "SELECT language, lat, iso_lat FROM language";
 
     try {
@@ -7505,11 +7370,9 @@ public abstract class MEMEConnection
    * Puts the code map into cache.
    * @throws DataSourceException if failed to cache code map.
    */
-  protected void cacheCodeMap() throws DataSourceException {
+  private void cacheCodeMap() throws DataSourceException {
     MEMEToolkit.logComment("  Cache code map", true);
 
-    code_map_cache.clear(getDataSourceName());
-    
     final String query = "SELECT rowid, code, type, value FROM code_map";
 
     try {
@@ -7542,10 +7405,9 @@ public abstract class MEMEConnection
    * Puts the meta properties into cache.
    * @throws DataSourceException if failed to cache meta properties
    */
-  protected void cacheMetaProperties() throws DataSourceException {
+  private void cacheMetaProperties() throws DataSourceException {
     MEMEToolkit.logComment("  Cache meta properties", true);
 
-    meta_properties_cache.clear(getDataSourceName());
     final String query = "SELECT rowid, key, key_qualifier, value, " +
         "description, definition, example, reference FROM meme_properties";
 
@@ -7566,8 +7428,6 @@ public abstract class MEMEConnection
         MetaProperty meta_prop =
             new MetaProperty(id, key, key_qualifier, value, description,
                              definition, example, reference);
-        meta_properties_cache.put(getDataSourceName(),
-                key + key_qualifier + value + description, meta_prop); //naveen UMLS-60: added description to the key 
       }
 
       // Close statement
@@ -7591,6 +7451,8 @@ public abstract class MEMEConnection
 
     MEMEToolkit.trace(
         "MEMEConnection.addContentView(ContentView)...");
+
+    cv.setIdentifier(getNextIdentifierForType(ContentView.class));
 
     String insert_str = "INSERT INTO content_views ( "
         +
@@ -7944,20 +7806,16 @@ public abstract class MEMEConnection
       pstmt.setString(2, member.getContentView().getCascade() ? "Y" : "N");
       rset = pstmt.executeQuery();
       if(rset.next())  {
-      	pstmt.close();
         pstmt = prepareStatement(upate_str);
         pstmt.setLong(1,member.getContentView().getCode());
         pstmt.setString(2, member.getIdentifier().toString());
         pstmt.setString(3, member.getContentView().getCascade() ? "Y" : "N");
-        pstmt.executeUpdate();
       }
       else {
-      	pstmt.close();
         pstmt = prepareStatement(insert_str);
         pstmt.setString(1, member.getIdentifier().toString());
         pstmt.setLong(2,member.getContentView().getCode());
         pstmt.setString(3, member.getContentView().getCascade() ? "Y" : "N");
-        pstmt.executeUpdate();
       }
 
       pstmt.close();
@@ -8076,10 +7934,10 @@ public abstract class MEMEConnection
 
     String insert_str = "INSERT INTO content_view_members " +
         "(meta_ui, code, cascade) " +
-        "SELECT meta_ui, ?, ? FROM (" + cv.getAlgorithm() +
-        ") MINUS " +
-        "SELECT meta_ui, ?, ? FROM content_view_members "  +
-        "WHERE cascade = ?" ;
+        "SELECT meta_ui, ? , ? FROM (" + cv.getAlgorithm() +
+        " MINUS " +
+        "SELECT meta_ui FROM content_view_members "  +
+        "WHERE cascade = ? )" ;
 
     String update_str = "UPDATE content_view_members a " +
         "SET code = code + ? " +
@@ -8096,9 +7954,7 @@ public abstract class MEMEConnection
       pstmt = prepareStatement(insert_str);
       pstmt.setLong(1, cv.getCode());
       pstmt.setString(2, cv.getCascade() ? "Y" : "N");
-      pstmt.setLong(3, cv.getCode());
-      pstmt.setString(4, cv.getCascade() ? "Y" : "N");
-      pstmt.setString(5, cv.getCascade() ? "Y" : "N");
+      pstmt.setString(3, cv.getCascade() ? "Y" : "N");
       pstmt.executeUpdate();
       pstmt.close();
     }
@@ -8153,54 +8009,34 @@ public abstract class MEMEConnection
   /**
    * Implements {@link MEMEDataSource#getContentViewMembers(ContentView)}
    * @param cv the {@link ContentView}
-   * @param start the start index
-   * @param end the end index
    * @return An array of {@link ContentViewMember}
    * @throws DataSourceException if failed to get content view members
+   * @throws BadValueException if failed due to invalid data value
    */
-  public ContentViewMember[] getContentViewMembers(ContentView cv, int start, int end) throws
+  public ContentViewMember[] getContentViewMembers(ContentView cv) throws
       DataSourceException {
 
     List members = new ArrayList();
 
     // Query to get content view
-    final String query = "SELECT meta_ui, atom_id, concept_id " +
-    "FROM content_view_members a, classes b " +
-    "WHERE ? = BITAND(a.code,?) AND cascade = ? " + 
-    "AND tobereleased in ('Y','y') AND meta_ui = b.aui " + 
-    "UNION ALL " +
-    "SELECT meta_ui, null, null from content_View_members a, code_map b " +
-    "WHERE ? = BITAND(a.code,?) AND cascade = ? " + 
-    "AND type='ui_prefix' AND b.code='AUI' " +
-    "AND NOT regexp_like(meta_ui,b.value||'[[:digit:]]')" + 
-    "ORDER BY concept_id ";
+    final String query = "SELECT meta_ui " +
+         "FROM content_view_members " +
+        "WHERE ? = BITAND(code,?) AND cascade = ?";
 
     PreparedStatement pstmt = null;
     try {
-      pstmt = prepareStatement(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+      pstmt = prepareStatement(query);
       pstmt.setLong(1, cv.getCode());
       pstmt.setLong(2, cv.getCode());
       pstmt.setString(3, cv.getCascade() ? "Y" : "N");
-      pstmt.setLong(4, cv.getCode());
-      pstmt.setLong(5, cv.getCode());
-      pstmt.setString(6, cv.getCascade() ? "Y" : "N");
       ResultSet rs = pstmt.executeQuery();
-      
-      if(start > 0)
-    	  rs.absolute(start);
+
       // Read
       while (rs.next()) {
         ContentViewMember member = new ContentViewMember.Default();
         member.setContentView(cv);
         member.setIdentifier(new Identifier.Default(rs.getString("META_UI")));
-        if(rs.getInt("ATOM_ID") != 0) {
-	      	Atom atom = getAtomWithName(rs.getInt("ATOM_ID"), null);
-	      	member.setAtom(atom);
-        }
         members.add(member);
-        if(rs.getRow() == end) {
-        	break;
-        }
       }
 
       // Close statement
@@ -8216,12 +8052,6 @@ public abstract class MEMEConnection
           "Failed to get content view.", cv, se);
       dse.setDetail("query", query);
       throw dse;
-    } catch(BadValueException bve) {
-        DataSourceException dse = new DataSourceException(
-                "Failed to get content view.", cv, bve);
-            dse.setDetail("query", query);
-            throw dse;
-    	
     }
 
     // return
@@ -8535,8 +8365,7 @@ public abstract class MEMEConnection
     meme_prop.setIdentifier(
         getMetaProperty(meme_prop.getKey(),
                         meme_prop.getKeyQualifier(),
-                        meme_prop.getValue(),
-                        meme_prop.getDescription()).getIdentifier());//naveen UMLS-60: added description parameter to getMetaProperty method 
+                        meme_prop.getValue()).getIdentifier());
 
   }
 
@@ -8585,12 +8414,13 @@ public abstract class MEMEConnection
    * @return the {@link MetaProperty}
    */
   public MetaProperty getMetaProperty(String key, String key_qualifier,
-                                      String value, String description) {//naveen UMLS-60: added description parameter to getMetaProperty method
+                                      String value) {
     if (key == null || key_qualifier == null || value == null) {
       return null;
     }
+
     return (MetaProperty) meta_properties_cache.get(getDataSourceName(),
-            key + key_qualifier + value + description);
+        key + key_qualifier + value);
   }
 
   /**
@@ -8813,6 +8643,17 @@ public abstract class MEMEConnection
         throw dse;
       }
 
+      int lpad_aui;
+      try {
+        String ui_length = getValueByCode("ui_length","AUI");
+        lpad_aui = new Double(Math.pow(10,Integer.parseInt(ui_length))).intValue();
+      }
+      catch (BadValueException bve) {
+        DataSourceException dse = new DataSourceException(
+            "Failed to get the value of the code.", "AUI.ui_length", bve);
+        throw dse;
+      }
+
       //
       // Get atoms, compute rank, add to list
       //
@@ -8822,12 +8663,11 @@ public abstract class MEMEConnection
             atoms[j].getLastAssignedCUI() != null) {
           atom_list.add(atoms[j]);
           final StringBuffer extended_rank = new StringBuffer(30);
-          extended_rank.append(atoms[j].getRank().toString().substring(0,1))
-          	  .append(10000 + atoms[j].getTermgroup().getReleaseRank().intValue())
-              .append(atoms[j].getLastReleaseRank().intValue())
-              .append(999999999 - atoms[j].getSUI().intValue())
-              .append(999999999 - (atoms[j].getAUI() == null ? 1 : atoms[j].getAUI().intValue()))
-              .append(10000000000L + atoms[j].getIdentifier().intValue());
+          extended_rank.append(atoms[j].getRank().toString().substring(0, 1))
+              .append(10000 + atoms[j].getTermgroup().getReleaseRank().intValue())
+              .append(0)
+              .append(atoms[j].getSUI())
+              .append(lpad_aui + atoms[j].getAUI().toString().substring(1));
           atoms[j].setRank(new Rank.Default(extended_rank.toString()));
           if (atoms[j].getLastReleaseCUI() == null) {
             atoms[j].setLastReleaseCUI(atoms[j].getLastAssignedCUI());
@@ -9127,9 +8967,9 @@ public abstract class MEMEConnection
 
       if (ctr == 0) {
         // No match found
-        MissingDataException mde = new MissingDataException("No work log found.");
-        mde.setDetail("work_id", Integer.toString(work_id));
-        throw mde;
+        DataSourceException dse = new DataSourceException("No work log found.");
+        dse.setDetail("work_id", Integer.toString(work_id));
+        throw dse;
       }
 
     }
@@ -9526,13 +9366,10 @@ public abstract class MEMEConnection
    */
   public void changePassword(String user, String password) throws
       DataSourceException {
-    PreparedStatement stmt = null;
+    Statement stmt = null;
     try {
-      //stmt = createStatement();
-      //stmt.execute("ALTER USER " + user + " IDENTIFIED BY " + password);
-    	//MEMEToolkit.logComment("MEMEConnection.Changing password(): user [" + user + "] password [" + password + "]");
-      stmt = prepareCall("{call passwd('" + user+ "','" + password + "')}");
-      stmt.execute();
+      stmt = createStatement();
+      stmt.execute("ALTER USER " + user + " IDENTIFIED BY " + password);
       stmt.close();
     }
     catch (SQLException se) {

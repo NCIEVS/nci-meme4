@@ -31,15 +31,15 @@ $tmpdir = (-e $statedir ? $statedir : "/tmp");
 # open connection
 #
 ($oracleUSER,$oraclePWD) = split /\//,$opt_u;
-
+unless ($oraclePWD) {
+  $oraclePWD = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl $oracleUSER | sed 's/.*\\///'`;
+  chop($oraclePWD);
+}
 $oracleTNS = $opt_d || `$ENV{MIDSVCS_HOME}/bin/midsvcs.pl -s editing-db`;
 chop($oracleTNS) unless $opt_d;
 $oracleDBH = undef; # DBD handle
 $defaultTABLESPACE = "MTH";
-unless ($oraclePWD) {
-  $oraclePWD = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl -u $oracleUSER -d $oracleTNS | sed 's/.*\\///'`;
-  chop($oraclePWD);
-}
+
 use DBI;
 use DBD::Oracle;
 $oracleDBH = DBI->connect("dbi:Oracle:$oracleTNS",$oracleUSER,$oraclePWD) ||

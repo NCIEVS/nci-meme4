@@ -4,19 +4,13 @@
 # Use this package to access an Oracle database
 package OracleIF;
 
-unshift @INC, "$ENV{ENV_HOME}/bin";
-
-require "env.pl";
-
-use lib "$ENV{EMS_HOME}/lib";
+use lib "/site/umls/lib/perl";
 
 use DBI;
 use DBD::Oracle;
-use File::Basename;
 use File::Copy;
 use GeneralUtils;
 use Midsvcs;
-use Symbol;
 
 $OracleIF::VERSION = '1.00';
 $OracleIF::FIELDSEPARATOR = '|';
@@ -74,9 +68,9 @@ sub new {
     $self->{$_} = $CONSTANTS->{$_};
   }
 
-  $ENV{ORACLE_BASE}="/export/home/oracle" unless $ENV{ORACLE_BASE};
-  $ENV{ORACLE_HOME} = "/export/home/oracle" unless $ENV{ORACLE_HOME};
-  $ENV{ORA_ENCRYPT_LOGIN} = 'TRUE' unless $ENV{ORA_ENCRYPT_LOGIN};
+  $ENV{'ORACLE_BASE'}="/export/home/oracle" unless $ENV{'ORACLE_BASE'};
+  $ENV{'ORACLE_HOME'} = "/export/home/oracle" unless $ENV{'ORACLE_HOME'};
+  $ENV{'ORA_ENCRYPT_LOGIN'} = 'TRUE' unless $ENV{'ORA_ENCRYPT_LOGIN'};
 
   return ($self->connect() ? undef : $self);
 }
@@ -123,19 +117,6 @@ sub ping {
   return $self->{dbh}->ping;
 }
 
-# for logging
-sub sqllog {
-  my($self, $msg) = @_;
-
-  return unless $main::SQLLOGGING && $main::SQLLOGFILE;
-
-  my($logfile) = $main::SQLLOGFILE;
-  open(L, ">>$logfile") || die "Cannot open $logfile";
-  print L "\n\n", "-" x 5, " SQL log for session ID: ", $main::SESSIONID, " ", "-" x 5, "\n";
-  print L $msg, "\n";
-  close(L);
-}
-
 # SELECT functions
 
 # returns a row as a scalar
@@ -148,20 +129,6 @@ sub selectFirstAsScalar {
 sub selectFirstAsArray {
   my(@refs) = &selectAllAsRef(@_);
   return @{ $refs[0] };
-}
-
-# returns a row as a hash of col/values
-sub selectFirstAsHash {
-  my($self, $stmt, $cols) = @_;
-  my(@values) = $self->selectFirstAsArray($stmt);
-  my($n) = 0;
-  my(%h);
-
-  while ($n<@$cols) {
-    $h{$cols->[$n]} = $values[$n];
-    $n++;
-  }
-  return \%h;
 }
 
 # returns a row as a reference to an array
@@ -185,8 +152,6 @@ sub selectAllAsRef {
   my($sth);
   my(@x);
   my(@results);
-
-  $self->sqllog($stmt);
 
   print STDERR $stmt, "\n" if ($self->{debug});
   $self->connect;
@@ -216,9 +181,10 @@ sub selectRowAsRef {
   if (!defined($self->{sth}->{$stmt})) {
     $self->connect();
     $self->{sth}->{$stmt} = $self->{dbh}->prepare($stmt);
-    die ($@ || $DBI::errstr) if ($@ || $DBI::errstr);
+    &errorlog;
     unless ($self->{sth}->{$stmt}->execute) {
-      die ($@ || $DBI::errstr);
+      &errorlog;
+      die $self->{dbh}->errstr;
     }
   }
 
@@ -277,51 +243,43 @@ sub selectToFile {
   close($fd) if ref $file ne "GLOB";
 }
 
-# Loads data (SLOWLY!) into a table (fields must be | separated)
-# The colspec is a ref to an array of colnames and their types
-# e.g., ['concept_id'], {bin_name=>'varchar'}]
+# Loads data (SLOW!) into a table (fields must be | separated)
 sub file2table {
-  my($self, $file, $table, $colspec) = @_;
+  my($self, $table, $file, $colspec) = @_;
+  my($TABLE) = uc($table);
   my($sql);
-  my($fd);
-  my(@fields, $i, %row, $colname, $coltype, %coltype, @cols);
+  my(@refs, $ref);
+  my(@cols, @v, %type);
+  my($cols, $v, $col);
 
-  if (ref $file ne "GLOB") {
-    use Symbol;
-    $fd = gensym;
-    open($fd, $file) || die "Cannot open $file to load data into table: $table\n";
-  } else {
-    $fd = $file;
+  if ($colspec) {
+    $self->dropTable($table);
+    $self->createTable($table, $colspec);
   }
 
-  foreach $colname (@$colspec) {
-
-    if (ref($colname)) {
-      if (ref($colname) eq "HASH") {
-	my(@x) = keys %{ $colname };
-	$coltype{uc($x[0])} = uc($colname->{$x[0]});
-	push @cols, uc($x[0]);
-      }
-    } else {
-      push @cols, uc($colname);
-      $coltype{uc($colname)} = 'INTEGER';
-    }
+  @refs = $self->selectAllAsRef(<<"EOD");
+SELECT column_name, data_type from ALL_TAB_COLUMNS WHERE table_name=\'$TABLE\'
+EOD
+  foreach $ref (@refs) {
+    $type{$ref->[0]} = $ref->[1];
+    push @cols, $ref->[0];
   }
+  $cols = join(', ', @cols);
 
-  while (<$fd>) {
+  open(F, $file) || die "Cannot open $file to load data into table: $table\n";
+  while (<F>) {
     chomp;
     @fields = split /\|/, $_;
-    %row = ();
+    @v = ();
     for ($i=0; $i<@cols; $i++) {
-      $colname = $cols[$i];
-      $coltype = $coltype{$cols[$i]};
-      $row{$colname} = ($coltype =~ /^int/i ? $fields[$i] :
-			($coltype =~ /^date/i ? ("TO_DATE(" . $self->quote($fields[$i]) . ")") :
-			 $self->quote($fields[$i])));
+      $v = $fields[$i];
+      $v =~ s/\'/\'\'/g;
+      push @v, (($type{$cols[$i]} =~ /CHAR/i || $type{$cols[$i]} =~ /CLOB/i) ? "\'" . $v . "\'" : $v);
     }
-    $self->insertRow($table, \%row);
+    $sql = "INSERT INTO $table ($cols) VALUES (" . join(', ', @v) . ")";
+    $self->executeStmt($sql);
   }
-  close($fd) if ref $file ne "GLOB";
+  close(F);
 
 # commit if needed
   $self->{dbh}->commit unless $self->{dbh}->{AutoCommit};
@@ -338,9 +296,9 @@ sub table2file {
 # (i: integer, c: character)
 # e.g., "iiic" for 3 integer fields, ending with a character field
 sub sqlldr {
-  my($self, $file, $table, $colspec) = @_;
+  my($self, $table, $file, $colspec) = @_;
   my($datfile, $ctlfile);
-  my($sqlldr) = $ENV{ORACLE_HOME} . "/bin/sqlldr";
+  my($sqlldr) = $ENV{'ORACLE_HOME'} . "/bin/sqlldr";
   my($r, @t, $c, $t);
 
   $self->dropTable($table);
@@ -349,7 +307,7 @@ sub sqlldr {
   if ($file =~ /\.dat$/) {
     $datfile = $file;
   } else {
-    $datfile = "/tmp/" . basename($file) . "_$$" . ".dat";
+    $datfile = "/tmp/${file}_$$" . ".dat";
     copy($file, $datfile);
   }
   $ctlfile = "/tmp/${table}_$$.ctl";
@@ -394,13 +352,11 @@ EOD
 }
 
 # Runs a script using SQL*plus
-# only integer output can be parsed
+# ONLY LINES WITH NUMBERS AND '|' ARE PRESENT IN THE OUTPUT
 sub sqlplus_integer_output {
-  my($self, $scriptfile, $output) = @_;
-  my($sqlplus) = $sqlplus || ($ENV{'ORACLE_HOME'} . "/bin/sqlplus");
+  my($self, $script, $output) = @_;
+  my($sqlplus) = $ENV{'ORACLE_HOME'} . "/bin/sqlplus";
   my($authstr) = $self->{user} . "/" . $self->{password} . "\@" . $self->{db};
-
-  die "Cannot find sqlplus\n" unless -e $sqlplus && -x $sqlplus;
 
   if (ref($output) eq "GLOB") {
     $fd = $output;
@@ -411,19 +367,17 @@ sub sqlplus_integer_output {
     $fd = gensym;
     open($fd, ">$output") || die "ERROR: Cannot open $output";
   }
-  open(S, "$sqlplus -S \"$authstr\" < $scriptfile|") || die "ERROR: Cannot run sqlplus";
+  open(S, "$sqlplus -S \"$authstr\" < $script|") || die "ERROR: Cannot run sqlplus";
   while (<S>) {
     chomp;
     s/^\s*//;
     s/\s*$//;
     next if /^\s*$/;
-    next if /[^\d\s]/;
-    s/\s+/ /g;
-    s/ /\|/g;
+    next if /[^\d\|]/;
     print $fd $_, "\n";
   }
   close(S);
-  close($fd) unless ref($output);
+  close($fd) unless ($output eq $fd);
 }
 
 # reads in a list of SQL commands and executes them
@@ -462,10 +416,8 @@ sub executeStmt {
   my($self, $stmt) = @_;
   my($err);
 
-  $self->sqllog($stmt);
-
   $self->connect;
-  print STDERR $stmt, "\n" if $self->{debug};
+  print STDERR $stmt, "\n" if ($self->{debug});
   $err = ($@ || $self->{dbh}->errstr);
   if ($err) {
     print STDERR "ERROR in: $stmt\n";
@@ -482,7 +434,7 @@ sub executeStmt {
   }
   $err = ($@ || $self->{dbh}->errstr);
   if ($err) {
-    print STDERR "ERROR in: $stmt\n" if $self->{debug};
+    print STDERR "ERROR in: $stmt\n";
     die $err;
   }
 }
@@ -572,38 +524,18 @@ sub createTable {
       push @c, "$r INTEGER";
     }
   }
-  $self->executeStmt("CREATE TABLE $table (" . join(', ', @c) . ") NOLOGGING");
-}
-
-# creates a table with subselect
-sub createTableAsSelect {
-  my($self, $table, $selectstmt) = @_;
-
-  $self->executeStmt("CREATE TABLE $table NOLOGGING AS $selectstmt");
+  $self->executeStmt("CREATE TABLE $table (" . join(', ', @c) . ")");
 }
 
 # does a table have this column?
 sub tableHasColumn {
   my($self, $table, $col) = @_;
-  my($qt) = $self->quote(uc($table));
-  my($qc) = $self->quote(uc($col));
   my($row) = $self->selectFirstAsScalar(<<"EOD");
 SELECT table_name FROM all_tab_columns
-WHERE  table_name=$qt
-AND    column_name=$qc
+WHERE  table_name=\'$table\'
+AND    column_name=\'$col\'
 EOD
   return $row;
-}
-
-# add a column to a table
-sub addColumn {
-  my($self, $table, $colname, $coltype) = @_;
-  my($sql);
-
-  $sql = <<"EOD";
-ALTER TABLE $table ADD $colname $coltype
-EOD
-  $self->executeStmt($sql);
 }
 
 # Size of a VARCHAR column
@@ -646,69 +578,40 @@ EOD
 
 # creates an index on a column
 sub createIndex {
-  my($self, $table, $col, $index) = @_;
+  my($self, $table, $col) = @_;
+  my($index) = join("_", "x", $table, $col);
 
   $self->connect;
-#  return if $self->colHasIndex($table, $col);
-
-  unless ($index) {
-    $index = sprintf("x_%s_%d_%2d", $table, $$, rand(100));
-    if (length($index)>30) {
-      $index = sprintf("x_%s_%d_%2d", substr(GeneralUtils->str2random($table), 0, 20), $$, rand(100))
-    }
-#    $index = "x_" . substr($table, 0, 12) . "_$$_" . substr($col, 0, 10) if (length($index) > 30);
-    $index = substr($index, 0, 30);
-  }
-  $self->dropIndex($table, $index);
-  if (ref($col)) {
-    $self->executeStmt("CREATE INDEX $index ON $table (" . join(",", @$col) . ")");
-  } else {
-    $self->executeStmt("CREATE INDEX $index ON $table (" . $col . ")");
-  }
-  $self->analyzeStats($table);
+  return if $self->colHasIndex($table, $col);
+  $index = "x_" . substr($table, 0, 12) . "_$$_" . substr($col, 0, 10) if (length($index) > 30);
+  $index = substr($index, 0, 30);
+  $self->dropIndex($table, $col);
+  $self->executeStmt("CREATE INDEX $index ON $table ($col)");
 }
 
-# drops an index on a table/column
+# drops an index (or all indexes) on a table/column
 sub dropIndex {
-  my($self, $table, $index) = @_;
+  my($self, $table, $col) = @_;
   my($sql);
 
   $table = uc($table);
-  $index = uc($index);
+  $col = uc($col);
 
-  $sql = "SELECT index_name FROM all_ind_columns WHERE table_name=" . $self->quote($table) . " AND index_name=" . $self->quote($index);
-  if ($self->selectFirstAsScalar($sql)) {
-    $self->executeStmt("DROP INDEX $index");
+  if ($col) {
+    $sql = "SELECT index_name FROM all_ind_columns WHERE table_name=\'$table\' AND column_name=\'$col\'";
+  } else {
+    $sql = "SELECT index_name FROM all_ind_columns WHERE table_name=\'$table\'";
   }
-}
-
-# A simple way to get a temporary table name
-sub tempTable {
-  my($class, $prefix) = @_;
-  my($table);
-  my($n) = 1;
-
-  $prefix = "EMSTMP" unless $prefix;
-  while (1) {
-    $table = sprintf("%s_%d_%d", $prefix, $$, $n++);
-    last unless $class->tableExists($table);
+  foreach $i ($self->selectAllAsArray($sql)) {
+    $self->executeStmt("DROP INDEX $i");
   }
-  return $table;
-}
-
-# Analyses the statistics on a table
-sub analyzeStats {
-  my($self, $table) = @_;
-
-  $self->executeStmt("ANALYZE TABLE $table COMPUTE STATISTICS");
 }
 
 # Does a given table exist?
 sub tableExists {
   my($self, $table) = @_;
-#  my($sql) = "SELECT DISTINCT TABLE_NAME FROM ALL_TABLES WHERE table_name=" . $self->quote(uc($table));
-  my($sql) = "SELECT DISTINCT object_name FROM ALL_OBJECTS WHERE object_name=" . $self->quote(uc($table)) . " and (object_type='TABLE' or object_type='VIEW')";
-  return $self->selectFirstAsScalar($sql);
+
+  return $self->selectFirstAsScalar("SELECT DISTINCT TABLE_NAME FROM ALL_TABLES WHERE table_name=" . $self->quote(uc($table)));
 }
 
 # Does a given index exist?
@@ -722,11 +625,6 @@ sub currentDate {
   my($self) = @_;
 
   return $self->selectFirstAsScalar("SELECT SYSDATE FROM DUAL");
-}
-
-sub now {
-  my($self) = @_;
-  return $self->currentDate;
 }
 
 # compares two timestamps using the DB
@@ -761,7 +659,7 @@ sub connect {
   return 0 if (defined $self->{dbh});
 
   my($user) = $self->{user} || 'meow';
-  my($password) = $self->{password} || GeneralUtils->getOraclePassword($user,$db);
+  my($password) = $self->{password} || GeneralUtils->getOraclePassword($user);
   my($db) = $self->{db} || Midsvcs->get('editing-db');
 
   if ($self->{failquietly}) {
@@ -776,7 +674,7 @@ sub connect {
   if ($self->{failquietly}) {
     return 1 if (($@ || $DBI::errstr) || !$self->{dbh});
   } else {
-    die "ERROR: failed to connect to Oracle database $user #password @db\n" if (($@ || $DBI::errstr) || !$self->{dbh});
+    die "ERROR: failed to connect to Oracle database\n" if (($@ || $DBI::errstr) || !$self->{dbh});
   }
   return 0;
 }
@@ -806,60 +704,31 @@ sub disconnect {
   $self->{dbh}->disconnect if (defined($self->{dbh}));
 }
 
-# quotes a variable
+# Escapes special characters in VARCHARs
 sub quote {
-  my($self, $x, $type) = @_;
-
-  $type = "varchar" unless $type;
-  if ($type =~ /char/i) {
-    return $self->{dbh}->quote($x);
-  } elsif ($type =~ /integer/ || $type =~ /number/i) {
-    return $x;
-  } elsif ($type =~ /date/i) {
-    return "TO_DATE(" . $self->{dbh}->quote($x) . ")";
-  }
+  my($self, $varchar) = @_;
+  return $self->{dbh}->quote($varchar);
 }
 
-# Inserts a row into the database given a hash representing the row
-# looks up the data types from ALL_TAB_COLUMNS
+# can be passed two references to arrays
+# or a single reference to a hash
 sub insertRow {
-  my($self, $table, $row) = @_;
-  my($sql, $ref);
-  my(%r, @cols, $col, @values);
+  my($self, $table, @refs) = @_;
+  my(@a, @b);
+  my($sql);
 
-  $sql = "select column_name from ALL_TAB_COLUMNS where table_name=" . $self->quote(uc($table));
-  @cols = $self->selectAllAsArray($sql);
-
-  %r = map { lc($_) => $row->{$_} } keys %$row;
-  @values = map { $r{lc($_)} } @cols;
-
-  $sql = "INSERT INTO $table (" . join(", ", @cols) . ") VALUES (" . join(', ', @values) . ")";
-  $self->executeStmt($sql);
-  return;
-}
-
-# updates the contents of a row in the database given a hash
-# representing all or some columns of the row
-# $key and $value identify the row to be updated
-sub updateRow {
-  my($self, $table, $key, $value, $row) = @_;
-  my($sql, $ref);
-  my(%type, @cols, $col, @x);
-  my($keyval);
-
-  @cols = keys %$row;
-  foreach $col (@cols) {
-    push @x, $col . "=" . $row->{$col};
+  if (ref($refs[0]) eq "HASH") {
+    @a = keys %{ $refs[0] };
+    @b = values %{ $refs[0] };
+  } elsif (ref($refs[0]) eq "ARRAY") {
+    @a = @{ $refs[0] };
+    @b = @{ $refs[1] };
+  } else {
+    return;
   }
-  $sql = "UPDATE $table set " . join(", ", @x) . " where $key=$value";
+  $sql = "INSERT INTO $table (" . join(", ", @a) . ") VALUES (" . join(', ', @b) . ")";
   $self->executeStmt($sql);
   return;
-}
-
-# returns the DB
-sub getDB {
-  my($self) = @_;
-  return $self->{db};
 }
 
 # log to error file

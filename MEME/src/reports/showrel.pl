@@ -5,7 +5,6 @@
 $|=1;
 use open ":utf8";
 open(CON, "MRCONSO.RRF");
-binmode(STDOUT, ":utf8"); # for foreign characters in report, Siebel ticket 1-D7DJW
 
 while(<>) {
   chop;

@@ -4,9 +4,6 @@
 # be processed by the web application.
 #
 # Version Information:
-# 07/10/2007 RC (1-EORZ1): added analyze core tables section
-# 05/24/2007 TK (1-EB8PX): add monster qa section
-# 03/22/2007 BAC (1-DTETC): use production-db not editing-db
 # 12/30/2004 (4.1.0): first official version
 #
 set release=4
@@ -20,43 +17,10 @@ set version_authority="BAC"
 source $ENV_HOME/bin/env.csh
 
 set db=`$MIDSVCS_HOME/bin/midsvcs.pl -s production-db`
-set mu=`$MIDSVCS_HOME/bin/get-oracle-pwd.pl -d $db`
 set date=`/bin/date +%Y%m%d`
-set check=`$MEME_HOME/bin/dump_table.pl -d $db -u $mu -q "select status from system_status where system='mid_validation'"`
+set check=`$MEME_HOME/bin/dump_table.pl -q "select status from system_status where system='mid_validation'"`
 if ($check == "ON") then
    $MEME_HOME/bin/validate.pl $db mid >&! $MEME_HOME/cgi-bin/Logs/validate.$db.$date.log
 else if ($check != "OFF") then
    $MEME_HOME/bin/validate.pl $db mid $check >&! $MEME_HOME/cgi-bin/Logs/validate.$db.$date.log
 endif
-
-# run monster QA
-$ORACLE_HOME/bin/sqlplus -s $mu@$db <<EOF  >&! /tmp/crontab.$$.log
- set feedback off
- set serveroutput on size 100000
- exec MEME_INTEGRITY.monster_qa;
-EOF
-
-# analyze core tables (1EORZ1)
-$ORACLE_HOME/bin/sqlplus -s $mu@$db <<EOF >&! /tmp/crontab.$$.log
-  set feedback off
-  exec meme_system.analyze('attributes');
-  exec meme_system.analyze('classes');
-  exec meme_system.analyze('atoms');
-  exec meme_system.analyze('relationships');
-  exec meme_system.analyze('context_relationships');
-  exec meme_system.analyze('string_ui');
-  exec meme_system.analyze('attributes_ui');
-  exec meme_system.analyze('relationships_ui');
-  exec meme_system.analyze('molecular_actions');
-  exec meme_system.analyze('atomic_actions');
-  exec meme_system.analyze('stringtab');
-  exec meme_system.analyze('concept_status');
-EOF
-
-
-if ($status != 0) then
-    cat /tmp/crontab.$$.log
-    echo "Error running monster QA"
-    exit 1
-endif
-

@@ -3,13 +3,10 @@
 # suresh@nlm.nih.gov 3/2005
 
 package EMSTables;
-BEGIN
-{
 unshift @INC, "$ENV{ENV_HOME}/bin";
+
 require "env.pl";
-unshift @INC, "$ENV{EMS_HOME}/lib";
-unshift @INC, "$ENV{EMS_HOME}/bin";
-}
+use lib $ENV{'EMS_HOME'} . "/lib";
 use EMSNames;
 
 # the spec for each table (list of column names and types)
@@ -58,20 +55,15 @@ use EMSNames;
 	  {nextWorklistNum=>'integer'},
 	  {nextChemWorklistNum=>'integer'},
 	  {nextNonchemWorklistNum=>'integer'},
-	  {nextClinicalWorklistNum=>'integer'},
-      {nextOtherWorklistNum=>'integer'},
 	  {totalClusters=>'integer'},
 	  {totalConcepts=>'integer'},
 	  {totalUneditableClusters=>'integer'},
 	  {chemClusters=>'integer'},
 	  {chemConcepts=>'integer'},
 	  {chemUneditableClusters=>'integer'},
-	  {clinicalClusters=>'integer'},
-	  {clinicalConcepts=>'integer'},
-	  {clinicalUneditableClusters=>'integer'},
-	  {otherClusters=>'integer'},
-	  {otherConcepts=>'integer'},
-	  {otherUneditableClusters=>'integer'},
+	  {nonchemClusters=>'integer'},
+	  {nonchemConcepts=>'integer'},
+	  {nonchemUneditableClusters=>'integer'},
 	 ],
 
 # Stores data for all QA bins

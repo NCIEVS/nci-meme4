@@ -4,7 +4,6 @@
 # Author:   Brian Carlsen (2002)
 #
 # Changes:
-#  06/09/2006 TTN (1-BFPC3): add medline_info entries to meme_properties for release.dat
 #  03/01/2006 BAC (1-AIDWZ): $year changed to 1776 from 1910
 #
 $release = "4";
@@ -14,9 +13,6 @@ $version_authority="BAC";
 
 unshift @INC,"$ENV{ENV_HOME}/bin";
 require "env.pl";
-
-use DBI;
-use DBD::Oracle;
 
 #
 # Parse arguments
@@ -106,9 +102,9 @@ $ENV{CLASSPATH} = "$ENV{EXT_LIB}/ojdbc14.jar:$ENV{MEME_HOME}/lib/memeUtil.jar:$E
 #
 # look up user/password
 #
-$userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl -d $db`;
+$userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl`;
 chop($userpass);
-($user,$password) = split /\//, $userpass;
+($user,$pass) = split /\//, $userpass;
 
 $|=1;
 
@@ -130,7 +126,7 @@ if ($db =~ /^(.*)_(.*)$/) { $machine="$1.nlm.nih.gov"; $sid="$2" }
 #
 # Make the call
 #
-open (CMD,qq{$java $class $machine $sid $user $password $year $release_date $mode @ARGS|}) ||
+open (CMD,qq{$java $class $machine $sid $user $pass $year $release_date $mode @ARGS|}) ||
   die "Could not open command: $! $?\n";
 while (<CMD>) {
   print;
@@ -142,28 +138,6 @@ if ($? >> 8) {
   }
 
 close(CMD);
-
-$file = `ls medline*.xml | tail -1`;
-($month,$day,$year)=split /\//,$release_date;
-# open connection
-$dbh = DBI->connect("dbi:Oracle:$db",$user,$password)
-  || die "Could not connect to $db: $! $?\n";
-
-$dbh->do(qq{ DELETE FROM meme_properties WHERE KEY_QUALIFIER = 'MEDLINE_INFO'});
-
-$dbh->do(qq{ INSERT INTO meme_properties (key, key_qualifier,
-  value)
-  VALUES (?,?,?)
-  }, undef, 'umls.medline.date', 'MEDLINE_INFO',$year.$month.$day) || die
- qq{Can not insert medline date info: \n};
-
-$dbh->do(qq{ INSERT INTO meme_properties (key, key_qualifier,
-  value)
-  VALUES (?,?,?)
-  }, undef, 'umls.medline.file', 'MEDLINE_INFO',$file) || die
- qq{Can not insert medline file info : \n};
- 
- $dbh->disconnect;
 
 print "-----------------------------------------------------\n";
 print "Finished ...",scalar(localtime),"\n";

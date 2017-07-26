@@ -4,13 +4,12 @@
 
 # suresh@nlm.nih.gov 5/2005
 
-BEGIN
-{
 unshift @INC, "$ENV{ENV_HOME}/bin";
+
 require "env.pl";
-unshift @INC, "$ENV{EMS_HOME}/lib";
-unshift @INC, "$ENV{EMS_HOME}/bin";
-}
+
+use lib "$ENV{EMS_HOME}/lib";
+push @INC, "$ENV{EMS_HOME}/bin";
 
 use Getopt::Std;
 use Archive::Zip;
@@ -56,7 +55,7 @@ foreach $r (@ahbins) {
 
 $db = $opt_d || Midsvcs->get($opt_s || 'editing-db');
 $user = $main::EMSCONFIG{ORACLE_USER};
-$password = GeneralUtils->getOraclePassword($user,$db);
+$password = GeneralUtils->getOraclePassword($user);
 $dbh = new OracleIF("db=$db&user=$user&password=$password");
 die "Database: $db is unavailable" unless $dbh;
 $ENV{ORACLE_HOME} = $main::EMSCONFIG{ORACLE_HOME} || $ENV{ORACLE_HOME};
@@ -95,10 +94,7 @@ sub doit {
   my($w, $b, $bin_name, $worklist_name, $editing_epoch);
   my($sql);
 
-  foreach $worklist (sort @worklists) {
-
-    $starttime = time;
-
+  foreach $worklist (@worklists) {
     $worklist_name = $worklist->{fileName};
     $worklist_name =~ s/\.input$//;
     $qw = $dbh->quote($worklist_name);
@@ -118,6 +114,8 @@ sub doit {
 
     $sql = "select count(*) as c from $AHHISTORY where worklist_name=$qw";
     next if $dbh->selectFirstAsScalar($sql) > 0;
+
+    print "Loading: ", $worklist_name, "\n";
 
     $archive->extractMemberWithoutPaths($worklist, $tmpfile);
     $dbh->dropTables([$tmptable, $histtable]);
@@ -143,7 +141,5 @@ EOD
     $dbh->executeStmt($sql);
     $dbh->dropTables([$tmptable, $histtable]);
     unlink $tmpfile;
-
-    print "Loaded $worklist_name in " . GeneralUtils->sec2hms(time-$starttime) . " at: " . GeneralUtils->date . "\n";
   }
 }

@@ -3,7 +3,6 @@
  * Package: gov.nih.nlm.meme.qa.client
  * Object:  MappingClientTest
  *
- * 09/21/2007 BAC (1-F73I3): Additional fixes to allow TestCenter.java to run properly
  * 01/30/2006 RBE (1-763IU): File created
  * 
  *****************************************************************************/
@@ -52,9 +51,9 @@ public class MappingClientTest extends TestSuite {
     MappingClient client = null;
 
     try {
-      client = new MappingClient("");
+      client = new MappingClient("apelon");
 
-      AuxiliaryDataClient aux_data_client = new AuxiliaryDataClient("");
+      AuxiliaryDataClient aux_data_client = new AuxiliaryDataClient("apelon");
       Identifier work_id = aux_data_client.getNextIdentifierForType(WorkLog.class);
       client.setWorkIdentifier(work_id);
       Identifier transaction_id = aux_data_client.getNextIdentifierForType(MolecularTransaction.class);
@@ -108,24 +107,17 @@ public class MappingClientTest extends TestSuite {
         "    1.2. Test getMappingCount(Mapset) ... "
         + date_format.format(new Date()));
 
-      // Avoid SNOMEDCT_US map sets (very large)
-      MapSet mapset = null;
-      for (int i = 0; i<mapsets.length;i++) {
-      	if (!mapsets[i].getMapSetSource().getRootSourceAbbreviation().equals("SNOMEDCT_US")) {
-          mapset = mapsets[i];
-      		break;
-      	}
-      }
-      int count = client.getMappingCount(mapset);
+      int count = client.getMappingCount(mapsets[0]);
       addToLog("Count is: " + count);
 
 	    //
 	    // 1.3. Test getMapSet(int)
 	    //      
       addToLog(
-          "    1.3. Test getMapSet("+mapset.getIdentifier()+") ... "
+          "    1.3. Test getMapSet(int) ... "
           + date_format.format(new Date()));
 
+      MapSet mapset = client.getMapSet(mapsets[0].getIdentifier().intValue());
       addToLog(
         mapset.getMapSetIdentifier() +
         " = " + mapset.getName() +
@@ -195,7 +187,7 @@ public class MappingClientTest extends TestSuite {
           "    1.5. Test getMapSetWithoutMappings(int) ... "
           + date_format.format(new Date()));
 
-      mapset = client.getMapSetWithoutMappings(mapset.getIdentifier().intValue());
+      mapset = client.getMapSetWithoutMappings(mapsets[0].getIdentifier().intValue());
       addToLog(
         mapset.getMapSetIdentifier() +
         " = " + mapset.getName() +
@@ -262,7 +254,7 @@ public class MappingClientTest extends TestSuite {
           "    1.7. Test getMapSet(int) ... "
           + date_format.format(new Date()));
 
-      mapset = client.getMapSet(mapset.getIdentifier().intValue());
+      mapset = client.getMapSet(mapsets[0].getIdentifier().intValue());
       addToLog(
         mapset.getMapSetIdentifier() +
         " = " + mapset.getName() +

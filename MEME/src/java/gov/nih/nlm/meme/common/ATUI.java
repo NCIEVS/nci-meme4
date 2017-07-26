@@ -114,7 +114,7 @@ public class ATUI implements Identifier {
    * Implements {@link Identifier#intValue()}.
    */
   public int intValue() {
-    return Integer.valueOf(atui.substring(2)).intValue();
+    return Integer.valueOf(atui.substring(1)).intValue();
   }
 
   /**

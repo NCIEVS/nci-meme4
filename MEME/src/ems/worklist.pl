@@ -11,7 +11,7 @@
 # howmany_worklists=
 # excludetop=
 # doit=
-# Refresh Counts
+
 # Makes one or more worklists from a bin
 sub do_worklist {
   my($html);
@@ -58,33 +58,28 @@ sub do_worklist {
     my($suffix);
 
     $suffix = "_ch" if uc($content_type_wanted) eq "CHEM";
-    $suffix = "_cl" if uc($content_type_wanted) eq "CLINICAL";
-    $suffix = "_ot" if uc($content_type_wanted) eq "OTHER";    
+    $suffix = "_nc" if uc($content_type_wanted) eq "NONCHEM";
 
     my($from_num) = (
-                     uc($content_type_wanted) eq "CHEM" ?
-                     $bininfo->{nextChemWorklistNum} :
-                     	(
-                     		uc($content_type_wanted) eq "CLINICAL") ?
-                     		$bininfo->{nextNonchemWorklistNum} :
-                     		(
-	                     		uc($content_type_wanted) eq "OTHER") ?
-    	                 		$bininfo->{nextOtherWorklistNum} :
-                     			$bininfo->{nextWorklistNum}
-                    );
+		     uc($content_type_wanted) eq "CHEM" ?
+		     $bininfo->{nextChemWorklistNum} :
+		     (
+		      uc($content_type_wanted) eq "NONCHEM") ?
+		     $bininfo->{nextNonchemWorklistNum} :
+		     $bininfo->{nextWorklistNum}
+		    );
 
     my(@howmany) = (1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
-    my(@max_clusters) = (25, 50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000);
+    my(@max_clusters) = (100, 200, 300, 400, 500, 600, 700, 800, 900, 1000);
 
-    $html .= $query->start_form(-method=>'POST', -action=>$query->url(-absolute=>1));
+    $html .= $query->start_form(-method=>'POST', -action=>$query->url());
 
     $html .= <<"EOD";
 Please select from the following options and submit this form
 to generate one or more worklists from the bin: <B>$bin_name</B>.
 EOD
     $html .= "Only chemical content from the bin will be included." if uc($content_type_wanted) eq "CHEM";
-    $html .= "Only clinical content from the bin will be included." if uc($content_type_wanted) eq "CLINICAL";
-    $html .= "Only other content from the bin will be included." if uc($content_type_wanted) eq "OTHER";
+    $html .= "Only non-chemical content from the bin will be included." if uc($content_type_wanted) eq "NONCHEM";
 
     $html .= $query->p;
 
@@ -123,10 +118,10 @@ EOD
     $p{limit} = $max_clusters;
     $p{bin_name} = $bin_name;
     $p{content_type_wanted} = uc($content_type_wanted);
-    $p{content_type} = uc($content_type_wanted);
     $p{bininfo} = $bininfo;
-    $p{worklistdir} = $ENV{EMS_LOG_DIR} . "/worklists/" . $currentepoch;
+    $p{worklistdir} = $ENV{EMS_HOME} . "/log/worklists/" . $currentepoch;
     $p{worklist_prefix} = $worklist_prefix;
+    $p{chemalgo} = uc($main::EMSCONFIG{DEFAULT_CHEMALGO});
     $p{excludetop} = $query->param('excludetop') if $query->param('excludetop');
 
 # lock bin for making worklist
@@ -136,14 +131,10 @@ EOD
     for ($i=0; $i<$howmany_worklists; $i++) {
       push @worklists, EMSUtils->nextWorklistName($bininfo, $worklist_prefix, $content_type_wanted);
       eval { EMSUtils->makeWorklist($dbh, \%p); };
-      if ($@) {
-	my($e) = $@;
-	EMSBinlock->unlock($dbh, {bin_name=>$bin_name});
-	&printhtml({printandexit=>1, body=>"Error: $e"});
-      }
+      &printhtml({printandexit=>1, body=>"Error: $@"}) if $@;
     }
-    EMSBinlock->unlock($dbh, {bin_name=>$bin_name});
     EMSMaxtab->remove($dbh, $EMSNames::MEWORKLISTLOCKKEY) if $bin_type eq "ME";
+    EMSBinlock->unlock($dbh, {bin_name=>$bin_name});
   }
 
   my($link);

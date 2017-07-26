@@ -277,7 +277,7 @@ sub PrintFooter {
 
         <TD ALIGN=RIGHT VALIGN=TOP NOSAVE>
         <ADDRESS>
-	  <FONT SIZE=-1>Contact: <A HREF="mailto:bcarlsen\@msdinc.com">Brian A. Carlsen</A><br>},scalar(localtime),qq{<br>};
+	  <FONT SIZE=-1>Contact: <A HREF="mailto:carlsen\@apelon.com">Brian A. Carlsen</A><br>},scalar(localtime),qq{<br>};
         &PrintVersion("version");
         print qq{</FONT></ADDRESS>
 
@@ -322,7 +322,7 @@ Original message:      $original_msg
     $sender = new Mail::Sender{
         smtp => "$smtp_host", 
 	from => "$mail_from"};
-    $sender->MailMsg({to => "$mail_to", cc => 'meme@msdinc.com',
+    $sender->MailMsg({to => "$mail_to", cc => 'meme@apelon.com',
 		      subject => "Re: $subject",
 		      msg => "$sos_msg"});
     if ($sender->{error}) {

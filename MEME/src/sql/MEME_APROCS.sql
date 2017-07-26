@@ -8,9 +8,7 @@ CREATE OR REPLACE PACKAGE MEME_APROCS AS
  * execute MEME_APROCS.atomic_action(...)
  *
  * Version Information
- * 02/24/2009 BAC (1-GCLNT): Avoid assigning attribute/rel ranks.
- * 01/24/2008 TTN (1-GAF41): STY ATUI changes - do not assign ATUIs for STY and NON_HUMAN attributes 
- * 02/21/2007 BAC (1-DJWJX): Support action=A, id_type=CR
+ *
  * 03/11/2005 3.29.0: force works for change field actions
  * 01/14/2005 3.28.0: digup_attributes not properly digging up 
  * 01/04/2005 3.27.1: digup_attributes not properly digging up 
@@ -396,10 +394,6 @@ CREATE OR REPLACE PACKAGE MEME_APROCS AS
    ) RETURN INTEGER;
 
    FUNCTION assign_rui (
-      relationship_id		IN INTEGER
-   ) RETURN VARCHAR2;
-
-   FUNCTION assign_cxt_rui (
       relationship_id		IN INTEGER
    ) RETURN VARCHAR2;
 
@@ -850,14 +844,12 @@ BEGIN
 	 RAISE aproc_bad_count_err;
       END IF;
 
-      -- DEPRECATED: do not set attribute rank
-      /**location := '65';
+      location := '65';
       retval := MEME_RANKS.set_attribute_rank(row_id, field_name);
       IF retval < 0 THEN
 	 RAISE aproc_bad_retval_err;
       END IF;
-      **/
-      
+
       location := '85.2';
       IF lower(field_name) IN ('atom_id','concept_id','sg_id',
 			       'sg_type','sg_qualifier','attribute_level',
@@ -888,14 +880,12 @@ BEGIN
 	 RAISE aproc_bad_count_err;
       END IF;
 
-      -- DEPRECATED
-      /**
       location := '85';
       retval := MEME_RANKS.set_relationship_rank(row_id, field_name);
       IF retval < 0 THEN
 	 RAISE aproc_bad_retval_err;
       END IF;
-       **/
+
       location := '65.2';
       IF lower(field_name) IN ('atom_id','concept_id','relationship_name',
 				'relationship_attribute','source','source_rui') THEN
@@ -1943,14 +1933,11 @@ BEGIN
 	 RAISE aproc_bad_count_err;
       END IF;
 
-      -- DEPRECATED
-      /**
       location := '120';
       retval := MEME_RANKS.set_relationship_rank(row_id,LOWER(MEME_CONSTANTS.FN_STATUS));
       IF retval < 0 THEN
 	 RAISE aproc_bad_retval_err;
       END IF;
-      **/
    END IF;
 
    IF UPPER(table_name) = MEME_CONSTANTS.TN_ATTRIBUTES THEN
@@ -1968,16 +1955,12 @@ BEGIN
       IF SQL%ROWCOUNT != 1 THEN
 	 RAISE aproc_bad_count_err;
       END IF;
-      
-      -- DEPRECATED: Do not set attribute rank
-      /**
+
       location := '160';
       retval := MEME_RANKS.set_attribute_rank(row_id, LOWER(MEME_CONSTANTS.FN_STATUS));
       IF retval < 0 THEN
 	 RAISE aproc_bad_retval_err;
       END IF;
-      **/
-      
    END IF;
 
    location := '170';
@@ -2152,15 +2135,12 @@ BEGIN
 	 RAISE aproc_bad_count_err;
       END IF;
 
-      -- DEPRECATED
-      /**
       location := '90';
       retval := MEME_RANKS.set_relationship_rank(row_id,LOWER(MEME_CONSTANTS.FN_TBR));
       IF retval < 0 THEN
 	 RAISE aproc_bad_retval_err;
       END IF;
-      **/
-      
+
       -- If a relationship becomes releasable, then compute its RUI
       -- If it goes the other way, let the RUI stay
       IF old_tobereleased in ('N','n') AND new_tobereleased in ('Y','y') THEN
@@ -2195,15 +2175,12 @@ BEGIN
 	 RAISE aproc_bad_count_err;
       END IF;
 
-      -- DEPRECATED: do not set attribute rank
-      /**
       location := '120';
       retval := MEME_RANKS.set_attribute_rank(row_id, LOWER(MEME_CONSTANTS.FN_TBR));
       IF retval < 0 THEN
 	 RAISE aproc_bad_retval_err;
       END IF;
-      **/
-      
+
       -- If an attribute becomes releasable, then compute its ATUI
       -- If it goes the other way, let the ATUI stay
       IF old_tobereleased in ('N','n') AND new_tobereleased in ('Y','y') THEN
@@ -2329,8 +2306,8 @@ FUNCTION assign_atui (
 )
  RETURN VARCHAR2
 IS
-   l_source		VARCHAR2(40);
-   l_root_source	VARCHAR2(40);
+   l_source		VARCHAR2(20);
+   l_root_source	VARCHAR2(20);
    l_atui		VARCHAR2(20);
    l_atui_ct		INTEGER;
 
@@ -2341,12 +2318,6 @@ BEGIN
     location := '0';
     -- Unreleasable attributes do not get ATUIs
     IF tobereleased in ('N','n') THEN
-	RETURN null;
-    END IF;
-
-    location := '1';
-    -- SEMANTIC_TYPE and NON_HUMAN attributes do not get ATUIs
-    IF attribute_name in ('SEMANTIC_TYPE','NON_HUMAN') THEN
 	RETURN null;
     END IF;
 
@@ -2661,7 +2632,7 @@ BEGIN
     (attribute_level, atom_id, concept_id, attribute_id, attribute_name,
      attribute_value, generated_status, source, suppressible,
      dead, status, authority, timestamp, version_id, released,
-     tobereleased, insertion_date, atui, hashcode,
+     tobereleased, source_rank, rank, insertion_date, atui, hashcode,
      last_molecule_id, last_atomic_action_id, sg_id, sg_type, sg_qualifier,
      sg_meme_data_type, sg_meme_id,
      source_atui)
@@ -2669,7 +2640,7 @@ BEGIN
     (l_level, l_atom_id, l_att.concept_id, new_id, l_attribute_name,
      l_attribute_value, l_generated, l_source, l_suppressible,
      MEME_CONSTANTS.NO, l_status, authority, aa_timestamp, 0, l_released,
-     l_tobereleased, aa_timestamp, l_att.atui, l_att.hashcode,
+     l_tobereleased, l_att.source_rank, 0, aa_timestamp, l_att.atui, l_att.hashcode,
      molecule_id, atomic_id, l_att.sg_id, l_att.sg_type, l_att.sg_qualifier,
      l_sg_meme_data_type, l_sg_meme_id,
      l_source_atui);
@@ -2679,15 +2650,12 @@ BEGIN
       RAISE aproc_bad_count_err;
    END IF;
 
-   -- DEPRECATED: do not set attribute rank
-   /**
    location := '140';
    retval := MEME_RANKS.set_attribute_rank(new_id);
    IF retval < 0 THEN
       RAISE aproc_bad_retval_err;
    END IF;
-   **/
-   
+
    IF source_attribute_id > 0 THEN
       location := '150';
       INSERT INTO source_id_map
@@ -2743,11 +2711,11 @@ RETURN VARCHAR2
 IS
    l_source		VARCHAR2(40);
    l_tty		VARCHAR2(20);
-   l_code		VARCHAR2(100);
+   l_code		VARCHAR2(50);
    l_sui		VARCHAR2(20);
-   l_source_aui		VARCHAR2(100);
-   l_source_cui		VARCHAR2(100);
-   l_source_dui		VARCHAR2(100);
+   l_source_aui		VARCHAR2(50);
+   l_source_cui		VARCHAR2(50);
+   l_source_dui		VARCHAR2(50);
    l_aui		VARCHAR2(20);
    l_tbr		VARCHAR2(20);
    l_aui_ct		INTEGER;
@@ -2802,10 +2770,10 @@ FUNCTION assign_aui (
 )
 RETURN VARCHAR2
 IS
-   l_root_source	VARCHAR2(40);
+   l_root_source	VARCHAR2(20);
    l_aui		VARCHAR2(20);
    l_aui_ct		INTEGER;
-   l_code		VARCHAR2(100);
+   l_code		VARCHAR2(50);
 
    l_aui_prefix	VARCHAR2(10);
    l_aui_length	INTEGER;
@@ -3292,66 +3260,6 @@ EXCEPTION
 
 END assign_rui;
 
-/* FUNCTION ASSIGN_CXT_RUI *********************************************
- */
-FUNCTION assign_cxt_rui (
-      relationship_id		IN INTEGER
-)
- RETURN VARCHAR2
-IS
-   l_rui			VARCHAR2(20);
-   l_rel			relationships%ROWTYPE;
-BEGIN
-
-    -- Look up relevant relationship fields and pass to assign_cxt_rui
-    location := '0';
-    SELECT
- 	source, relationship_level, relationship_name, 
-	relationship_attribute, sg_id_1, sg_type_1, sg_qualifier_1,
-	sg_id_2, sg_type_2, sg_qualifier_2, atom_id_1, concept_id_1, 
-	atom_id_2, concept_id_2, rui, tobereleased, source_rui INTO 
- 	l_rel.source, l_rel.relationship_level, l_rel.relationship_name, 
-	l_rel.relationship_attribute, 
-	l_rel.sg_id_1, l_rel.sg_type_1, l_rel.sg_qualifier_1,
-	l_rel.sg_id_2, l_rel.sg_type_2, l_rel.sg_qualifier_2,
-	l_rel.atom_id_1, l_rel.concept_id_1, 
-	l_rel.atom_id_2, l_rel.concept_id_2, l_rui, 
-	l_rel.tobereleased, l_rel.source_rui
-    FROM context_relationships 
-    WHERE relationship_id = assign_cxt_rui.relationship_id;
-
-    -- Look up RUI for new set of fields
-    -- Do NOT re-use RUI, instead assign new one
-    -- If there is not a matching one
-    location := '20'; 
-    RETURN assign_rui(
-	source => l_rel.source,
-	relationship_level => l_rel.relationship_level,
-	relationship_name => l_rel.relationship_name,
-	relationship_attribute => l_rel.relationship_attribute,
-	tobereleased => l_rel.tobereleased,
-	sg_id_1 => l_rel.sg_id_1,
-	sg_type_1 => l_rel.sg_type_1,
-	sg_qualifier_1 => l_rel.sg_qualifier_1,
-	sg_id_2 => l_rel.sg_id_2,
-	sg_type_2 => l_rel.sg_type_2,
-	sg_qualifier_2 => l_rel.sg_qualifier_2,
-	concept_id_1 => l_rel.concept_id_1,
-	concept_id_2 => l_rel.concept_id_2,
-	atom_id_1 => l_rel.atom_id_1,
-	atom_id_2 => l_rel.atom_id_2,
-	source_rui => l_rel.source_rui,
-	rui => null);
-EXCEPTION
-
-   WHEN others THEN
-       meme_aprocs_error('assign_cxt_rui',location,30,
-         'relationship_id='||relationship_id || ', ' ||
-	SQLERRM);
-      RAISE aproc_exception;
-
-END assign_cxt_rui;
-
 /* FUNCTION ASSIGN_RUI *********************************************
  * 
  * We implemented the logic that says C level relationships
@@ -3380,8 +3288,8 @@ FUNCTION assign_rui (
 )
  RETURN VARCHAR2
 IS
-   l_root_source	VARCHAR2(40);
-   l_source		VARCHAR2(40);
+   l_root_source	VARCHAR2(20);
+   l_source		VARCHAR2(20);
    l_rui		VARCHAR2(20);
    l_rui2		VARCHAR2(20);
    l_rui_ct		INTEGER;
@@ -3773,7 +3681,7 @@ BEGIN
      relationship_name, relationship_attribute, generated_status,
      authority, timestamp, atom_id_2, source_of_label, source,
      status, dead, concept_id_1, concept_id_2, version_id,
-     tobereleased, released, rui,
+     tobereleased, released, source_rank, rank, rui,
      suppressible,insertion_date,last_molecule_id, last_atomic_action_id,
      sg_id_1, sg_type_1, sg_qualifier_1, sg_meme_data_type_1, sg_meme_id_1,
      sg_id_2, sg_type_2, sg_qualifier_2, sg_meme_data_type_2, sg_meme_id_2,
@@ -3783,7 +3691,7 @@ BEGIN
      l_relationship_Name, l_relationship_attribute, l_generated,
      authority, aa_timestamp, l_atom_id_2, l_source_of_label, l_source,
      l_status, MEME_CONSTANTS.NO, l_rel.concept_id_1, l_rel.concept_id_2, 0,
-     l_tobereleased, l_released, l_rel.rui,
+     l_tobereleased, l_released, l_rel.source_rank, 0, l_rel.rui,
      l_suppressible,   aa_timestamp, molecule_id, atomic_id,
      l_rel.sg_id_1, l_rel.sg_type_1, l_rel.sg_qualifier_1, 
      l_sg_meme_data_type_1, l_sg_meme_id_1,
@@ -3796,15 +3704,12 @@ BEGIN
       RAISE aproc_bad_count_err;
    END IF;
 
-   -- DEPRECATED
-   /** 
    location := '185';
    retval := MEME_RANKS.set_relationship_rank(new_id);
    IF retval < 0 THEN
       RAISE aproc_bad_retval_err;
    END IF;
-   **/
-   
+
    IF source_rel_id > 0 THEN
       location := '190';
       INSERT INTO source_id_map

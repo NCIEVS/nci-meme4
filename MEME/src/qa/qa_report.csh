@@ -3,10 +3,6 @@
 # Script:    qa_report.csh
 # Author:    BAC
 #
-# Changes:
-# 08/31/2010 BAC (1-RDJQ1): updated for "Optimization" release target.
-# 12/20/2006 TTN (1-D3KJL) : </Error> end tag is missing if there is no data for error message 
-# 
 # Runs the qa script and generates comparison reports
 # The exact reports generated are based on the target.
 # The available reports are:
@@ -68,7 +64,7 @@ else
     exit 1
 endif
 
-set x=`$PATH_TO_PERL -e 'print 1 if "MRAUI DOC MRDOC MRCONSO MRX MRRANK MRSTY MRDEF AMBIG MRCUI MRHIER MRHIST MRCXT MRREL MRSAT MRLO MRMAP MRHIST MRSAB MRFILESCOLS MetaMorphoSys ORF ActiveSubset Optimization" =~ /$ARGV[0]/;' $target` 
+set x=`$PATH_TO_PERL -e 'print 1 if "MRAUI DOC MRDOC MRCONSO MRX MRRANK MRSTY MRDEF AMBIG MRCUI MRCOC MRHIER MRHIST MRCXT MRREL MRSAT MRLO MRMAP MRHIST MRSAB MRFILESCOLS MetaMorphoSys ORF" =~ /$ARGV[0]/;' $target` 
 if ($x != 1) then
     echo "ERROR: Illegal target name ($target)"
     exit 1
@@ -98,7 +94,7 @@ echo "<QAReport target="'"'"$target"'"'" release="'"'"$release"'"'" previous="'"
 # Perform QA checks
 #
 $MRD_HOME/bin/qa_checks.csh $dir $db $target full $previous_release_dir >! /tmp/$release.$target
-$PATH_TO_PERL -e "%escapes = ('&'  => '&amp;','<'  => '&lt;','>'  => '&gt;','"'"'"'  => '&quot;','--' => '&#45;&#45;');"'while(<>) {chomp; s/(\-\-|\"|\&|\>|\<)/$escapes{$1}/eg;if (s/^\s+Verify\s/<Check name="/ ){ print "</Error>\n" if($inerror); print "</Check>\n" if $check; $check = 1; print "$_\">\n"; $inerror=0; }  elsif (s/^ERROR\:\s/<Error name="/ ){print "</Error>\n" if($inerror);print "$_\">\n"; $inerror=1; } elsif (s/^WARNING\:\s/<Warning value="/ ){print "$_\"/>";} elsif($inerror){ print "<Value>$_</Value>\n";}} print "</Error>\n" if($inerror); print "</Check>\n";' /tmp/$release.$target >> qa_$target.xml
+$PATH_TO_PERL -e "%escapes = ('&'  => '&amp;','<'  => '&lt;','>'  => '&gt;','"'"'"'  => '&quot;','--' => '&#45;&#45;');"'while(<>) {chomp; s/(\-\-|\"|\&|\>|\<)/$escapes{$1}/eg;if (s/^\s+Verify\s/<Check name="/ ){ print "</Error>\n" if($inerror); print "</Check>\n" if $check; $check = 1; print "$_\">\n"; $inerror=0; }  elsif (s/^ERROR\:\s/<Error name="/ ){print "$_\">\n"; $inerror=1; } elsif (s/^WARNING\:\s/<Warning value="/ ){print "$_\"/>";} elsif($inerror){ print "<Value>$_</Value>\n";}} print "</Error>\n" if($inerror); print "</Check>\n";' /tmp/$release.$target >> qa_$target.xml
 
 cat /tmp/$release.$target
 
@@ -121,7 +117,7 @@ if ($target == "DOC" || $target == "ORF") then
     echo "No gold script checks for $target" >> qa_$target.xml
     echo "</CompareTo>" >> qa_$target.xml
 else
-set x=`$PATH_TO_PERL -e 'print 1 if "MRAUI MRDOC MRCONSO MRX MRRANK MRSTY MRDEF AMBIG MRCUI MRHIER MRHIST MRCXT MRREL MRSAT MRLO MRMAP MRHIST MRSAB MRFILESCOLS MetaMorphoSys" =~ /$ARGV[0]/;' $target` 
+set x=`$PATH_TO_PERL -e 'print 1 if "MRAUI MRDOC MRCONSO MRX MRRANK MRSTY MRDEF AMBIG MRCUI MRCOC MRHIER MRHIST MRCXT MRREL MRSAT MRLO MRMAP MRHIST MRSAB MRFILESCOLS MetaMorphoSys" =~ /$ARGV[0]/;' $target` 
 if ($x) then
     echo "    Report $target real-gold differences (versionless)" 
     echo "    ----------------------------------------------------" 
@@ -137,7 +133,7 @@ endif
 #
 # Log REAL-MINOR_PREF differences (Versionless)
 #
-set x=`$PATH_TO_PERL -e 'print 1 if "MRAUI MRDOC MRCONSO MRX MRRANK MRSTY MRDEF AMBIG MRCUI MRHIER MRHIST MRCXT MRREL MRSAT MRLO MRMAP MRHIST MRSAB MRFILESCOLS " =~ /$ARGV[0]/;' $target` 
+set x=`$PATH_TO_PERL -e 'print 1 if "MRAUI MRDOC MRCONSO MRX MRRANK MRSTY MRDEF AMBIG MRCUI MRCOC MRHIER MRHIST MRCXT MRREL MRSAT MRLO MRMAP MRHIST MRSAB MRFILESCOLS MetaMorphoSys" =~ /$ARGV[0]/;' $target` 
 if ($x) then
 
     echo "    Report $target real-minor differences (versionless)" 
@@ -152,7 +148,7 @@ if ($x) then
 
 endif
 
-if ($target == "DOC" || $target == "ORF" ||  $target == "MetaMorphoSys") then
+if ($target == "DOC" || $target == "ORF") then
     echo "    Report $target real-minor differences (versionless)"
     echo "    -----------------------------------------------------"
     echo "<CompareTo name="'"'"Previous"'"'">" >> qa_$target.xml
@@ -167,7 +163,7 @@ if ($major_release != $minor_release) then
     #
     # Log REAL-MAJOR_PREF differences (Versionless)
     #
-    set x=`$PATH_TO_PERL -e 'print 1 if "MRAUI MRDOC MRCONSO MRX MRRANK MRSTY MRDEF AMBIG MRCUI MRHIER MRHIST MRCXT MRREL MRSAT MRLO MRMAP MRHIST MRSAB MRFILESCOLS MetaMorphoSys" =~ /$ARGV[0]/;' $target` 
+    set x=`$PATH_TO_PERL -e 'print 1 if "MRAUI MRDOC MRCONSO MRX MRRANK MRSTY MRDEF AMBIG MRCUI MRCOC MRHIER MRHIST MRCXT MRREL MRSAT MRLO MRMAP MRHIST MRSAB MRFILESCOLS MetaMorphoSys" =~ /$ARGV[0]/;' $target` 
     
 if ($x) then
     

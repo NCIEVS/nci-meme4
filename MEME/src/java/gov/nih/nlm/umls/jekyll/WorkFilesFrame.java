@@ -61,14 +61,6 @@ import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.border.BevelBorder;
 import javax.swing.table.TableColumn;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-import javax.imageio.*;
-import java.io.*;
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.awt.Image;
-//import org.openide.util.ImageUtilities;
 
 import samples.accessory.StringGridBagLayout;
 
@@ -104,7 +96,7 @@ public class WorkFilesFrame extends JFrame implements Transferable,
 
     private NoEditTableModel workfilesModel = null;
     
-    //private NoEditTableModel mainfilesModel = null;
+    private NoEditTableModel mainfilesModel = null;
 
     private ResizableJTable workfilesTable = null;
 
@@ -113,7 +105,7 @@ public class WorkFilesFrame extends JFrame implements Transferable,
     private NonEditableTableModel worklistModel = null;
 
     private ResizableJTable worklistTable = null;
-    //private ResizableJTable mainfilesTable = null;
+    private ResizableJTable mainfilesTable = null;
 
     private JTextField countTF = null;
 
@@ -166,8 +158,8 @@ public class WorkFilesFrame extends JFrame implements Transferable,
     public void rearrangeWindow() {
         JScrollPane sp = null;
         JScrollPane sp1 = null;
-        //String columnName = null;
-        //TableColumn column = null;
+        String columnName = null;
+        TableColumn column = null;
         Box b = null;
         Action a = null;
 
@@ -512,19 +504,11 @@ public class WorkFilesFrame extends JFrame implements Transferable,
         
         menuBar.add(menu);
         
-        //naveen UMLS-99 Adding a refresh button to refresh the worklist/checklist
-        // File->refresh
-        JButton refreshButton = new JButton(new GetWorkFilesAction(this,
-        						 GetWorkFilesAction.CURRENT_RETRIEVAL_METHOD));
-        refreshButton.setText("Refresh"); 
-        menuBar.add(Box.createHorizontalGlue()); //this will move the button to the rightmost corner on the menu bar
-        menuBar.add(refreshButton);        
-        
         return menuBar;
         
          
     } // buildMenuBar()
-    
+
     private void clearContent() {
         worklistTable.clearSelection();
         worklistModel.getDataVector().clear();
@@ -778,95 +762,6 @@ public class WorkFilesFrame extends JFrame implements Transferable,
         }
     } // nextConcept()
 
-    
-    /**
-     * Moves selection to the next concept from the specified concept.
-     */
-    // Called from:
-    //   ApproveNextAction
-    //   NotApproveNextAction
-    public Concept[] nextClusterConcepts(Concept concept) {
-        if (worklistTable.getRowCount() == 0) {
-            return null;
-        }
-
-        int current_row = -1;
-
-        if (!worklistTable.getSelectionModel().isSelectionEmpty()) {
-            boolean found_concept = false;
-
-            // case when a concept exists in a worklist
-            if (listOfConcepts.contains(concept)) {
-                // 1st occurrence of the concept
-                int index = listOfConcepts.indexOf(concept);
-                int row = worklistTable.reverseMapIndex(index);
-
-                if (worklistTable.isRowSelected(row)) {
-                    current_row = row;
-                    found_concept = true;
-                }
-            } // if
-
-            // if a specified concept is not in a worklist or
-            // not in a set of selected rows, then make the
-            // last selected row as a current one.
-            if (!found_concept) {
-                int[] selected_rows = worklistTable.getSelectedRows();
-                current_row = selected_rows[selected_rows.length - 1];
-            }
-        } else {
-            // if selection is empty, make the last row
-            // as a current one.
-            current_row = worklistTable.getRowCount() - 1;
-        }
-        
-        int index = worklistTable.mapIndex(current_row);
-        int cluster_id = ((Integer) worklistModel.getValueAt(index,
-                TABLE_CLUSTER_ID_COLUMN)).intValue();
-
-        int next_cluster_id = cluster_id;
-
-        while ((cluster_id == next_cluster_id)
-                && (current_row < (worklistTable.getRowCount() - 1))) {
-            int next_index = worklistTable.mapIndex((++current_row));
-            next_cluster_id = ((Integer) worklistModel.getValueAt(
-                    next_index, TABLE_CLUSTER_ID_COLUMN)).intValue();
-        }
-        
-        if (next_cluster_id == cluster_id) {
-            return null;
-        }
-
-        ConceptCluster cluster = null;
-        Iterator iterator = null;
-
-        if (is_worklist) {
-            iterator = cw.getClusterIterator();
-        } else {
-            iterator = cc.getClusterIterator();
-        }
-        while (iterator.hasNext()) {
-            cluster = (ConceptCluster) iterator.next();
-
-            if (next_cluster_id == cluster.getIdentifier().intValue()) {
-                break;
-            }
-        }
-
-        Concept[] concepts = cluster.getConcepts();
-        int next_row = 0;
-//      select next cluster in this frame
-       
-       
-        if (current_row != (worklistTable.getRowCount() - 1)) {
-            next_row = current_row ;
-            worklistTable.setRowSelectionInterval(next_row, next_row);
-            Rectangle rect = worklistTable.getCellRect(next_row,
-                    TABLE_CLUSTER_ID_COLUMN, true);
-            worklistTable.scrollRectToVisible(rect);
-        }
-        return concepts;
-    } // nextConcept()
     /**
      * Implements {@link Transferable#getConcepts() Transferable.getConcepts()}.
      */
@@ -986,16 +881,8 @@ public class WorkFilesFrame extends JFrame implements Transferable,
         private int ret_method = CURRENT_RETRIEVAL_METHOD;
 
         public GetWorkFilesAction(Component comp, int retrieval_method) {
-        	// naveen UMLS-99 added description based on the retrieval method 
-        	if(retrieval_method == 0){
-        		putValue(Action.SHORT_DESCRIPTION,
-                        "Refresh Worklists/Checklists");
-        	}
-        	if(retrieval_method == 1){
-        		putValue(Action.SHORT_DESCRIPTION,
-                      "retrieve all checklists and worklists from the specified mid.");
-        	}        	
-            
+            putValue(Action.SHORT_DESCRIPTION,
+                    "retrieve all checklists and worklists from the specified mid.");
             target = comp;
             ret_method = retrieval_method;
         }
@@ -1071,7 +958,7 @@ public class WorkFilesFrame extends JFrame implements Transferable,
                                 Calendar cal = Calendar.getInstance();
                                 cal.setTime(worklists[i].getCreationDate());
                                 Calendar right_now = Calendar.getInstance();
-                                if (cal.get(Calendar.YEAR) == (right_now
+                                if (cal.get(Calendar.YEAR) > (right_now
                                         .get(Calendar.YEAR) - 1)) {
                                     v_temp.add(worklists[i].getName());
                                 }
@@ -1397,7 +1284,7 @@ public class WorkFilesFrame extends JFrame implements Transferable,
      * @see AbstractAction
      */
     class RelaEditorAction extends AbstractAction {
-        //private Component target = null;
+        private Component target = null;
 
         // constructor
         public RelaEditorAction(Component comp) {
@@ -1405,7 +1292,7 @@ public class WorkFilesFrame extends JFrame implements Transferable,
             putValue(Action.SHORT_DESCRIPTION,
                     "open selected worklist with Rela Editor");
 
-            //target = comp;
+            target = comp;
         }
 
         public void actionPerformed(ActionEvent e) {

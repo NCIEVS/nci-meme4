@@ -238,12 +238,4 @@ public class SuperJList extends JList {
     }
   }
 
-  /**
-   * Scroll the list to the first selected row.
-   */
-  public void scrollToFirstSelectedRow() {
-    int[] indices = getSelectedIndices();
-    if (indices.length>0)
-      scrollRectToVisible(getCellBounds(indices[0],indices[indices.length-1]));
-  }
 }

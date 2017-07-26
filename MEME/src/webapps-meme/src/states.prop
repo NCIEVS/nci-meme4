@@ -27,11 +27,3 @@ ManageMedline=/ManageMedline.jsp
 EditMedlineProperty=/EditMedlineProperty.jsp
 EditMedlinePropertyComplete=/EditMedlinePropertyComplete.jsp
 ListMedlineProperty=/ListMedlineProperty.jsp
-ReleaseStatus=/ReleaseStatus.jsp
-
-#added for MRD concept report
-ConceptReportView=/ConceptReportView.jsp
-ConceptReportResultsView=/ConceptReportResultsView.jsp
-ConceptReportAttrView=/ConceptReportAttrView.jsp
-ConceptReportAtomView=/ConceptReportAtomView.jsp
-ConceptReportRelView=/ConceptReportRelView.jsp

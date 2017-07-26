@@ -1,4 +1,4 @@
-#!@PATH_TO_PERL@
+#!/site/bin/perl5
 
 # Program to process requests in the report queue
 # Should be run via cron every 5 minutes or so.
@@ -11,13 +11,7 @@
 # -c <alternate EMS config file, e.g., ems.config.12.12.2005>
 # -g (debug)
 
-BEGIN
-{
-unshift @INC, "$ENV{ENV_HOME}/bin";
-require "env.pl";
-unshift @INC, "$ENV{EMS_HOME}/lib";
-unshift @INC, "$ENV{EMS_HOME}/bin";
-}
+use lib $ENV{EMS_HOME} . "/lib";
 
 use Getopt::Std;
 use EMSUtils;
@@ -105,7 +99,7 @@ sub process_request {
   }
 
   $user = $main::EMSCONFIG{ORACLE_USER};
-  $password = GeneralUtils->getOraclePassword($user,$db);
+  $password = GeneralUtils->getOraclePassword($user);
   $dbh = new OracleIF({user=>$user, password=>$password, db=>$db});
   $request->{dbh} = $dbh;
   die "Error: Oracle Not Available for database: $db" unless $dbh;

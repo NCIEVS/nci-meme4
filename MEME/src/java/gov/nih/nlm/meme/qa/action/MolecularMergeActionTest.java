@@ -3,7 +3,6 @@
  * Package: gov.nih.nlm.meme.qa.action
  * Object:  MolecularMergeActionTest
  * 
- * 03/22/2007 BAC (1-D0BIJ): fixed 14a3
  * 12/05/2005 RBE (1-72UTX): File created
  *
  *****************************************************************************/
@@ -464,14 +463,8 @@ public class MolecularMergeActionTest
       }      
 
       target_rels = client.getRelationships(target);
-      found = false;
-      for (int i=0; i<target_rels.length; i++) {
-        if (target_rels[i].equals(rel)) {
-        	found = true;
-        }
-      }
-      addToLog("        14a3. Source (C level) relationship must be deleted ...");
-      if (!found)
+      addToLog("        14a3. Source relationship must be deleted ...");
+      if (target_rels.length == 0)
         addToLog("    14a3. Test Passed");
       else {
         addToLog("    14a3. Test Failed");

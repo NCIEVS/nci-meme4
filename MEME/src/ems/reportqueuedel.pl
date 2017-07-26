@@ -9,7 +9,7 @@
 # n=
 sub do_reportqueuedel {
   my($freezefile) = $query->param('freezefile');
-  my($REPORTSDIR) = $ENV{EMS_LOG_DIR} . "/requests";
+  my($REPORTSDIR) = $ENV{EMS_HOME} . "/log";
 
   &printhtml({body=>'ERROR: Need a request freezefile name.', printandexit=>1}) unless $freezefile;
 

@@ -14,7 +14,7 @@ import javax.swing.text.PlainDocument;
  * {@link PlainDocument} implementation that prevents leading, training, duplicate,
  * and redundant whitespace.
  *
- * @author  Brian Carlsen (bcarlsen@msdinc.com)
+ * @author  Brian Carlsen (bcarlsen@apelon.com)
  */
 public class IdealWhitespaceDocument extends PlainDocument {
 

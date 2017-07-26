@@ -45,7 +45,7 @@ public class DummyClientTest extends TestSuite {
     DummyClient client = null;
 
     try {
-      client = new DummyClient("");
+      client = new DummyClient("apelon");
 
       addToLog(
           "    1.0. Test DummyClientTest: echo() ... "

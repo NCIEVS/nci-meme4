@@ -7,14 +7,10 @@
 # suresh@nlm.nih.gov 3/2005
 
 package EMSReportRequest;
-
-BEGIN
-{
 unshift @INC, "$ENV{ENV_HOME}/bin";
+
 require "env.pl";
-unshift @INC, "$ENV{EMS_HOME}/lib";
-unshift @INC, "$ENV{EMS_HOME}/bin";
-}
+use lib "$ENV{EMS_HOME}/lib";
 
 use EMSNames;
 use EMSTables;
@@ -23,8 +19,7 @@ use WMSUtils;
 use File::Basename;
 use Data::Dumper;
 
-
-$REQUESTDIR = $ENV{EMS_LOG_DIR}. "/requests";
+$REQUESTDIR = $ENV{EMS_HOME} . "/log";
 $PREFIX = "request";
 
 # A report request is a request stored in a file (has to be DB independent)

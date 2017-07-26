@@ -152,7 +152,7 @@ if ($badargs) {
 # Get user
 # 
 $user = "-u $user" if $user;
-$user=`$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl $user -d $db`;
+$user=`$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl $user`;
 if ($user =~ /E_Password_Error/) {
     print $user;
     exit(1);
@@ -331,7 +331,7 @@ sub PrintHelp {
        -v[ersion]  : Print version information.
        -[-]help    : On-line help
 };
-    ($user) = split /\//, (`$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl -d $db`);
+    ($user) = split /\//, (`$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl`);
     print " Default User is: $user\n ";
     
     &PrintVersion("version");

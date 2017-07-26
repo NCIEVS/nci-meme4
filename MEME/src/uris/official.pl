@@ -1,3 +1,9 @@
+#!@PATH_TO_PERL@
+
+unshift @INC,"$ENV{ENV_HOME}/bin";
+require "env.pl";
+
+
 # The UMLS Release Information System (URIS) version 2.0
 # suresh@nlm.nih.gov 10/2003
 
@@ -164,4 +170,3 @@ sub intersect {
   return 0;
 }
 1;
-

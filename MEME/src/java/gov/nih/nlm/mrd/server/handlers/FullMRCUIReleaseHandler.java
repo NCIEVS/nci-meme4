@@ -217,7 +217,7 @@ public class FullMRCUIReleaseHandler extends ReleaseHandler.Default {
     MEMEToolkit.logCommentToBuffer(
         "WRITING " + dir_name + File.separator + file.getName(),
         true, log);
-    writer.write(file, "mrcui_pre", constr);
+    writer.write(file, "mrcui_pre");
 
     data_source.setFileStatistics(statsHandler.getFileStatistics());
 

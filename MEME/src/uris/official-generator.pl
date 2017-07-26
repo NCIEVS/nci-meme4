@@ -239,7 +239,7 @@ sub do_rrf {
 			      table=>'MRCONSO.RRF',
 			      restrictions=>[{LAT=>'=="ENG"'}],
 			      field=>'STR',
-			      postfilter=>"/bin/gawk \'{print tolower(\$0)}\'",
+			      postfilter=>"/bin/nawk \'{print tolower(\$0)}\'",
 			      unique=>1,
 			     });
   $official{englstr} = $_;
@@ -269,12 +269,12 @@ sub do_rrf {
   $official{engnwd} = $_;
 
 # UTF-8 counts
-  $cmd = "/bin/gawk -F'|' '{print \$" . UrisUtils->getColIndex($metadir, "MRCONSO.RRF", "CUI", 1) . "\"\|\"\$" . UrisUtils->getColIndex($metadir, "MRCONSO.RRF", "STR", 1) . "}' " . UrisUtils->getPath($metadir, "MRCONSO.RRF") . "|$ENV{URIS_HOME}/bin/grep8.pl|/bin/gawk -F'|' '{print \$1}\'|/bin/sort -u|/bin/wc -l";
+  $cmd = "/bin/nawk -F'|' '{print \$" . UrisUtils->getColIndex($metadir, "MRCONSO.RRF", "CUI", 1) . "\"\|\"\$" . UrisUtils->getColIndex($metadir, "MRCONSO.RRF", "STR", 1) . "}' " . UrisUtils->getPath($metadir, "MRCONSO.RRF") . "|/site/umls/unicode/grep8.pl|/bin/nawk -F'|' '{print \$1}\'|/bin/sort -u|/bin/wc -l";
   $_ = `$cmd`;
   chomp;
   $official{utf8concepts} = $_;
 
-  $cmd = "/bin/gawk -F'|' '{print \$" . UrisUtils->getColIndex($metadir, "MRCONSO.RRF", "STR", 1) . "}' " . UrisUtils->getPath($metadir, "MRCONSO.RRF") . "|$ENV{URIS_HOME}/bin/grep8.pl -c";
+  $cmd = "/bin/nawk -F'|' '{print \$" . UrisUtils->getColIndex($metadir, "MRCONSO.RRF", "STR", 1) . "}' " . UrisUtils->getPath($metadir, "MRCONSO.RRF") . "|/site/umls/unicode/grep8.pl -c";
   $_ = `$cmd`;
   chomp;
   $official{utf8strings}{total} = $_;
@@ -288,14 +288,14 @@ sub do_rrf {
 
     $doclat = $x[UrisUtils->getColIndex($metadir, "MRDOC.RRF", "VALUE")];
     $atomlatfield = UrisUtils->getColIndex($metadir, "MRCONSO.RRF", "LAT", 1);
-    $cmd = "/bin/gawk -F'|' '\$$atomlatfield==\"$doclat\"{print \$" . UrisUtils->getColIndex($metadir, "MRCONSO.RRF", "STR", 1) . "}' " . UrisUtils->getPath($metadir, "MRCONSO.RRF") . "|$ENV{URIS_HOME}/bin/grep8.pl -c";
+    $cmd = "/bin/nawk -F'|' '\$$atomlatfield==\"$doclat\"{print \$" . UrisUtils->getColIndex($metadir, "MRCONSO.RRF", "STR", 1) . "}' " . UrisUtils->getPath($metadir, "MRCONSO.RRF") . "|/site/umls/unicode/grep8.pl -c";
     $_ = `$cmd`;
     chomp;
     $official{utf8strings}{$doclat} = $_;
 
 # WD
     $wdindex = "MRXW_" . $doclat . ".RRF";
-    $cmd = "/bin/gawk -F'|' '{print \$" . UrisUtils->getColIndex($metadir, $wdindex, "WD", 1) . "}' " . UrisUtils->getPath($metadir, $wdindex) . "|$ENV{URIS_HOME}/bin/grep8.pl -c";
+    $cmd = "/bin/nawk -F'|' '{print \$" . UrisUtils->getColIndex($metadir, $wdindex, "WD", 1) . "}' " . UrisUtils->getPath($metadir, $wdindex) . "|/site/umls/unicode/grep8.pl -c";
     $_ = `$cmd`;
     chomp;
     $official{utf8words}{$doclat} = $_;
@@ -485,7 +485,7 @@ sub do_orf {
 			      table=>'MRCON',
 			      restrictions=>[{LAT=>'=="ENG"'}],
 			      field=>'STR',
-			      postfilter=>"/bin/gawk \'{print tolower(\$0)}\'",
+			      postfilter=>"/bin/nawk \'{print tolower(\$0)}\'",
 			      unique=>1,
 			     });
   $official{englstr} = $_;
@@ -515,17 +515,17 @@ sub do_orf {
   $official{engnwd} = $_;
 
 # UTF-8 counts
-  $cmd = "/bin/gawk -F'|' '{print \$" . UrisUtils->getColIndex($metadir, "MRCON", "CUI", 1) . "\"\|\"\$" . UrisUtils->getColIndex($metadir, "MRCON", "STR") . "}' " . UrisUtils->getPath($metadir, "MRCON") . "|$ENV{URIS_HOME}/bin/grep8.pl|/bin/gawk -F'|' '{print \$1}\'|/bin/sort -u|/bin/wc -l";
+  $cmd = "/bin/nawk -F'|' '{print \$" . UrisUtils->getColIndex($metadir, "MRCON", "CUI", 1) . "\"\|\"\$" . UrisUtils->getColIndex($metadir, "MRCON", "STR") . "}' " . UrisUtils->getPath($metadir, "MRCON") . "|/site/umls/unicode/grep8.pl|/bin/nawk -F'|' '{print \$1}\'|/bin/sort -u|/bin/wc -l";
   $_ = `$cmd`;
   chomp;
   $official{utf8concepts} = $_;
 
-  $cmd = "/bin/gawk -F'|' '{print \$" . UrisUtils->getColIndex($metadir, "MRCON", "STR", 1) . "}' " . UrisUtils->getPath($metadir, "MRCON") . "|$ENV{URIS_HOME}/bin/grep8.pl -c";
+  $cmd = "/bin/nawk -F'|' '{print \$" . UrisUtils->getColIndex($metadir, "MRCON", "STR", 1) . "}' " . UrisUtils->getPath($metadir, "MRCON") . "|/site/umls/unicode/grep8.pl -c";
   $_ = `$cmd`;
   chomp;
   $official{utf8strings} = $_;
 
-  $cmd = "/bin/gawk -F'|' '{print \$" . UrisUtils->getColIndex($metadir, "MRXW.ENG", "WD", 1) . "}' " . UrisUtils->getPath($metadir, "MRXW.ENG") . "|$ENV{URIS_HOME}/bin/grep8.pl -c";
+  $cmd = "/bin/nawk -F'|' '{print \$" . UrisUtils->getColIndex($metadir, "MRXW.ENG", "WD", 1) . "}' " . UrisUtils->getPath($metadir, "MRXW.ENG") . "|/site/umls/unicode/grep8.pl -c";
   $_ = `$cmd`;
   chomp;
   $official{utf8words}{ENG} = $_;

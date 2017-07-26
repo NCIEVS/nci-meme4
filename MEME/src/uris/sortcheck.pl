@@ -43,12 +43,12 @@ $tmpdir = $opt_T || $ENV{'TMPDIR'} || "/tmp";
 $tmpfile = join('/', $tmpdir, "tmp_$$");
 unlink $tmpfile;
 
-$cmd = "/share_nfs/usr/bin/sort -T $tmpdir -c $path " . ($file =~ /^MRRANK/ ? "-r " : "") . "1>$tmpfile 2>&1";
+$cmd = "/bin/sort -T $tmpdir -c $path " . ($file =~ /^MRRANK/ ? "-r " : "") . "1>$tmpfile 2>&1";
 $sortstatus = system $cmd;
 $sortstatus = 2 if $sortstatus > 0;
 
 unless ($sortstatus) {
-  chomp($x = `/share_nfs/usr/bin/uniq -d $path|/bin/head -1`);
+  chomp($x = `/bin/uniq -d $path|/bin/head -1`);
   $uniqstatus = ($x ? 1 : 0);
 }
 if ($sortstatus) {

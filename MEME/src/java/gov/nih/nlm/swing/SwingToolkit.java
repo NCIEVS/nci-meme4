@@ -42,13 +42,10 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.KeyStroke;
 import javax.swing.ProgressMonitor;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
@@ -65,7 +62,7 @@ public abstract class SwingToolkit implements SwingConstants {
   //
   // Fields
   //
-  private static Properties properties = new Properties();
+  protected static Properties properties = new Properties();
   protected static Map key_map = new HashMap();
 
   //
@@ -943,69 +940,5 @@ public abstract class SwingToolkit implements SwingConstants {
     g.drawImage(i, 0, 0, null);
     return bi;
   }
-
-
-  /**
-	 * This method builds a JMenu and does the following 1. Attaches mnemonics to
-	 * the menu items 2. Attaches accelerators to the menu items 3. Attaches
-	 * action listeners to the menu items 4. Adds menu_items to a
-	 * function_component_map
-	 * 
-	 * @param header String
-	 * @param items String []
-	 * @param mnemonic_map HashMap
-	 * @param accelerator_map HashMap
-	 * @param function_listener_map HashMap
-	 * @param function_component_map HashMap
-	 */
-	public static JMenu makeMenu(String header, String[] items,
-			HashMap mnemonic_map, HashMap accelerator_map,
-			HashMap function_listener_map, HashMap function_component_map) {
-
-		JMenu menu = new JMenu(header);
-
-		// Assign mnemonic to header
-		Object mnemonic = mnemonic_map.get(header);
-		if (mnemonic != null)
-			menu.setMnemonic(((Character) mnemonic).charValue());
-
-		// Loop through items connecting them
-		for (int i = 0; i < items.length; i++) {
-
-			// a null item is a separator
-			if (items[i] == null) {
-				menu.addSeparator();
-
-			} else {
-
-				// create menuitem
-				JMenuItem mi = new JMenuItem(items[i]);
-
-				// add action listener
-				ActionListener al = (ActionListener) function_listener_map
-						.get(items[i]);
-				if (al != null)
-					mi.addActionListener(al);
-
-				// add accelerator
-				Object shortcut = accelerator_map.get(items[i]);
-				if (shortcut != null) {
-					mi.setAccelerator((KeyStroke) shortcut);
-				}
-
-				// add mnemonic
-				mnemonic = mnemonic_map.get(items[i]);
-				if (mnemonic != null) {
-					mi.setMnemonic(((Character) mnemonic).charValue());
-				}
-
-				// Add to function_component_map
-				function_component_map.put(items[i], mi);
-				menu.add(mi);
-			}
-		}
-		function_component_map.put(header, menu);
-		return menu;
-	}
 
 }

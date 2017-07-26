@@ -18,13 +18,6 @@ INSTALL
    g. meow.url (URL for "MEOW" - for links)s
    h. eme.client.languages.include (languages to include, e.g. "ENG,SPA")
 
-Dependencies
------------------------
-MEME Dependencies
-  $ENV_HOME
-  $MIDSVCS_HOME
-  $LVG_HOME
-
 UPDATE
 ------
 Same as install

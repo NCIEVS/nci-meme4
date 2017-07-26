@@ -3,9 +3,6 @@
 # Author: WAK, based on Brian Carlsen's template, template.cgi
 # 
 # CHANGES
-# 06/13/2008 JFW (1-HS8VR): Wrap long fields when creating <SAB>.html
-# 01/31/2008 BAC (1-GCLNT): Use lt instead of < when comparing meta_ver when updating sources.html
-# 11/07/2007 BAC (1-FPFK1): Revise definition of meta_ver when clicked on.
 #  03/03/2006 RBE (1-AJV1Z): Fixed SQL injection error
 #  01/30/2006 BAC (1-73QZ0): when building summary pages for sources,
 #       include inversion proposal links.
@@ -23,12 +20,7 @@ $version_date = "11/15/2001";
 unshift @INC,"$ENV{ENV_HOME}/bin";
 require "env.pl";
 use open ":utf8";
-use Text::Wrap;
 
-# Set variables for Text::Wrap throughout the entire script
-# Text::Wrap is used to format fields with newlines on the displayed page.
-local($Text::Wrap::columns) = 80;
-local($Text::Wrap::separator) = "<br>";
 
 # **************** Documentation ***********************
 # SIMS.cgi is a multi-state CGI application that provides read and write
@@ -184,11 +176,6 @@ print qq{Expires: Fri, 20 Sep 1998 01:01:01 GMT\n};
 #
 $ENV{"MEME_HOME"} = $meme_home || $ENV{"MEME_HOME"} || die "\$MEME_HOME must be set.";
 $ENV{"ORACLE_HOME"} = $oracle_home || $ENV{"ORACLE_HOME"} || die "\$ORACLE_HOME must be set.";
-#
-# SL: TEMPORARY SOLUTION FOR updating non ascii characters into database.
-# SOMEHOW the Perl DBI/or Oracle is throwing an error 0ra-01461.
-# Setting the NLS_LANG to WE8ISOoo59P1 seems to fix the problem.
-$ENV{"NLS_LANG"} = "AMERICAN_AMERICA.WE8ISO8859P1";
 $state = "INDEX" unless $state;
 #$state = "CHECK_JAVASCRIPT" unless $state;
 
@@ -253,7 +240,7 @@ if ($states{$state}) {
 #	exit(0);
 
 	# set variables to use database
-	$userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl -d $db`;
+	$userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl`;
 	($user,$password) = split /\//, $userpass;
 	chop($password);
 
@@ -591,7 +578,7 @@ sub PrintFooter {
 			<address><a href="$cgi">Back to Index</a></address>
 			</td>
 		<td ALIGN=RIGHT VALIGN=TOP NOSAVE>
-			<font size="-1"><address>Contact: <a href="mailto:reg\@msdinc.com">reg\@msdinc.com</a></address>
+			<font size="-1"><address>Contact: <a href="mailto:reg\@apelon.com">reg\@apelon.com</a></address>
 			<address>Generated on:},scalar(localtime),qq{</address>
 			<address>This page took $elapsed_time seconds to generate.</address>
 			<address>};
@@ -719,13 +706,13 @@ You are editing: <B>$db</B><BR>
 		<a href="javascript:void(0)" 
 		onClick="openDescription('Source SAB',
 				  'This is a source abbreviation. Typically the source will be composed of the stripped source and the version');"> &nbsp;&nbsp;Source (SAB)</a>:</font></td>
-	<td><font size="-1">&nbsp;&nbsp;<input type="text" size="40" name="source"></font></td>
+	<td><font size="-1">&nbsp;&nbsp;<input type="text" size="20" name="source"></font></td>
 </tr>
 <tr>
 	<td><font size=-1>
 		<a href="javascript:void(0)" 
 		onClick="openDescription('META Ver',
-				  'CURRENT for sources not yet released. If already released use META Version for which this source inserted (even if it was an intermediate SAB).  (YYYYXX)');"> &nbsp;&nbsp;META Version</a>:</font></td>
+				  'CURRENT for sources not yet released. If already released use META Version in which this source was released.  (YYYYXX)');"> &nbsp;&nbsp;META Version</a>:</font></td>
 	<td><font size="-1">&nbsp;&nbsp;<input type="text" size="20" name="meta_ver"></font></td>
 	</tr>
 
@@ -765,7 +752,7 @@ chomp $ora_year;
 $ora_date = $ora_day."-".$ora_mon."-".$ora_year;
 
 my $insert_handle = $dbh->prepare(qq{
-	INSERT INTO SIMS_INFO (SOURCE, DATE_CREATED, META_VER, META_YEAR) VALUES (?,?,?,-1)
+	INSERT INTO SIMS_INFO (SOURCE, DATE_CREATED, META_VER) VALUES (?,?,?)
 	});
 my $row_count = $insert_handle->execute($source, $ora_date, $meta_ver);
 unless (defined($row_count)) {
@@ -811,7 +798,7 @@ print qq{
 		<a href="javascript:void(0)" 
 		onClick="openDescription('Source SAB',
 				  'This is a source abbreviation. Typically the source will be composed of the stripped source and the version');">Source (SAB)</a>:</font></td>
-	<td><font size="-1"><input type="text" size="40" name="new_source"></font></td>
+	<td><font size="-1"><input type="text" size="20" name="new_source"></font></td>
 	</tr>
 
 	<tr>
@@ -899,8 +886,8 @@ my $insert_handle = $dbh->prepare(qq{
 	 meow_display_name, source_desc, status,
 	 worklist_sortkey_loc, whats_new, termgroup_list, attribute_list,
 	 inversion_notes, internal_url_list, notes, nlm_editing_notes,
-	 inv_recipe_loc, suppress_edit_rec, meta_year) VALUES
-	(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,-1)
+	 inv_recipe_loc, suppress_edit_rec) VALUES
+	(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
 	}); 	# edit done
 my($suppress_edit_rec)= "N";
 my $row_count = $insert_handle->execute(
@@ -1493,15 +1480,6 @@ $url_str = MakeLink($internal_url_list);
 
 # $termgroup_list =~ s/\n/<BR>/g;
 
-# wrap long lines
- $wrap_inverter_notes_file = wrap('','',$inverter_notes_file);
- $wrap_source_desc = wrap('','',$source_desc);
- $wrap_whats_new = wrap('','',$wrap_whats_new);
- $wrap_notes = wrap("","",$notes);
- $wrap_nlm_editing_notes = wrap("","",$wrap_nlm_editing_notes);
-
-
-
 # For <textarea> fields
 # Preserve multiple spaces, newline characters, tabs, etc
 # Strip leading whitespace
@@ -1511,7 +1489,8 @@ $url_str = MakeLink($internal_url_list);
 	 #s/<BR>/\n/g;
 	 s/\n/<BR>\n/g;
 	 s/ /&nbsp;/g;
- } ($meow_display_name,$wrap_source_desc, $wrap_whats_new, $termgroup_list, $attribute_list, $wrap_inversion_notes, $whats_new, $internal_url_list, $wrap_notes, $wrap_nlm_editing_notes);
+ } ($meow_display_name,$source_desc, $whats_new, $termgroup_list, $attribute_list, $inversion_notes, $whats_new, $internal_url_list, $notes, $nlm_editing_notes);
+
 
 
 	print qq{
@@ -1555,7 +1534,7 @@ $url_str = MakeLink($internal_url_list);
 <TD VALIGN="TOP" ALIGN="LEFT"><PRE>$inversion_script</PRE></TD></TR>
 <TR>
 <TD VALIGN="TOP" ALIGN="LEFT"><B>Inverter's Notes</B></TD>
-<TD VALIGN="TOP" ALIGN="LEFT"><PRE>$wrap_inverter_notes_file</PRE></TD></TR>
+<TD VALIGN="TOP" ALIGN="LEFT"><PRE>$inverter_notes_file</PRE></TD></TR>
 <TR>
 <TD VALIGN="TOP" ALIGN="LEFT"><B>Conservation of Mass File</B></TD>
 <TD VALIGN="TOP" ALIGN="LEFT"><PRE>$conserve_file</PRE></TD></TR>
@@ -1567,7 +1546,7 @@ $url_str = MakeLink($internal_url_list);
 <TD VALIGN="TOP" ALIGN="LEFT"><PRE>$meow_display_name</PRE></TD></TR>
 <TR>
 <TD VALIGN="TOP" ALIGN="LEFT"><B>Source Description</B></TD>
-<TD VALIGN="TOP" ALIGN="LEFT"><DIV Style="font-family: monospace">$wrap_source_desc</DIV></td> </tr></TD></TR>
+<TD VALIGN="TOP" ALIGN="LEFT"><DIV Style="font-family: monospace">$source_desc</DIV></td> </tr></TD></TR>
 <TR>
 <TD VALIGN="TOP" ALIGN="LEFT"><B>Worklist Sortkey</B></TD>
 <TD VALIGN="TOP" ALIGN="LEFT"><PRE>$worklist_sortkey_loc</PRE></TD></TR>
@@ -1588,7 +1567,7 @@ $url_str = MakeLink($internal_url_list);
 <TD VALIGN="TOP" ALIGN="LEFT"><PRE>$url_str</PRE></TD></TR>
 <TR>
 <TD VALIGN="TOP" ALIGN="LEFT"><B>Additional Notes</B> </TD>
-<TD VALIGN="TOP" ALIGN="LEFT"><DIV Style="font-family: monospace">$wrap_notes</DIV></TD></TR>
+<TD VALIGN="TOP" ALIGN="LEFT"><DIV Style="font-family: monospace">$notes</DIV></TD></TR>
 <TR>
 <TD VALIGN="TOP" ALIGN="LEFT"><B>NLM Notes</B> </TD>
 <TD VALIGN="TOP" ALIGN="LEFT"><DIV Style="font-family: monospace">$nlm_editing_notes</DIV></TD></TR>
@@ -1746,7 +1725,7 @@ print OUT <<PART_I;
 </TABLE>
 <HR>
 <!-- test -->
-<ADDRESS>Contact: <A HREF="mailto:reg\@msdinc.com">reg\@msdinc.com </A></ADDRESS>
+<ADDRESS>Contact: <A HREF="mailto:reg\@apelon.com">reg\@apelon.com </A></ADDRESS>
 <ADDRESS>Page Updated: $hour:$min $month/$day/$year </ADDRESS>
 <ADDRESS>Record Created: $date_created </ADDRESS>
 <ADDRESS>Last Updated: $hour:$min $month/$day/$year </ADDRESS>
@@ -1801,7 +1780,7 @@ $sh->execute ||
  	$init = substr($source,0,1);
  	$init{$init}++;
  	#print "Year: $year  Source: $source  Desc: $str<BR>\n";
- 	$curr_year = ($curr_year lt $year)?$year:$curr_year;
+ 	$curr_year = ($curr_year<$year)?$year:$curr_year;
 # 	$select_lists{$year} .= "$source|";
  	$desc{$source}=$source_desc;
  	$sabs{$source}=$sabs;
@@ -1928,7 +1907,7 @@ foreach $ver (@sorted_vers) {
 }
 print OUT <<TAIL_TEXT;
 <HR>
-<ADDRESS>Contact: <A HREF="mailto:reg\@msdinc.com">reg\@msdinc.com</A><ADDRESS>
+<ADDRESS>Contact: <A HREF="mailto:reg\@apelon.com">reg\@apelon.com</A><ADDRESS>
 <ADDRESS>Created: March 25, 1997</ADDRESS>
 TAIL_TEXT
 

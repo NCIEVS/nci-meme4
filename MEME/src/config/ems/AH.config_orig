@@ -92,7 +92,3 @@ SCT_FindDis|SNOMED finding or disorder and morp-abn or obs-ent with same name no
 
 SCT_QvCDC|SNOMED qual-val or cont-dep-cat and anything with same name not merged|SQLFILE:newQvCdc_bin.sql|mixed|all|Y
 msh_foreign_sep|Foreign MeSH atoms separated from English counterparts|SQLFILE:msh_foreign_sep.sql|mixed|all|Y
-split_ndc_cd|NDC codes split across concepts|SQLFILE:split_ndc_codes.sql|mixed|all|N
-split_ndfscdc|SCDC attribute split w/ SCDC string across concepts|SQLFILE:split_ndfrt_scdc.sql|mixed|all|N
-rxnormmissyn|Code Matching for RXNORM Missed synonymy |SCRIPT:rxnorm-missyn-generator.pl|mixed|all|Y
-rxn_obsolete_only|Merged obsolete RXNORM primary atoms with different RXCUI|SQLFILE:rxn_obsolete_only.sql|mixed|all|Y

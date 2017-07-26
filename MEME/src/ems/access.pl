@@ -27,8 +27,7 @@ sub do_access {
     my($currentaccess) = $accesskey->{valuechar} if $accesskey;
     $currentaccess = $currentaccess || $query->param('access') || 'CONFIG';
 
-    $form .= $query->start_form(-method=>'POST', -action=>$query->url(-absolute=>1));
-    
+    $form .= $query->start_form(-method=>'POST', -action=>$query->url());
     $form .= "Set EMS and WMS access to: ";
     $form .= $query->popup_menu({-name=>'access',
 				 -values=>['CONFIG', 'CLOSED', 'LEVEL2ONLY'],

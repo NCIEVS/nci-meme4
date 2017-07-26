@@ -35,7 +35,6 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Set;
 import java.util.Vector;
 
 /**
@@ -111,24 +110,9 @@ public class FullMRXReleaseHandler extends ReleaseHandler.Default {
           + file.getName(), true, log);
 
       String line;
-      // Ignore non-ENG TTYs associated with NEU
-      Set<String> ttysToIgnore = new HashSet<String>();
-      ttysToIgnore.add("FRESY");
-      ttysToIgnore.add("GERSY");
-      ttysToIgnore.add("ITASY");
-      ttysToIgnore.add("KORSY");
-      ttysToIgnore.add("RUSSY");
-      ttysToIgnore.add("SPASY");
-      ttysToIgnore.add("CHISY");
-      ttysToIgnore.add("INDSY");
-      ttysToIgnore.add("LATSY");
-      ttysToIgnore.add("TURSY");
-
       while ((line = in.readLine()) != null) {
         String[] fields = FieldedStringTokenizer.split(line, String
             .valueOf('|'));
-        if (ttysToIgnore.contains(fields[12]))
-        	continue;
         if (fields[1].equals("ENG")) {
           Vector norm_strings = norm.Mutate(fields[14]);
           HashSet hs = new HashSet();

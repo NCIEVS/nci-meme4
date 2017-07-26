@@ -3,8 +3,6 @@
  * Package: gov.nih.nlm.meme.sql
  * Object:  MEMEConnectionQueries
  *
- * 02/24/2009 BAC (1-GCLNT): Queries no longer read rank, source_rank or preferred_level fields.
- * 
  *****************************************************************************/
 package gov.nih.nlm.meme.sql;
 
@@ -113,8 +111,8 @@ public interface MEMEConnectionQueries {
       "SELECT atom_id, version_id, attribute_id, attribute_level," +
       "  attribute_name, attribute_value, generated_status, source, dead," +
       "  status, authority, timestamp, insertion_date, concept_id," +
-      "  released, tobereleased, " +
-      "  last_molecule_id, last_atomic_action_id, suppressible, " +
+      "  released, tobereleased, source_rank, preferred_level," +
+      "  last_molecule_id, last_atomic_action_id, rank, suppressible, " +
       "  sg_id, sg_type, sg_qualifier, sg_meme_id, sg_meme_data_type, " +
       "  source_atui, atui " +
       "FROM ";
@@ -127,8 +125,8 @@ public interface MEMEConnectionQueries {
       "SELECT atom_id, version_id, attribute_id, attribute_level," +
       "  attribute_name, attribute_value, generated_status, source, dead," +
       "  status, authority, timestamp, insertion_date, concept_id," +
-      "  released, tobereleased," +
-      "  last_molecule_id, last_atomic_action_id, suppressible, " +
+      "  released, tobereleased, source_rank, preferred_level," +
+      "  last_molecule_id, last_atomic_action_id, rank, suppressible, " +
       "  sg_id, sg_type, sg_qualifier, sg_meme_id, sg_meme_data_type, " +
       "  source_atui, atui " +
       "FROM attributes " +
@@ -139,8 +137,8 @@ public interface MEMEConnectionQueries {
       "SELECT atom_id, version_id, attribute_id, attribute_level," +
       "  attribute_name, attribute_value, generated_status, source, dead," +
       "  status, authority, timestamp, insertion_date, concept_id," +
-      "  released, tobereleased, " +
-      "  last_molecule_id, last_atomic_action_id, suppressible, " +
+      "  released, tobereleased, source_rank, preferred_level," +
+      "  last_molecule_id, last_atomic_action_id, rank, suppressible, " +
       "  sg_id, sg_type, sg_qualifier, sg_meme_id, sg_meme_data_type, " +
       "  source_atui, atui " +
       "FROM attributes " +
@@ -156,8 +154,8 @@ public interface MEMEConnectionQueries {
       "SELECT atom_id, version_id, attribute_id, attribute_level," +
       "  attribute_name, attribute_value, generated_status, source, dead," +
       "  status, authority, timestamp, insertion_date, concept_id," +
-      "  released, tobereleased, " +
-      "  last_molecule_id, last_atomic_action_id, suppressible, " +
+      "  released, tobereleased, source_rank, preferred_level," +
+      "  last_molecule_id, last_atomic_action_id, rank, suppressible, " +
       "  sg_id, sg_type, sg_qualifier, sg_meme_id, sg_meme_data_type, " +
       "  source_atui, atui " +
       "FROM attributes " +
@@ -172,8 +170,8 @@ public interface MEMEConnectionQueries {
       "  relationship_name, relationship_attribute, atom_id_2, source," +
       "  generated_status, dead, status, authority, timestamp," +
       "  insertion_date, concept_id_1, concept_id_2, released," +
-      "  tobereleased, last_molecule_id," +
-      "  last_atomic_action_id, source_of_label, suppressible, " +
+      "  tobereleased, source_rank, preferred_level, last_molecule_id," +
+      "  last_atomic_action_id, rank, source_of_label, suppressible, " +
       "  sg_id_1, sg_id_2, sg_type_1, sg_type_2, sg_qualifier_1, sg_qualifier_2, " +
       "  sg_meme_id_1, sg_meme_id_2, sg_meme_data_type_1, sg_meme_data_type_2, " +
       "  source_rui, rui, relationship_group " +
@@ -191,8 +189,8 @@ public interface MEMEConnectionQueries {
       "  relationship_name, relationship_attribute, atom_id_2, source," +
       "  generated_status, dead, status, authority, timestamp," +
       "  insertion_date, concept_id_1, concept_id_2, released," +
-      "  tobereleased, last_molecule_id," +
-      "  last_atomic_action_id, source_of_label, suppressible, " +
+      "  tobereleased, source_rank, preferred_level, last_molecule_id," +
+      "  last_atomic_action_id, rank, source_of_label, suppressible, " +
       "  sg_id_1, sg_id_2, sg_type_1, sg_type_2, sg_qualifier_1, sg_qualifier_2, " +
       "  sg_meme_id_1, sg_meme_id_2, sg_meme_data_type_1, sg_meme_data_type_2, " +
       "  source_rui, rui, relationship_group " +
@@ -205,8 +203,8 @@ public interface MEMEConnectionQueries {
       "  atom_id_2 as atom_id_1, relationship_name, relationship_attribute," +
       "  atom_id_1 as atom_id_2, source, generated_status, dead, status," +
       "  authority, timestamp, insertion_date, concept_id_2 as concept_id_1," +
-      "  concept_id_1 as concept_id_2, released, tobereleased, " +
-      "  last_molecule_id, last_atomic_action_id," +
+      "  concept_id_1 as concept_id_2, released, tobereleased, source_rank," +
+      "  preferred_level, last_molecule_id, last_atomic_action_id, rank," +
       "  source_of_label, suppressible, " +
       "  sg_id_2 as sg_id_1, sg_id_1 as sg_id_2, " +
       "  sg_type_2 as sg_type_1, sg_type_1 as sg_type_2, " +
@@ -228,9 +226,9 @@ public interface MEMEConnectionQueries {
       "  a.atom_id_1, a.relationship_name, a.relationship_attribute," +
       "  a.atom_id_2, a.source, a.generated_status, a.dead, a.status," +
       "  a.authority, a.timestamp, a.insertion_date, a.concept_id_1," +
-      "  a.concept_id_2, a.released, a.tobereleased, " +
-      "  a.last_molecule_id, a.last_atomic_action_id," +
-      "  a.source_of_label, a.suppressible, sg_id_1, sg_id_2, " +
+      "  a.concept_id_2, a.released, a.tobereleased, a.source_rank," +
+      "  a.preferred_level, a.last_molecule_id, a.last_atomic_action_id," +
+      "  a.rank, a.source_of_label, a.suppressible, sg_id_1, sg_id_2, " +
       "  sg_type_1, sg_type_2, sg_qualifier_1, sg_qualifier_2, " +
       "  sg_meme_id_1, sg_meme_id_2, sg_meme_data_type_1, sg_meme_data_type_2, " +
       "  source_rui, rui, relationship_group, " +
@@ -250,8 +248,8 @@ public interface MEMEConnectionQueries {
       "  atom_id_1 as atom_id_2, a.source, a.generated_status, a.dead," +
       "  a.status, a.authority, a.timestamp, a.insertion_date," +
       "  concept_id_2 as concept_id_1, concept_id_1 as concept_id_2," +
-      "  a.released, a.tobereleased," +
-      "  a.last_molecule_id, a.last_atomic_action_id, source_of_label," +
+      "  a.released, a.tobereleased, source_rank, preferred_level," +
+      "  a.last_molecule_id, a.last_atomic_action_id, a.rank, source_of_label," +
       "  a.suppressible, sg_id_2 as sg_id_1, sg_id_1 as sg_id_2, " +
       "  sg_type_2 as sg_type_1, sg_type_1 as sg_type_2," +
       "  sg_qualifier_2 as sg_qualifier_1, sg_qualifier_1 as sg_qualifier_2, " +
@@ -282,8 +280,8 @@ public interface MEMEConnectionQueries {
       "  relationship_name, relationship_attribute, atom_id_2, source," +
       "  generated_status, dead, status, authority, timestamp," +
       "  insertion_date, concept_id_1, concept_id_2, released," +
-      "  tobereleased, last_molecule_id," +
-      "  last_atomic_action_id, source_of_label, suppressible, " +
+      "  tobereleased, source_rank, preferred_level, last_molecule_id," +
+      "  last_atomic_action_id, rank, source_of_label, suppressible, " +
       "  sg_id_1, sg_id_2, sg_type_1, sg_type_2, sg_qualifier_1, sg_qualifier_2, " +
       "  sg_meme_id_1, sg_meme_id_2, sg_meme_data_type_1, sg_meme_data_type_2, " +
       "  source_rui, rui, relationship_group " +
@@ -297,8 +295,8 @@ public interface MEMEConnectionQueries {
       "  atom_id_2 as atom_id_1, relationship_name, relationship_attribute," +
       "  atom_id_1 as atom_id_2, source, generated_status, dead, status," +
       "  authority, timestamp, insertion_date, concept_id_2 as concept_id_1," +
-      "  concept_id_1 as concept_id_2, released, tobereleased, " +
-      "  last_molecule_id, last_atomic_action_id, " +
+      "  concept_id_1 as concept_id_2, released, tobereleased, source_rank," +
+      "  preferred_level, last_molecule_id, last_atomic_action_id, rank," +
       "  source_of_label, suppressible, " +
       "  sg_id_2 as sg_id_1, sg_id_1 as sg_id_2, " +
       "  sg_type_2 as sg_type_1, sg_type_1 as sg_type_2, " +
@@ -321,9 +319,9 @@ public interface MEMEConnectionQueries {
       "  a.atom_id_1, a.relationship_name, a.relationship_attribute," +
       "  a.atom_id_2, a.source, a.generated_status, a.dead, a.status," +
       "  a.authority, a.timestamp, a.insertion_date, a.concept_id_1," +
-      "  a.concept_id_2, a.released, a.tobereleased, " +
-      "  a.last_molecule_id, a.last_atomic_action_id," +
-      "  a.source_of_label, a.suppressible, " +
+      "  a.concept_id_2, a.released, a.tobereleased, a.source_rank," +
+      "  a.preferred_level, a.last_molecule_id, a.last_atomic_action_id," +
+      "  a.rank, a.source_of_label, a.suppressible, " +
       "  a.sg_id_1, a.sg_id_2, a.sg_type_1, a.sg_type_2, " +
       "  a.sg_meme_id_1, a.sg_meme_id_2, " +
       "  a.sg_meme_data_type_1, a.sg_meme_data_type_2, " +
@@ -345,8 +343,8 @@ public interface MEMEConnectionQueries {
       "  atom_id_1 as atom_id_2, a.source, a.generated_status, a.dead," +
       "  a.status, a.authority, a.timestamp, a.insertion_date," +
       "  concept_id_2 as concept_id_1, concept_id_1 as concept_id_2," +
-      "  a.released, a.tobereleased, " +
-      "  a.last_molecule_id, a.last_atomic_action_id, source_of_label," +
+      "  a.released, a.tobereleased, source_rank, preferred_level," +
+      "  a.last_molecule_id, a.last_atomic_action_id, a.rank, source_of_label," +
       "  a.suppressible, sg_id_2 as sg_id_1, sg_id_1 as sg_id_2, " +
       "  sg_type_2 as sg_type_1, sg_type_1 as sg_type_2, " +
       "  sg_meme_id_2 as sg_meme_id_1, sg_meme_id_1 as sg_meme_id_2, " +
@@ -371,8 +369,8 @@ public interface MEMEConnectionQueries {
       "  atom_id_1, relationship_name, relationship_attribute," +
       "  atom_id_2, source, generated_status, dead, status," +
       "  authority, timestamp, insertion_date, concept_id_1, concept_id_2," +
-      "  released, tobereleased, " +
-      "  last_molecule_id, last_atomic_action_id," +
+      "  released, tobereleased, source_rank, preferred_level," +
+      "  last_molecule_id, last_atomic_action_id, rank," +
       "  source_of_label, suppressible, hierarchical_code, " +
       "  parent_treenum, release_mode, sg_id_1, sg_type_1, " +
       "  sg_qualifier_1, sg_id_2, sg_type_2, sg_qualifier_2, " +
@@ -391,8 +389,8 @@ public interface MEMEConnectionQueries {
       "  a.atom_id_2, a.source, a.generated_status, a.dead, a.status," +
       "  a.authority, a.timestamp, a.insertion_date," +
       "  b.concept_id as concept_id_1, c.concept_id as concept_id_2," +
-      "  a.released, a.tobereleased, " +
-      "  a.last_molecule_id, a.last_atomic_action_id," +
+      "  a.released, a.tobereleased, a.source_rank, a.preferred_level," +
+      "  a.last_molecule_id, a.last_atomic_action_id, a.rank," +
       "  a.source_of_label, a.suppressible, d.atom_name as string, c.atom_id," +
       "  c.source as atom_source, c.termgroup, c.tobereleased as atom_tobereleased, " +
       "  c.code, c.sui, c.isui, c.lui, " +
@@ -415,8 +413,8 @@ public interface MEMEConnectionQueries {
       "  a.generated_status, a.dead, a.status, a.authority, a.timestamp," +
       "  a.insertion_date, b.concept_id as concept_id_1," +
       "  c.concept_id as concept_id_2, a.released, a.tobereleased," +
-      "  a.last_molecule_id," +
-      "  a.last_atomic_action_id, a.source_of_label," +
+      "  a.source_rank, a.preferred_level, a.last_molecule_id," +
+      "  a.last_atomic_action_id, a.rank, a.source_of_label," +
       "  a.suppressible, d.atom_name as string, c.atom_id," +
       "  c.source as atom_source, c.termgroup, c.tobereleased as atom_tobereleased, " +
       "  c.code, c.sui, c.isui, c.lui, " +
@@ -450,8 +448,8 @@ public interface MEMEConnectionQueries {
       "  a.atom_id_2, a.source, a.generated_status, a.dead, a.status," +
       "  a.authority, a.timestamp, a.insertion_date," +
       "  b.concept_id as concept_id_1, c.concept_id as concept_id_2," +
-      "  a.released, a.tobereleased, " +
-      "  a.last_molecule_id, a.last_atomic_action_id, " +
+      "  a.released, a.tobereleased, a.source_rank, a.preferred_level," +
+      "  a.last_molecule_id, a.last_atomic_action_id, a.rank," +
       "  a.source_of_label, a.suppressible, d.atom_name as string," +
       "  c.source as atom_source, c.tobereleased as atom_tobereleased, " +
       "  c.termgroup, c.code, c.sui, c.isui, c.lui, " +
@@ -474,8 +472,8 @@ public interface MEMEConnectionQueries {
       "  a.generated_status, a.dead, a.status, a.authority, a.timestamp," +
       "  a.insertion_date, b.concept_id as concept_id_1," +
       "  c.concept_id as concept_id_2, a.released, a.tobereleased," +
-      "  a.last_molecule_id," +
-      "  a.last_atomic_action_id, a.source_of_label, a.suppressible," +
+      "  a.source_rank, a.preferred_level, a.last_molecule_id," +
+      "  a.last_atomic_action_id, a.rank, a.source_of_label, a.suppressible," +
       "  d.atom_name as string, c.source as atom_source, " +
       "  c.tobereleased as atom_tobereleased, c.termgroup, c.code," +
       "  c.sui, c.isui, c.lui, " +
@@ -500,8 +498,8 @@ public interface MEMEConnectionQueries {
       "  generated_status, dead, status, authority, timestamp," +
       "  insertion_date, concept_id_1 as concept_id_2, " +
       "  concept_id_2 as concept_id_1, released," +
-      "  tobereleased, last_molecule_id," +
-      "  last_atomic_action_id, r.source_of_label, r.suppressible, " +
+      "  tobereleased, source_rank, preferred_level, last_molecule_id," +
+      "  last_atomic_action_id, r.rank, r.source_of_label, r.suppressible, " +
       "  r.sg_id_1 as sg_id_2, r.sg_id_2 as sg_id_1, sg_type_1 as sg_type_2, " +
       "  sg_type_2 as sg_type_1, sg_qualifier_1 as sg_qualifier_2, " +
       "  sg_qualifier_2 as sg_qualifier_1, " +

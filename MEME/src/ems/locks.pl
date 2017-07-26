@@ -38,7 +38,7 @@ sub do_locks {
       my($t1) .= &toHTMLtable($query, {-border=>0, -cellpadding=>2, -cellspacing=>1}, \@d);
       $t .= &toHTMLtable($query, {-border=>1, -cellpadding=>2, -cellspacing=>1}, [[$t1]]);
       $t .= $query->p;
-      $t .= $query->start_form(-method=>'POST', -action=>$query->url(-absolute=>1));
+      $t .= $query->start_form(-method=>'POST', -action=>$query->url());
       $t .= $DBpost;
       $t .= $query->hidden(-name=>'action', -value=>$action, -override=>1);
       $t .= $query->hidden(-name=>'me_partition', -value=>1, -override=>1);
@@ -69,7 +69,7 @@ sub do_locks {
       my($t1) .= &toHTMLtable($query, {-border=>0, -cellpadding=>2, -cellspacing=>1}, \@d);
       $t .= &toHTMLtable($query, {-border=>1, -cellpadding=>2, -cellspacing=>1}, [[$t1]]);
       $t .= $query->p;
-      $t .= $query->start_form(-method=>'POST', -action=>$query->url(-absolute=>1));
+      $t .= $query->start_form(-method=>'POST', -action=>$query->url());
       $t .= $DBpost;
       $t .= $query->hidden(-name=>'action', -value=>$action, -override=>1);
       $t .= $query->hidden(-name=>'me_worklist', -value=>1, -override=>1);

@@ -1,150 +1,6 @@
 Version Information
 -------------------
 RELEASE=4
-VERSION=9.0
-DATE=2008????
-AUTHORITY=BAC
-
-When releasing next version, need to run this first:
-CREATE INDEX x_classes_scui ON classes (source_cui) PARALLEL TABLESPACE MIDI;
-CREATE INDEX x_classes_sdui ON classes (source_dui) PARALLEL TABLESPACE MIDI;
-CREATE INDEX x_classes_saui ON classes (source_aui) PARALLEL TABLESPACE MIDI;
-CREATE INDEX x_classes_aui ON classes (aui) PARALLEL TABLESPACE MIDI;
-CREATE INDEX x_fclasses_scui ON foreign_classes (source_cui) PARALLEL TABLESPACE MIDI;
-CREATE INDEX x_fclasses_sdui ON foreign_classes (source_dui) PARALLEL tABLESPACE MIDI;
-CREATE INDEX x_fclasses_saui ON foreign_classes (source_aui) PARALLEL TABLESPACE MIDI;
-CREATE UNIQUE INDEX x_s_ui_string_lat on string_ui (string,language) PARALLEL TABLESPACE MIDI;
-CREATE INDEX x_s_ui_lstring_lat on string_ui (LOWER(string),language) PARALLEL TABLESPACE MIDI;
-CREATE INDEX x_s_ui_nstring_lat on string_ui (norm_string,language) PARALLEL TABLESPACE MIDI;
-CREATE INDEX x_r_srui ON relationships (source_rui) TABLESPACE MIDI PARALLEL;
-CREATE INDEX x_cr_srui ON context_relationships (source_rui) TABLESPACE MIDI PARALLEL;
-exec meme_system.refresh_meme_indexes;
-alter table molecular_actions noparallel;
-alter table atomic_actions noparallel;
-alter table relationships modify source_rank number(12) default 0;
-alter table relationships modify source_rank number(12) null;
-alter table relationships modify rank number default 0;
-alter table relationships modify rank number null;
-alter table context_relationships modify source_rank number(12) default 0;
-alter table context_relationships modify source_rank number(12) null;
-alter table attributes modify source_rank number(12) default 0;
-alter table attributes modify source_rank number(12) null;
-alter table attributes modify rank number default 0;
-alter table attributes modify rank number null;
-@$MEME_HOME/etc/sql/meme_views.sql
-
-RELEASE=4
-VERSION=9.0
-DATE=20070321
-AUTHORITY=BAC
-
-This release of the MEME Server should contain everything needed to operate MEME
-tools and services.  Notable updates include:
-
- o Added a new MEME_OPERATIONS.Get_NDC_Code function 
- o Finder service is modified to handle the new NDC code type search
- o Modified the Password changing Algorithm.
- 
- 
-      
-See INSTALL.txt for installation instructions
-
-OLD Version Information
--------------------
-RELEASE=4
-VERSION=9.0
-DATE=20060808
-AUTHORITY=BAC
-
-This release of the MEME Server should contain everything needed to operate MEME
-tools and services.  Notable updates include:
-
- o assign_luis.csh now works  properly without MTH/TM and/or MTH/MM.
- 
- o Small changes to an ActionEngine error message when an atom cannot
-   be inserted.
-   
- o Cleanup to prevent compile warnings.  Mostly just optimizing imports.
- 
- o load_section.csh and load_mrdoc.csh better handle the tty_class removal case.
-   load_section.csh also now runs source replacement on atoms BEFORE pre-insert
-   merging instead of after. 
- 
- o MEME_SOURCE_PROCESSING.delete_demotions does not create status R C level
-   rels where a demotion still exists.  Also an expanded SRC_ATOM_ID type
-   can now be used by map_sg_fields (CODE,SOURCE_CUI,SOURCE_DUI,SOURCE_AUI).
- 
- o MEMEConnection does a better job of recaching upon "delete" requests.
-   Made cache handling consistent in this way.
-   
- o MolecularMoveAction, MolecularSplitAction now properly identify and handle
-   "translation" atoms.  Test suites were updated to properly test the new
-   condition.
-
- o MTH/TM handling script (mthtm.pl) does not allow empty concepts.
-
- o Template meme.prop config file now handler for medline.
-
- 
-      
-See INSTALL.txt for installation instructions
-
-Old Release Information
------------------------
-RELEASE=4
-VERSION=8.0
-DATE=20060627
-AUTHORITY=BAC
-
-This release of the MEME Server should contain everything needed to operate MEME
-tools and services.  Notable updates include:
-
- o Bug fixes for some cache handling in MEME and MID data sources.
- 
- o Integrity check "self QA" tests were removed, in favor of unit tests.
- 
- o Jekyll updates: support an "undo" capability if merges produce
-   integrity check warnings.  RXNORM suppress=O atoms now show
-   up in purple.
- 
- o load_section.csh verifies that termgrous.src TTY values match the 
-   termgroup values. (should already be done as an inversion check).
-   Creation of insertion indexes now managed by MEME_SOURCE_PROCESSING
-   procedure instead of being done manually.  load_mrdoc.csh also does.
-
- o MEME server sends mail in a variety of cases where not necessary.
-   We have an ongoing project to eliminate cases of sending mail
-   where not needed.  We have addressed four cases here:
-    - Illegal service
-    - Illegal session id
-    - logon denied
-    - No work log found
- 
- o MEME_SOURCE_PROCESSING.map_obsolete_rels now maps all relationships
-   across source versions, including "mappable" types that will later
-   also be handled by map_sg_data calls.
-    
- o Merge inhibitor checks are being re-implemented as merge/move
-   inhibitors (like they were in MEME2).  Upgrades have been made
-   to: MGV_A4, MGV_B, MGV_B2, MGV_C, MGV_D, MGV_E, MGV_F, MGV_G, 
-   MGV_H1, MGV_H2, MGV_I, MGV_J, MGV_K, MGV_M, MGV_MM, MGV_MUI, 
-   MGV_PN, MGV_RXCUI, MGV_STY. New checks: MGV_SCUI, MGV_SDUI.
- 
- o Move inhibitors are properly implemented.  This includes the 
-   supporting abstract classes, and a class that operates as
-   a Merge/Move inhibitor.
-   
- o MIDConnection bug fix for integrity_cache.  When integrity data
-   changes (like during an insertion), make sure that a refresh
-   caches request updates the data and not just the check lists.
-   
- o MultiMap updated to have clear() method for better maintenance
-   of data source caches.
-   
- o RXNORM integrities are implemented MGV_RX1, MGV_RX2, MVS_RX3
-   according to spec from RXNORM.
-
-RELEASE=4
 VERSION=7.0
 DATE=20060511
 AUTHORITY=BAC
@@ -181,7 +37,11 @@ tools and services.  Notable updates include:
  o process_medline_data.csh properly analyzes coc_headings and coc_subheadings
  
  o SQL injection issues addressed.
+      
+See INSTALL.txt for installation instructions
 
+Old Release Information
+-----------------------
 RELEASE=4
 VERSION=6.0
 DATE=20060331

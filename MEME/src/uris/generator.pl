@@ -8,7 +8,7 @@ use lib "$ENV{URIS_HOME}/lib";
 use lib "$ENV{URIS_HOME}/bin";
 
 
-#!@PATH_TO_PERL@
+#!/share_nfs/perl/5.8.6/bin/perl
 
 # Master script to generate URIS contents
 # Uses an XML config file to drive the process

@@ -4,19 +4,9 @@
 # and creates the various qa_* tables in the MRD.
 #
 # Changes
-#   04/06/2012 TPM : Split the query of Q# MED attributes into smaller tables.
-#   08/05/2010 BAC (1-RDJQ1): add code for Optimization target
-#   09/27/2007 BAC (1-DBSLY): Remove hard-coded references to L0028429 (null LUI)
-#   07/17/2007  SL: 1-EG2YN  -- Modified the select statemnt to include the cui1 (ver_rel_rela_tally)
-#   07/17/2007  SL: 1-EIJRP  -- MRCUI gold build difference
-#   07/17/2007  SL: 1-EIJT5  -- MRHIER sab_rela_tally select statement is modified   
-#   07/17/2007  SL: 1-EIJQJ  -- MRMAP  sab_toexpr_tally select statement is modified                
-#   07/12/2006: SL: 1-BNL00: Modifying the Merged cui logic to caluclate the delete cui for MRCUI gold count.
-#   06/09/2006 TTN (1-BFPCX): remove CVF entries from mrdoc
 #   04/27/2006 TK (1-B02GR): corrected ts,stt,ispref algorithm for MetaMorphoSys
 #   03/09/2006 TTN (1-AM5U9): add ts,stt,ispref counts in MetaMorphoSys
 #   01/24/2006 BAC (1-7558C): remove classes_feedback entries
-#   09/27/2012 MAJ : Added section for active subsets
 #
 # Version Information
 # 2.2.0 03/10/2005: MRAUI counts added
@@ -33,7 +23,7 @@ source $ENV_HOME/bin/env.csh
 set usage="Usage: $0 [-(mrconso|mrdef|mrrank|...)] <db> <current_release> <previous_release>"
 set db=""
 set mode="all"
-
+set mu=`$MIDSVCS_HOME/bin/get-oracle-pwd.pl`
 
 if ($#argv == 1) then
     if ($argv[1] == "-v") then
@@ -43,7 +33,7 @@ if ($#argv == 1) then
         echo "Version $version, $version_date ($version_auth)"
         exit 0
     else if ($argv[1] == "-help" || $argv[1] == "--help" || $argv[1] == "-h") then
-        cat <<EOF
+	cat <<EOF
  $usage
 
  This script generates gold counts for a release and loads the
@@ -77,12 +67,12 @@ endif
 echo "-----------------------------------------------------"
 echo "Starting $0 ... `/bin/date`"
 echo "-----------------------------------------------------"
-echo "database:                 $db"
-echo "mode:                     $mode"
-echo "release:                  $release"
-echo "previous_release:         $previous_release"
+echo "database:			$db"
+echo "mode:			$mode"
+echo "release:			$release"
+echo "previous_release:		$previous_release"
 echo ""
-set mu=`$MIDSVCS_HOME/bin/get-oracle-pwd.pl -d $db`
+
 #
 # MRCONSO counts
 # Count number of rows (row_cnt)
@@ -163,6 +153,13 @@ if ($mode == "all" || $mode == "mrconso") then
     SELECT 'ls_cnt','',count(distinct lui||sui)
     FROM mrd_classes WHERE expiration_date IS NULL;
 
+    -- Count NOCODE rows
+    INSERT INTO qa_mrconso_${release}_gold
+    SELECT 'nocode_cnt','NOCODE',
+	count(distinct cui||sui||root_source||tty||code)
+    FROM mrd_classes WHERE expiration_date IS NULL AND
+	code='NOCODE';
+
     exec meme_utility.drop_it('table','qa_mrconso_${release}_gold_t1');
     CREATE TABLE qa_mrconso_${release}_gold_t1 (
        lat   VARCHAR2(100) NOT NULL,
@@ -238,35 +235,43 @@ if ($mode == "all" || $mode == "mrconso") then
 
     DROP TABLE qa_mrconso_${release}_gold_t1;
 
-    -- LAT/SAB/TTY count
+    -- SAB/TTY count
     INSERT INTO qa_mrconso_${release}_gold
-    SELECT 'sab_lat_tty_tally', root_source||'|'||language||'|'||tty,
-         count(distinct aui)
+    SELECT 'termgrp_tally', root_source||'/'||tty,
+	 count(distinct aui)
     FROM mrd_classes WHERE expiration_date IS NULL
-    GROUP BY root_source,language,tty;
+    GROUP BY root_source,tty;
 
     -- SAB/SUPPRESS count
     INSERT INTO qa_mrconso_${release}_gold
     SELECT 'sab_suppress_tally', root_source || '|' || suppressible,
-         count(distinct aui)
+	 count(distinct aui)
     FROM mrd_classes WHERE expiration_date IS NULL
     GROUP BY root_source,suppressible;
 
-    -- SRL count
+    -- SAB,SRL count
     INSERT INTO qa_mrconso_${release}_gold
-    SELECT 'srl_tally', restriction_level,
-           count(distinct aui)
+    SELECT 'sab_srl_tally', a.root_source || '|' || restriction_level,
+	   count(distinct aui)
     FROM mrd_classes a, mrd_source_rank b
     WHERE a.expiration_date IS NULL
       AND b.expiration_date IS NULL
       AND a.root_source=b.root_source
       AND is_current = 'Y'
-    GROUP BY restriction_level;
+    GROUP BY a.root_source,restriction_level;
+
+    -- SRL count
+    INSERT INTO qa_mrconso_${release}_gold
+    SELECT 'srl_tally', tv, sum(test_count) FROM
+      (SELECT substr(test_value,instr(test_value,'|')+1) as tv,
+	      test_count
+       FROM qa_mrconso_${release}_gold WHERE test_name='sab_srl_tally')
+    GROUP BY tv;
 
     -- distinct SCD by SAB count
     INSERT INTO qa_mrconso_${release}_gold
     SELECT 'sab_scd_tally', root_source,
-        count(distinct code)
+	count(distinct code)
     FROM mrd_classes
     WHERE expiration_date IS NULL
     GROUP BY root_source;
@@ -282,20 +287,11 @@ if ($mode == "all" || $mode == "mrconso") then
 
     -- SAB count
     INSERT INTO qa_mrconso_${release}_gold
-    SELECT 'sab_tally', root_source, count(distinct aui)
-    FROM mrd_classes
-    WHERE expiration_date IS NULL
-    GROUP BY root_source;
-
-    INSERT INTO qa_mrconso_${release}_gold
-    SELECT 'srl_tally', restriction_level,
-           count(distinct aui)
-    FROM mrd_classes a, mrd_source_rank b
-    WHERE a.expiration_date IS NULL
-      AND b.expiration_date IS NULL
-      AND a.root_source=b.root_source
-      AND is_current = 'Y'
-    GROUP BY restriction_level;
+    SELECT 'sab_tally', tv, sum(test_count) FROM
+      (SELECT substr(test_value,0,instr(test_value,'|')-1) as tv,
+	      test_count
+       FROM qa_mrconso_${release}_gold WHERE test_name='sab_srl_tally')
+    GROUP BY tv;
 
     -- TTY Count
     INSERT INTO qa_mrconso_${release}_gold
@@ -305,34 +301,27 @@ if ($mode == "all" || $mode == "mrconso") then
 
     -- suppressible termgroups
     INSERT INTO qa_mrconso_${release}_gold
-    SELECT 'suppr_termgrp_tally',root_source||'|'||tty||'|'||suppressible,
-       count(distinct aui)
+    SELECT 'suppr_termgrp_tally',root_source||'|'||tty,
+       count(distinct cui||aui)
     FROM mrd_classes WHERE expiration_date IS NULL
-    GROUP BY root_source,tty,suppressible;
+    AND suppressible in ('Y','E')
+    GROUP BY root_source,tty;
 
     -- Count ambiguous SUIs, LUIs
     -- should this be by language?
-     exec meme_utility.drop_it('table','t_mrd_ambig_suis');    
-     create table t_mrd_ambig_suis as
-         SELECT sui FROM mrd_classes
-                  WHERE expiration_date IS NULL
-                  GROUP BY sui HAVING count(distinct cui)>1;   
-                   
     INSERT INTO qa_mrconso_${release}_gold
     SELECT 'ambig_suis_cnt', '', count(distinct sui)
     FROM mrd_classes WHERE expiration_date IS NULL
-    AND sui IN (SELECT sui FROM t_mrd_ambig_suis);
+    AND sui IN (SELECT sui FROM mrd_classes
+		 WHERE expiration_date IS NULL
+		 GROUP BY sui HAVING count(distinct cui)>1);
 
-	exec meme_utility.drop_it('table','t_mrd_ambig_luis');    
-    create table t_mrd_ambig_luis as
-         SELECT lui FROM mrd_classes
-                  WHERE expiration_date IS NULL
-                  GROUP BY lui HAVING count(distinct cui)>1;
-                    	
     INSERT INTO qa_mrconso_${release}_gold
     SELECT 'ambig_luis_cnt', '', count(distinct lui)
     FROM mrd_classes WHERE expiration_date IS NULL
-    AND lui IN (SELECT lui FROM t_mrd_ambig_luis);
+    AND lui IN (SELECT lui FROM mrd_classes
+		 WHERE expiration_date IS NULL
+		 GROUP BY lui HAVING count(distinct cui)>1);
 
 --    -- ambiguous strings
 --    INSERT INTO qa_mrconso_${release}_gold
@@ -341,11 +330,11 @@ if ($mode == "all" || $mode == "mrconso") then
 --       FROM string_ui a, mrd_classes b
 --       WHERE expiration_date IS NULL
 --         AND a.sui=b.sui
---       AND b.language='ENG'
---       AND b.isui IN
---       (SELECT isui FROM mrd_classes
---        WHERE expiration_date IS NULL
---        GROUP BY isui HAVING count(distinct cui)>1))
+--	 AND b.language='ENG'
+--	 AND b.isui IN
+--	 (SELECT isui FROM mrd_classes
+--	  WHERE expiration_date IS NULL
+--	  GROUP BY isui HAVING count(distinct cui)>1))
 --    GROUP by str;
 
     -- min(length(STR))
@@ -361,6 +350,11 @@ if ($mode == "all" || $mode == "mrconso") then
     FROM mrd_classes a, string_ui b
     WHERE a.sui=b.sui
       AND expiration_date IS NULL;
+
+    INSERT INTO qa_mrconso_${release}_gold
+    SELECT 'suppress_tally',suppressible,count(distinct aui)
+    FROM mrd_classes WHERE expiration_date IS NULL
+    GROUP BY SUPPRESSIBLE;
 
 EOF
     if ($status != 0) then
@@ -419,12 +413,7 @@ echo "Generating MRAUI QA Counts ... `/bin/date`"
     GROUP BY relationship_attribute;
 
     INSERT INTO qa_mraui_${release}_gold
-    SELECT 'ver_rel_rela_tally', ver||'|'||relationship_name||'|'||relationship_attribute, count(distinct aui1||cui1)
-    FROM mrd_aui_history WHERE expiration_date IS NULL
-    GROUP BY ver,relationship_name,relationship_attribute;
-
-    INSERT INTO qa_mraui_${release}_gold
-    SELECT 'ver_tally', ver, count(distinct aui1||cui1)
+    SELECT 'rel_ver_tally', ver, count(relationship_name)
     FROM mrd_aui_history WHERE expiration_date IS NULL
     GROUP BY ver;
 
@@ -486,9 +475,9 @@ if ($mode == "all" || $mode == "ambig") then
 
 EOF
     if ($status != 0) then
-        cat /tmp/sql.$$.log
-        echo "ERROR: SQL Error"
-        exit 0
+	cat /tmp/sql.$$.log
+	echo "ERROR: SQL Error"
+	exit 0
     endif
 endif
 
@@ -540,14 +529,14 @@ if ($mode == "all" || $mode == "mrcui") then
      UNION
      SELECT old_lui FROM lui_assignment
       WHERE sui in (SELECT sui FROM classes
-                    WHERE last_release_cui IS NOT NULL
-                    AND released != 'N'
-                    UNION SELECT sui FROM dead_classes
-                    WHERE last_release_cui IS NOT NULL
-                    AND released != 'N'
-                    UNION SELECT sui FROM foreign_classes
-                    WHERE last_release_cui IS NOT NULL
-                    AND released != 'N'))
+		    WHERE last_release_cui IS NOT NULL
+		    AND released != 'N'
+		    UNION SELECT sui FROM dead_classes
+		    WHERE last_release_cui IS NOT NULL
+		    AND released != 'N'
+		    UNION SELECT sui FROM foreign_classes
+		    WHERE last_release_cui IS NOT NULL
+		    AND released != 'N'))
     MINUS
     SELECT lui
     FROM mrd_classes
@@ -555,8 +544,8 @@ if ($mode == "all" || $mode == "mrcui") then
 
     exec meme_utility.drop_it('table','t_merged_luis_$$');
     CREATE TABLE t_merged_luis_$$ (
-        old_lui VARCHAR2(10) NOT NULL,
-        new_lui VARCHAR2(10) NOT NULL );
+	old_lui	VARCHAR2(10) NOT NULL,
+	new_lui	VARCHAR2(10) NOT NULL );
 
     -- b. Identify which old LUIs are merged.
     INSERT INTO t_merged_luis_$$ (old_lui, new_lui)
@@ -566,22 +555,23 @@ if ($mode == "all" || $mode == "mrcui") then
 
     -- "live" LUIs cannot be merged luis
     DELETE FROM t_merged_luis_$$ WHERE old_lui IN
-           (SELECT lui FROM mrd_classes WHERE expiration_date IS NULL);
+	   (SELECT lui FROM mrd_classes WHERE expiration_date IS NULL);
 
     -- Only "live" luis can be "new" luis
     DELETE FROM t_merged_luis_$$ WHERE new_lui IN
-           (SELECT new_lui FROM t_merged_luis_$$
-            MINUS SELECT lui FROM mrd_classes WHERE expiration_date IS NULL);
-    
-        -- c. Look up preferred names for deleted LUIs
+	   (SELECT new_lui FROM t_merged_luis_$$
+	    MINUS SELECT lui FROM mrd_classes WHERE expiration_date IS NULL);
+
+    -- Old luis can not be merged luis
+    DELETE FROM t_merged_luis_$$ WHERE old_lui IN
+	    (SELECT lui FROM t_old_luis_$$);
+
+    -- c. Look up preferred names for deleted LUIs
     exec MEME_UTILITY.drop_it('table','t_dead_luis_$$');
     CREATE TABLE t_dead_luis_$$ AS
     (SELECT DISTINCT lui FROM t_old_luis_$$
     MINUS SELECT old_lui FROM t_merged_luis_$$);
 
-        -- Old luis can not be merged luis
-    -- DELETE FROM t_merged_luis_$$ WHERE old_lui IN
-        --    (SELECT lui FROM t_old_luis_$$);
     --
     -- Handle old SUIs
     --
@@ -706,12 +696,12 @@ if ($mode == "all" || $mode == "mrcui") then
     WHERE expiration_date is null
     GROUP BY relationship_name;
 
-    -- VER,REL,RELA tally
+    -- REL,VER tally
     INSERT into qa_mrcui_${release}_gold
-    SELECT 'ver_rel_rela_tally',ver||'|'||relationship_name||'|'||relationship_attribute,count(distinct cui1||ver||relationship_name||cui2)
+    SELECT 'rel_ver_tally',relationship_name||'|'||ver,count(distinct cui1||ver||relationship_name||cui2)
     FROM mrd_cui_history
     WHERE expiration_date is null
-        GROUP BY ver,relationship_name,relationship_attribute;
+	GROUP BY relationship_name,ver;
 
     --
     -- Cleanup
@@ -725,9 +715,9 @@ if ($mode == "all" || $mode == "mrcui") then
     exec meme_utility.drop_it('table','t_dead_suis_$$');
 EOF
     if ($status != 0) then
-        cat /tmp/sql.$$.log
-        echo "ERROR: SQL Error"
-        exit 0
+	cat /tmp/sql.$$.log
+	echo "ERROR: SQL Error"
+	exit 0
     endif
 endif
 
@@ -758,199 +748,439 @@ if ($mode == "all" || $mode == "mrmap") then
     WHERE attribute_name = 'XMAP'
     AND expiration_date is null;
 
-    -- SAB tally
+    -- FROMEXPR count
     INSERT into qa_mrmap_${release}_gold
-    SELECT 'sab_tally',root_source,count(distinct atui)
-    FROM mrd_attributes
-    WHERE expiration_date is null
-    AND attribute_name = 'XMAP'
-    GROUP BY root_source;
-
-    -- SAB/FROMEXPR tallys
-    INSERT into qa_mrmap_${release}_gold
-    SELECT 'sab_fromexpr_tally',root_source,count(distinct hashcode)
+    SELECT 'fromexpr_cnt','',count(distinct attribute_value)
     FROM mrd_attributes
     WHERE attribute_name = 'XMAPFROM'
-    AND expiration_date is null
-    GROUP BY root_source;
+    AND expiration_date is null;
 
-    -- SAB/TOEXPR tally
+    -- TOEXPR count
     INSERT into qa_mrmap_${release}_gold
-    SELECT 'sab_toexpr_tally', root_source, count(x)
+    SELECT 'toexpr_cnt', '', count(*)
     FROM (select
-                nvl(SUBSTR(attribute_value, instr(attribute_value, '~', 1, 2) + 1,
-                (INSTR(attribute_value, '~', 1, 3) -
-                INSTR(attribute_value, '~', 1, 2)) -1 ),'null') x, root_source
+		SUBSTR(attribute_value, instr(attribute_value, '~', 1, 2) + 1,
+		(INSTR(attribute_value, '~', 1, 3) -
+		INSTR(attribute_value, '~', 1, 2)) -1 ) x
     FROM mrd_attributes
     WHERE attribute_name = 'XMAPTO'
     AND expiration_date is null
     AND attribute_value not like '<>Long_Attribute<>:%'
     UNION
     select
-                SUBSTR(text_value, instr(text_value, '~', 1, 2) + 1,
-                (INSTR(text_value, '~', 1, 3) -
-                INSTR(text_value, '~', 1, 2)) -1 ) x, root_source
+		SUBSTR(text_value, instr(text_value, '~', 1, 2) + 1,
+		(INSTR(text_value, '~', 1, 3) -
+		INSTR(text_value, '~', 1, 2)) -1 ) x
     FROM mrd_attributes a, mrd_stringtab b
     WHERE attribute_name = 'XMAPTO'
     AND a.expiration_date is null
     AND b.expiration_date is null
     AND attribute_value like '<>Long_Attribute<>:%'
-    AND a.hashcode = b.hashcode)
-    GROUP BY root_source;
+    AND a.hashcode = b.hashcode);
 
-    UPDATE   qa_mrmap_${release}_gold
-    set test_count = test_count - (select count(distinct SUBSTR(attribute_value, 1, instr(attribute_value, '~') - 1)) from mrd_attributes
+    select count(distinct SUBSTR(attribute_value, 1, instr(attribute_value, '~') - 1)) from mrd_attributes
     where attribute_name = 'XMAPTO'
     and expiration_date is null
     and SUBSTR(attribute_value, instr(attribute_value, '~', 1, 2) + 1,
-                (INSTR(attribute_value, '~', 1, 3) -
-                INSTR(attribute_value, '~', 1, 2)) -1 ) is null)
-    where test_name = 'toexpr_cnt';
+		(INSTR(attribute_value, '~', 1, 3) -
+		INSTR(attribute_value, '~', 1, 2)) -1 ) is null;
 
     -- distinct MAPSETCUI, MAPSUBSETID, MAPRANK, FROMID, TOUI
     -- key count
     INSERT into qa_mrmap_${release}_gold
     SELECT 'key_cnt','',count(*)
-        FROM ( (select distinct cui,
-                 SUBSTR(attribute_value, 1, instr(attribute_value, '~') - 1),
-                 SUBSTR(attribute_value, instr(attribute_value, '~') + 1,
+	FROM (select distinct cui,
+		 SUBSTR(attribute_value, 1, instr(attribute_value, '~') - 1),
+		 SUBSTR(attribute_value, instr(attribute_value, '~') + 1,
                         (INSTR(attribute_value, '~', 1, 2) -
-                            INSTR(attribute_value, '~', 1)) -1 ),
-                 SUBSTR(attribute_value, instr(attribute_value, '~', 1, 2) + 1,
-                        (INSTR(attribute_value, '~', 1, 3) -
-                            INSTR(attribute_value, '~', 1, 2)) -1 ),
-                 SUBSTR(attribute_value, instr(attribute_value, '~', 1, 5) + 1,
+			    INSTR(attribute_value, '~', 1)) -1 ),
+		 SUBSTR(attribute_value, instr(attribute_value, '~', 1, 2) + 1,
+			(INSTR(attribute_value, '~', 1, 3) -
+			    INSTR(attribute_value, '~', 1, 2)) -1 ),
+		 SUBSTR(attribute_value, instr(attribute_value, '~', 1, 5) + 1,
                         (INSTR(attribute_value, '~', 1, 6) -
                             INSTR(attribute_value, '~', 1, 5)) -1 )
-                from mrd_attributes
-                where attribute_value not like  '<>Long_Attribute<>:%'
-                and attribute_name = 'XMAP'
-                and expiration_date is null)
-       union
-        (select distinct cui,
-                 SUBSTR(text_value, 1, instr(text_value, '~') - 1),
-                 SUBSTR(text_value, instr(text_value, '~') + 1,
-                        (INSTR(text_value, '~', 1, 2) -
-                            INSTR(text_value, '~', 1)) -1 ),
-                 SUBSTR(text_value, instr(text_value, '~', 1, 2) + 1,
-                        (INSTR(text_value, '~', 1, 3) -
-                            INSTR(text_value, '~', 1, 2)) -1 ),
-                 SUBSTR(text_value, instr(text_value, '~', 1, 5) + 1,
-                        (INSTR(text_value, '~', 1, 6) -
-                            INSTR(text_value, '~', 1, 5)) -1 )
-                from mrd_attributes a, mrd_stringtab b
-                where attribute_value like  '<>Long_Attribute<>:%'
-                and a.hashcode=b.hashcode
-                and attribute_name = 'XMAP'
-                and a.expiration_date is null) );
+		from mrd_attributes
+		where attribute_name = 'XMAP'
+		and expiration_date is null);
+
+    -- sab_cui_tally
+    INSERT into qa_mrmap_${release}_gold
+    SELECT 'sab_cui_tally',root_source ||'|'|| cui, count(*)
+    FROM   mrd_attributes
+    WHERE attribute_name = 'XMAP'
+    AND expiration_date is null
+    GROUP BY root_source, cui;
 
     -- rel_tally
     -- Get all the Rels with proper release names
     INSERT into qa_mrmap_${release}_gold
-  SELECT 'rel_tally' test_name, RELEASE_NAME TEST_VALUE, COUNT(*) TEST_COUNT FROM (
-    SELECT  a.hashcode,c.release_name
-    FROM   mrd_attributes a, inverse_relationships c
+    SELECT 'rel_tally',
+	    SUBSTR(attribute_value, instr(attribute_value, '~', 1, 3) + 1,
+		(INSTR(attribute_value, '~', 1, 4) -
+                INSTR(attribute_value, '~', 1, 3)) -1 ),
+	   count(*)
+    FROM   mrd_attributes
     WHERE attribute_name = 'XMAP'
-    and attribute_value not like '<>Long_Attribute<>:%'
-    and (SUBSTR(attribute_value, instr(attribute_value, '~', 1, 3) + 1,
-                (INSTR(attribute_value, '~', 1, 4) -
-                INSTR(attribute_value, '~', 1, 3)) -1 ) = c.relationship_name
-                or
-                SUBSTR(attribute_value, instr(attribute_value, '~', 1, 3) + 1,
-                (INSTR(attribute_value, '~', 1, 4) -
-                INSTR(attribute_value, '~', 1, 3)) -1 ) = c.release_name)
-    AND a.expiration_date is null
- Union           
-    SELECT  a.hashcode, c.release_name
-    FROM   mrd_attributes a, mrd_stringtab b, inverse_relationships c
+    AND	    SUBSTR(attribute_value, instr(attribute_value, '~', 1, 3) + 1,
+		(INSTR(attribute_value, '~', 1, 4) -
+                INSTR(attribute_value, '~', 1, 3)) -1 ) in
+	(select release_name from inverse_relationships)
+    AND expiration_date is null
+    GROUP BY SUBSTR(attribute_value, instr(attribute_value, '~', 1, 3) + 1,
+		(INSTR(attribute_value, '~', 1, 4) -
+                INSTR(attribute_value, '~', 1, 3)) -1 );
+
+    -- create a temp table to hold rel names that need to be translated
+    exec meme_utility.drop_it('table','tmp_mrmap_rel');
+    CREATE TABLE tmp_mrmap_rel (
+       test_value   VARCHAR2(10),
+       test_count  NUMBER(12) );
+
+    INSERT into tmp_mrmap_rel
+    SELECT  SUBSTR(attribute_value, instr(attribute_value, '~', 1, 3) + 1,
+		(INSTR(attribute_value, '~', 1, 4) -
+                INSTR(attribute_value, '~', 1, 3)) -1 ),
+	   count(*)
+    FROM   mrd_attributes
     WHERE attribute_name = 'XMAP'
-    and attribute_value like '<>Long_Attribute<>:%'
-    and (SUBSTR(text_value, instr(text_value, '~', 1, 3) + 1,
-                (INSTR(text_value, '~', 1, 4) -
-                INSTR(text_value, '~', 1, 3)) -1 ) = c.relationship_name
-                or
-                SUBSTR(text_value, instr(text_value, '~', 1, 3) + 1,
-                (INSTR(text_value, '~', 1, 4) -
-                INSTR(text_value, '~', 1, 3)) -1 ) = c.release_name)
-    and a.hashcode=b.hashcode
-    AND a.expiration_date is null
-    )
-    GROUP BY release_name;
+    AND    SUBSTR(attribute_value, instr(attribute_value, '~', 1, 3) + 1,
+		(INSTR(attribute_value, '~', 1, 4) -
+                INSTR(attribute_value, '~', 1, 3)) -1 ) not in
+		(select release_name from inverse_relationships)
+    AND expiration_date is null
+    GROUP BY SUBSTR(attribute_value, instr(attribute_value, '~', 1, 3) + 1,
+		(INSTR(attribute_value, '~', 1, 4) -
+                INSTR(attribute_value, '~', 1, 3)) -1 );
+
+    -- translate the release name
+    UPDATE tmp_mrmap_rel a
+    SET    a.test_value = (select release_name from inverse_relationships b
+			where b.relationship_name = a.test_value)
+    WHERE a.test_value in
+	(select relationship_name from inverse_relationships);
+
+    -- add the translated
+    UPDATE qa_mrmap_${release}_gold a
+    SET    a.test_count = a.test_count +
+	    (select b.test_count from tmp_mrmap_rel b
+	     where a.test_value = b.test_value)
+    WHERE a.test_name = 'rel_tally'
+    AND   a.test_value in (select test_value from tmp_mrmap_rel);
+
+    -- take account of rel names not in inverse_relationships
+    INSERT into qa_mrmap_${release}_gold
+    SELECT 'rel_tally', test_value, test_count
+    FROM   tmp_mrmap_rel
+    WHERE  test_value not in
+	(select test_value from qa_mrmap_${release}_gold
+	    where test_name = 'rel_tally');
+
+    exec meme_utility.drop_it('table','tmp_mrmap_rel');
 
     -- rela_tally
     -- calculate the 'mapped_to' first
     -- where rel is not xr and rela is not null
     INSERT into qa_mrmap_${release}_gold
-        SELECT 'rela_tally', test_name, count(*) test_value from (
-    select a.hashcode, 
-            SUBSTR(attribute_value, instr(attribute_value, '~', 1, 4) + 1,
-                (INSTR(attribute_value, '~', 1, 5) -
-                INSTR(attribute_value, '~', 1, 4)) -1 ) test_name
-               FROM   mrd_attributes a
+    SELECT 'rela_tally',
+	    SUBSTR(attribute_value, instr(attribute_value, '~', 1, 4) + 1,
+		(INSTR(attribute_value, '~', 1, 5) -
+                INSTR(attribute_value, '~', 1, 4)) -1 ),
+	   count(*)
+    FROM   mrd_attributes
     WHERE attribute_name = 'XMAP'
-    and attribute_value not like '<>Long_Attribute<>:%'
-    AND a.expiration_date is null
+    AND expiration_date is null
     AND SUBSTR(attribute_value, instr(attribute_value, '~', 1, 3) + 1,
-                (INSTR(attribute_value, '~', 1, 4) -
+		(INSTR(attribute_value, '~', 1, 4) -
                 INSTR(attribute_value, '~', 1, 3)) -1 ) != 'XR'
     AND SUBSTR(attribute_value, instr(attribute_value, '~', 1, 4) + 1,
-                (INSTR(attribute_value, '~', 1, 5) -
+		(INSTR(attribute_value, '~', 1, 5) -
                 INSTR(attribute_value, '~', 1, 4)) -1 ) is not null
-union                
-        select a.hashcode, 
-            SUBSTR(text_value, instr(text_value, '~', 1, 4) + 1,
-                (INSTR(text_value, '~', 1, 5) -
-                INSTR(text_value, '~', 1, 4)) -1 ) test_name
-               FROM   mrd_attributes a, mrd_stringtab b
-    WHERE attribute_name = 'XMAP'
-    and attribute_value like '<>Long_Attribute<>:%'
-    and a.hashcode=b.hashcode
-    AND a.expiration_date is null
-    AND SUBSTR(text_value, instr(text_value, '~', 1, 3) + 1,
-                (INSTR(text_value, '~', 1, 4) -
-                INSTR(text_value, '~', 1, 3)) -1 ) != 'XR'
-    AND SUBSTR(text_value, instr(text_value, '~', 1, 4) + 1,
-                (INSTR(text_value, '~', 1, 5) -
-                INSTR(text_value, '~', 1, 4)) -1 ) is not null)
-    GROUP BY test_name;
+    GROUP BY SUBSTR(attribute_value, instr(attribute_value, '~', 1, 4) + 1,
+		(INSTR(attribute_value, '~', 1, 5) -
+                INSTR(attribute_value, '~', 1, 4)) -1 );
 
     -- rela_tally
     INSERT into qa_mrmap_${release}_gold
     SELECT 'rela_tally',
-            '' test_name,
-           count(*) test_value from (
-           (select hashcode
-    FROM   mrd_attributes a
-    WHERE attribute_name = 'XMAP' and
-    a.attribute_value not like '<>Long_Attribute<>:%'
-    AND a.expiration_date is null
+	    '',
+	   count(*)
+    FROM   mrd_attributes
+    WHERE attribute_name = 'XMAP'
+    AND expiration_date is null
     AND (SUBSTR(attribute_value, instr(attribute_value, '~', 1, 3) + 1,
-                (INSTR(attribute_value, '~', 1, 4) -
+		(INSTR(attribute_value, '~', 1, 4) -
                 INSTR(attribute_value, '~', 1, 3)) -1 ) = 'XR'
     OR SUBSTR(attribute_value, instr(attribute_value, '~', 1, 4) + 1,
-                (INSTR(attribute_value, '~', 1, 5) -
-                INSTR(attribute_value, '~', 1, 4)) -1 ) is null))
-union
-(select a.hashcode
-    FROM   mrd_attributes a, mrd_stringtab b 
-    WHERE attribute_name = 'XMAP' and
-    a.attribute_value like '<>Long_Attribute<>:%'
-    and a.hashcode=b.hashcode
-    AND a.expiration_date is null
-    AND (SUBSTR(text_value, instr(text_value, '~', 1, 3) + 1,
-                (INSTR(text_value, '~', 1, 4) -
-                INSTR(text_value, '~', 1, 3)) -1 ) = 'XR'
-    OR SUBSTR(text_value, instr(text_value, '~', 1, 4) + 1,
-                (INSTR(text_value, '~', 1, 5) -
-                INSTR(text_value, '~', 1, 4)) -1 ) is null) ));
+		(INSTR(attribute_value, '~', 1, 5) -
+                INSTR(attribute_value, '~', 1, 4)) -1 ) is null);
 
 EOF
     if ($status != 0) then
-        cat /tmp/sql.$$.log
-        echo "ERROR: SQL Error"
-        exit 0
+	cat /tmp/sql.$$.log
+	echo "ERROR: SQL Error"
+	exit 0
     endif
 endif
+
+
+if ($mode == "all" || $mode == "mrcoc") then
+    echo "Generating MRCOC QA Counts ... `/bin/date`"
+
+    $ORACLE_HOME/bin/sqlplus $mu@$db <<EOF >&! /tmp/sql.$$.log
+    WHENEVER SQLERROR EXIT -1
+    alter session set sort_area_size=200000000;
+    alter session set hash_area_size=200000000;
+
+    exec meme_utility.drop_it('table','qa_mrcoc_${release}_gold');
+    CREATE TABLE qa_mrcoc_${release}_gold (
+       test_name   VARCHAR2(100) NOT NULL,
+       test_value  VARCHAR2(3000),
+       test_count  NUMBER(12) );
+
+    -- Get MP, PP, KN, KP
+    exec MEME_UTILITY.drop_it('table','qa_mrcoc_${release}_gold_data_1');
+    CREATE TABLE qa_mrcoc_${release}_gold_data_1 AS
+    SELECT a.heading_aui as aui_1,
+           b.heading_aui as aui_2,
+           a.coc_type as cot,
+	   a.root_source, count(*) ct
+    FROM mrd_coc_headings a, mrd_coc_headings b
+    WHERE a.expiration_date IS NULL
+      AND b.expiration_date IS NULL
+      AND a.citation_set_id = b.citation_set_id
+      AND a.heading_aui != b.heading_aui
+      AND a.root_source = b.root_source
+      AND a.root_source in ('AIR','CCPSS')
+      AND b.root_source in ('AIR','CCPSS')
+    GROUP BY a.heading_aui, b.heading_aui, a.coc_type, a.root_source;
+
+    -- Get L MED (good opportunity for user defined aggregate function)
+    -- The use of SYSDATE may cause a problem if there are
+    -- entries between the SYSDATE of the file being built
+    -- and this script being run.
+    --
+    -- Can the "c.expiration_date IS NULL" cause over counting
+    --  because of the outer join?  If it does not join it will always be null
+    --
+    exec MEME_UTILITY.drop_it('table','qa_mrcoc_${release}_gold_data_2');
+    CREATE TABLE qa_mrcoc_${release}_gold_data_2 AS
+    SELECT /*+ PARALLEL(a) */  a.heading_aui as aui_1,
+           b.heading_aui as aui_2,
+           a.coc_type cot,
+	   'MED' as root_source, NVL(c.subheading_qa,'<>') coa, count(*) ct
+    FROM mrd_coc_headings a, mrd_coc_headings b, mrd_coc_subheadings c
+    WHERE a.expiration_date IS NULL
+      AND b.expiration_date IS NULL
+      AND c.expiration_date IS NULL
+      AND a.heading_aui != b.heading_aui
+      AND a.major_topic = 'Y' AND b.major_topic = 'Y'
+      AND a.citation_set_id = b.citation_set_id
+      AND a.root_source = 'NLM-MED' AND b.root_source = 'NLM-MED'
+      AND a.citation_set_id  = c.citation_set_id(+)
+      AND a.subheading_set_id  = c.subheading_set_id(+)
+      AND a.publication_date >=
+        to_date('01-jan-'||(to_number(to_char(sysdate,'YYYY'))-5))
+      AND b.publication_date >=
+        to_date('01-jan-'||(to_number(to_char(sysdate,'YYYY'))-5))
+    GROUP BY a.heading_aui, b.heading_aui, a.coc_type, c.subheading_qa;
+
+    -- Get L MBD
+    INSERT INTO qa_mrcoc_${release}_gold_data_2
+    SELECT /*+ PARALLEL(a) */  a.heading_aui as aui_1,
+           b.heading_aui as aui_2,
+           a.coc_type cot,
+	   'MBD' as root_source, NVL(c.subheading_qa,'<>') coa, count(*) ct
+    FROM mrd_coc_headings a, mrd_coc_headings b, mrd_coc_subheadings c
+    WHERE a.expiration_date IS NULL
+      AND b.expiration_date IS NULL
+      AND c.expiration_date IS NULL
+      AND a.heading_aui != b.heading_aui
+      AND a.major_topic = 'Y' AND b.major_topic = 'Y'
+      AND a.citation_set_id = b.citation_set_id
+      AND a.root_source = 'NLM-MED' AND b.root_source = 'NLM-MED'
+      AND a.citation_set_id  = c.citation_set_id(+)
+      AND a.subheading_set_id  = c.subheading_set_id(+)
+      AND a.publication_date >=
+        to_date('01-jan-'||(to_number(to_char(sysdate,'YYYY'))-10))
+      AND b.publication_date >=
+        to_date('01-jan-'||(to_number(to_char(sysdate,'YYYY'))-10))
+      AND a.publication_date <
+        to_date('01-jan-'||(to_number(to_char(sysdate,'YYYY'))-5))
+      AND b.publication_date <
+        to_date('01-jan-'||(to_number(to_char(sysdate,'YYYY'))-5))
+    GROUP BY a.heading_aui, b.heading_aui, a.coc_type, c.subheading_qa;
+
+    COMMIT;
+
+    -- Get LQ
+    -- The use of SYSDATE may cause a problem if there are
+    -- entries between the SYSDATE of the file being built
+    -- and this script being run.
+    --
+    exec MEME_UTILITY.drop_it('table','qa_mrcoc_${release}_gold_data_3');
+    CREATE TABLE qa_mrcoc_${release}_gold_data_3 AS
+    SELECT heading_aui as aui_1, heading_aui as aui_2, coc_type as cot,
+	root_source, to_number('5') as ct
+    FROM mrd_coc_headings where 1=0
+    UNION ALL
+    SELECT /*+ PARALLEL(a) */ a.heading_aui as aui_1,
+           b.subheading_qa as aui_2,
+           'LQ' as cot,
+	   'MED' as root_source, count(*) ct
+    FROM mrd_coc_headings a, mrd_coc_subheadings b
+    WHERE a.expiration_date IS NULL
+      AND b.expiration_date IS NULL
+      AND a.major_topic = 'Y'
+      AND a.citation_set_id  = b.citation_set_id(+)
+      AND a.subheading_set_id  = b.subheading_set_id(+)
+      AND a.root_source = 'NLM-MED'
+      AND a.publication_date >=
+        to_date('01-jan-'||(to_number(to_char(sysdate,'YYYY'))-5))
+      AND a.publication_date < sysdate
+    GROUP BY a.heading_aui, b.subheading_qa, a.coc_type, a.root_source
+    UNION ALL
+    SELECT /*+ PARALLEL(a) */ a.heading_aui as aui_1,
+           b.subheading_qa as aui_2,
+           'LQ' as cot,
+	   'MBD' as root_source, count(*)
+    FROM mrd_coc_headings a, mrd_coc_subheadings b
+    WHERE a.expiration_date IS NULL
+      AND b.expiration_date IS NULL
+      AND a.major_topic = 'Y'
+      AND a.citation_set_id = b.citation_set_id(+)
+      AND a.subheading_set_id = b.subheading_set_id(+)
+      AND a.root_source = 'NLM-MED'
+      AND a.publication_date >=
+        to_date('01-jan-'||(to_number(to_char(sysdate,'YYYY'))-10))
+      AND a.publication_date <
+        to_date('01-jan-'||(to_number(to_char(sysdate,'YYYY'))-5))
+    GROUP BY a.heading_aui, b.subheading_qa, a.coc_type, a.root_source;
+
+    -- Get LQB
+    INSERT INTO qa_mrcoc_${release}_gold_data_3
+    SELECT aui_2, aui_1, 'LQB', root_source,ct
+    FROM qa_mrcoc_${release}_gold_data_3
+    WHERE aui_2 IS NOT NULL;
+
+    --
+    -- Remove non-existent auis
+    --
+    DELETE FROM qa_mrcoc_${release}_gold_data_1
+    WHERE aui_1 IN (SELECT aui_1 FROM  qa_mrcoc_${release}_gold_data_1
+		    MINUS SELECT aui FROM mrd_classes
+		    WHERE expiration_date IS NULL);
+    DELETE FROM qa_mrcoc_${release}_gold_data_1
+    WHERE aui_2 IN (SELECT aui_2 FROM  qa_mrcoc_${release}_gold_data_1
+		    MINUS SELECT aui FROM mrd_classes
+		    WHERE expiration_date IS NULL);
+    --
+    -- Count Data
+    --
+    -- c1_a1_c2_a2_cnt
+    -- cui1_aui1_cnt
+    -- cui2_aui2_cnt
+    -- row_cnt
+    -- coa_tally
+    -- cot_tally
+    -- sab_cot_tally
+    -- sab_tally
+    --
+
+    -- ROW Count
+    INSERT INTO qa_mrcoc_${release}_gold
+    SELECT 'row_cnt', '',  sum(ct)
+    FROM
+      (SELECT /*+ parallel(a) */ count(*) ct
+       FROM qa_mrcoc_${release}_gold_data_1 a
+       UNION ALL
+       SELECT /*+ parallel(b) */ count(distinct aui_1||aui_2||root_source)
+       FROM qa_mrcoc_${release}_gold_data_2 b
+       UNION ALL
+       SELECT /*+ parallel(c) */ count(*)
+       FROM qa_mrcoc_${release}_gold_data_3 c);
+
+    -- CUI1,AUI1,CUI2,AUI2 Count
+    INSERT INTO qa_mrcoc_${release}_gold
+    SELECT 'c1_a1_c2_a2_cnt', '',  count(*)
+    FROM
+      (SELECT /*+ parallel(a) */ DISTINCT aui_1,aui_2
+       FROM qa_mrcoc_${release}_gold_data_1 a
+       UNION ALL
+       SELECT /*+ parallel(b) */  DISTINCT aui_1,aui_2
+       FROM qa_mrcoc_${release}_gold_data_2 b
+       UNION ALL
+       SELECT /*+ parallel(c) */ DISTINCT aui_1,aui_2
+       FROM qa_mrcoc_${release}_gold_data_3 c);
+
+    -- CUI1,AUI1 Count
+    INSERT INTO qa_mrcoc_${release}_gold
+    SELECT 'cui1_aui1_cnt', '',  count(*)
+    FROM
+      (SELECT aui_1 FROM qa_mrcoc_${release}_gold_data_1
+       UNION
+       SELECT aui_1 FROM qa_mrcoc_${release}_gold_data_2
+       UNION
+       SELECT aui_1 FROM qa_mrcoc_${release}_gold_data_3);
+
+    -- CUI2,AUI2 Count
+    INSERT INTO qa_mrcoc_${release}_gold
+    SELECT 'cui2_aui2_cnt', '',  count(*)
+    FROM
+      (SELECT aui_2 FROM qa_mrcoc_${release}_gold_data_1
+       UNION
+       SELECT aui_2 FROM qa_mrcoc_${release}_gold_data_2
+       UNION
+       SELECT aui_2 FROM qa_mrcoc_${release}_gold_data_3);
+
+    -- SAB,COT tally
+    INSERT INTO qa_mrcoc_${release}_gold
+    SELECT 'sab_cot_tally', root_source||'|'|| cot, count(*)
+    FROM qa_mrcoc_${release}_gold_data_1
+    GROUP BY root_source,cot
+    UNION
+    SELECT 'sab_cot_tally', root_source||'|'|| cot,
+	count(distinct aui_1||aui_2||root_source)
+    FROM qa_mrcoc_${release}_gold_data_2
+    GROUP BY root_source,cot
+    UNION
+    SELECT 'sab_cot_tally', root_source||'|'|| cot, count(*)
+    FROM qa_mrcoc_${release}_gold_data_3
+    GROUP BY root_source,cot;
+
+    -- SAB tally
+    INSERT INTO qa_mrcoc_${release}_gold
+    SELECT 'sab_tally',substr(test_value,1,instr(test_value,'|')-1),sum(test_count)
+    FROM qa_mrcoc_${release}_gold
+    WHERE test_name = 'sab_cot_tally'
+    GROUP BY substr(test_value,1,instr(test_value,'|')-1);
+
+    -- COT tally
+    INSERT INTO qa_mrcoc_${release}_gold
+    SELECT 'cot_tally',substr(test_value,instr(test_value,'|')+1),sum(test_count)
+    FROM qa_mrcoc_${release}_gold
+    WHERE test_name = 'sab_cot_tally'
+    GROUP BY substr(test_value,instr(test_value,'|')+1);
+
+    -- COA tally
+    INSERT INTO qa_mrcoc_${release}_gold
+    SELECT 'coa_tally',coa,sum(ct)
+    FROM qa_mrcoc_${release}_gold_data_2
+    GROUP BY coa;
+
+    exec MEME_UTILITY.drop_it('table','qa_mrcoc_${release}_gold_data_1');
+    exec MEME_UTILITY.drop_it('table','qa_mrcoc_${release}_gold_data_2');
+    exec MEME_UTILITY.drop_it('table','qa_mrcoc_${release}_gold_data_3');
+
+
+EOF
+    if ($status != 0) then
+	cat /tmp/sql.$$.log
+	echo "ERROR: SQL Error"
+	    exit 0
+    endif
+endif
+
 
 if ($mode == "all" || $mode == "mrcxt") then
     echo "Generating MRCXT QA Counts ... `/bin/date`"
@@ -1014,8 +1244,8 @@ if ($mode == "all" || $mode == "mrcxt") then
     -- should equal row count of mrd_contexts
     INSERT INTO qa_mrcxt_${release}_gold
     SELECT 'cxt_cnt','',
-        count(distinct parent_treenum||'|'||aui||
-                       relationship_attribute)
+	count(distinct parent_treenum||'|'||aui||
+		       relationship_attribute)
     FROM mrd_contexts
     WHERE expiration_date IS NULL
       AND aui IN (SELECT aui FROM mrd_classes WHERE expiration_date IS NULL);
@@ -1030,16 +1260,16 @@ if ($mode == "all" || $mode == "mrcxt") then
     -- CHD rows = # rows in mrd_contexts, mrd_contexts where one is parent
     exec meme_utility.drop_it('table','qa_mrcxt_rc');
     CREATE TABLE qa_mrcxt_rc (
-        cxl    CHAR(3),
-        sab    VARCHAR2(40),
-        rela   VARCHAR2(100),
-        ct     NUMBER(12)
+	cxl    CHAR(3),
+	sab    VARCHAR2(20),
+	rela   VARCHAR2(100),
+	ct     NUMBER(12)
     );
 
     -- CCP
     INSERT INTO qa_mrcxt_rc
     SELECT /*+ parallel(a) */
-         'CCP',root_source,relationship_attribute,count(*) as ct
+	 'CCP',root_source,relationship_attribute,count(*) as ct
     FROM mrd_contexts a WHERE expiration_date IS NULL
     GROUP BY root_source, relationship_attribute;
 
@@ -1050,7 +1280,7 @@ if ($mode == "all" || $mode == "mrcxt") then
     --
     INSERT INTO qa_mrcxt_rc
     SELECT /*+ parallel(a) */
-         'ANC',root_source,'',count(*)-1
+	 'ANC',root_source,'',count(*)-1
     FROM mrd_contexts a
     WHERE expiration_date IS NULL
      -- AND parent_treenum IS NULL
@@ -1061,36 +1291,36 @@ if ($mode == "all" || $mode == "mrcxt") then
     exec meme_utility.drop_it('table','qa_mrcxt_contexts_ignore_rela');
     CREATE TABLE qa_mrcxt_contexts_ignore_rela AS
     SELECT distinct root_source FROM mrd_source_rank
-        WHERE context_type like '%IGNORE-RELA%'
+	WHERE context_type like '%IGNORE-RELA%'
       AND expiration_date IS NULL;
 
     -- ANC (level 2 and up )
     -- Every context with *.* has ANC|2
     -- Every context with *.*.* has ANC|3, etc.
     DECLARE
-        ptn  VARCHAR2(1000);
+	ptn  VARCHAR2(1000);
     BEGIN
         ptn := '%.%';
-        LOOP
-            --
-            -- This captures the RELA of the CCP row, not the ANC row
-            -- Fine for all sources except for ignore rela sources
-            --
-            INSERT INTO qa_mrcxt_rc
-            SELECT /*+ PARALLEL(a) */
-              'ANC',a.root_source,a.relationship_attribute,count(*)
-            FROM mrd_contexts a
-            WHERE a.expiration_date IS NULL
-              AND a.parent_treenum like ptn
-              AND root_source NOT IN
-                (select distinct root_source from qa_mrcxt_contexts_ignore_rela)
-            GROUP BY a.root_source, a.relationship_attribute;
-            EXIT WHEN SQL%ROWCOUNT = 0;
+	LOOP
+	    --
+	    -- This captures the RELA of the CCP row, not the ANC row
+	    -- Fine for all sources except for ignore rela sources
+	    --
+	    INSERT INTO qa_mrcxt_rc
+	    SELECT /*+ PARALLEL(a) */
+	      'ANC',a.root_source,a.relationship_attribute,count(*)
+	    FROM mrd_contexts a
+	    WHERE a.expiration_date IS NULL
+	      AND a.parent_treenum like ptn
+	      AND root_source NOT IN
+		(select distinct root_source from qa_mrcxt_contexts_ignore_rela)
+	    GROUP BY a.root_source, a.relationship_attribute;
+	    EXIT WHEN SQL%ROWCOUNT = 0;
 
-            COMMIT;
+	    COMMIT;
 
-            ptn := ptn || '.%';
-        END LOOP;
+	    ptn := ptn || '.%';
+	END LOOP;
     END;
 /
 
@@ -1098,33 +1328,33 @@ if ($mode == "all" || $mode == "mrcxt") then
     -- Every context with *.* has ANC|2
     -- Every context with *.*.* has ANC|3, etc.
     DECLARE
-        ptn  VARCHAR2(1000);
+	ptn  VARCHAR2(1000);
     BEGIN
         ptn := '%.%';
-        LOOP
-            --
-            -- This captures the RELA of the ANC rows
-            --
-            EXECUTE IMMEDIATE
-            'INSERT INTO qa_mrcxt_rc
-            SELECT
-              ''ANC'',a.root_source,anc.relationship_attribute,count(*)
-            FROM mrd_contexts a,
-                     mrd_contexts anc
-            WHERE a.expiration_date IS NULL
-              AND a.parent_treenum like ''' || ptn || '''
-              AND a.root_source in (select distinct root_source from qa_mrcxt_contexts_ignore_rela)
-              AND anc.root_source in (select distinct root_source from qa_mrcxt_contexts_ignore_rela)
-              AND a.root_source = anc.root_source
-              AND length(anc.parent_treenum) =
-                (((length(''' || ptn || ''')-1)/2)*9)-1
-              AND substr(a.parent_treenum,1,
-                         (((length(''' || ptn || ''')-1)/2)*9)+8) =
-                anc.parent_treenum || ''.'' || anc.aui
-            GROUP BY a.root_source, anc.relationship_attribute';
-            EXIT WHEN SQL%ROWCOUNT = 0;
-            ptn := ptn || '.%';
-        END LOOP;
+	LOOP
+	    --
+	    -- This captures the RELA of the ANC rows
+	    --
+	    EXECUTE IMMEDIATE
+	    'INSERT INTO qa_mrcxt_rc
+	    SELECT
+	      ''ANC'',a.root_source,anc.relationship_attribute,count(*)
+	    FROM mrd_contexts a,
+		     mrd_contexts anc
+	    WHERE a.expiration_date IS NULL
+	      AND a.parent_treenum like ''' || ptn || '''
+	      AND a.root_source in (select distinct root_source from qa_mrcxt_contexts_ignore_rela)
+	      AND anc.root_source in (select distinct root_source from qa_mrcxt_contexts_ignore_rela)
+	      AND a.root_source = anc.root_source
+	      AND length(anc.parent_treenum) =
+		(((length(''' || ptn || ''')-1)/2)*9)-1
+	      AND substr(a.parent_treenum,1,
+			 (((length(''' || ptn || ''')-1)/2)*9)+8) =
+		anc.parent_treenum || ''.'' || anc.aui
+	    GROUP BY a.root_source, anc.relationship_attribute';
+	    EXIT WHEN SQL%ROWCOUNT = 0;
+	    ptn := ptn || '.%';
+	END LOOP;
     END;
 /
 
@@ -1135,8 +1365,8 @@ if ($mode == "all" || $mode == "mrcxt") then
     WHERE a.parent_treenum = b.parent_treenum
       AND a.aui != b.aui
       AND (NVL(a.relationship_attribute,'null') =
-           NVL(b.relationship_attribute,'null') OR
-           a.root_source in (select distinct root_source from qa_mrcxt_contexts_ignore_rela) )
+	   NVL(b.relationship_attribute,'null') OR
+	   a.root_source in (select distinct root_source from qa_mrcxt_contexts_ignore_rela) )
       AND substr(a.release_mode,2,1) = '1'
       AND substr(b.release_mode,2,1) = '1'
       AND a.expiration_date IS NULL
@@ -1155,8 +1385,8 @@ if ($mode == "all" || $mode == "mrcxt") then
     FROM mrd_contexts a, mrd_contexts b
     WHERE a.parent_treenum = b.parent_treenum||'.'||b.aui
       AND (NVL(a.relationship_attribute,'null') =
-           NVL(b.relationship_attribute,'null') OR
-           a.root_source in (select distinct root_source from qa_mrcxt_contexts_ignore_rela) )
+	   NVL(b.relationship_attribute,'null') OR
+	   a.root_source in (select distinct root_source from qa_mrcxt_contexts_ignore_rela) )
       AND a.expiration_date IS NULL
       AND b.expiration_date IS NULL
       AND a.parent_treenum IS NOT NULL
@@ -1230,22 +1460,22 @@ if ($mode == "all" || $mode == "mrcxt") then
         mx   NUMBER(12);
     BEGIN
         SELECT max(ct) INTO mx
-        FROM qa_mrcxt_${release}_tmp1;
+	FROM qa_mrcxt_${release}_tmp1;
         ct := 1;
-        LOOP
-            EXIT WHEN mx IS NULL;
-            EXECUTE IMMEDIATE
-            'INSERT INTO qa_mrcxt_${release}_gold
-             SELECT ''sab_cxn_tally'', root_source||''|' || ct || ''',
-                    count(*) FROM
-               (SELECT /*+ parallel(a) */ *
-                FROM qa_mrcxt_${release}_tmp1 a
-                WHERE ct >= ' || ct || ')
-             GROUP BY root_source HAVING count(*)>0';
-            ct := ct + 1;
-            COMMIT;
-            EXIT WHEN ct > mx;
-        END LOOP;
+	LOOP
+	    EXIT WHEN mx IS NULL;
+	    EXECUTE IMMEDIATE
+	    'INSERT INTO qa_mrcxt_${release}_gold
+	     SELECT ''sab_cxn_tally'', root_source||''|' || ct || ''',
+		    count(*) FROM
+	       (SELECT /*+ parallel(a) */ *
+	 	FROM qa_mrcxt_${release}_tmp1 a
+	        WHERE ct >= ' || ct || ')
+	     GROUP BY root_source HAVING count(*)>0';
+	    ct := ct + 1;
+	    COMMIT;
+	    EXIT WHEN ct > mx;
+	END LOOP;
     END;
 /
 
@@ -1266,8 +1496,8 @@ if ($mode == "all" || $mode == "mrcxt") then
       AND parent_treenum || '.' || aui IN
        (SELECT parent_treenum FROM mrd_contexts
         WHERE expiration_date IS NULL
-        UNION
-        SELECT '.'||parent_treenum FROM mrd_contexts
+	UNION
+	SELECT '.'||parent_treenum FROM mrd_contexts
         WHERE expiration_date IS NULL);
 
 
@@ -1278,8 +1508,8 @@ if ($mode == "all" || $mode == "mrcxt") then
     WHERE a.parent_treenum = b.parent_treenum
       AND a.aui != b.aui
       AND (NVL(a.relationship_attribute,'null') =
-           NVL(b.relationship_attribute,'null') OR
-           a.root_source in (select distinct root_source from qa_mrcxt_contexts_ignore_rela) )
+	   NVL(b.relationship_attribute,'null') OR
+	   a.root_source in (select distinct root_source from qa_mrcxt_contexts_ignore_rela) )
       AND substr(a.release_mode,2,1) = '1'
       AND substr(b.release_mode,2,1) = '1'
       AND a.expiration_date IS NULL
@@ -1296,8 +1526,8 @@ if ($mode == "all" || $mode == "mrcxt") then
       FROM mrd_contexts a, mrd_contexts b
       WHERE a.parent_treenum = b.parent_treenum||'.'||b.aui
         AND (NVL(b.relationship_attribute,'null') =
-           NVL(a.relationship_attribute,'null') OR
-           a.root_source in (select distinct root_source from qa_mrcxt_contexts_ignore_rela) )
+	   NVL(a.relationship_attribute,'null') OR
+	   a.root_source in (select distinct root_source from qa_mrcxt_contexts_ignore_rela) )
         AND a.expiration_date IS NULL
         AND b.expiration_date IS NULL
         AND a.parent_treenum IS NOT NULL
@@ -1321,9 +1551,9 @@ if ($mode == "all" || $mode == "mrcxt") then
 
 EOF
     if ($status != 0) then
-        cat /tmp/sql.$$.log
-        echo "ERROR: SQL Error"
-        exit 0
+	cat /tmp/sql.$$.log
+	echo "ERROR: SQL Error"
+	exit 0
     endif
 endif
 
@@ -1345,7 +1575,7 @@ if ($mode == "all" || $mode == "mrhier") then
     -- Row count
     INSERT INTO qa_mrhier_${release}_gold
     SELECT 'row_cnt','',
-        count(distinct b.aui||parent_treenum||relationship_attribute)
+	count(distinct b.aui||parent_treenum||relationship_attribute)
     FROM mrd_classes a, mrd_contexts b
     WHERE a.expiration_date IS NULL
       AND b.expiration_date IS NULL
@@ -1381,7 +1611,7 @@ if ($mode == "all" || $mode == "mrhier") then
     FROM
      (SELECT aui, max(ct) mx FROM
       (SELECT /*+ PARALLEL(cr) */ aui, root_source,
-        count(distinct aui||parent_treenum||relationship_attribute) ct
+	count(distinct aui||parent_treenum||relationship_attribute) ct
        FROM mrd_contexts cr
        WHERE expiration_date is null
        GROUP BY aui, root_source)
@@ -1410,8 +1640,8 @@ if ($mode == "all" || $mode == "mrhier") then
       AND b.expiration_date IS NULL
       AND a.aui = b.aui
       AND a.root_source !='UWDA'
-        GROUP BY b.root_source
-        UNION
+	GROUP BY b.root_source
+	UNION
     SELECT 'sab_tally',b.root_source,count(distinct b.aui||parent_treenum||relationship_attribute)
     FROM mrd_classes a, mrd_contexts b
     WHERE a.expiration_date IS NULL
@@ -1419,25 +1649,6 @@ if ($mode == "all" || $mode == "mrhier") then
       AND a.aui = b.aui
       AND a.root_source='UWDA'
     GROUP BY b.root_source;
-
-    -- SAB/HCD Tally
-    INSERT INTO qa_mrhier_${release}_gold
-    SELECT 'sab_hcd_tally',b.root_source,count(distinct nvl(b.hierarchical_code,'null'))
-    FROM mrd_classes a, mrd_contexts b
-    WHERE a.expiration_date IS NULL
-      AND b.expiration_date IS NULL
-      AND a.aui = b.aui
-        GROUP BY b.root_source;
-
-    -- SAB/RELA Tally
-    INSERT INTO qa_mrhier_${release}_gold
-    SELECT 'sab_rela_tally',b.root_source||'|'||b.relationship_attribute,count(distinct b.aui||b.parent_treenum||b.relationship_attribute)
-    FROM mrd_classes a, mrd_contexts b
-    WHERE a.expiration_date IS NULL
-      AND b.expiration_date IS NULL
-      AND a.aui = b.aui
-      AND b.parent_treenum IS NOT NULL
-        GROUP BY b.root_source,relationship_attribute;
 
     -- RELA Tally
     INSERT INTO qa_mrhier_${release}_gold
@@ -1450,9 +1661,9 @@ if ($mode == "all" || $mode == "mrhier") then
 
 EOF
     if ($status != 0) then
-        cat /tmp/sql.$$.log
-        echo "ERROR: SQL Error"
-        exit 0
+	cat /tmp/sql.$$.log
+	echo "ERROR: SQL Error"
+	exit 0
     endif
 endif
 
@@ -1500,34 +1711,22 @@ if ($mode == "all" || $mode == "mrhist") then
     INSERT INTO qa_mrhist_${release}_gold
     SELECT 'sab_sver_tally',sab||'|'||sver,count(*)
     FROM
-      (
-    SELECT root_source sab,
-        SUBSTR(attribute_value, instr(attribute_value, '~') + 1,
+      (SELECT root_source sab,
+	SUBSTR(attribute_value, instr(attribute_value, '~') + 1,
              (INSTR(attribute_value, '~', 1, 2) -
-              INSTR(attribute_value, '~', 1)) -1 ) sver
+	      INSTR(attribute_value, '~', 1)) -1 ) sver
        FROM mrd_attributes
        WHERE attribute_name='COMPONENTHISTORY'
-       AND attribute_value not like '%Long%'
-       AND expiration_date IS NULL
-       union all
-       SELECT root_source sab,
-        SUBSTR(text_value, instr(text_value, '~') + 1,
-             (INSTR(text_value, '~', 1, 2) -
-              INSTR(text_value, '~', 1)) -1 ) sver
-       FROM mrd_attributes a, mrd_stringtab b
-       WHERE a.attribute_name='COMPONENTHISTORY'
-       AND a.expiration_date IS NULL
-       and a.attribute_value like '%Long%'
-       and a.hashcode = b.hashcode)
-       group by sab, sver;
+       AND expiration_date IS NULL)
+    GROUP BY sab,sver;
 
 
 
 EOF
     if ($status != 0) then
-        cat /tmp/sql.$$.log
-        echo "ERROR: SQL Error"
-        exit 0
+	cat /tmp/sql.$$.log
+	echo "ERROR: SQL Error"
+	exit 0
     endif
 endif
 
@@ -1553,10 +1752,118 @@ if ($mode == "all" || $mode == "mrdoc") then
     AND expiration_date is null
     GROUP BY key,key_qualifier;
 
+    -- take in account of content view data
+    INSERT INTO qa_mrdoc_${release}_gold
+    SELECT 'type_dockey_tally', 'content_view|CVF_ID', count(content_view_id)
+    FROM mrd_content_views
+    WHERE content_view_id is not null
+    AND expiration_date is null;
+
+    INSERT INTO qa_mrdoc_${release}_gold
+    SELECT 'type_dockey_tally', 'content_view|CVF_NAME', count(content_view_name)
+    FROM mrd_content_views
+    WHERE content_view_name is not null
+    AND expiration_date is null;
+
+    INSERT INTO qa_mrdoc_${release}_gold
+    SELECT 'type_dockey_tally', 'content_view|CVF_CONTRIBUTOR', count(contributor)
+    FROM mrd_content_views
+    WHERE contributor is not null
+    AND expiration_date is null;
+
+    INSERT INTO qa_mrdoc_${release}_gold
+    SELECT 'type_dockey_tally', 'content_view|CVF_CONTRIBUTOR_VERSION', count(contributor_version)
+    FROM mrd_content_views
+    WHERE contributor_version is not null
+    AND expiration_date is null;
+
+    INSERT INTO qa_mrdoc_${release}_gold
+    SELECT 'type_dockey_tally', 'content_view|CVF_CONTRIBUTOR_DATE', count(contributor_date)
+    FROM mrd_content_views
+    WHERE contributor_date is not null
+    AND expiration_date is null;
+
+    INSERT INTO qa_mrdoc_${release}_gold
+    SELECT 'type_dockey_tally', 'content_view|CVF_MAINTAINER', count(maintainer)
+    FROM mrd_content_views
+    WHERE maintainer is not null
+    AND expiration_date is null;
+
+    INSERT INTO qa_mrdoc_${release}_gold
+    SELECT 'type_dockey_tally', 'content_view|CVF_MAINTAINER_VERSION', count(maintainer_version)
+    FROM mrd_content_views
+    WHERE maintainer_version is not null
+    AND expiration_date is null;
+
+    INSERT INTO qa_mrdoc_${release}_gold
+    SELECT 'type_dockey_tally', 'content_view|CVF_MAINTAINER_DATE', count(maintainer_date)
+    FROM mrd_content_views
+    WHERE maintainer_date is not null
+    AND expiration_date is null;
+
+    INSERT INTO qa_mrdoc_${release}_gold
+    SELECT 'type_dockey_tally', 'content_view|CVF_CODE', count(content_view_code)
+    FROM mrd_content_views
+    WHERE content_view_code is not null
+    AND expiration_date is null;
+
+    INSERT INTO qa_mrdoc_${release}_gold
+    SELECT 'type_dockey_tally', 'content_view|CVF_DESCRIPTION', count(content_view_description)
+    FROM mrd_content_views
+    WHERE content_view_description is not null
+    AND expiration_date is null;
+
+    INSERT INTO qa_mrdoc_${release}_gold
+    SELECT 'type_dockey_tally', 'content_view|CVF_CATEGORY', count(content_view_category)
+    FROM mrd_content_views
+    WHERE content_view_category is not null
+    AND expiration_date is null;
+
+    INSERT INTO qa_mrdoc_${release}_gold
+    SELECT 'type_dockey_tally', 'content_view|CVF_SUBCATEGORY', count(content_view_subcategory)
+    FROM mrd_content_views
+    WHERE content_view_subcategory is not null
+    AND expiration_date is null
+    HAVING count(content_View_subcategory)>0;
+
+    INSERT INTO qa_mrdoc_${release}_gold
+    SELECT 'type_dockey_tally', 'content_view|CVF_CLASS', count(content_view_class)
+    FROM mrd_content_views
+    WHERE content_view_class is not null
+    AND expiration_date is null;
+
+    INSERT INTO qa_mrdoc_${release}_gold
+    SELECT 'type_dockey_tally', 'content_view|CVF_CASCADE', count(cascade)
+    FROM mrd_content_views
+    WHERE cascade is not null
+    AND expiration_date is null;
+
+    INSERT INTO qa_mrdoc_${release}_gold
+    SELECT 'type_dockey_tally', 'content_view|CVF_PREVIOUS_META', count(content_view_previous_meta)
+    FROM mrd_content_views
+    WHERE content_view_previous_meta is not null
+    AND expiration_date is null;
+
+    INSERT INTO qa_mrdoc_${release}_gold
+    SELECT * from (
+    	SELECT 'type_dockey_tally', 'content_view|CVF_CONTRIBUTOR_URL', count(content_view_contributor_url) as ct
+    	FROM mrd_content_views
+    	WHERE content_view_contributor_url is not null
+    	AND expiration_date is null)
+    WHERE ct != 0;
+
+    INSERT INTO qa_mrdoc_${release}_gold
+    SELECT * from (
+    	SELECT 'type_dockey_tally', 'content_view|CVF_MAINTAINER_URL', count(content_view_maintainer_url) as ct
+    	FROM mrd_content_views
+    	WHERE content_view_maintainer_url is not null
+    	AND expiration_date is null)
+    WHERE ct != 0;
+
     -- take in account of SUBX and DEL
     -- A new Empty relationship added 2006AB should be deleted change the count to 3 from 2
     INSERT INTO qa_mrdoc_${release}_gold
-    SELECT 'type_dockey_tally', 'rel_inverse|REL', test_count - 2
+    SELECT 'type_dockey_tally', 'rel_inverse|REL', test_count - 3
     FROM qa_mrdoc_${release}_gold
     WHERE test_value = 'expanded_form|REL';
 
@@ -1566,9 +1873,10 @@ if ($mode == "all" || $mode == "mrdoc") then
     WHERE test_value = 'expanded_form|RELA';
 
     INSERT INTO qa_mrdoc_${release}_gold
-    SELECT 'type_dockey_tally','snomedct_rel_mapping|REL', count(distinct code)
+    SELECT 'type_dockey_tally','snomedct_rel_mapping|REL', count(*)
     FROM mrd_attributes
     WHERE attribute_name = 'UMLSREL'
+    AND root_source = 'SNOMEDCT'
     AND expiration_date is null;
 
     INSERT INTO qa_mrdoc_${release}_gold
@@ -1583,15 +1891,62 @@ if ($mode == "all" || $mode == "mrdoc") then
 
     INSERT INTO qa_mrdoc_${release}_gold
     SELECT 'type_cnt','',
-        count(distinct substr(test_value,1,instr(test_value,'|')-1))
+	count(distinct substr(test_value,1,instr(test_value,'|')-1))
     FROM qa_mrdoc_${release}_gold
     WHERE test_name = 'type_dockey_tally';
 
     INSERT INTO qa_mrdoc_${release}_gold
     SELECT 'dockey_cnt','',
-        count(distinct substr(test_value,instr(test_value,'|')+1))
+	count(distinct substr(test_value,instr(test_value,'|')+1))
     FROM qa_mrdoc_${release}_gold
     WHERE test_name = 'type_dockey_tally';
+
+    --
+    -- Note: If the value_cnt is off it's probably due to SNOMEDCT umls rels.
+    --
+   INSERT INTO qa_mrdoc_${release}_gold
+    SELECT 'value_cnt','', count(nvl(ct,0))
+    FROM
+   (SELECT distinct value ct FROM mrd_properties
+    WHERE key_qualifier not in ('MRSAT','MRCOLS','MRFILES','MEDLINE')
+	AND expiration_date is null
+    UNION
+    (SELECT distinct cascade ct FROM mrd_content_views
+    UNION
+    SELECT distinct content_view_subcategory ct FROM mrd_content_views WHERE expiration_date is null
+    UNION
+    SELECT distinct content_view_category ct FROM mrd_content_views WHERE expiration_date is null
+    UNION
+    SELECT distinct content_view_class ct FROM mrd_content_views WHERE expiration_date is null
+    UNION
+    SELECT distinct to_char(content_view_code) ct FROM mrd_content_views WHERE expiration_date is null
+    UNION
+    SELECT distinct to_char(contributor_date) ct FROM mrd_content_views WHERE expiration_date is null
+    UNION
+    SELECT distinct contributor_version ct FROM mrd_content_views WHERE expiration_date is null
+    UNION
+    SELECT distinct contributor ct FROM mrd_content_views WHERE expiration_date is null
+    UNION
+    SELECT distinct content_view_description ct FROM mrd_content_views WHERE expiration_date is null
+    UNION
+    SELECT distinct to_char(content_view_id) ct FROM mrd_content_views WHERE expiration_date is null
+    UNION
+    SELECT distinct to_char(maintainer_date) ct FROM mrd_content_views WHERE expiration_date is null
+    UNION
+    SELECT distinct maintainer_version ct FROM mrd_content_views WHERE expiration_date is null
+    UNION
+    SELECT distinct maintainer ct FROM mrd_content_views WHERE expiration_date is null
+    UNION
+    SELECT distinct content_view_name ct FROM mrd_content_views WHERE expiration_date is null
+    UNION
+    SELECT distinct content_view_previous_meta ct FROM mrd_content_views
+    WHERE content_view_previous_meta is not null AND expiration_date is null)
+    UNION ALL
+    -- This query assumes distinct SNOMEDCT source CUIs
+    SELECT attribute_value ct FROM mrd_attributes
+	WHERE attribute_name = 'UMLSREL'
+	AND root_source = 'SNOMEDCT'
+        AND expiration_date is null);
 
     INSERT INTO qa_mrdoc_${release}_gold
     SELECT 'type_dockey_cnt','',count(distinct test_value)
@@ -1602,9 +1957,9 @@ if ($mode == "all" || $mode == "mrdoc") then
 
 EOF
     if ($status != 0) then
-        cat /tmp/sql.$$.log
-        echo "ERROR: SQL Error"
-        exit 0
+	cat /tmp/sql.$$.log
+	echo "ERROR: SQL Error"
+	exit 0
     endif
 endif
 
@@ -1627,7 +1982,7 @@ if ($mode == "all" || $mode == "mrdef") then
     -- manipulations.  First, get DEF data
     exec meme_utility.drop_it('table','qa_mrdef_${release}_gold_data');
     CREATE TABLE qa_mrdef_${release}_gold_data (
-       sab         VARCHAR2(40),
+       sab         VARCHAR2(20),
        cui         VARCHAR2(10),
        aui         VARCHAR2(10),
        def         VARCHAR2(3600),
@@ -1665,7 +2020,7 @@ if ($mode == "all" || $mode == "mrdef") then
     -- Row Count
     INSERT INTO qa_mrdef_${release}_gold
     SELECT 'row_cnt','',count(*)
-    FROM qa_mrdef_${release}_gold_data;
+    FROM (SELECT DISTINCT cui,aui,sab,def FROM qa_mrdef_${release}_gold_data);
 
     -- CUI Count
     INSERT INTO qa_mrdef_${release}_gold
@@ -1680,8 +2035,14 @@ if ($mode == "all" || $mode == "mrdef") then
     -- SAB Count
     INSERT INTO qa_mrdef_${release}_gold
     SELECT 'sab_tally',sab,count(*)
-    FROM qa_mrdef_${release}_gold_data
+    FROM (SELECT DISTINCT cui,aui,sab,def FROM qa_mrdef_${release}_gold_data)
     GROUP BY sab;
+
+    -- SUPPRESS tally
+    INSERT INTO qa_mrdef_${release}_gold
+    SELECT 'suppress_tally',suppressible,count(*)
+    FROM qa_mrdef_${release}_gold_data
+    GROUP BY suppressible;
 
     -- Min Length
     INSERT INTO qa_mrdef_${release}_gold
@@ -1701,9 +2062,9 @@ if ($mode == "all" || $mode == "mrdef") then
 
 EOF
     if ($status != 0) then
-        cat /tmp/sql.$$.log
-        echo "ERROR: SQL Error"
-        exit 0
+	cat /tmp/sql.$$.log
+	echo "ERROR: SQL Error"
+	exit 0
     endif
 endif
 
@@ -1726,7 +2087,7 @@ if ($mode == "all" || $mode == "mrlo") then
     CREATE TABLE qa_mrlo_${release}_gold_data (
        cui         VARCHAR2(10),
        aui         VARCHAR2(10),
-       sab         VARCHAR2(40),
+       sab         VARCHAR2(20),
        fr          NUMBER(12),
        un          VARCHAR2(20),
        sui         VARCHAR2(10),
@@ -1738,10 +2099,10 @@ if ($mode == "all" || $mode == "mrlo") then
     INSERT INTO qa_mrlo_${release}_gold_data
     SELECT /*+ parallel(a) */ cui,null, root_source,null,null,
         substr(attribute_value, 1, instr(attribute_value, '~') - 1),
-        substr(attribute_value, instr(attribute_value, '~') + 1,
-                             (instr(attribute_value, '~', 1, 2) -
-                              instr(attribute_value, '~', 1)) -1 ),
-        substr(attribute_value, instr(attribute_value, '~', -1) + 1),
+       	substr(attribute_value, instr(attribute_value, '~') + 1,
+        	             (instr(attribute_value, '~', 1, 2) -
+			      instr(attribute_value, '~', 1)) -1 ),
+      	substr(attribute_value, instr(attribute_value, '~', -1) + 1),
         null
     FROM mrd_attributes a
     WHERE attribute_name='MRLO'
@@ -1754,10 +2115,10 @@ if ($mode == "all" || $mode == "mrlo") then
     INSERT INTO qa_mrlo_${release}_gold_data
     SELECT /*+ parallel(a) */ cui,null,root_source,null,null,
         substr(text_value, 1, instr(text_value, '~') - 1),
-        substr(text_value, instr(text_value, '~') + 1,
-                             (instr(text_value, '~', 1, 2) -
-                              instr(text_value, '~', 1)) -1 ),
-        substr(text_value, instr(text_value, '~', -1) + 1), null
+       	substr(text_value, instr(text_value, '~') + 1,
+        	             (instr(text_value, '~', 1, 2) -
+			      instr(text_value, '~', 1)) -1 ),
+      	substr(text_value, instr(text_value, '~', -1) + 1), null
     FROM mrd_attributes a, mrd_stringtab b
     WHERE attribute_name='MRLO'
       AND attribute_value like '<>Long_Attribute<>:%'
@@ -1798,19 +2159,19 @@ if ($mode == "all" || $mode == "mrlo") then
     INSERT INTO qa_mrlo_${release}_gold_data
     SELECT /*+ parallel(a) */
            cui, heading_aui, 'MBD', count(*) as ct, '*CITATIONS',
-           sui , null, null,null
+	   sui , null, null,null
     FROM mrd_coc_headings a, mrd_classes b
     WHERE publication_date >=
-         to_date('01-jan-'||
-            (to_char(sysdate,'YYYY')-decode(to_char(sysdate,'MM'),12,9,10)))
-        AND publication_date <
-           to_date('01-jan-'||
-            (to_char(sysdate,'YYYY')-decode(to_char(sysdate,'MM'),12,4,5)))
+  	 to_date('01-jan-'||
+	    (to_char(sysdate,'YYYY')-decode(to_char(sysdate,'MM'),12,9,10)))
+	AND publication_date <
+  	   to_date('01-jan-'||
+	    (to_char(sysdate,'YYYY')-decode(to_char(sysdate,'MM'),12,4,5)))
         AND major_topic='Y'
-        AND a.root_source='NLM-MED'
-        AND aui = heading_aui
-        AND a.expiration_date IS NULL
-        AND b.expiration_date IS NULL
+	AND a.root_source='NLM-MED'
+	AND aui = heading_aui
+	AND a.expiration_date IS NULL
+	AND b.expiration_date IS NULL
     GROUP BY cui, heading_aui, sui;
 
     COMMIT;
@@ -1819,16 +2180,16 @@ if ($mode == "all" || $mode == "mrlo") then
     INSERT INTO qa_mrlo_${release}_gold_data
     SELECT /*+ parallel(a) */
          cui, heading_aui, 'MED',
-        count(*) as ct, '*CITATIONS', sui, null, null, null
+	count(*) as ct, '*CITATIONS', sui, null, null, null
     FROM mrd_coc_headings a, mrd_classes b
     WHERE publication_date >=
-        to_date('01-jan-'||
-          (to_char(sysdate,'YYYY')-decode(to_char(sysdate,'MM'),12,4,5)))
-        AND major_topic='Y'
-        AND a.root_source='NLM-MED'
-        AND aui = heading_aui
-        AND a.expiration_date IS NULL
-        AND b.expiration_date IS NULL
+  	to_date('01-jan-'||
+	  (to_char(sysdate,'YYYY')-decode(to_char(sysdate,'MM'),12,4,5)))
+	AND major_topic='Y'
+	AND a.root_source='NLM-MED'
+	AND aui = heading_aui
+	AND a.expiration_date IS NULL
+	AND b.expiration_date IS NULL
     GROUP BY cui, sui, heading_aui;
 
     COMMIT;
@@ -1874,7 +2235,7 @@ if ($mode == "all" || $mode == "mrlo") then
     DELETE FROM qa_mrlo_${release}_gold_data a
     WHERE sui IS NOT NULL
       AND (cui,sui) IN (SELECT cui,sui FROM qa_mrlo_${release}_gold_data
-                        MINUS SELECT cui,sui FROM mrd_classes);
+		        MINUS SELECT cui,sui FROM mrd_classes);
 
     -- Make sna all uppercase for comparison sake
     -- This is instead of removing duplicate
@@ -1925,9 +2286,9 @@ if ($mode == "all" || $mode == "mrlo") then
 
 EOF
     if ($status != 0) then
-        cat /tmp/sql.$$.log
-        echo "ERROR: SQL Error"
-        exit 0
+	cat /tmp/sql.$$.log
+	echo "ERROR: SQL Error"
+	exit 0
     endif
 endif
 
@@ -1960,17 +2321,17 @@ if ($mode == "all" || $mode == "mrrank") then
      AND b.expiration_date IS NULL
      AND is_current='Y'
      AND substr(normalized_termgroup, 1,
-            instr(normalized_termgroup,'/')-1) = b.source
+	    instr(normalized_termgroup,'/')-1) = b.source
      AND (root_source,tty) IN
-        (SELECT DISTINCT root_source,tty FROM mrd_classes
-            WHERE expiration_date IS NULL)
-        GROUP BY suppressible;
+	(SELECT DISTINCT root_source,tty FROM mrd_classes
+	    WHERE expiration_date IS NULL)
+	GROUP BY suppressible;
 
     -- SAB Count
     INSERT INTO qa_mrrank_${release}_gold
     SELECT name, decode(root_source,'NLM02','RXNORM',root_source),ct FROM
       (SELECT /*+ parallel(c) */ 'sab_tally' as name,
-            root_source,count(distinct root_source||tty) as ct
+	    root_source,count(distinct root_source||tty) as ct
        FROM mrd_classes c WHERE expiration_date IS NULL
        GROUP BY root_source);
 
@@ -1993,9 +2354,9 @@ if ($mode == "all" || $mode == "mrrank") then
 
 EOF
     if ($status != 0) then
-        cat /tmp/sql.$$.log
-        echo "ERROR: SQL Error"
-        exit 0
+	cat /tmp/sql.$$.log
+	echo "ERROR: SQL Error"
+	exit 0
     endif
 endif
 
@@ -2019,8 +2380,8 @@ if ($mode == "all" || $mode == "mrrel") then
     exec meme_utility.drop_it('table','qa_mrrel_${release}_gold_data');
     CREATE TABLE qa_mrrel_${release}_gold_data (
        rui         VARCHAR2(20),
-       sab         VARCHAR2(40),
-       sl          VARCHAR2(40),
+       sab         VARCHAR2(20),
+       sl          VARCHAR2(20),
        rel         VARCHAR2(20),
        rela        VARCHAR2(100),
        stype_1       VARCHAR2(10),
@@ -2033,10 +2394,10 @@ if ($mode == "all" || $mode == "mrrel") then
 
     -- mrd rels
     INSERT INTO qa_mrrel_${release}_gold_data
-        (rui,sab,sl,rel,rela,stype_1,stype_2,cui_1,cui_2,aui_1,aui_2,suppressible)
+	(rui,sab,sl,rel,rela,stype_1,stype_2,cui_1,cui_2,aui_1,aui_2,suppressible)
     SELECT /*+ parallel(r) */ DISTINCT rui, root_source, root_source_of_label,
-           relationship_name, relationship_attribute,
-           sg_type_1, sg_type_2, cui_1, cui_2,aui_1, aui_2, suppressible
+	   relationship_name, relationship_attribute,
+	   sg_type_1, sg_type_2, cui_1, cui_2,aui_1, aui_2, suppressible
     FROM mrd_relationships r
     WHERE expiration_date IS NULL
       AND relationship_name not like 'X%'
@@ -2046,10 +2407,10 @@ if ($mode == "all" || $mode == "mrrel") then
 
     -- XR rels
     INSERT INTO qa_mrrel_${release}_gold_data
-        (rui,sab,sl,rel,rela,stype_1,stype_2,cui_1,cui_2,aui_1,aui_2, suppressible)
+	(rui,sab,sl,rel,rela,stype_1,stype_2,cui_1,cui_2,aui_1,aui_2, suppressible)
     SELECT /*+ parallel(r) */ DISTINCT rui, root_source, root_source_of_label,
-           relationship_name, relationship_attribute,
-           sg_type_1, sg_type_2, cui_1, cui_2,aui_1, aui_2, suppressible
+	   relationship_name, relationship_attribute,
+	   sg_type_1, sg_type_2, cui_1, cui_2,aui_1, aui_2, suppressible
     FROM mrd_relationships r
     WHERE expiration_date IS NULL
       AND relationship_name = 'XR' AND relationship_level = 'S';
@@ -2071,7 +2432,7 @@ if ($mode == "all" || $mode == "mrrel") then
     INSERT INTO t_aq_${release}_gold_data
        (sab,sl,rel,rela,cui_1,cui_2,aui_1,aui_2, suppressible)
     SELECT a.root_source, a.root_source, 'AQ', '', a.cui,
-        substr(attribute_value,0,2),
+	substr(attribute_value,0,2),
         a.ui, substr(attribute_value,0,2), suppressible
     FROM t_aq_rels a WHERE attribute_value not like '<>Long%';
 
@@ -2088,29 +2449,29 @@ if ($mode == "all" || $mode == "mrrel") then
     BEGIN
         ct := 0;
         LOOP
-            ct := ct + 1;
-            INSERT INTO t_aq_${release}_gold_data
-              (sab,sl,rel,rela,cui_1,cui_2,aui_1,aui_2, suppressible)
-            SELECT a.root_source, a.root_source, 'AQ', '', a.cui,
-                substr(attribute_value,INSTR(attribute_value,' ',1,ct)+1,2),
-                a.ui, substr(attribute_value,INSTR(attribute_value,' ',1,ct)+1,2), suppressible
-            FROM t_aq_rels a
-            WHERE attribute_value not like '<>Long_Attribute<>:%'
-              AND INSTR(attribute_value,' ',1,ct) != 0;
+	    ct := ct + 1;
+	    INSERT INTO t_aq_${release}_gold_data
+	      (sab,sl,rel,rela,cui_1,cui_2,aui_1,aui_2, suppressible)
+	    SELECT a.root_source, a.root_source, 'AQ', '', a.cui,
+		substr(attribute_value,INSTR(attribute_value,' ',1,ct)+1,2),
+		a.ui, substr(attribute_value,INSTR(attribute_value,' ',1,ct)+1,2), suppressible
+	    FROM t_aq_rels a
+	    WHERE attribute_value not like '<>Long_Attribute<>:%'
+	      AND INSTR(attribute_value,' ',1,ct) != 0;
 
-            INSERT INTO t_aq_${release}_gold_data
-              (sab,sl,rel,rela,cui_1,cui_2,aui_1,aui_2, suppressible)
-            SELECT a.root_source, a.root_source, 'AQ', '', a.cui,
-                substr(text_value,INSTR(text_value,' ',1,ct)+1,2),
-                a.ui, substr(text_value,INSTR(text_value,' ',1,ct)+1,2), suppressible
-            FROM t_aq_rels a, mrd_stringtab b
-            WHERE substr(a.attribute_value,20) = b.hashcode
-              AND b.expiration_date IS NULL
-              AND attribute_value like '<>Long_Attribute<>:%'
-              AND INSTR(text_value,' ',1,ct) != 0;
-            EXIT WHEN SQL%ROWCOUNT = 0;
+	    INSERT INTO t_aq_${release}_gold_data
+	      (sab,sl,rel,rela,cui_1,cui_2,aui_1,aui_2, suppressible)
+	    SELECT a.root_source, a.root_source, 'AQ', '', a.cui,
+		substr(text_value,INSTR(text_value,' ',1,ct)+1,2),
+		a.ui, substr(text_value,INSTR(text_value,' ',1,ct)+1,2), suppressible
+	    FROM t_aq_rels a, mrd_stringtab b
+	    WHERE substr(a.attribute_value,20) = b.hashcode
+	      AND b.expiration_date IS NULL
+	      AND attribute_value like '<>Long_Attribute<>:%'
+	      AND INSTR(text_value,' ',1,ct) != 0;
+	    EXIT WHEN SQL%ROWCOUNT = 0;
 
-        END LOOP;
+	END LOOP;
     END;
 /
     ANALYZE TABLE t_aq_${release}_gold_data COMPUTE STATISTICS;
@@ -2118,24 +2479,23 @@ if ($mode == "all" || $mode == "mrrel") then
     -- Create table of CUI,QA
     exec meme_utility.drop_it('table','t_qa_cui');
     CREATE TABLE t_qa_cui AS
-    SELECT a.cui, a.aui ui, b.string as qa
-    FROM mrd_classes a, string_ui b
+    SELECT cui, ui, substr(attribute_value,0,2) as qa
+    FROM mrd_attributes
     WHERE expiration_date IS NULL
-      AND a.tty='QAB'
-      AND a.sui = b.sui
-      AND a.root_source = 'MSH';
- 
+      AND attribute_name='QA'
+      AND root_source = 'MSH';
+
     -- Add AQ relationships
     INSERT INTO qa_mrrel_${release}_gold_data
       (sab,sl,rel,rela,stype_1,stype_2,cui_1,cui_2,aui_1,aui_2, suppressible)
-    SELECT DISTINCT sab, sl, 'AQ', '', 'SDUI','SDUI',cui_1, b.cui, aui_1, b.ui, a.suppressible
+    SELECT DISTINCT sab, sl, 'AQ', '', 'AUI','AUI',cui_1, b.cui, aui_1, b.ui, a.suppressible
     FROM t_aq_${release}_gold_data a, t_qa_cui b
     WHERE cui_2=qa;
 
     -- Add QB relationships
     INSERT INTO qa_mrrel_${release}_gold_data
       (sab,sl,rel,rela,stype_1,stype_2,cui_1,cui_2,aui_1,aui_2,suppressible )
-    SELECT DISTINCT sab, sl, 'QB', '', 'SDUI','SDUI', b.cui, cui_1, b.ui, aui_1, a.suppressible
+    SELECT DISTINCT sab, sl, 'QB', '', 'AUI','AUI', b.cui, cui_1, b.ui, aui_1, a.suppressible
     FROM t_aq_${release}_gold_data a, t_qa_cui b
     WHERE cui_2=qa;
 
@@ -2186,6 +2546,27 @@ if ($mode == "all" || $mode == "mrrel") then
     SELECT 'c1_a1_c2_a2_cnt','',count(distinct aui_1||aui_2)
     FROM qa_mrrel_${release}_gold_data;
 
+    -- Distinct SAB where SRUI is not null
+    INSERT into qa_mrrel_${release}_gold
+    SELECT 'sab_with_srui_cnt','',count(distinct root_source)
+    FROM mrd_relationships
+    WHERE source_rui is not null
+      AND expiration_date is null;
+
+    -- Distinct SAB where RG is not null
+    INSERT into qa_mrrel_${release}_gold
+    SELECT 'sab_with_rg_cnt','',count(distinct root_source)
+    FROM mrd_relationships
+    WHERE relationship_group is not null
+      AND expiration_date is null;
+
+    -- Distinct SAB where RG is not null
+    INSERT into qa_mrrel_${release}_gold
+    SELECT 'sab_with_dir_cnt','',count(distinct root_source)
+    FROM mrd_relationships
+    WHERE rel_directionality_flag is not null
+      AND expiration_date is null;
+
     -- by SAB,DIR where DIR not null
     INSERT into qa_mrrel_${release}_gold
     SELECT 'sab_dir_tally',
@@ -2211,6 +2592,26 @@ if ($mode == "all" || $mode == "mrrel") then
     SELECT 'sab_tally',sab,count(*)
     FROM qa_mrrel_${release}_gold_data GROUP BY sab;
 
+    -- by SL count
+    INSERT INTO qa_mrrel_${release}_gold
+    SELECT 'sl_tally',sl,count(*)
+    FROM qa_mrrel_${release}_gold_data GROUP BY sl;
+
+    -- SAB,SL count
+    INSERT INTO qa_mrrel_${release}_gold
+    SELECT 'sab_sl_tally',sab||'|'||sl,count(*)
+    FROM qa_mrrel_${release}_gold_data GROUP BY sab,sl;
+
+    -- REL, SAB, SL count
+    INSERT INTO qa_mrrel_${release}_gold
+    SELECT 'r_s_s_tally',rel||'|'||sab||'|'||sl,count(*)
+    FROM qa_mrrel_${release}_gold_data GROUP BY rel,sab,sl;
+
+    -- RELA, REL, SAB, SL count
+    INSERT INTO qa_mrrel_${release}_gold
+    SELECT 'r_r_s_s_tally',rel||'|'||rela||'|'||sab||'|'||sl,count(*)
+    FROM qa_mrrel_${release}_gold_data GROUP BY rela,rel,sab,sl;
+
     -- STYPE1, STYPE2, SL count
     INSERT INTO qa_mrrel_${release}_gold
     SELECT 't1_t2_sab_tally',stype_1||'|'||stype_2||'|'||sab,count(*)
@@ -2231,12 +2632,7 @@ if ($mode == "all" || $mode == "mrrel") then
     SELECT 'rrss_selfref_tally',rel||'|'||rela||'|'||sab||'|'||sl,count(*)
     FROM qa_mrrel_${release}_gold_data
     WHERE cui_1 = cui_2
-    GROUP BY rel,rela,sab,sl;
-    
-    -- SAB,REL,RELA,STYPE1,STYPE2 tally
-    INSERT INTO qa_mrrel_${release}_gold
-    SELECT 's_r_r_t1_t2_tally',sab||'|'||rel||'|'||rela||'|'||stype_1||'|'||stype_2,count(*)
-    FROM qa_mrrel_${release}_gold_data GROUP BY sab,rel,rela,stype_1,stype_2;
+    GROUP BY rela,rel,sab,sl;
 
     -- SAB (with RG) tally
     INSERT INTO qa_mrrel_${release}_gold
@@ -2253,19 +2649,21 @@ if ($mode == "all" || $mode == "mrrel") then
     WHERE source_rui IS NOT NULL
       AND expiration_date IS NULL
     GROUP BY root_source;
-    
-    -- SAB,REL,RELA,SUPPRESSIBLE tally
+
+    -- SUPPRESS tally (currently all rels are suppressible)
     INSERT INTO qa_mrrel_${release}_gold
-    SELECT 'suppr_rel_rela_tally',sab||'|'||rel||'|'||rela||'|'||suppressible,count(*)
-    FROM qa_mrrel_${release}_gold_data where suppressible !='N' GROUP BY sab,rel,rela,suppressible;    
+    SELECT 'suppress_tally',suppressible, count(*)
+    FROM qa_mrrel_${release}_gold_data
+    group by suppressible;
+
 
     exec meme_utility.drop_it('table','qa_mrrel_${release}_gold_data');
 
 EOF
     if ($status != 0) then
-        cat /tmp/sql.$$.log
-        echo "ERROR: SQL Error"
-        exit 0
+	cat /tmp/sql.$$.log
+	echo "ERROR: SQL Error"
+	exit 0
     endif
 endif
 
@@ -2288,16 +2686,29 @@ if ($mode == "all" || $mode == "mrsab") then
     CREATE TABLE qa_mrsab_${release}_gold_pre as
     SELECT count(distinct source) as ct FROM mrd_source_rank a, mrd_attributes b
     WHERE a.expiration_date IS NULL AND is_current = 'N'
-         AND source = normalized_source
-         AND a.source = b.attribute_value
-         AND b.attribute_name in ('TOVSAB','FROMVSAB')
-         AND b.expiration_date IS NULL;
+	 AND source = normalized_source
+	 AND a.source = b.attribute_value
+	 AND b.attribute_name in ('TOVSAB','FROMVSAB')
+	 AND b.expiration_date IS NULL;
 
     INSERT INTO qa_mrsab_${release}_gold
     SELECT 'row_cnt','',ct + (select ct from qa_mrsab_${release}_gold_pre)
     FROM (SELECT count(distinct source) ct FROM mrd_source_rank
     WHERE expiration_date IS NULL AND is_current = 'Y'
     AND source = normalized_source);
+
+    INSERT INTO qa_mrsab_${release}_gold
+    SELECT 'vcui_cnt','',count(distinct source)
+    FROM mrd_source_rank
+    WHERE expiration_date IS NULL AND is_current = 'Y'
+    AND source = normalized_source
+    AND source != root_source;
+
+    INSERT INTO qa_mrsab_${release}_gold
+    SELECT 'rcui_cnt','',count(distinct root_source)
+    FROM mrd_source_rank
+    WHERE expiration_date IS NULL AND is_current = 'Y'
+    AND source = normalized_source;
 
     INSERT INTO qa_mrsab_${release}_gold
     SELECT 'vsab_cnt','',ct + (select ct from qa_mrsab_${release}_gold_pre)
@@ -2318,30 +2729,16 @@ if ($mode == "all" || $mode == "mrsab") then
     AND source = normalized_source;
 
     INSERT INTO qa_mrsab_${release}_gold
-    SELECT 'lat_cnt','',count(distinct nvl(language,0))
+    SELECT 'sf_lat_cnt','',count(distinct source_family||language)
     FROM mrd_source_rank
     WHERE expiration_date IS NULL AND is_current = 'Y'
     AND source = normalized_source;
 
-    INSERT INTO qa_mrsab_${release}_gold
-    SELECT 'lat_tally',language,count(*)
-    FROM mrd_source_rank
-    WHERE expiration_date IS NULL AND is_current = 'Y'
-    AND source = normalized_source
-    GROUP BY language;
-
-    INSERT INTO qa_mrsab_${release}_gold
-    SELECT 'cxty_tally',context_type,count(*)
-    FROM mrd_source_rank
-    WHERE expiration_date IS NULL AND is_current = 'Y'
-    AND source = normalized_source
-    GROUP BY context_type;
-
 EOF
     if ($status != 0) then
-        cat /tmp/sql.$$.log
-        echo "ERROR: SQL Error"
-        exit 0
+	cat /tmp/sql.$$.log
+	echo "ERROR: SQL Error"
+	exit 0
     endif
 endif
 
@@ -2363,37 +2760,36 @@ if ($mode == "all" || $mode == "mrsat") then
     -- But exclude rows that go into MRDEF, MRMAP, and MRLO
     exec meme_utility.drop_it('table','qa_mrsat_${release}_gold_data');
     CREATE TABLE qa_mrsat_${release}_gold_data AS
-        SELECT /*+ PARALLEL(a) */ DISTINCT cui, lui, sui, ui, code, sg_type,
-            attribute_name, root_source, attribute_value, suppressible, source_atui
+	SELECT /*+ PARALLEL(a) */ DISTINCT cui, lui, sui, ui, code, sg_type,
+	    attribute_name, root_source, attribute_value, suppressible
         FROM mrd_attributes a
         WHERE expiration_date IS NULL
-          AND attribute_level = 'S'
+	  AND attribute_level = 'S'
           AND attribute_name not IN
             ('XMAP','XMAPTO','XMAPFROM','NON_HUMAN',
-             'DEFINITION','ATX_REL','MRLO','HDA',
-             'COMPONENTHISTORY','HPC','COC','LEXICAL_TAG');
+	     'DEFINITION','ATX_REL','MRLO','HDA',
+	     'COMPONENTHISTORY','HPC','COC','LEXICAL_TAG');
 
     COMMIT;
 
     INSERT INTO qa_mrsat_${release}_gold_data
-        (cui, lui, sui, ui, code,sg_type, attribute_name,
+	(cui, lui, sui, ui, code,sg_type, attribute_name,
          root_source, attribute_value, suppressible)
-        SELECT /*+ PARALLEL(a) */ DISTINCT cui, lui, sui, ui, code, sg_type,
-            attribute_name, root_source, attribute_value, suppressible
+	SELECT /*+ PARALLEL(a) */ DISTINCT cui, lui, sui, ui, code, sg_type,
+	    attribute_name, root_source, attribute_value, suppressible
         FROM mrd_attributes a
         WHERE expiration_date IS NULL
-          AND attribute_level = 'C'
+	  AND attribute_level = 'C'
           AND attribute_name not IN
             ('DEFINITION','ATX_REL','MRLO','HDA',
-             'COMPONENTHISTORY','HPC','COC','LEXICAL_TAG',
-             'SEMANTIC_TYPE','XMAP','XMAPTO','XMAPFROM','NON_HUMAN');
+	     'COMPONENTHISTORY','HPC','COC','LEXICAL_TAG',
+	     'SEMANTIC_TYPE','XMAP','XMAPTO','XMAPFROM','NON_HUMAN');
 
     COMMIT;
 
     -- Get the lexical tag attributes
-    -- Soma Changing to include a.root_source != MSH to a.root_source = 'MTH'
     INSERT INTO qa_mrsat_${release}_gold_data
-        (cui, lui, sui, ui, code, attribute_name,
+	(cui, lui, sui, ui, code, attribute_name,
          root_source, attribute_value, suppressible, sg_type)
     SELECT DISTINCT a.cui, b.lui, b.sui, b.aui, b.code, 'LT', 'MTH','TRD','N','AUI'
     FROM mrd_attributes a, mrd_classes b
@@ -2402,20 +2798,133 @@ if ($mode == "all" || $mode == "mrsat") then
       AND attribute_level = 'S'
       AND attribute_name = 'LEXICAL_TAG'
       AND attribute_value = 'TRD'
+      AND a.root_source != 'MSH'
       AND a.sui = b.sui
       AND a.cui = b.cui;
 
     INSERT INTO qa_mrsat_${release}_gold_data
-        (cui, lui, sui, ui, code, attribute_name,
+	(cui, lui, sui, ui, code, attribute_name,
          root_source, attribute_value, suppressible,sg_type)
-    SELECT DISTINCT cui, lui, sui, ui, code, 'LT', root_source,'TRD','N','AUI'
+    SELECT DISTINCT cui, lui, sui, ui, code, 'LT', 'MSH','TRD','N','AUI'
     FROM mrd_attributes
     WHERE expiration_date IS NULL
       AND attribute_level = 'S'
       AND attribute_name = 'LEXICAL_TAG'
-      AND attribute_value = 'TRD';
+      AND attribute_value = 'TRD'
+      AND root_source = 'MSH';
 
-        -- Row Count
+    -- Get the concept level attributes with attribute_name 'NON_HUMAN'.
+    INSERT INTO qa_mrsat_${release}_gold_data
+	(cui, lui, sui, ui, code, attribute_name,
+         root_source, attribute_value, suppressible,sg_type)
+    SELECT DISTINCT cui, null, null, null, null, 'NH', 'MTH','','N','CUI'
+    FROM mrd_attributes
+    WHERE expiration_date IS NULL
+      AND attribute_level = 'C'
+      AND attribute_name = 'NON_HUMAN';
+
+    -- The 'ST' attribute is the mrd_concepts.status value for this cui.
+    --INSERT INTO qa_mrsat_${release}_gold_data
+    --	(cui, lui, sui, ui, code, attribute_name,
+    --        root_source, attribute_value, suppressible)
+    --SELECT cui, null, null, null, null, 'ST', 'MTH','','N'
+    --FROM mrd_concepts
+    --WHERE expiration_date IS NULL;
+
+    -- The 'DA' attribute is the date this cui was added to the metathesaurus.
+    --INSERT INTO qa_mrsat_${release}_gold_data
+    --	(cui, lui, sui, ui, code, attribute_name,
+    --     root_source, attribute_value, suppressible)
+    --SELECT cui, null, null, null, null, 'DA', 'MTH',c.value,'N'
+    --FROM mrd_concepts a,
+    --  (SELECT value, key, rownum row_num FROM
+    --   (SELECT value,key FROM
+    --    (SELECT value, key
+    --     FROM mrd_properties WHERE expiration_date IS NULL AND key_qualifier='MRSAT'
+    --	 UNION SELECT '0','C0000000' from dual)
+    --    GROUP BY value,key)) b,
+    --  (SELECT value, key, rownum row_num FROM
+    --   (SELECT value, key
+    --    FROM mrd_properties WHERE expiration_date IS NULL AND key_qualifier='MRSAT'
+    --    GROUP BY value,key)) c
+    --WHERE expiration_date IS NULL
+    --  AND a.cui > b.key AND a.cui <= c.key
+    --  AND b.row_num = c.row_num;
+
+    -- The MR attribute is the major revision date for the CUI.
+    --INSERT INTO qa_mrsat_${release}_gold_data
+    --	(cui, lui, sui, ui, code, attribute_name,
+    --        root_source, attribute_value, suppressible)
+    --SELECT cui, null, null, null, null, 'MR', 'MTH' ,'','N'
+    --FROM mrd_concepts
+    --WHERE expiration_date IS NULL;
+
+    -- Insert major topic count
+    INSERT INTO qa_mrsat_${release}_gold_data
+	(cui, lui, sui, ui, code, attribute_name,
+         root_source, attribute_value, suppressible,sg_type)
+    SELECT /*+ PARALLEL(a) */ DISTINCT cui, lui, sui, heading_aui, code,
+	'MED' || TO_CHAR(publication_date,'YYYY'),a.root_source,'','N','AUI'
+    FROM mrd_coc_headings a, mrd_classes b
+    WHERE b.expiration_date IS NULL
+      AND a.expiration_date IS NULL
+      AND a.heading_aui = b.aui
+      AND a.root_source = 'NLM-MED'
+      AND major_topic = 'Y';
+
+    COMMIT;
+
+    -- Insert aggregate count
+    INSERT INTO qa_mrsat_${release}_gold_data
+	(cui, lui, sui, ui, code, attribute_name,
+         root_source, attribute_value, suppressible,sg_type)
+    SELECT /*+ PARALLEL(a) */ DISTINCT cui, lui, sui, heading_aui, code,
+	'MED' || TO_CHAR(publication_date,'YYYY'),a.root_source,'','N','AUI'
+    FROM mrd_coc_headings a, mrd_classes b
+    WHERE b.expiration_date IS NULL
+      AND a.expiration_date IS NULL
+      AND a.heading_aui = b.aui
+      AND a.root_source = 'NLM-MED';
+
+    COMMIT;
+
+    --Get the Q# MED<year> attributes
+    INSERT INTO qa_mrsat_${release}_gold_data
+	(cui, lui, sui, ui, code, attribute_name,
+         root_source, attribute_value, suppressible,sg_type)
+    SELECT /*+ PARALLEL(b) */ DISTINCT cui, lui, sui, ui, code,
+	'MED'|| TO_CHAR(publication_date,'YYYY'), b.root_source,'','N','AUI'
+    FROM mrd_attributes a, mrd_coc_headings b, mrd_coc_subheadings c
+    WHERE b.root_source='NLM-MED'
+      AND b.citation_set_id = c.citation_set_id
+      AND b.subheading_set_id = c.subheading_set_id
+      AND a.attribute_name = 'QA'
+      AND a.root_source = 'MSH'
+      AND a.attribute_value=c.subheading_qa
+      AND a.expiration_date IS NULL
+      AND b.expiration_date IS NULL
+      AND c.expiration_date IS NULL;
+
+    COMMIT;
+
+    --
+    -- Get AM attributes (no longer have AM attributes)
+    --
+    --INSERT INTO qa_mrsat_${release}_gold_data
+    --	(cui, lui, sui, ui, code, attribute_name,
+    --        root_source, attribute_value, suppressible)
+    --SELECT DISTINCT cui, lui, sui, aui, null, 'AM', 'MTH','','N'
+    --FROM mrd_classes a
+    --WHERE isui IN (SELECT isui FROM mrd_classes
+    --              WHERE expiration_date IS NULL
+    --                 AND language='ENG'
+    --               GROUP BY isui HAVING count(distinct cui)>1)
+    --  AND language='ENG'
+    --  AND expiration_date IS NULL;
+
+    -- Now we are ready to go!
+
+    -- Row Count
     INSERT INTO qa_mrsat_${release}_gold
     SELECT 'row_cnt','',count(*)
     FROM qa_mrsat_${release}_gold_data;
@@ -2423,6 +2932,11 @@ if ($mode == "all" || $mode == "mrsat") then
     -- Distinct CUI Count
     INSERT INTO qa_mrsat_${release}_gold
     SELECT 'cui_cnt','',count(distinct cui)
+    FROM qa_mrsat_${release}_gold_data;
+
+    -- Distinct LUI Count
+    INSERT INTO qa_mrsat_${release}_gold
+    SELECT 'lui_cnt','',count(distinct lui)
     FROM qa_mrsat_${release}_gold_data;
 
     -- Distinct SUI Count
@@ -2440,28 +2954,31 @@ if ($mode == "all" || $mode == "mrsat") then
     SELECT 'cls_cnt','',count(distinct sui||lui||cui)
     FROM qa_mrsat_${release}_gold_data WHERE sui is not null;
 
+    -- Distinct CUI|SUI Count
+    INSERT INTO qa_mrsat_${release}_gold
+    SELECT 'cs_cnt','',test_count
+    FROM qa_mrsat_${release}_gold WHERE test_name='cls_cnt';
+
     -- Distinct CUI|UI Count
     INSERT INTO qa_mrsat_${release}_gold
     SELECT 'cm_cnt','',count(distinct cui||ui)
     FROM qa_mrsat_${release}_gold_data WHERE ui is not null;
 
     INSERT INTO qa_mrsat_${release}_gold
-    SELECT 'sab_satui_tally',root_source,count(distinct source_atui)
-    FROM qa_mrsat_${release}_gold_data
-    WHERE source_atui IS NOT NULL
-    group by root_source;
+    SELECT 'satui_cnt','',count(distinct source_atui)
+    FROM mrd_attributes
+    WHERE expiration_date IS NULL AND source_atui IS NOT NULL;
+
+    -- Unique SCD tally
+    INSERT INTO qa_mrsat_${release}_gold
+    SELECT 'code_sab_tally',root_source,count(distinct NVL(code,'null'))
+    FROM qa_mrsat_${release}_gold_data GROUP BY root_source;
 
     -- ATN Count
     INSERT INTO qa_mrsat_${release}_gold
     SELECT 'atn_tally',attribute_name,count(*)
     FROM qa_mrsat_${release}_gold_data
     GROUP BY attribute_name;
-    
-    -- SAB ATN SUPP Count
-    INSERT INTO qa_mrsat_${release}_gold
-    SELECT 'suppr_atn_tally', root_source||'|'||attribute_name||'|'||suppressible, count(*) from
-    qa_mrsat_${release}_gold_data where suppressible != 'N'
-    GROUP by root_source,attribute_name,suppressible;
 
     -- SAB Count
     INSERT INTO qa_mrsat_${release}_gold
@@ -2469,23 +2986,29 @@ if ($mode == "all" || $mode == "mrsat") then
     FROM qa_mrsat_${release}_gold_data
     GROUP BY root_source;
 
+    -- ATN/SAB Count
+    INSERT INTO qa_mrsat_${release}_gold
+    SELECT 'atn_sab_tally',attribute_name||'|'||root_source,count(*)
+    FROM qa_mrsat_${release}_gold_data
+    GROUP BY attribute_name,root_source;
+
+    INSERT INTO qa_mrsat_${release}_gold
+    SELECT 'suppress_tally',suppressible,count(*)
+    FROM qa_mrsat_${release}_gold_data
+    GROUP BY suppressible;
+
     INSERT INTO qa_mrsat_${release}_gold
     SELECT 'stype_sab_tally',sg_type||'|'||root_source,count(*)
     FROM qa_mrsat_${release}_gold_data
     GROUP BY sg_type,root_source;
 
-    INSERT INTO qa_mrsat_${release}_gold
-    SELECT 'sab_atn_stype_tally',root_source||'|'||attribute_name||'|'||sg_type,count(*)
-    FROM qa_mrsat_${release}_gold_data
-    GROUP BY root_source,attribute_name,sg_type;
-
     exec meme_utility.drop_it('table','qa_mrsat_${release}_gold_data');
 
 EOF
     if ($status != 0) then
-        cat /tmp/sql.$$.log
-        echo "ERROR: SQL Error"
-        exit 0
+	cat /tmp/sql.$$.log
+	echo "ERROR: SQL Error"
+	exit 0
     endif
 endif
 
@@ -2551,7 +3074,7 @@ if ($mode == "all" || $mode == "mrsty") then
     WHERE attribute_value = sty_rl
     AND attribute_name = 'SEMANTIC_TYPE'
     AND expiration_date IS NULL
-        GROUP BY attribute_value;
+	GROUP BY attribute_value;
 
     COMMIT;
 
@@ -2573,15 +3096,15 @@ if ($mode == "all" || $mode == "mrsty") then
     WHERE attribute_value = sty_rl
     AND attribute_name = 'SEMANTIC_TYPE'
     AND expiration_date IS NULL
-        GROUP BY stn_rtn;
+	GROUP BY stn_rtn;
 
     COMMIT;
 
 EOF
     if ($status != 0) then
-        cat /tmp/sql.$$.log
-        echo "ERROR: SQL Error"
-        exit 0
+	cat /tmp/sql.$$.log
+	echo "ERROR: SQL Error"
+	exit 0
     endif
 endif
 
@@ -2600,26 +3123,24 @@ if ($mode == "all" || $mode == "mrx") then
        test_count  NUMBER(12) );
 
     INSERT INTO qa_mrx_${release}_gold
-    SELECT 'cls_file_cnt','MRXNS_ENG',count(distinct cui||sui)
+    SELECT 'cls_cnt','MRXNS_ENG',count(distinct cui||sui)
     FROM mrd_classes WHERE language='ENG'
     AND expiration_date IS NULL
-    AND lui != (SELECT min(lui) FROM string_ui
-       WHERE language='ENG' AND norm_string is null);
+    AND lui != 'L0028429';
 
     INSERT INTO qa_mrx_${release}_gold
-    SELECT 'cls_file_cnt','MRXNW_ENG',test_count
+    SELECT 'cls_cnt','MRXNW_ENG',test_count
     FROM qa_mrx_${release}_gold;
 
--- 1-748XJ - MRXW_XXX files should ignore the some of the strings attached to null LUI (e.g. L0028429).  -- Soma Lanka
+-- 1-748XJ - MRXW_XXX files should ignore the some of the strings attached to LUI L0028429.  -- Soma Lanka
     INSERT INTO qa_mrx_${release}_gold
-    SELECT 'cls_file_cnt','MRXW_'||b.lat, count(distinct a.cui||a.sui)
- FROM mrd_classes a, language b, string_ui c
+    SELECT 'cls_cnt','MRXW_'||b.lat, count(distinct a.cui||a.sui)
+    FROM mrd_classes a, language b, string_ui c
     WHERE a.language=b.lat
         AND a.sui = c.sui
-        AND c.string not in ('''',';','=','<=','>=','+','++','+++','++++','<','>','%')
-        and c.sui != 'S9297292'
+        AND c.string not in ('=','<=','>=','+','++','+++','++++','<','>','%')
       AND expiration_date IS NULL
-      GROUP BY b.lat;
+    GROUP BY lat;
 
     UPDATE qa_mrx_${release}_gold
     SET test_count = test_count
@@ -2627,9 +3148,9 @@ if ($mode == "all" || $mode == "mrx") then
 
 EOF
     if ($status != 0) then
-        cat /tmp/sql.$$.log
-        echo "ERROR: SQL Error"
-        exit 0
+	cat /tmp/sql.$$.log
+	echo "ERROR: SQL Error"
+	exit 0
     endif
 endif
 
@@ -2649,7 +3170,7 @@ if ($mode == "all" || $mode == "mrfilescols") then
 
     -- BTS cnt
     INSERT INTO qa_mrfilescols_${release}_gold
-    SELECT 'file_bts_cnt',file_name,byte_count
+    SELECT 'bts_cnt','',sum(byte_count)
     FROM mrd_file_statistics
     WHERE expiration_date IS NULL;
 
@@ -2680,9 +3201,9 @@ if ($mode == "all" || $mode == "mrfilescols") then
 
 EOF
     if ($status != 0) then
-        cat /tmp/sql.$$.log
-        echo "ERROR: SQL Error"
-        exit 0
+	cat /tmp/sql.$$.log
+	echo "ERROR: SQL Error"
+	exit 0
     endif
 endif
 
@@ -2709,10 +3230,9 @@ if ($mode == "all" || $mode == "metamorphosys") then
 
     INSERT INTO qa_mmsys_${release}_gold_t1
     SELECT a.language,
-       -- LPAD(c.rank,4,'0')||sui||LPAD(SUBSTR(aui,INSTR(aui,(SELECT value FROM code_map WHERE code --= 'AUI' AND type = 'ui_prefix'))+1),
-          -- (SELECT value FROM code_map WHERE code = 'AUI' AND type = 'ui_length'),'0') as rank,
-           --cui, aui, sui, lui
-          MEME_RANKS.get_atom_release_rank(c.rank, a.last_release_rank, a.sui, a.aui) as rank, cui, aui, sui, lui
+           LPAD(c.rank,4,'0')||sui||LPAD(SUBSTR(aui,INSTR(aui,(SELECT value FROM code_map WHERE code = 'AUI' AND type = 'ui_prefix'))+1),
+	    (SELECT value FROM code_map WHERE code = 'AUI' AND type = 'ui_length'),'0') as rank,
+           cui, aui, sui, lui
       FROM mrd_classes a, mrd_source_rank b, mrd_termgroup_rank c
       WHERE a.root_source = b.root_source
         AND b.is_current = 'Y'
@@ -2749,13 +3269,6 @@ if ($mode == "all" || $mode == "metamorphosys") then
      FROM qa_mmsys_${release}_gold_t1
      GROUP BY cui, lat, lui, sui);
 
-    exec meme_utility.drop_it('table','tmp_pref_cui_lat_aui');
-    CREATE TABLE tmp_pref_cui_lat_aui AS
-    SELECT cui,language,aui FROM mrd_classes WHERE expiration_date IS NULL
-            MINUS
-            SELECT cui,lat,aui FROM pref_aui_for_cui_lat_lui_sui;
-
-
     -- lat_ts_stt_ispref count
     INSERT INTO qa_metamorphosys_${release}_gold
     SELECT 'lat_ts_stt_ispref_tally',
@@ -2770,7 +3283,7 @@ if ($mode == "all" || $mode == "metamorphosys") then
            (SELECT cui,lat,sui FROM pref_sui_for_cui_lat_lui)
        AND (cui,language,aui) IN
            (SELECT cui,lat,aui FROM pref_aui_for_cui_lat_lui_sui)
-    ) GROUP BY lat, ts, stt, ispref;
+    ) GROUP BY lat;
 
     INSERT INTO qa_metamorphosys_${release}_gold
     SELECT 'lat_ts_stt_ispref_tally',
@@ -2784,16 +3297,10 @@ if ($mode == "all" || $mode == "metamorphosys") then
        AND (cui,language,sui) IN
            (SELECT cui,lat,sui FROM pref_sui_for_cui_lat_lui)
        AND (cui,language,aui) IN
-            (SELECT cui,language,aui from tmp_pref_cui_lat_aui)
-    ) GROUP BY lat, ts, stt, ispref;
-    
-    exec meme_utility.drop_it('table','tmp_pref_lui_for_cui_lat');
-    
-    CREATE TABLE tmp_pref_lui_for_cui_lat AS
-    SELECT cui,language,lui FROM mrd_classes WHERE expiration_date IS NULL
+           (SELECT cui,language,aui FROM mrd_classes WHERE expiration_date IS NULL
             MINUS
-            SELECT cui,lat,lui FROM pref_lui_for_cui_lat;
-
+            SELECT cui,lat,aui FROM pref_aui_for_cui_lat_lui_sui)
+    ) GROUP BY lat;
 
     INSERT INTO qa_metamorphosys_${release}_gold
     SELECT 'lat_ts_stt_ispref_tally',
@@ -2803,12 +3310,14 @@ if ($mode == "all" || $mode == "metamorphosys") then
      FROM mrd_classes
      WHERE expiration_date IS NULL
        AND (cui,language,lui) IN
-           (SELECT cui,language,lui FROM tmp_pref_lui_for_cui_lat)
+           (SELECT cui,language,lui FROM mrd_classes WHERE expiration_date IS NULL
+            MINUS
+            SELECT cui,lat,lui FROM pref_lui_for_cui_lat)
        AND (cui,language,sui) IN
            (SELECT cui,lat,sui FROM pref_sui_for_cui_lat_lui)
        AND (cui,language,aui) IN
            (SELECT cui,lat,aui FROM pref_aui_for_cui_lat_lui_sui)
-    ) GROUP BY lat, ts, stt, ispref;
+    ) GROUP BY lat;
 
     INSERT INTO qa_metamorphosys_${release}_gold
     SELECT 'lat_ts_stt_ispref_tally',
@@ -2818,19 +3327,16 @@ if ($mode == "all" || $mode == "metamorphosys") then
      FROM mrd_classes
      WHERE expiration_date IS NULL
        AND (cui,language,lui) IN
-           (SELECT cui,language,lui FROM tmp_pref_lui_for_cui_lat)
+           (SELECT cui,language,lui FROM mrd_classes WHERE expiration_date IS NULL
+            MINUS
+            SELECT cui,lat,lui FROM pref_lui_for_cui_lat)
        AND (cui,language,sui) IN
            (SELECT cui,lat,sui FROM pref_sui_for_cui_lat_lui)
        AND (cui,language,aui) IN
-           (SELECT cui,language,aui FROM tmp_pref_cui_lat_aui)
-    ) GROUP BY lat, ts, stt, ispref;
-
-    exec meme_utility.drop_it('table','tmp_pref_sui_for_cui_lat_lui');
-    
-    CREATE TABLE tmp_pref_sui_for_cui_lat_lui AS
-    SELECT cui,language,sui FROM mrd_classes WHERE expiration_date IS NULL
+           (SELECT cui,language,aui FROM mrd_classes WHERE expiration_date IS NULL
             MINUS
-            SELECT cui,lat,sui FROM pref_sui_for_cui_lat_lui;
+            SELECT cui,lat,aui FROM pref_aui_for_cui_lat_lui_sui)
+    ) GROUP BY lat;
 
     INSERT INTO qa_metamorphosys_${release}_gold
     SELECT 'lat_ts_stt_ispref_tally',
@@ -2842,10 +3348,12 @@ if ($mode == "all" || $mode == "metamorphosys") then
        AND (cui,language,lui) IN
            (SELECT cui,lat,lui FROM pref_lui_for_cui_lat)
        AND (cui,language,sui) IN
-           (SELECT cui,language,sui FROM tmp_pref_sui_for_cui_lat_lui)
+           (SELECT cui,language,sui FROM mrd_classes WHERE expiration_date IS NULL
+            MINUS
+            SELECT cui,lat,sui FROM pref_sui_for_cui_lat_lui)
        AND (cui,language,aui) IN
            (SELECT cui,lat,aui FROM pref_aui_for_cui_lat_lui_sui)
-    ) GROUP BY lat, ts, stt, ispref;
+    ) GROUP BY lat;
 
     INSERT INTO qa_metamorphosys_${release}_gold
     SELECT 'lat_ts_stt_ispref_tally',
@@ -2857,10 +3365,14 @@ if ($mode == "all" || $mode == "metamorphosys") then
        AND (cui,language,lui) IN
            (SELECT cui,lat,lui FROM pref_lui_for_cui_lat)
        AND (cui,language,sui) IN
-           (SELECT cui,language,sui FROM tmp_pref_sui_for_cui_lat_lui)
+           (SELECT cui,language,sui FROM mrd_classes WHERE expiration_date IS NULL
+            MINUS
+            SELECT cui,lat,sui FROM pref_sui_for_cui_lat_lui)
        AND (cui,language,aui) IN
-           (SELECT cui,language,aui FROM tmp_pref_cui_lat_aui)
-    ) GROUP BY lat, ts, stt, ispref;
+           (SELECT cui,language,aui FROM mrd_classes WHERE expiration_date IS NULL
+            MINUS
+            SELECT cui,lat,aui FROM pref_aui_for_cui_lat_lui_sui)
+    ) GROUP BY lat;
 
     INSERT INTO qa_metamorphosys_${release}_gold
     SELECT 'lat_ts_stt_ispref_tally',
@@ -2870,12 +3382,16 @@ if ($mode == "all" || $mode == "metamorphosys") then
      FROM mrd_classes
      WHERE expiration_date IS NULL
        AND (cui,language,lui) IN
-           (SELECT cui,language,lui FROM tmp_pref_lui_for_cui_lat)
+           (SELECT cui,language,lui FROM mrd_classes WHERE expiration_date IS NULL
+            MINUS
+            SELECT cui,lat,lui FROM pref_lui_for_cui_lat)
        AND (cui,language,sui) IN
-           (SELECT cui,language,sui FROM tmp_pref_sui_for_cui_lat_lui)
+           (SELECT cui,language,sui FROM mrd_classes WHERE expiration_date IS NULL
+            MINUS
+            SELECT cui,lat,sui FROM pref_sui_for_cui_lat_lui)
        AND (cui,language,aui) IN
            (SELECT cui,lat,aui FROM pref_aui_for_cui_lat_lui_sui)
-    ) GROUP BY lat, ts, stt, ispref;
+    ) GROUP BY lat;
 
     INSERT INTO qa_metamorphosys_${release}_gold
     SELECT 'lat_ts_stt_ispref_tally',
@@ -2885,12 +3401,18 @@ if ($mode == "all" || $mode == "metamorphosys") then
      FROM mrd_classes
      WHERE expiration_date IS NULL
        AND (cui,language,lui) IN
-           (SELECT cui,language,lui FROM tmp_pref_lui_for_cui_lat)
+           (SELECT cui,language,lui FROM mrd_classes WHERE expiration_date IS NULL
+            MINUS
+            SELECT cui,lat,lui FROM pref_lui_for_cui_lat)
        AND (cui,language,sui) IN
-           (SELECT cui,language,sui FROM tmp_pref_sui_for_cui_lat_lui)
+           (SELECT cui,language,sui FROM mrd_classes WHERE expiration_date IS NULL
+            MINUS
+            SELECT cui,lat,sui FROM pref_sui_for_cui_lat_lui)
        AND (cui,language,aui) IN
-           (SELECT cui,language,aui FROM tmp_pref_cui_lat_aui)
-    ) GROUP BY lat, ts, stt, ispref;
+           (SELECT cui,language,aui FROM mrd_classes WHERE expiration_date IS NULL
+            MINUS
+            SELECT cui,lat,aui FROM pref_aui_for_cui_lat_lui_sui)
+    ) GROUP BY lat;
 
     -- ts count
     INSERT INTO qa_metamorphosys_${release}_gold
@@ -2905,7 +3427,9 @@ if ($mode == "all" || $mode == "metamorphosys") then
     FROM mrd_classes
      WHERE expiration_date IS NULL
        AND (cui,language,lui) IN
-           (SELECT cui,language,lui FROM tmp_pref_lui_for_cui_lat);
+           (SELECT cui,language,lui FROM mrd_classes WHERE expiration_date IS NULL
+            MINUS
+            SELECT cui,lat,lui FROM pref_lui_for_cui_lat);
 
     -- stt count
     INSERT INTO qa_metamorphosys_${release}_gold
@@ -2920,7 +3444,9 @@ if ($mode == "all" || $mode == "metamorphosys") then
     FROM mrd_classes
      WHERE expiration_date IS NULL
        AND (cui,language,sui) IN
-           (SELECT cui,language,sui FROM tmp_pref_sui_for_cui_lat_lui);
+           (SELECT cui,language,sui FROM mrd_classes WHERE expiration_date IS NULL
+            MINUS
+            SELECT cui,lat,sui FROM pref_sui_for_cui_lat_lui);
 
     -- ispref count
     INSERT INTO qa_metamorphosys_${release}_gold
@@ -2935,15 +3461,17 @@ if ($mode == "all" || $mode == "metamorphosys") then
     FROM mrd_classes
      WHERE expiration_date IS NULL
        AND (cui,language,aui) IN
-           (SELECT cui,language,aui FROM tmp_pref_cui_lat_aui);
+           (SELECT cui,language,aui FROM mrd_classes WHERE expiration_date IS NULL
+            MINUS
+            SELECT cui,lat,aui FROM pref_aui_for_cui_lat_lui_sui);
 
     DROP TABLE qa_mmsys_${release}_gold_t1;
 
 EOF
     if ($status != 0) then
-        cat /tmp/sql.$$.log
-        echo "ERROR: SQL Error"
-        exit 0
+	cat /tmp/sql.$$.log
+	echo "ERROR: SQL Error"
+	exit 0
     endif
 endif
 
@@ -2975,60 +3503,11 @@ if ($mode == "all" || $mode == "doc") then
 
 EOF
     if ($status != 0) then
-    cat /tmp/sql.$$.log
-    echo "ERROR: SQL Error"
-    exit 0
+	cat /tmp/sql.$$.log
+	echo "ERROR: SQL Error"
+	exit 0
     endif
 endif
-
-if ($mode == "all" || $mode == "activesubset") then
-    echo "Generating source Active subset... `/bin/date`"
-
-    $ORACLE_HOME/bin/sqlplus $mu@$db <<EOF >&! /tmp/sql.$$.log
-    WHENEVER SQLERROR EXIT -1
-    alter session set sort_area_size=100000000;
-    alter session set hash_area_size=100000000;
-
-    exec meme_utility.drop_it('table','qa_activesubset_${release}_gold');
-    CREATE TABLE qa_activesubset_${release}_gold (
-       test_name   VARCHAR2(100) NOT NULL,
-       test_value  VARCHAR2(3000),
-       test_count  NUMBER(12) );
-
-EOF
-    if ($status != 0) then
-    cat /tmp/sql.$$.log
-    echo "ERROR: SQL Error"
-    exit 0
-    endif
-endif
-
-if ($mode == "all" || $mode == "optimization") then
-    echo "Generating Optimization QA Counts ... `/bin/date`"
-
-    $ORACLE_HOME/bin/sqlplus $mu@$db <<EOF >&! /tmp/sql.$$.log
-    WHENEVER SQLERROR EXIT -1
-    alter session set sort_area_size=100000000;
-    alter session set hash_area_size=100000000;
-
-    exec meme_utility.drop_it('table','qa_optimization_${release}_gold');
-    CREATE TABLE qa_optimization_${release}_gold (
-       test_name   VARCHAR2(100) NOT NULL,
-       test_value  VARCHAR2(3000),
-       test_count  NUMBER(12) );
-
-    -- file_cnt
-    INSERT INTO qa_optimization_${release}_gold (test_name, test_value, test_count)
-    SELECT 'file_cnt','',6 FROM dual;
-
-EOF
-    if ($status != 0) then
-    cat /tmp/sql.$$.log
-    echo "ERROR: SQL Error"
-    exit 0
-    endif
-endif
-
 
 
 echo "-----------------------------------------------------"

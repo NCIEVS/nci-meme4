@@ -50,7 +50,7 @@ public class ActionClientTest extends TestSuite {
     ActionClient client = null;
 
     try {
-      client = new ActionClient("");
+      client = new ActionClient("apelon");
     
 	    //
 	    // 1.1. Test setMidService(String), getMidService()
@@ -59,8 +59,8 @@ public class ActionClientTest extends TestSuite {
         + "getMidService() ... "
         + date_format.format(timestamp));
 	
-	    client.setMidService("");
-	    if (client.getMidService().equals(""))
+	    client.setMidService("apelon");
+	    if (client.getMidService().equals("apelon"))
 	      addToLog("    1.1. Test Passed");
 	    else {
 	      addToLog("    1.1. Test Failed");

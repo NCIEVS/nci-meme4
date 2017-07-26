@@ -4,7 +4,7 @@ SELECT DISTINCT a.concept_id
 FROM attributes a, classes b
 WHERE a.concept_id=b.concept_id
   AND b.source like 'MDDB%'
-  AND attribute_name = 'SEMANTIC_TYPE'
+  AND attribute_name||'' = 'SEMANTIC_TYPE'
   AND attribute_value = 'Clinical Drug'
 MINUS
 (SELECT concept_id from classes

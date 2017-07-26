@@ -159,7 +159,7 @@ if ($source eq "f" || $source eq "i") {
   $table_name = "t_${$}_batch";
 
   # set variables
-  $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl -d $database`;
+  $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl`;
   ($user,$password) = split /\//, $userpass;
   chop($password);
   

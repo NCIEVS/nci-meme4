@@ -126,7 +126,7 @@ if ($concept_id1) {
   #
   # open connection
   #
-  $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl -d $db`;
+  $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl`;
   chop($userpass);
   ($user,$password) = split /\//, $userpass;
   $dbh = DBI->connect("dbi:Oracle:$db",$user,$password) ||

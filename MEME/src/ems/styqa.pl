@@ -4,9 +4,7 @@
 # suresh@nlm.nih.gov 7/99
 # suresh@nlm 8/00 - MEME-3 port
 # EMS3 - 1/2006
-# 03/26/2009 BAC (1-LKB6X): remove appending of empty string to attribute_name when comparing against SEMANTIC_TYPE value,
-#      does not make a difference in Oracle10+ environment, but better in Oracle9.  Some were left unchanged as changes
-#      were not specifically called for.
+
 # Look for concepts satisfying a boolean combination of STYs and words in atoms
 
 # CGI params:
@@ -52,13 +50,8 @@ sub query {
   my($javascript) = GeneralUtils->file2str($javascriptfile);
 
 # Get all sources
-  $sql = "select distinct current_name from source_version order by current_name";
+  $sql = "select distinct current_name from source_version";
   @sources = $dbh->selectAllAsArray($sql);
-
-# Get all termtypes
-  $sql = "select distinct tty from termgroup_rank order by tty";
-  @ttys = $dbh->selectAllAsArray($sql);
-
 
   $html .= <<"EOD";
 Submitting this form will find concepts that have the selected STYs and
@@ -74,27 +67,27 @@ EOD
 
   push @d1, [$query->h2("How to sort STYs?")];
 #  push @d1, [$query->radio_group(
-#                                -name=>'stysort',
-#                                -values=>["alpha", "tree", "tui"],
-#                                -default=>"alpha",
-#                                -labels=>{alpha=>'Alphabetical', tree=>'Tree', tui=>'TUI'},
-#                                -onClick=>"styDisplay();",
-#                               )
-#           ];
+#				 -name=>'stysort',
+#				 -values=>["alpha", "tree", "tui"],
+#				 -default=>"alpha",
+#				 -labels=>{alpha=>'Alphabetical', tree=>'Tree', tui=>'TUI'},
+#				 -onClick=>"styDisplay();",
+#				)
+#	    ];
   push @d1, [$query->popup_menu(
-                                 -name=>'stysort',
-                                 -values=>["alpha", "tree", "tui"],
-                                 -labels=>{alpha=>'Alphabetical', tree=>'Tree', tui=>'TUI'},
-                                 -onChange=>"styDisplay();",
-                                )
-            ];
+				 -name=>'stysort',
+				 -values=>["alpha", "tree", "tui"],
+				 -labels=>{alpha=>'Alphabetical', tree=>'Tree', tui=>'TUI'},
+				 -onChange=>"styDisplay();",
+				)
+	    ];
 
   push @d1, [$query->h2("Select an STY")];
   push @d1, [$query->scrolling_list(-name=>"stylist", -values=>["Disease or Syndrome plaus some random chars"], -size=>6)];
   push @d1, [
-             $query->checkbox(-name=>"stynegate", -label=>"Negate STY? ") .
-             $query->button(-name=>"styadd", value=>' Add STY', onClick=>"styaddfn();")
-            ];
+	     $query->checkbox(-name=>"stynegate", -label=>"Negate STY? ") .
+	     $query->button(-name=>"styadd", value=>' Add STY', onClick=>"styaddfn();")
+	    ];
 
   push @d1, [$query->h2("STYs Selected")];
   push @d1, [$query->textarea(-name=>'styselected', -rows=>4, -cols=>40)];
@@ -103,10 +96,9 @@ EOD
   push @d2, [$query->h2("Enter Single Word")];
   push @d2, [$query->textfield(-name=>'textfield', -size=>30, onSubmit=>"return(false);")];
   push @d2, [
-             $query->checkbox(-name=>"textnegate", -label=>'Negate Word? ') .
-             $query->checkbox(-name=>"textexact", -label=>'Exact Word? ') .
-             $query->button(-name=>"textadd", value=>' Add Word', onClick=>"textaddfn();")
-            ];
+	     $query->checkbox(-name=>"textnegate", -label=>'Negate Word? ') .
+	     $query->button(-name=>"textadd", value=>' Add Word', onClick=>"textaddfn();")
+	    ];
 
   push @d2, [$query->h2("Words Selected")];
   push @d2, [$query->textarea(-name=>'textselected', -rows=>4, -cols=>40)];
@@ -115,32 +107,21 @@ EOD
   push @d2, [$query->h2("Restrict Matches to Source(s)")];
   push @d2, [$query->scrolling_list(-name=>"sourcelist", -values=>\@sources, -size=>4, -multiple=>1)];
   push @d2, [$query->button(-value=>"Clear Selected Sources", -type=>'reset', onClick=>"clearsources();")];
-  push @status, [' ','R','N'];
-
-  push @d2, [$query->h2("Restrict Matches to TTY(s)")];
-  push @d2, [$query->scrolling_list(-name=>"ttylist", -values=>\@ttys, -size=>4, -multiple=>1)];
-  push @d2, [$query->button(-value=>"Clear Selected TTY", -type=>'reset', onClick=>"clearttys();")];
-  push @status, [' ','R','N'];
-
-
-
-  push @d2,[$query->h2("Restrict Matches to Concept Status")];
-  push @d2, [$query->scrolling_list(-name=>"conceptStatus", -values=>@status, -size=>3, -multiple=>0)];
 
   push @d3, [$query->submit(-name=>"subaction", -value=>"Search"),
-             $query->submit(-name=>"subaction", -value=>"Show SQL"),
-             $query->button(-name=>"clearall", -value=>"Clear All", onClick=>"reinitsty();reinittext();clearsources();clearttys();")];
+	     $query->submit(-name=>"subaction", -value=>"Show SQL"),
+	     $query->button(-name=>"clearall", -value=>"Clear All", onClick=>"reinitsty();reinittext();clearsources();")];
 
   $html .= &toHTMLtable($query, {-border=>1},
-                        [
-                         [
-                          &toHTMLtable($query, {-border=>0, -cellspacing=>5}, \@d1),
-                          &toHTMLtable($query, {-border=>0, -cellspacing=>5}, \@d2)
-                         ],
-                         [
-                          [{-colspan=>2}, &toHTMLtable($query, {-border=>0, -cellspacing=>10}, \@d3)],
-                         ],
-                        ]);
+			[
+			 [
+			  &toHTMLtable($query, {-border=>0, -cellspacing=>5}, \@d1),
+			  &toHTMLtable($query, {-border=>0, -cellspacing=>5}, \@d2)
+			 ],
+			 [
+			  [{-colspan=>2}, &toHTMLtable($query, {-border=>0, -cellspacing=>10}, \@d3)],
+			 ],
+			]);
 
   $html .= $query->hidden(-name=>'action', -value=>$action, -override=>1);
   $html .= $query->end_form;
@@ -153,8 +134,6 @@ EOD
 sub search {
   my($showsql) = @_;
   my(@sources) = $query->param('sourcelist');
-  my(@ttys) = $query->param('ttylist');
-  my($conceptStatus) = $query->param('conceptStatus');
   my($sql);
   my($i) = 0;
   my($sty, $neg);
@@ -169,7 +148,7 @@ sub search {
     $sty =~ s/\s*$//;
     $sty =~ s/^\s*//;
     $sty =~ s/\r//g;
-
+    
     $neg = ($sty =~ /^!=\s*(.*)$/) ? 1 : 0;
     $sty = $1 if $neg;
 
@@ -188,7 +167,7 @@ sub search {
     $word =~ s/\s*$//;
     $word =~ s/^\s*//;
     $word =~ s/\r//g;
-
+    
     $neg = ($word =~ /^!=\s*(.*)$/) ? 1 : 0;
     $word = $1 if $neg;
     next if $seen{$word}++;
@@ -209,8 +188,6 @@ sub search {
 
   my($t1) = $dbh->tempTable(sprintf("%s_styqat1_%.2d", $EMSNames::TMPTABLEPREFIX));
   my($t2) = $dbh->tempTable(sprintf("%s_styqat2_%.2d", $EMSNames::TMPTABLEPREFIX));
-  my($t3) = $dbh->tempTable(sprintf("%s_styqat3_%.2d", $EMSNames::TMPTABLEPREFIX));
-  my($t4) = $dbh->tempTable(sprintf("%s_styqat4_%.2d", $EMSNames::TMPTABLEPREFIX));
 
   if (@stytables && @wordtables) {
     $t1 = &reduce([$styconcepts, $wordconcepts], \@sql, 90);
@@ -234,43 +211,11 @@ EOD
     $t2 = $t1;
   }
 
-  if (@ttys) {
-    my($q) = join(", ", map { $dbh->quote($_) } @ttys);
-    $sql = <<"EOD";
-create table $t3 as
-select distinct a.concept_id from $t2 a, classes b
-where  a.concept_id=b.concept_id
-and    b.tty in ($q)
-EOD
-    push @sql, $sql;
-  } else {
-    $t3 = $t2;
-  }
-
-
- if ($conceptStatus =~ / /) {
-  $conceptStatus = 0;
- }
- if ($conceptStatus) {
-   my ($q) = join(", ", $dbh->quote($conceptStatus));
-   $sql = <<"EOD";
-create table $t4 as
-select distinct a.concept_id from $t3 a, concept_status b
-where a.concept_id = b.concept_id
-and b.status in ($q)
-EOD
-    push @sql, $sql;
- } else {
-   $t4 = $t3;
-
- }
-
   my($finaltable) = &state_table_name;
 
-  push @sql, "create table $finaltable as select * from $t4";
+  push @sql, "create table $finaltable as select * from $t2";
   push @sql, "drop table $t1";
   push @sql, "drop table $t2";
-  push @sql, "drop table $t3";
 
   if ($showsql) {
     &printhtml({printandexit=>1, body=>$query->pre(join("\n", @sql))});
@@ -289,7 +234,7 @@ EOD
 
   my($matches) = $dbh->selectFirstAsScalar("select count(*) from $finaltable");
 
-  $url = $query->a({-href=>$main::EMSCONFIG{EMSURL} . "?$DBget&action=make_checklist&table_name=$finaltable"}, "Make a checklist.");
+  $url = $query->a({-href=>$query->url() . "?$DBget&action=make_checklist&table_name=$finaltable"}, "Make a checklist.");
   if ($matches == 0) {
     $html .= <<"EOD";
 There were no matches to the query.  Please try again.
@@ -371,7 +316,7 @@ create table $table as
 select concept_id from concept_status
 minus
 select distinct concept_id from attributes
-where  attribute_name = 'SEMANTIC_TYPE'
+where  attribute_name || '' ='SEMANTIC_TYPE'
 and    attribute_value=$q
 EOD
     }
@@ -386,7 +331,7 @@ EOD
       $sql .= <<"EOD";
 create table $table AS
 select distinct concept_id from attributes
-where  attribute_name = 'SEMANTIC_TYPE'
+where  attribute_name || '' = 'SEMANTIC_TYPE'
 and    attribute_value=$q
 EOD
     }
@@ -431,7 +376,7 @@ sub chemsql {
     return <<"EOD";
 create table $chemtable AS
 select distinct concept_id from attributes
-where  attribute_name = 'SEMANTIC_TYPE'
+where  attribute_name || '' = 'SEMANTIC_TYPE'
 and    attribute_value IN (SELECT semantic_type FROM semantic_types where is_chem = 'Y');
 EOD
 }
@@ -446,7 +391,7 @@ create table $nonchemtable AS
 select concept_id from concept_status
 minus
 select distinct concept_id from attributes
-where  attribute_name = 'SEMANTIC_TYPE'
+where  attribute_name || '' = 'SEMANTIC_TYPE'
 and    attribute_value in (select semantic_type from semantic_types where is_chem = 'Y');
 EOD
 }
@@ -483,7 +428,7 @@ sub state_table_name {
 }
 
 sub remove_state_tables {
-  my($qp) = $dbh->quote('%' . &state_table_prefix . '%');
+  my($qp) = $dbh->quote(&state_table_prefix);
   my($staledays) = 10;
   my($sql) = <<"EOD";
 select object_name from all_objects

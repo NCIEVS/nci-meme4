@@ -3,7 +3,6 @@
  * Package: gov.nih.nlm.meme.qa.client
  * Object:  AuxiliaryDataClientTest
  * 
- * 03/22/2007 BAC (1-D0BIJ): removed calls to lookup actions based on hardcoded ids
  * 03/13/2006 RBE (1-A07F5): Changes to not use harcoded values
  * 01/30/2006 RBE (1-763IU): File created
  *
@@ -70,7 +69,7 @@ public class AuxiliaryDataClientTest extends TestSuite {
     AuxiliaryDataClient client = null;
 
     try {
-      admin_client = new AdminClient("");
+      admin_client = new AdminClient("apelon");
       client = new AuxiliaryDataClient("");
 
 	    //
@@ -80,8 +79,8 @@ public class AuxiliaryDataClientTest extends TestSuite {
         + "getMidService() ... "
         + date_format.format(timestamp));
 
-      client.setMidService("");
-      if (client.getMidService().equals(""))
+      client.setMidService("apelon");
+      if (client.getMidService().equals("apelon"))
         addToLog("    1.1. Test Passed");
       else {
         addToLog("    1.1. Test Failed");
@@ -670,17 +669,16 @@ public class AuxiliaryDataClientTest extends TestSuite {
       }
 
       //
-      // 9.8. Test getMetaProperty(String, String, String, String)
+      // 9.8. Test getMetaProperty(String, String, String)
       //      
       addToLog(
         "    9.8. Test getMetaProperty(String, String, String) ... "
         + date_format.format(timestamp));
 
-      MetaProperty meme_prop = client.getMetaProperty("MEME_KEY", "M4_FILES", "test value", "test description");
+      MetaProperty meme_prop = client.getMetaProperty("MEME_KEY", "M4_FILES", "test value");
       if (meme_prop.getKey().equals("MEME_KEY") &&
           meme_prop.getKeyQualifier().equals("M4_FILES") &&
-          meme_prop.getValue().equals("test value") &&
-          meme_prop.getDescription().equals("test description"))
+          meme_prop.getValue().equals("test value"))
         addToLog("    9.8. Test Passed");
       else {
         addToLog("    9.8. Test Failed");
@@ -694,7 +692,7 @@ public class AuxiliaryDataClientTest extends TestSuite {
         "    9.9. Test removeMetaProperty(MetaProperty) ... "
         + date_format.format(timestamp));
 
-      meta_prop = client.getMetaProperty(meta_prop.getKey(), meta_prop.getKeyQualifier(), meta_prop.getValue(), meta_prop.getDescription());
+      meta_prop = client.getMetaProperty(meta_prop.getKey(), meta_prop.getKeyQualifier(), meta_prop.getValue());
       client.removeMetaProperty(meta_prop);
       meta_props = client.getMetaProperties();
       found = false;
@@ -998,20 +996,17 @@ public class AuxiliaryDataClientTest extends TestSuite {
         "    14.1. Test getAuthority(String) ... "
         + date_format.format(timestamp));
       
-      addToLog("            "+client.getAuthority("E-MTH"));
+      addToLog("            "+client.getAuthority("AUTHOR"));
 
       //
       // 15.1. Test getMolecularAction(int)
       //
 
       addToLog(
-          "    15.1. Test getMolecularAction(int) ... "
-          + date_format.format(timestamp));
-      addToLog(
-          "        Cannot do this without additional configuration info"
-          + date_format.format(timestamp));
+        "    15.1. Test getMolecularAction(int) ... "
+        + date_format.format(timestamp));
 
-      //addToLog("            "+client.getMolecularAction(45199494).getSourceIdentifier().toString());
+      addToLog("            "+client.getMolecularAction(45199494).getSourceIdentifier().toString());
 
       //
       // 15.2. Test getFullMolecularAction(int)
@@ -1020,10 +1015,7 @@ public class AuxiliaryDataClientTest extends TestSuite {
         "    15.2. Test getFullMolecularAction(int) ... "
         + date_format.format(timestamp));
 
-      addToLog(
-          "        Cannot do this without additional configuration info"
-          + date_format.format(timestamp));
-      //addToLog("            "+client.getFullMolecularAction(45199494).getSourceIdentifier().toString());
+      addToLog("            "+client.getFullMolecularAction(45199494).getSourceIdentifier().toString());
 
       //
       // 15.3. Test getAtomicAction(int)
@@ -1032,10 +1024,7 @@ public class AuxiliaryDataClientTest extends TestSuite {
         "    15.3. Test getAtomicAction(int) ... "
         + date_format.format(timestamp));
 
-      addToLog(
-          "        Cannot do this without additional configuration info"
-          + date_format.format(timestamp));
-      //addToLog("            "+client.getAtomicAction(337551382).getIdentifier().toString());
+      addToLog("            "+client.getAtomicAction(337551382).getIdentifier().toString());
 
       //
       // 16.1. Test addApplicationVector(String, IntegrityVector)

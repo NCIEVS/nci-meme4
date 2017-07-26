@@ -3,7 +3,6 @@
  * Package: gov.nih.nlm.meme.client
  * Object:  AdminClient
  *
- * 03/22/2007 BAC (1-D0BIJ): refresh caches call changed to set mid service.
  *****************************************************************************/
 
 package gov.nih.nlm.meme.client;
@@ -463,7 +462,6 @@ public class AdminClient extends ClientAPI {
     // Prepare request document
     MEMEServiceRequest request = super.getServiceRequest();
     request.setService("AdminService");
-    request.setMidService(mid_service);
     request.setNoSession(true);
     request.addParameter(new Parameter.Default("function", "refresh_caches"));
 

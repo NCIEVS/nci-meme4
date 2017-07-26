@@ -68,7 +68,7 @@ EOD
 
     foreach $epoch (sort keys %all) {
       $form = "";
-      $form .= $query->start_form({-method=>'POST', -action=>$query->url(-absolute=>1)});
+      $form .= $query->start_form({-method=>'POST', -action=>$query->url()});
       $form .= $query->submit(-value=>"Delete $epoch worklists");
       $form .= $query->hidden(-name=>"action", -value=>$action);
       $form .= $query->hidden(-name=>"epoch", -value=>$epoch, -override=>1);
@@ -100,7 +100,7 @@ EOD
     $html .= $query->p;
     $html .= "Are you sure you want to delete all $n worklists for epoch: " . $query->em($epoch) . "?";
     $html .= $query->p;
-    $html .= $query->start_form(-method=>'POST', -action=>$query->url(-absolute=>1));
+    $html .= $query->start_form(-method=>'POST', -action=>$query->url());
     $html .= $DBpost;
     $html .= $query->hidden(-name=>'doit', -value=>1, -override=>1);
     $html .= $query->hidden(-name=>'action', -value=>$action, -override=>1);

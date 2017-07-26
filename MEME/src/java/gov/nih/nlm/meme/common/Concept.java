@@ -599,10 +599,8 @@ public interface Concept extends CoreData {
       for (int i = 0; i < attributes.size(); i++) {
         Object attribute = (Attribute) attributes.get(i);
         if (attribute instanceof ConceptSemanticType) {
-          if (  ( ((ConceptSemanticType) attribute).isChemical() ||
-        		  ((ConceptSemanticType) attribute).isEditingChemical() )&&
-              ((ConceptSemanticType) attribute).isReleasable()  ) 
-          {
+          if ( ( (ConceptSemanticType) attribute).isChemical() &&
+              ( (ConceptSemanticType) attribute).isReleasable()) {
             return true;
           }
         }

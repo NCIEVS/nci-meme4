@@ -10,13 +10,10 @@
 
 package gov.nih.nlm.meme.integrity;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 
 import gov.nih.nlm.meme.common.Atom;
 import gov.nih.nlm.meme.common.Concept;
-import gov.nih.nlm.meme.common.CoreDataRestrictor;
 
 /**
  * Abstract implementation of {@link MoveInhibitor}
@@ -94,20 +91,5 @@ public abstract class AbstractMoveInhibitor extends IntegrityCheck.Default imple
 
   }
   
-  /**
-   * Returns {@link Atom}s kept by the specified {@link CoreDataRestrictor}.
-   * @param restrictor the {@link CoreDataRestrictor}
-   * @param atoms an array of {@link Atom}
-   * @return the restricted {@link Atom}s
-   */
-  public Atom[] getRestrictedAtoms(CoreDataRestrictor restrictor, Atom[] atoms) {
-      
-      List atom_list = new ArrayList();
-      for (int i=0; i<atoms.length; i++) {
-         if (restrictor.keep(atoms[i])) 
-             atom_list.add(atoms[i]);
-      }
-      return (Atom[])atom_list.toArray(new Atom[] {});
-
-  }  
+  
 }

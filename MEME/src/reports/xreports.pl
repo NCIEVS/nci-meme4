@@ -55,7 +55,6 @@ unless ($ENV{MEME_HOME}) {
 $max_r_rel_ct = -1;
 $rel_opt = 1;
 $cxt_rel_opt = 1;
-$cxt_attr_notdisplay="false";
 %r_map = (
 	  "NONE" => 0,
 	  "DEFAULT" => 1,
@@ -321,7 +320,7 @@ sub PrintReport {
   #
   # If url_mid_for_cui is set, pass it
   #
-  if ($url_mid_for_cui eq "true") {
+  if ($url_mid_for_cui) {
     $url_mid_for_cui = &UnAndReEncode($url_mid_for_cui);
     $url_cui_text = qq{<Object name="}.$param_ct++.qq{" id="}.++$id_max.qq{"  class="gov.nih.nlm.meme.common.Parameter\$Default" primitive="true">
           <Object name="name" id="}.++$id_max.qq{">url_mid_for_cui</Object>
@@ -362,18 +361,6 @@ sub PrintReport {
     $url_release_sty_text = qq{<Object name="}.$param_ct++.qq{" id="}.++$id_max.qq{"  class="gov.nih.nlm.meme.common.Parameter\$Default" primitive="true">
           <Object name="name" id="}.++$id_max.qq{">url_release_for_sty</Object>
           <Object name="value" id="}.++$id_max.qq{"  class="java.lang.String">$url_release_for_sty</Object>
-	</Object>
-	};
-  }
-
-  #
-  # If cxt_attr_notdisplay is set, pass it
-  #
-  if ($cxt_attr_notdisplay eq "true") {
-    $cxt_attr_notdisplay = &UnAndReEncode($cxt_attr_notdisplay);
-    $cxt_attr_notdisplay_text = qq{<Object name="}.$param_ct++.qq{" id="}.++$id_max.qq{"  class="gov.nih.nlm.meme.common.Parameter\$Default" primitive="false">
-          <Object name="name" id="}.++$id_max.qq{">cxt_attr_notdisplay</Object>
-          <Object name="value" id="}.++$id_max.qq{"  class="java.lang.String">$cxt_attr_notdisplay</Object>
 	</Object>
 	};
   }
@@ -467,7 +454,7 @@ not currently running on $host at port $port.
           <Object name="name" id="10">content_type</Object>
           <Object name="value" id="11"  class="java.lang.String" >$content_type</Object>
         </Object>
-	$style_text$html_text$max_text$url_concept_id_text$url_code_text$url_cui_text$url_release_cui_text$url_release_sty_text$in_or_out_text$lats_text$cxt_attr_notdisplay_text
+	$style_text$html_text$max_text$url_concept_id_text$url_code_text$url_cui_text$url_release_cui_text$url_release_sty_text$in_or_out_text$lats_text
       </Object>
     </Parameter>
   </ServiceParameters>
@@ -581,9 +568,6 @@ while (@ARGV) {
     $service = shift(@ARGV);  }
   elsif ($arg =~ /^-html$/) {
     $content_type="text/html";  }
-  #add cxt_attr_notdisplay for concept report w/o context
-  elsif ($arg =~ /^-reporttype=3$/) {
-    $cxt_attr_notdisplay="true";  }
   elsif ($arg =~ /^-enscript$/) {
     $content_type="text/enscript";  }
   elsif ($arg =~ /^-a=(.*)$/) {
@@ -753,7 +737,6 @@ sub PrintUsage {
  		[-style "[key=value[;key=value]]" ]
 		[-a atom_id[,atom_id]]
 		[-c concept_id[,concept_id]]
-		[-cxt]
 		[-i CUI[,CUI]]
 		[-ff]
 		[-fa <file of atom id>]
@@ -782,7 +765,6 @@ sub PrintHelp {
 	              generate reports for.
        -i <id,[id]>:  Specify a CUI or list of CUI to generate reports for.
        -html:         Generate an HTML-ized report
-       -cxt:          Include contexts
        -enscript:     Generate an enscript-ized report
        -style <arg>:  When using html/enscript reports, you can
 	              specify style parameters to indicate

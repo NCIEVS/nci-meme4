@@ -1050,7 +1050,7 @@ use open ":utf8";
 
 
 ($db,$meme) = @ARGV;
-$user = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl -d $db`;
+$user = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl`;
 chop($user);
 ($justuser) = split /\//, $user;
 $db = `$ENV{MIDSVCS_HOME}/bin/midsvcs.pl -s $db`;
@@ -1358,7 +1358,7 @@ Use the following references for related information.
 
 <td ALIGN=RIGHT VALIGN=TOP NOSAVE>
 <address>
-<font size=-1>Contact: <a href="mailto:bcarlsen\@msdinc.com">Brian A. Carlsen</a></font></address>
+<font size=-1>Contact: <a href="mailto:bcarlsen\@apelon.com">Brian A. Carlsen</a></font></address>
 
 <address>
 <font size=-1>Created: 7/27/2001</font></address>
@@ -1467,7 +1467,7 @@ sub PrintFooter {
 
 <td ALIGN=RIGHT VALIGN=TOP NOSAVE>
 <address>
-<font size=-1>Contact: <a href="mailto:bcarlsen\@msdinc.com">Brian A. Carlsen</a></font></address>
+<font size=-1>Contact: <a href="mailto:bcarlsen\@apelon.com">Brian A. Carlsen</a></font></address>
 
 <address>
 <font size=-1>Created: 7/27/2001</font></address>

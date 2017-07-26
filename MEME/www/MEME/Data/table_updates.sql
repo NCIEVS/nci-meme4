@@ -1,2 +1,0 @@
--- When performing an update, this should contain code to enact
--- any changes made to the schema script tables.sql

@@ -10,7 +10,6 @@ package gov.nih.nlm.meme.action;
 import gov.nih.nlm.meme.common.ContentView;
 import gov.nih.nlm.meme.common.ContentViewMember;
 import gov.nih.nlm.meme.exception.ActionException;
-import gov.nih.nlm.meme.exception.BadValueException;
 import gov.nih.nlm.meme.exception.DataSourceException;
 import gov.nih.nlm.meme.sql.MEMEDataSource;
 
@@ -253,7 +252,7 @@ public class ContentViewAction
       //else if (mode.equals("REMOVE_MEMBERS"))
       // Do nothing. All CVM info already available
     else if (mode.equals("REMOVE_CV_MEMBER"))
-      cv.setMembers(mds.getContentViewMembers(cv,0,-1));
+      cv.setMembers(mds.getContentViewMembers(cv));
   }
 
 }

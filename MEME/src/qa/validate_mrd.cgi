@@ -9,11 +9,6 @@
 # Description:
 #
 # Changes:
-# 02/26/2007 BAC (1-DLFON): use POST for submitting form.
-# 01/09/2007 BAC (1-D5AC1): Wrap queries in description at 80 characters 
-# 09/09/2006 JFW (1-C556X): Add notification (*) to counts where there is an adjustment 
-#                           Truncate printed check results to 1000
-#                           Add adjustment and auto_fix information to description
 # 03/03/2006 RBE (1-AJV1Z): Fixed SQL injection error
 # 12/22/2005 BAC (1-719SM): use open ":utf8" added
 #
@@ -29,14 +24,6 @@ $version_date = "12/09/2003";
 unshift @INC,"$ENV{ENV_HOME}/bin";
 require "env.pl";
 use open ":utf8";
-use Text::Wrap;
-
-
-# Set variables for Text::Wrap throughout the entire script
-# Text::Wrap is used to format SQL queries with newlines on the displayed page.
-local($Text::Wrap::columns) = 80;
-local($Text::Wrap::separator) = "<br>";
-
 
 #
 # Parse command line arguments to determine if -v{ersion}, or --help 
@@ -293,7 +280,7 @@ sub PrintFooter {
 	      <address><a href="$cgi?db=$db">Back to Index</a></address>
             </td>
 	    <td ALIGN=RIGHT VALIGN=TOP NOSAVE>
-	      <font size="-1"><address>Contact: <a href="mailto:bcarlsen\@msdinc.com">Brian A. Carlsen</a></address>
+	      <font size="-1"><address>Contact: <a href="mailto:carlsen\@apelon.com">Brian A. Carlsen</a></address>
 	      <address>Generated on:},scalar(localtime),qq{</address>
               <address>This page took $elapsed_time seconds to generate.</address>
 	      <address>};
@@ -357,7 +344,7 @@ sub PrintINDEX {
 
 
     # set variables
-    $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl -d $db`;
+    $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl`;
     ($user,$password) = split /\//, $userpass;
     chop($password);
 
@@ -478,7 +465,7 @@ This script runs every Saturday.
 sub PrintDESCRIPTION {
 
   # set variables
-  $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl -d $db`;
+  $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl`;
   ($user,$password) = split /\//, $userpass;
   chop($password);
   
@@ -486,10 +473,10 @@ sub PrintDESCRIPTION {
   $dbh = DBI->connect("dbi:Oracle:$db", "$user", "$password") ||
     ((print "<span id=red>Error opening $db ($DBI::errstr).</span>")
      &&  return);
-
+  
   # prepare and execute statement
   $sh = $dbh->prepare(qq{
-    SELECT description,adjustment,query,auto_fix FROM mid_validation_queries
+    SELECT description,query FROM mrd_validation_queries
     WHERE check_name = ?
     }) || 
       ((print "<span id=red>Error preparing query ($DBI::errstr).</span>")  
@@ -499,21 +486,14 @@ sub PrintDESCRIPTION {
     ((print "<span id=red>Error executing query ($DBI::errstr).</span>")
      &&  return);
   
-  ($description,$adjustment,$query,$auto_fix) = $sh->fetchrow_array;
-
+  ($description,$query) = $sh->fetchrow_array;
+  
   $enc_name = &meme_utils::escape($check_name);
-  $wrap_query = wrap("","",$query);
-    
+  
   print qq{
 <p><a href="$cgi?state=EDIT_FORM&db=$db&command=Modify&check_name=$enc_name">Edit this check</a></p>
 <p>$description</p>
-<p>This check currently has an adjustment of $adjustment.</p>
-<p>The Query is:<br> 
-<tt>$wrap_query</tt>
-</p>
-<p>The Auto Fix is:<br> 
-<tt>$auto_fix</tt>
-</p>
+<pre>$query</pre>
 <center><form><input type=button onClick='window.close(); return true' value='Close'></form></center>
 };  
 
@@ -638,14 +618,12 @@ sub PrintREVIEW_LOG {
     while (<F>) {
 
 	if (/    [^\s].* -?[0-9]+/) {
-	    /    (.{54}) (-?[0-9]{1,}\*?)(   )?(.*)?/;
-	    $name=$1; $ct=$2; $date=$4;
+	    /    (.{54}) (-?[0-9]{1,})/;
+	    $name=$1; $ct=$2;
 	    $name=~s/(\s+)$//;
             $esc_name = "$name";
 	    $space=$1;
 	    $esc_name =~ s/'/&#039;/g;
-	    $esc_name =~ s/\r//g;
-	    $esc_name =~ s/\n//g;
 	    $esc_description = "$descriptions{$name}";
 	    $esc_description =~ s/"/&quot;/g;
             $esc_description =~ s/'/&#039;/g;
@@ -812,20 +790,9 @@ sub PrintLIST_DATA {
     # fetchrow_hashref and print the column headers.
 
     # fetch the data & print to screen
-    $results_html="";
-    $ct=0;
-    $ct_string="";
     while (@results = $sh->fetchrow_array) {
         $found = 1;
-        $ct++;
- 
-        if($ct > 1000) {
-        	$results_html .= qq{      <tr><td align="left">... (results truncated at 1000)</td></tr>\n};
-			$ct_string="1000+";
-			last;
-        }
-        
-        $results_html .= qq{      <tr>};
+        print "      <tr>";
         foreach $result (@results) {
 
             # if concept_ids link to reports 
@@ -839,19 +806,10 @@ sub PrintLIST_DATA {
                     $result = qq{<a href="/cgi-oracle-meowusers/concept-report-mid.pl?action=searchbynormstr&arg=$result&db=$db">$result</a>};
                 };
             }
-            $results_html .= qq{<td align="left">$result</td>};
+            print qq{<td align="left">$result</td>};
         };
-        $results_html .= qq{</tr>\n};
+        print "</tr>\n";
     }
-
-    # If there are results, print them out using $results_html
-    if (!$ct_string) {
-	$ct_string=$ct;
-    }
-    print qq{
-           <tr><td valign="top"><b><font size="-1">Results ($ct_string):</font></b>
-           <td align="left"><table>$results_html
-    };
 
     # if no rows, print no rows
     unless ($found) {
@@ -1145,7 +1103,7 @@ sub PrintEDIT_FORM {
 
 <i>In order to insert or modify a query, please complete the following fields:</i>
 <br>&nbsp;
-<form method="POST" action="$cgi">
+<form method="GET" action="$cgi">
            <input type="hidden" name="check_name_bak" value="$check_name">
            <input type="hidden" name="command" value="$command">
            <input type="hidden" name="state" value="EDIT_COMPLETE">
@@ -1347,9 +1305,6 @@ $row_count rows were updated instead of 1.
 #
 sub PrintCheckInfo {
 
-      # Wrap query with newlines
-      $wrap_query = wrap("","",$query);
-
       # Print response
       print qq{
         <center>
@@ -1361,7 +1316,7 @@ sub PrintCheckInfo {
           <tr><td valign="top"><font size="-1"><b>Make Checklist:</b></font></td>   
           <td><font size="-1">$make_checklist</font></td></tr>
           <tr><td valign="top"><font size="-1"><b>Query:</b></font></td>   
-          <td><font size="-1"><tt>$wrap_query</td></font></td></tr>
+          <td><font size="-1"><tt>$query</td></font></td></tr>
           <tr><td valign="top"><font size="-1"><b>Description:</b></font></td>   
           <td><font size="-1">$description</font></td></tr>
           <tr><td valign="top"><font size="-1"><b>Adjustment:</b></font></td>   

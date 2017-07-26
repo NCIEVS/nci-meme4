@@ -2,7 +2,7 @@
 # concepts where the CT concept is not in the same concept
 # as the SNMI or RCD concept with the legacy code? - TPW
 
-# bcarlsen@msdinc.com
+# carlsen@apelon.com
 # suresh@nlm.nih.gov 11/2003
 
 select concept_id, cluster_id from
@@ -10,7 +10,7 @@ select concept_id, cluster_id from
 from attributes a, classes b
 where attribute_name='SNOMEDID'
   and a.source = (select current_name from source_version
-                   where source='SNOMEDCT_US')
+                   where source='SNOMEDCT')
 and b.tobereleased in ('Y','y') and attribute_value = b.code
 and a.concept_id != b.concept_id and b.source in 
   (select current_name from source_version where source in ('RCD','SNMI'))
@@ -19,7 +19,7 @@ select b.concept_id, a.concept_id
 from attributes a, classes b
 where attribute_name='CTV3ID'
   and a.source = (select current_name from source_version
-                   where source='SNOMEDCT_US')
+                   where source='SNOMEDCT')
 and b.tobereleased in ('Y','y') and attribute_value = b.code
 and a.concept_id != b.concept_id and b.source in 
   (select current_name from source_version where source in ('RCD','SNMI'))
@@ -28,7 +28,7 @@ select a.concept_id, a.concept_id
 from attributes a, classes b
 where attribute_name='SNOMEDID'
   and a.source = (select current_name from source_version
-                   where source='SNOMEDCT_US')
+                   where source='SNOMEDCT')
 and b.tobereleased in ('Y','y') and attribute_value = b.code
 and a.concept_id != b.concept_id and b.source in 
   (select current_name from source_version where source in ('RCD','SNMI'))
@@ -37,7 +37,7 @@ select a.concept_id, a.concept_id
 from attributes a, classes b
 where attribute_name='CTV3ID'
   and a.source = (select current_name from source_version
-                   where source='SNOMEDCT_US')
+                   where source='SNOMEDCT')
 and b.tobereleased in ('Y','y') and attribute_value = b.code
 and a.concept_id != b.concept_id and b.source in 
   (select current_name from source_version where source in ('RCD','SNMI'))

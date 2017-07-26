@@ -25,7 +25,6 @@ import java.sql.SQLException;
  * Handler for "MRMAP" target.
  *
  * @author TTN, BAC
- * 03/13/2009: SL:Modifying the MRSSAB where clause. 
  */
 public class FullMRMAPReleaseHandler extends ReleaseHandler.Default {
 
@@ -111,7 +110,7 @@ public class FullMRMAPReleaseHandler extends ReleaseHandler.Default {
     fields.put("cvf", null);
     constr.fields_to_write = fields;
 
-    String[] conds = new String[] {"NVL(mapsubsetid,'0') = '0'",
+    String[] conds = new String[] {"NVL(mapsubsetid,0) = 0",
         "NVL(maprank,0) = 0"};
     constr.conditions = conds;
 

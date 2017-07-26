@@ -1,6 +1,5 @@
 /*
  * JekyllKit.java
- * Modfied: Soma Lanka : Changes related to Attribute printing
  * Modified: Soma Lanka: 12/06/2005: Changed the release_date variable to 12/06/2005
  * Modified: Soma Lanka: 12/15/2005 -- Seibel Ticket Number: 1-70HJ5 : Authenticate the user 
  * 						-- Also changed the release date to 12/15/2005
@@ -20,7 +19,7 @@ import gov.nih.nlm.meme.client.ClientToolkit;
 import gov.nih.nlm.meme.client.CoreDataClient;
 import gov.nih.nlm.meme.client.FinderClient;
 import gov.nih.nlm.meme.client.ReportsClient;
-
+import gov.nih.nlm.meme.client.TestReportFrame;
 import gov.nih.nlm.meme.client.WorklistClient;
 import gov.nih.nlm.meme.common.Authority;
 import gov.nih.nlm.meme.common.EditorPreferences;
@@ -29,7 +28,6 @@ import gov.nih.nlm.meme.common.Language;
 import gov.nih.nlm.meme.integrity.EnforcableIntegrityVector;
 import gov.nih.nlm.swing.GlassComponent;
 import gov.nih.nlm.umls.jekyll.relae.RelaEditor;
-import gov.nih.nlm.umls.jekyll.swing.TestReportFrame;
 
 import java.awt.Component;
 import java.awt.Dimension;
@@ -41,12 +39,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Vector;
 
 import javax.swing.JFrame;
@@ -86,9 +82,9 @@ public class JekyllKit {
 
     private static Hashtable languages = null;
 
-    //private static String[] excluded_lats = null;
+    private static String[] excluded_lats = null;
 
-    //private static String[] included_lats = null;
+    private static String[] included_lats = null;
 
     private static String[] selected_lats = null;
 
@@ -169,8 +165,6 @@ public class JekyllKit {
     private static File log_file = null;
 
     private static PrintWriter log_writer = null;
-    
-    private static List reportFrames = null;
 
     /**
      * Returns reference to the Main frame.
@@ -487,89 +481,7 @@ public class JekyllKit {
 
         return reportFrame;
     }
-    /**
-     * Returns reference to the Report frame.
-     */
-    public static synchronized TestReportFrame getReportFrame(boolean new_frame) throws Exception {
-    	TestReportFrame repFrame = null;
-    	if (reportFrames == null) {
-    		reportFrames = new ArrayList();
-    	}
-        if (new_frame) {
-            repFrame = new TestReportFrame(getDataSource());
-            all_frames.add(repFrame);
-            reportFrames.add(repFrame);
 
-            JMenuBar menuBar = new JMenuBar();
-
-            // Options
-            JMenu menu = new JMenu();
-            menu.setText("Options");
-            menu.setMnemonic('O');
-
-            JMenuItem item = null;
-            // Options -> Increase Report Font
-            item = new JMenuItem("Increase Report Font");
-            item.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    ConceptReportAction.increaseFont();
-                    ConceptReportAction.refreshScreen();
-                }
-            });
-            menu.add(item);
-
-            // Options -> Decrease Report Font
-            item = new JMenuItem("Decrease Report Font");
-            item.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    ConceptReportAction.decreaseFont();
-                    ConceptReportAction.refreshScreen();
-                }
-            });
-            menu.add(item);
-
-            // Options -> Make text size 5x bigger
-            if (getEditorLevel() == 5) {
-                // separator
-                menu.addSeparator();
-
-                item = new JMenuItem("Make text size 5x bigger");
-                item.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        ConceptReportAction.increaseFont5xDefault();
-                        ConceptReportAction.refreshScreen();
-                    }
-                });
-                menu.add(item);
-            }
-
-            // separator
-            menu.addSeparator();
-
-            // Options -> Print Report
-            item = new JMenuItem("Print Scaled Report");
-            item.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    ConceptReportAction.printReport(3);
-                }
-            });
-            menu.add(item);
-
-            // Options -> Print Report Portrait Style
-            item = new JMenuItem("Print Report Portrait Style");
-            item.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    ConceptReportAction.printReport(1);
-                }
-            });
-            menu.add(item);
-
-            menuBar.add(menu);
-            repFrame.setJMenuBar(menuBar);
-        }
-
-        return repFrame;
-    }
     /**
      * Returns reference to RelaEditor frame.
      */
@@ -953,9 +865,7 @@ public class JekyllKit {
         if (reportFrame != null) {
             reportFrame = null;
         }
-        if (reportFrames != null) {
-        	reportFrames.clear();
-        }
+
         if (rela_editor != null) {
             rela_editor.resetReportsClient();
         }
@@ -1297,8 +1207,7 @@ public class JekyllKit {
                     editor_prefs = getAuxDataClient()
                             .getEditorPreferencesByUsername(mpa.getUsername());
 //                  Soma: Setting the languages to include
-//                    String[]include_languages = MEMEToolkit.getProperty(ClientConstants.INCLUDE_LANGUAGES).split(",");
-                    String[]include_languages = "ENG,SPA".split(",");
+                    String[]include_languages = MEMEToolkit.getProperty(ClientConstants.INCLUDE_LANGUAGES).split(",");
                     if (include_languages != null && include_languages.length > 0 && !include_languages[0].equals("")) {
                     	 JekyllKit.getLanguages();
                     	JekyllKit.setLanguages(include_languages);

@@ -3,13 +3,9 @@
  * Package: gov.nih.nlm.meme.server
  * Object:  AuxiliaryDataService
  *
- * 06/19/2006 RBE (1-BIC23) : Bug fixes
- * 
  *****************************************************************************/
 
 package gov.nih.nlm.meme.server;
-
-import java.util.HashMap;
 
 import gov.nih.nlm.meme.action.Activity;
 import gov.nih.nlm.meme.action.ApplicationVectorAction;
@@ -58,10 +54,7 @@ import gov.nih.nlm.meme.xml.MEMEServiceRequest;
 
 /**
  * Handles requests for auxiliary data.
- * 
- * CHANGES
- * 09/10/2007 JFW (1-DBSLD): Modify isReEntrant to take a SessionContext argument 
- * 
+ *
  * @author MEME Group
  */
 public class AuxiliaryDataService implements MEMEApplicationService {
@@ -456,9 +449,8 @@ public class AuxiliaryDataService implements MEMEApplicationService {
         String key = (String) request.getParameter("param1").getValue();
         String key_qualifier = (String) request.getParameter("param2").getValue();
         String value = (String) request.getParameter("param3").getValue();
-        String description = (String) request.getParameter("param4").getValue();//naveen UMLS-60 added description parameter to getMetaProperty method 
         request.addReturnValue(new Parameter.Default("get_meta_property",
-            data_source.getMetaProperty(key, key_qualifier, value, description)));
+            data_source.getMetaProperty(key, key_qualifier, value)));
       }
     }
     if (function.equals("get_meta_properties")) {
@@ -587,12 +579,12 @@ public class AuxiliaryDataService implements MEMEApplicationService {
     // Return rel,rela inverses
     //
     if (function.equals("inverse_rel_name")) {
-    	request.addReturnValue(new Parameter.Default("inverse_rel_name",
-          new HashMap(data_source.getInverseRelationshipNameMap())));   	    
+      request.addReturnValue(new Parameter.Default("inverse_rel_name",
+          data_source.getInverseRelationshipNameMap()));
     }
     if (function.equals("inverse_rel_attr")) {
-    	request.addReturnValue(new Parameter.Default("inverse_rel_attr",
-          new HashMap(data_source.getInverseRelationshipAttributeMap())));   	    
+      request.addReturnValue(new Parameter.Default("inverse_rel_attr",
+          data_source.getInverseRelationshipAttributeMap()));
     }
 
     //
@@ -860,12 +852,12 @@ public class AuxiliaryDataService implements MEMEApplicationService {
   public boolean isRunning() {
     return false;
   }
+
   /**
    * Returns <code>false</code>.
-   * @param context the {@link SessionContext}
    * @return <code>false</code>
    */
-  public boolean isReEntrant(SessionContext context) {
+  public boolean isReEntrant() {
     return false;
   }
 

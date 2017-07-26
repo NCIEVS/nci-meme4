@@ -126,7 +126,7 @@
 	</xsl:choose>
 
 	<xsl:choose>
-	  <xsl:when test="rsab='CDT' or rsab='CPT' or rsab='HCDT' or rsab='HCPCS' or rsab='HCPT' or rsab='HL7' or rsab='ICD9CM' or rsab='LNC' or rsab='MTHFDA' or rsab='RXNORM' or rsab='SNOMEDCT_US'">
+	  <xsl:when test="rsab='CDT' or rsab='CPT' or rsab='HCDT' or rsab='HCPCS' or rsab='HCPT' or rsab='HL7' or rsab='ICD9CM' or rsab='LNC' or rsab='MTHFDA' or rsab='RXNORM' or rsab='SNOMEDCT'">
 		CHI standard<br/>
 	  </xsl:when>
 	</xsl:choose>

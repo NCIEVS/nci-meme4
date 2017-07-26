@@ -9,7 +9,6 @@
 #     -h help:    On-line help
 #
 # Version Info
-# 06/09/2006 TTN (1-BFPC3): add medline_info entries to meme_properties for release.dat
 # 04/10/2006 TTN (1-AV6XL) :  add -mrd switch to run on MRD database
 # 05/13/2002 4.1.0:  First Version
 $release = "4";
@@ -19,9 +18,6 @@ $version_authority="BAC";
 
 unshift @INC,"$ENV{ENV_HOME}/bin";
 require "env.pl";
-
-use DBI;
-use DBD::Oracle;
 
 while (@ARGV) {
     $arg = shift(@ARGV);
@@ -95,7 +91,7 @@ $update_dir="$ENV{MEDLINE_DIR}/update";
 $ftp_host="ftp.nlm.nih.gov";
 $ftp_dir="nlmdata/.medlease/gz";
 $ftp_user="anonymous";
-$ftp_pwd="meme\@msdinc.com";
+$ftp_pwd="meme\@apelon.com";
 $parser="$ENV{MEME_HOME}/bin/medline_parser.pl";
 $process="$ENV{MEME_HOME}/bin/process_medline_data.csh";
 $gunzip="gunzip";
@@ -176,32 +172,7 @@ foreach ( sort(grep(/\.gz$/,$ftp->ls))) {
 $ftp->quit;
 
 # set variables
-$userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl -d $db`;
-chop($userpass);
-($user,$password) = split /\//, $userpass;
-# open connection
-$dbh = DBI->connect("dbi:Oracle:$db",$user,$password)
-  || die "Could not connect to $db: $! $?\n";
-
-$dbh->do(qq{ DELETE FROM meme_properties WHERE KEY_QUALIFIER = 'MEDLINE_INFO'});
-
-$dbh->do(qq{ INSERT INTO meme_properties (key, key_qualifier,
-  value)
-  VALUES (?,?,?)
-  }, undef, 'umls.medline.date', 'MEDLINE_INFO',$year.$month.$day) || die
- qq{Can not insert medline date info: \n};
-
-$dbh->do(qq{ INSERT INTO meme_properties (key, key_qualifier,
-  value)
-  VALUES (?,?,?)
-  }, undef, 'umls.medline.file', 'MEDLINE_INFO',$file) || die
- qq{Can not insert medline file info : \n};
- 
- $dbh->disconnect;
-
-
-# set variables
-#$userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl -d $db`;
+#$userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl`;
 #chop($userpass);
 #($user,$password) = split /\//, $userpass;
 # open connection

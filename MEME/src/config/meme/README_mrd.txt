@@ -1,58 +1,6 @@
 Version Information
 -------------------
 RELEASE=4
-VERSION=9.0
-DATE=20060808
-AUTHORITY=BAC
-
-This release of the MRD Server should contain everything needed to operate MRD
-tools and services.  Notable updates include:
-
- o FullORFReleaseHandler no longer calls bogus fakeMRDOCSuppressRows method in MMSYS.
- 
- o Gold script logic for MRCUI deleted cui count improved.  Also a comment
-   was corrected (was missing a leading #)
- 
- o Last_release_rank support now in tmp_classes, mrd_classes and the
-   generate_core_data_states('C') mapping function in MRD_OPERATIONS.
-   
- o MTH ATN names computed for MRSAB instead of hard coded
- 
- o qa_checks.csh relaxes a couple of ERROR conditions to WARNING.  Also correctly
-   handles an empty MRCOC.RRF
- 
- o qa_counts.csh more tolerant of linux.
- 
-
-See INSTALL.txt for installation instructions
-
-Old Release Information
------------------------
-RELEASE=4
-VERSION=8.0
-DATE=20060627
-AUTHORITY=BAC
-
-This release of the MRD Server should contain everything needed to operate MRD
-tools and services.  Notable updates include:
-
- o gold_script.csh for MRDOC updated to reflect new CVF metadata handling.
- 
- o initialize_mrd.csh now includes coc_headings and coc_subheadings
-   as tables whose MRD states are initialized.  This is necessary
-   because of the new practice of MEDLINE processing in the MID.
-   
- o MED<year> ATUI semantics now properly implemented by release_maintenance.cgi
-
- o Medline handling creates MRDOC properties umls.medline.date and umls.medline.file
- 
- o MRD_RELEASE_OPERATIONS.mrdoc_prepare no longer includes CVF metadata.
-
- o MRD_RELEASE_OPERATIONS.mrconso_prepare computes initial TS, STT, and ISPREF values.
-
- o MRD_RELEASE_OPERATIONS.mrsat_prepare utilizes new ATUI algorithm.
-
-RELEASE=4
 VERSION=7.0
 DATE=20060511
 AUTHORITY=BAC
@@ -68,7 +16,12 @@ tools and services.  Notable updates include:
  o Source metadata report implemented fully.
  
  o qa_checks.csh allows CXTY entries in MRDOC.RRF
- RELEASE=4
+
+See INSTALL.txt for installation instructions
+
+Old Release Information
+-----------------------
+RELEASE=4
 VERSION=6.0
 DATE=20060331
 AUTHORITY=BAC

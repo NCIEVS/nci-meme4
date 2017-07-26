@@ -9,35 +9,6 @@
 # Description:
 #
 # Changes:
-#
-# 04/04/2008 TK (1-GZSO4): Update CXTY queries to include tobereleased values.
-# 01/24/2008 TTN (1-GAF41): STY ATUI changes - assign ATUIs for STY and NON_HUMAN attributes during pre_production
-# 11/07/2007 BAC (1-FPFK1): Revise meta_ver handling to set to upcoming release for
-#                    anything that was inserted. Thus it serves as a marker of
-#                    the editing cycle version for any inserted source.
-#                    This is useful for archive QA to know whether Yearly links
-#                    are properly set.
-# 11/07/2007 BAC (1-FP72H): Remove tobereleased='n' SRC atoms during prod_mid_cleanup.
-#                (1-FP72W): set meta_ver=NOT_RELEASED for intermediate source insertions
-#                           like pre-resync RXNORM sub-sources.
-# 10/01/2007 BAC (1-FE0OD): Remove bequeathal rels during prod_mid_cleanup.
-# 09/21/2007 BAC (1-FB2I5): Removed GO, NIC from IGNORE-RELA list 
-# 08/03/2007 TK (1-EWJOH): Fixed query to include value=source
-# 07/17/2007 SL (1-EIJTQ):  ATUI MED is running out of temp space. Modified the code to create temp tables
-# 06/25/2007 BAC (1-EKR69): prod_mid_cleanup uses separate DB connection to clean up worklists.
-# 06/11/2007 BAC (1-EH3W4): Update RMETA only if IMETA is set.
-# 06/04/2007 BAC (1-EE2B8): In prod_mid_cleanup, remove all tbr=N atoms, not just SRC,MTH.
-# 03/20/2007 BAC (1-DSHDP): Handle_cui_history needs deals with "switch merge" case.
-# 02/06/2007 BAC (1-D5427): fix ATNL computation.
-# 01/25/2007 BAC (1-D4WYE): Remove dangling XMAPTO in Handle_atx_cui_map
-# 01/22/2007 BAC (1-DAW0L): include HL7V3.0 as an IGNORE-RELA source
-# 11/07/2006 BAC (1-CR3PG): Fixed bug in prod_mid_cleanup for "attribues"
-# 11/01/2006 BAC (1-CO7PX): Bug in MR ATUI assignment fixed.
-# 08/31/2006 TTN (1-C261E): use the ranking algorithm from MEME_RANKS
-# 06/29/2006 BAC (1-BH9E5): "fix" introduced actually broke the query, so it was fixed again.
-# 06/14/2006 BAC (1-BH9E5): Handle_cui_history had minor bug in query to find "merged" concepts.
-#                           It should verify that the "old" CUI was released, not the "new" one.
-# 05/30/2006 BAC (1-BCSO4): Implement correct MED<year> semantics
 # 04/07/2006 BAC (1-AUN5X): atx_cui_map has more explicit handling of aui prefix/length for t_delcui_$$ query
 # 04/03/2006 BAC (1-ATKBL): new Handle_aui_history query to handle case where
 #      legacy CUI2 values are wrong (because last_release_cui was not inherited
@@ -315,7 +286,7 @@ sub PrintFooter {
 	      <address><a href="$cgi?db=$db">Back to Index</a></address>
             </td>
 	    <td ALIGN=RIGHT VALIGN=TOP NOSAVE>
-	      <address>Contact: <a href="mailto:bcarlsen\@msdinc.com">Brian A. Carlsen</a></address>
+	      <address>Contact: <a href="mailto:carlsen\@apelon.com">Brian A. Carlsen</a></address>
 	      <address>Generated on:},scalar(localtime),qq{</address>
               <address>This page took $elapsed_time seconds to generate.</address>
 	      <address>};
@@ -415,19 +386,6 @@ sub PrintINDEX {
 	     DA, MR, ST, AM, and MED attributes in MRSAT, so we assign ATUI values for
 	     all combinations which will appear in MRSAT (based on the data here).
 	     Run this AFTER CUI assignment</td>
- </tr>
-
- <!-- Assign ATUI MED<year> -->
- <tr>
-    <td width="30%" valign="top"><a href="$cgi?$running_state&command=atui_med"
-	     onClick="return confirm('This operation may take more than 5 minutes.\\nAre you sure you want to do this now?');"
-	     onMouseOver="window.status='Assign ATUI for MED'; return true;"
-	     onMouseOut="window.status=''; return true;"> Assign ATUI for MED&lt;year&gt;</a></td>
-    <td valign="top">
-	     ATUIs need to be properly assigned for MED attributes in MRSAT.  We do this
-	     separately from the other ATUI tasks because they are not dependent upon
-	     CUI assignments.
-    </td>
  </tr>
 
  <!-- AUI history maintenance -->
@@ -603,25 +561,6 @@ sub PrintINDEX {
     <td valign="top">Make sure context_relationships and foreign_classes rows have correctly set releasability values. (Make sure to map foreign atoms across safe replacement facts before doing this).</td>
  </tr>
 
-<!-- removing the algorithmic fix. These cases should be handled by editors -->
- <!--
- <tr>
-    <td width="30%" valign="top"><a href="$cgi?$running_state&command=move_foreign_MSH_concepts"
-	     onClick="return confirm('This operation may take more than 5 minutes.\\nAre you sure you want to do this now?');"
-	     onMouseOver="window.status='Move foreign MSH concepts'; return true;"
-	     onMouseOut="window.status=''; return true;">Move foreign MSH concepts with English concepts</a></td>
-    <td valign="top">Moves MSH foreign concepts into MSH English concepts.</td>
- </tr>
- -->
-
- <tr>
-    <td width="30%" valign="top"><a href="$cgi?$running_state&command=move_foreign_MDR_concepts"
-	     onClick="return confirm('This operation may take more than 5 minutes.\\nAre you sure you want to do this now?');"
-	     onMouseOver="window.status='Move foreign MDR concepts'; return true;"
-	     onMouseOut="window.status=''; return true;">Move foreign MDR concepts with English concepts</a></td>
-    <td valign="top">Moves MDR foreign concepts into MDR English concepts.</td>
- </tr>
-
 </table>
 </center>
 </form>
@@ -777,7 +716,7 @@ sub Handle_verify_releasability {
      return);
 
   # set variables
-  $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl -d $db`;
+  $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl`;
   ($user,$password) = split /\//, $userpass;
   chop($password);
 
@@ -1050,7 +989,7 @@ sub Handle_prepare_nlm02_codes {
      return);
 
   # set variables
-  $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl -d $db`;
+  $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl`;
   ($user,$password) = split /\//, $userpass;
   chop($password);
 
@@ -1146,7 +1085,7 @@ sub Handle_prepare_nlm02_codes {
   $dbh->do(qq{
         CREATE TABLE ${uniq}_trx_assign (
             concept_id   NUMBER(12),
-	    code         VARCHAR2(100))
+	    code         VARCHAR2(50))
     }) || ((print L "<span id=red>Error executing create 3 ($DBI::errstr).</span>")
      &&  return);
 
@@ -1282,7 +1221,7 @@ sub Handle_prepare_nlm02_codes {
         CREATE TABLE ${uniq}_trx_feedback (
 	    concept_id NUMBER(12),
 	    atom_id NUMBER(12),
-	    code VARCHAR2(100))
+	    code VARCHAR2(50))
     }) || ((print L "<span id=red>Error executing create 4 ($DBI::errstr).</span>")
      &&  return);
 
@@ -1393,7 +1332,7 @@ sub Handle_dead_cui_mappings {
   return;
 
   # set variables
-  $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl -d $db`;
+  $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl`;
   ($user,$password) = split /\//, $userpass;
   chop($password);
 
@@ -1483,7 +1422,7 @@ sub Handle_aui_history {
      return);
 
   # set variables
-  $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl -d $db`;
+  $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl`;
   ($user,$password) = split /\//, $userpass;
   chop($password);
 
@@ -1833,7 +1772,7 @@ sub Handle_cui_history {
      return);
 
   # set variables
-  $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl -d $db`;
+  $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl`;
   ($user,$password) = split /\//, $userpass;
   chop($password);
 
@@ -1934,6 +1873,7 @@ sub Handle_cui_history {
         AND b.last_assigned_cui = c.cui
         AND a.concept_id != 0
         AND a.cui != b.last_assigned_cui
+        AND b.released != 'N'
       UNION
       SELECT DISTINCT a.cui AS old_cui, b.last_assigned_cui AS new_cui
       FROM t_old_cuis a, classes b, classes c
@@ -2125,18 +2065,6 @@ sub Handle_cui_history {
   }) || ((print "<span id=red>Error insertin bequeathal rels into cui_history ($DBI::errstr).</span>") && return);
   print L "      count == $rc\n";
 
-
-  #
-  # Remove cases that indicate CUI1 merges into CUI2 and CUI2 merges into CUI1
-  #
-  print L "    Remove SY facts where CUI2 is now a CUI1 ... ".scalar(localtime)."\n";
-  $rc = $dbh->do(qq{
-      DELETE FROM cui_history a
-      WHERE (cui1, cui2) IN
-         (SELECT cui2, cui1 FROM cui_history b
-          WHERE b.ver = ? AND relationship_name='SY')         
-  }, undef, $old_release) || ((print "<span id=red>Error loading removing cases of CUI2 that are now CUI1 merged into a different CUI2 ($DBI::errstr).</span>") && return);
-  print L "      count == $rc\n";
 
   #
   # Update CUI2 through SY facts
@@ -2353,7 +2281,6 @@ sub Handle_cui_history {
       BEGIN
         MEME_UTILITY.drop_it('table','t_old_cuis');
         MEME_UTILITY.drop_it('table','t_merged_cuis');
-        MEME_UTILITY.drop_it('table','t_split_merged_cuis');
         MEME_UTILITY.drop_it('table','t_deleted_cuis');
         MEME_UTILITY.drop_it('table','t_bequeathal_rels');
       END;
@@ -2443,8 +2370,7 @@ sub Handle_cui_history {
   $sh = $dbh->prepare(qq{
         SELECT * FROM cui_history
         WHERE relationship_name != 'DEL' AND cui2 IN
-        (SELECT cui FROM concept_status WHERE tobereleased IN ('N','n')
-         minus SELECT cui FROM concept_status WHERE tobereleased IN ('Y','y'))
+        (SELECT cui FROM concept_status WHERE tobereleased IN ('N','n'))
   }) || ((print "<span id=red>Error preparing qa check 5 ($DBI::errstr).</span>") && return);
   $sh->execute || ((print "<span id=red>Error executing qa check 5 ($DBI::errstr).</span>") && return);
   $rc = 0;
@@ -2744,7 +2670,7 @@ sub Handle_lrr {
      return);
 
   # set variables
-  $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl -d $db`;
+  $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl`;
   ($user,$password) = split /\//, $userpass;
   chop($password);
 
@@ -2771,67 +2697,30 @@ sub Handle_lrr {
   $sh->execute ||
     ((print L "<span id=red>Error executing drop 1 ($DBI::errstr).</span>")
      &&  return);
-    #
+  #
   # Create table
   #
-  # Soma Making changes for 10g. Somehow Oracle 10 performanace on queries with sub query is
-  # very bad. The following query is taking about 2 hrs to complete. Hence creating a temporary tables
-  
-  $sh = $dbh->prepare("BEGIN MEME_UTILITY.drop_it('table', 'tmp_pref_lui_for_cui_lat_1'); END;") ||
-    ((print L "<span id=red>Error preparing drop 1 ($DBI::errstr).</span>") &&  return);
-  $sh->execute || ((print L "<span id=red>Error executing drop 1 ($DBI::errstr).</span>") &&  return);
-  $dbh->do(qq{
-           CREATE TABLE tmp_pref_lui_for_cui_lat_1 AS
-           (SELECT MEME_RANKS.get_atom_editing_rank(tbr.rank, tr.release_rank,
-             c.last_release_rank, c.sui ,  c.aui, c.atom_id) as rank ,lui, concept_id, language
-      FROM classes c, termgroup_rank tr, tobereleased_rank tbr
-      WHERE c.tobereleased in ('Y','y')
-            AND c.termgroup = tr.termgroup
-        AND c.tobereleased = tbr.tobereleased
-        UNION
-        SELECT MEME_RANKS.get_atom_editing_rank(tbr.rank, tr.release_rank,
-            a.last_release_rank, a.sui , a.aui, a.atom_id) as rank,a.lui, b.concept_id, a.language
-      FROM foreign_classes a, classes b, termgroup_rank tr, tobereleased_rank tbr
-      WHERE a.eng_atom_id = b.atom_id
-        AND a.tobereleased in ('Y','y')
-        AND b.tobereleased in ('Y','y')
-                AND a.termgroup = tr.termgroup
-        AND a.tobereleased = tbr.tobereleased)
-        }) || ((print "<span id=red>Error in creating a temp table $tmp_pref_lui_for_cui_lat_1. ($DBI::errstr)</span
->") && return);
- 
-$sh = $dbh->prepare("BEGIN MEME_UTILITY.drop_it('table', 'tmp_pref_lui_for_cui_lat_2'); END;") || ((print L "<span id=red>Error preparing drop 1 ($DBI::errstr).</span>")
-     &&  return);
-  $sh->execute ||
-    ((print L "<span id=red>Error executing drop 1 ($DBI::errstr).</span>")
-     &&  return);
-  $dbh->do(qq{
-           CREATE TABLE tmp_pref_lui_for_cui_lat_2 AS
-           (SELECT MEME_RANKS.get_atom_editing_rank(tbr.rank, tr.release_rank,
-                        c.last_release_rank, c.sui ,  c.aui, c.atom_id)
-            ||'/'||sui as rank, concept_id, language, lui
-      FROM classes c, termgroup_rank tr, tobereleased_rank tbr
-      WHERE c.tobereleased in ('Y','y')
-                AND c.termgroup = tr.termgroup
-        AND c.tobereleased = tbr.tobereleased
-      UNION
-      SELECT MEME_RANKS.get_atom_editing_rank(tbr.rank, tr.release_rank,
-                        a.last_release_rank, a.sui , a.aui, a.atom_id)
-            ||'/'||a.sui as rank, b.concept_id, a.language , a.lui
-      FROM foreign_classes a, classes b, termgroup_rank tr, tobereleased_rank tbr
-      WHERE a.eng_atom_id = b.atom_id
-        AND a.tobereleased in ('Y','y')
-        AND b.tobereleased in ('Y','y')
-                AND a.termgroup = tr.termgroup
-        AND a.tobereleased = tbr.tobereleased)
-        }) || ((print "<span id=red>Error in creating a temp table $tmp_pref_lui_for_cui_lat_1. ($DBI::errstr)</span>") && return);
   $dbh->do(qq{
     CREATE TABLE pref_lui_for_cui_lat AS
     SELECT SUBSTR(mr,INSTR(mr,'/')+1) lui, concept_id, language
     FROM
-    (SELECT max(rank||'/'||lui) mr, concept_id, language
+    (SELECT max(rank) mr, concept_id, language
      FROM
-       tmp_pref_lui_for_cui_lat_1
+     (SELECT rank||last_release_rank||sui||
+	    LPAD(SUBSTR(aui,INSTR(aui,(SELECT value FROM code_map WHERE code = 'AUI' AND type = 'ui_prefix'))+1),
+	    (SELECT value FROM code_map WHERE code = 'AUI' AND type = 'ui_length'),'0')||
+	    '/'||lui as rank, concept_id, language
+      FROM classes
+      WHERE tobereleased in ('Y','y')
+      UNION
+      SELECT a.rank||a.last_release_rank||a.sui||
+	    LPAD(SUBSTR(a.aui,INSTR(a.aui,(SELECT value FROM code_map WHERE code = 'AUI' AND type = 'ui_prefix'))+1),
+	    (SELECT value FROM code_map WHERE code = 'AUI' AND type = 'ui_length'),'0')||
+	    '/'||a.lui rank, b.concept_id, a.language
+      FROM foreign_classes a, classes b
+      WHERE a.eng_atom_id = b.atom_id
+        AND a.tobereleased in ('Y','y')
+        AND b.tobereleased in ('Y','y'))
       GROUP BY concept_id,language)
     }) || ((print L "<span id=red>Error at 1 ($DBI::errstr).</span>")
      &&  return);
@@ -2852,152 +2741,88 @@ $sh = $dbh->prepare("BEGIN MEME_UTILITY.drop_it('table', 'tmp_pref_lui_for_cui_l
     FROM
     (SELECT max(rank) mr, concept_id, language
      FROM
-       tmp_pref_lui_for_cui_lat_2
+     (SELECT rank||last_release_rank||sui||
+	    LPAD(SUBSTR(aui,INSTR(aui,(SELECT value FROM code_map WHERE code = 'AUI' AND type = 'ui_prefix'))+1),
+	    (SELECT value FROM code_map WHERE code = 'AUI' AND type = 'ui_length'),'0')||
+	    '/'||sui as rank, concept_id, language, lui
+      FROM classes
+      WHERE tobereleased in ('Y','y')
+      UNION
+      SELECT a.rank||a.last_release_rank||a.sui||
+	    LPAD(SUBSTR(a.aui,INSTR(a.aui,(SELECT value FROM code_map WHERE code = 'AUI' AND type = 'ui_prefix'))+1),
+	    (SELECT value FROM code_map WHERE code = 'AUI' AND type = 'ui_length'),'0')||
+	    '/'||a.sui rank, b.concept_id, a.language , a.lui
+      FROM foreign_classes a, classes b
+      WHERE a.eng_atom_id = b.atom_id
+        AND a.tobereleased in ('Y','y')
+        AND b.tobereleased in ('Y','y'))
       GROUP BY concept_id,language,lui)
     }) || ((print L "<span id=red>Error at 2 ($DBI::errstr).</span>")
      &&  return);
- $sh = $dbh->prepare("BEGIN MEME_UTILITY.drop_it('table', 'tmp_pref_lui_for_cui_lat_1'); END;") ||
-    ((print L "<span id=red>Error preparing drop 1 ($DBI::errstr).</span>")
-     &&  return);
-  $sh->execute ||
-    ((print L "<span id=red>Error executing drop 1 ($DBI::errstr).</span>")
-     &&  return);
-$sh = $dbh->prepare("BEGIN MEME_UTILITY.drop_it('table', 'tmp_pref_lui_for_cui_lat_2'); END;") ||
-    ((print L "<span id=red>Error preparing drop 1 ($DBI::errstr).</span>")
-     &&  return);
-  $sh->execute ||
-    ((print L "<span id=red>Error executing drop 1 ($DBI::errstr).</span>")
-     &&  return);
-
 
   print L "    Set last_release_rank to 4 for P,PF in classes ... ".scalar(localtime)."\n";
   $rc = $dbh->do(qq{
       UPDATE /*+ PARALLEL(a) */ classes a SET last_release_rank = 4
       WHERE (concept_id, language, lui) IN
-            (SELECT concept_id, language, lui FROM pref_lui_for_cui_lat)
-        AND (concept_id, language, sui) IN
-            (SELECT concept_id, language, sui FROM pref_sui_for_cui_lat_lui)
-        AND tobereleased IN ('Y','y')
+	    (SELECT concept_id, language, lui FROM pref_lui_for_cui_lat)
+	AND (concept_id, language, sui) IN
+	    (SELECT concept_id, language, sui FROM pref_sui_for_cui_lat_lui)
+	AND tobereleased IN ('Y','y')
         AND last_release_rank != 4
     }) || ((print L "<span id=red>Error at 3 ($DBI::errstr).</span>")
      &&  return);
   print "      Count == $rc\n";
 
   print L "    Set last_release_rank to 3 for S,PF in classes ... ".scalar(localtime)."\n";
-  $sh = $dbh->prepare("BEGIN MEME_UTILITY.drop_it('table', 'tmp_last_release_rank_3'); END;") ||
-    ((print L "<span id=red>Error preparing drop 1 ($DBI::errstr).</span>")
-     &&  return);
-  $sh->execute ||
-    ((print L "<span id=red>Error executing drop 1 ($DBI::errstr).</span>")
-     &&  return);
-  $dbh->do(qq{
-  CREATE TABLE tmp_last_release_rank_3 AS
-  (SELECT concept_id, language, lui FROM classes
-             WHERE last_release_rank != 3
-               AND tobereleased IN ('Y','y')
-             MINUS
-             SELECT concept_id, language, lui FROM pref_lui_for_cui_lat)
-          }) || ((print L "<span id=red>Error at 3 ($DBI::errstr).</span>")
-     &&  return);
   $rc = $dbh->do(qq{
       UPDATE /*+ PARALLEL(a) */ classes a SET last_release_rank = 3
       WHERE (concept_id, language, lui) IN
-            (SELECT concept_id, language, lui FROM tmp_last_release_rank_3)
-        AND (concept_id, language, sui) IN
-            (SELECT concept_id, language, sui FROM pref_sui_for_cui_lat_lui)
-        AND tobereleased IN ('Y','y')
+	    (SELECT concept_id, language, lui FROM classes
+             WHERE last_release_rank != 3
+	       AND tobereleased IN ('Y','y')
+	     MINUS
+	     SELECT concept_id, language, lui FROM pref_lui_for_cui_lat)
+	AND (concept_id, language, sui) IN
+	    (SELECT concept_id, language, sui FROM pref_sui_for_cui_lat_lui)
+	AND tobereleased IN ('Y','y')
         AND last_release_rank != 3
     }) || ((print L "<span id=red>Error at 4 ($DBI::errstr).</span>")
      &&  return);
   print "      Count == $rc\n";
 
-  $sh = $dbh->prepare("BEGIN MEME_UTILITY.drop_it('table', 'tmp_last_release_rank_3'); END;") ||
-    ((print L "<span id=red>Error preparing drop 1 ($DBI::errstr).</span>")
-     &&  return);
-  $sh->execute ||
-    ((print L "<span id=red>Error executing drop 1 ($DBI::errstr).</span>")
-     &&  return);
-
-  $sh = $dbh->prepare("BEGIN MEME_UTILITY.drop_it('table', 'tmp_last_release_rank_2'); END;") ||
-    ((print L "<span id=red>Error preparing drop 1 ($DBI::errstr).</span>")
-     &&  return);
-  $sh->execute ||
-    ((print L "<span id=red>Error executing drop 1 ($DBI::errstr).</span>")
-     &&  return);
-
   print L "    Set last_release_rank to 2 for P,VF in classes ... ".scalar(localtime)."\n";
-  $dbh->do(qq{
-  CREATE TABLE tmp_last_release_rank_2 AS
-  SELECT concept_id, language, sui FROM classes
-             WHERE last_release_rank != 2
-               AND tobereleased IN ('Y','y')
-             MINUS
-             SELECT concept_id, language, sui FROM pref_sui_for_cui_lat_lui
-}) || ((print L "<span id=red>Error at 5 ($DBI::errstr).</span>")
-     &&  return);
-
   $rc = $dbh->do(qq{
       UPDATE /*+ PARALLEL(a) */ classes a SET last_release_rank = 2
       WHERE (concept_id, language, lui) IN
-            (SELECT concept_id, language, lui FROM pref_lui_for_cui_lat)
-        AND (concept_id, language, sui) IN
-            (SELECT concept_id, language, sui FROM tmp_last_release_rank_2)
-        AND tobereleased IN ('Y','y')
+	    (SELECT concept_id, language, lui FROM pref_lui_for_cui_lat)
+	AND (concept_id, language, sui) IN
+	    (SELECT concept_id, language, sui FROM classes
+             WHERE last_release_rank != 2
+	       AND tobereleased IN ('Y','y')
+	     MINUS
+	     SELECT concept_id, language, sui FROM pref_sui_for_cui_lat_lui)
+	AND tobereleased IN ('Y','y')
         AND last_release_rank != 2
     }) || ((print L "<span id=red>Error at 5 ($DBI::errstr).</span>")
      &&  return);
   print "      Count == $rc\n";
 
-  $sh = $dbh->prepare("BEGIN MEME_UTILITY.drop_it('table', 'tmp_last_release_rank_2'); END;") ||
-    ((print L "<span id=red>Error preparing drop 1 ($DBI::errstr).</span>")
-     &&  return);
-  $sh->execute ||
-    ((print L "<span id=red>Error executing drop 1 ($DBI::errstr).</span>")
-     &&  return);
-
-  $sh = $dbh->prepare("BEGIN MEME_UTILITY.drop_it('table', 'tmp_last_release_rank_1'); END;") ||
-    ((print L "<span id=red>Error preparing drop 1 ($DBI::errstr).</span>")
-     &&  return);
-  $sh->execute ||
-    ((print L "<span id=red>Error executing drop 1 ($DBI::errstr).</span>")
-     &&  return);
-
-  $sh = $dbh->prepare("BEGIN MEME_UTILITY.drop_it('table', 'tmp_last_release_rank_1_a'); END;") ||
-    ((print L "<span id=red>Error preparing drop 1 ($DBI::errstr).</span>")
-     &&  return);
-  $sh->execute ||
-    ((print L "<span id=red>Error executing drop 1 ($DBI::errstr).</span>")
-     &&  return);
-
   print L "    Set last_release_rank to 1 for S,VF in classes ... ".scalar(localtime)."\n";
-
-  $dbh->do(qq{
-  CREATE TABLE tmp_last_release_rank_1 AS
-  SELECT concept_id, language, lui FROM classes
-             WHERE last_release_rank != 1
-               AND tobereleased IN ('Y','y')
-             MINUS
-             SELECT concept_id, language, lui FROM pref_lui_for_cui_lat
-    }) || ((print L "<span id=red>Error at 6 ($DBI::errstr).</span>")
-     &&  return);
-
-
-  $dbh->do(qq{
-  CREATE TABLE tmp_last_release_rank_1_a AS
-  SELECT concept_id, language, sui FROM classes
-             WHERE last_release_rank != 1
-               AND tobereleased IN ('Y','y')
-             MINUS
-             SELECT concept_id, language, sui FROM pref_sui_for_cui_lat_lui
-    }) || ((print L "<span id=red>Error at 6 ($DBI::errstr).</span>") &&  return);
-
   $rc = $dbh->do(qq{
       UPDATE /*+ PARALLEL(a) */ classes a SET last_release_rank = 1
       WHERE (concept_id, language, lui) IN
-            (SELECT concept_id, language, lui FROM tmp_last_release_rank_1)
-        AND (concept_id, language, sui) IN
-            (SELECT concept_id, language, sui FROM tmp_last_release_rank_1_a)
-        AND tobereleased IN ('Y','y')
+	    (SELECT concept_id, language, lui FROM classes
+             WHERE last_release_rank != 1
+	       AND tobereleased IN ('Y','y')
+	     MINUS
+	     SELECT concept_id, language, lui FROM pref_lui_for_cui_lat)
+	AND (concept_id, language, sui) IN
+	    (SELECT concept_id, language, sui FROM classes
+             WHERE last_release_rank != 1
+	       AND tobereleased IN ('Y','y')
+	     MINUS
+	     SELECT concept_id, language, sui FROM pref_sui_for_cui_lat_lui)
+	AND tobereleased IN ('Y','y')
         AND last_release_rank != 1
     }) || ((print L "<span id=red>Error at 6 ($DBI::errstr).</span>")
      &&  return);
@@ -3011,20 +2836,6 @@ $sh = $dbh->prepare("BEGIN MEME_UTILITY.drop_it('table', 'tmp_pref_lui_for_cui_l
     }) || ((print L "<span id=red>Error at 7 ($DBI::errstr).</span>")
      &&  return);
   print "      Count == $rc\n";
-  $sh = $dbh->prepare("BEGIN MEME_UTILITY.drop_it('table', 'tmp_last_release_rank_1'); END;") ||
-    ((print L "<span id=red>Error preparing drop 1 ($DBI::errstr).</span>")
-     &&  return);
-  $sh->execute ||
-    ((print L "<span id=red>Error executing drop 1 ($DBI::errstr).</span>")
-     &&  return);
-
-  $sh = $dbh->prepare("BEGIN MEME_UTILITY.drop_it('table', 'tmp_last_release_rank_1_a'); END;") ||
-    ((print L "<span id=red>Error preparing drop 1 ($DBI::errstr).</span>")
-     &&  return);
-  $sh->execute ||
-    ((print L "<span id=red>Error executing drop 1 ($DBI::errstr).</span>")
-     &&  return);
-
 
   print L "    Set last_release_rank to 0 in dead_classes ... ".scalar(localtime)."\n";
   $rc = $dbh->do(qq{
@@ -3038,147 +2849,70 @@ $sh = $dbh->prepare("BEGIN MEME_UTILITY.drop_it('table', 'tmp_pref_lui_for_cui_l
   $rc = $dbh->do(qq{
       UPDATE /*+ PARALLEL(a) */ foreign_classes a SET last_release_rank = 4
       WHERE (concept_id, language, lui) IN
-            (SELECT concept_id, language, lui FROM pref_lui_for_cui_lat)
-        AND (concept_id, language, sui) IN
-            (SELECT concept_id, language, sui FROM pref_sui_for_cui_lat_lui)
-        AND tobereleased IN ('Y','y')
+	    (SELECT concept_id, language, lui FROM pref_lui_for_cui_lat)
+	AND (concept_id, language, sui) IN
+	    (SELECT concept_id, language, sui FROM pref_sui_for_cui_lat_lui)
+	AND tobereleased IN ('Y','y')
         AND last_release_rank != 4
     }) || ((print L "<span id=red>Error at 9 ($DBI::errstr).</span>")
      &&  return);
   print "      Count == $rc\n";
-$sh = $dbh->prepare("BEGIN MEME_UTILITY.drop_it('table', 'tmp_last_release_rank_3'); END;") ||
-    ((print L "<span id=red>Error preparing drop 1 ($DBI::errstr).</span>")
-     &&  return);
-  $sh->execute ||
-    ((print L "<span id=red>Error executing drop 1 ($DBI::errstr).</span>")
-     &&  return);
-  $dbh->do(qq{
-  CREATE TABLE tmp_last_release_rank_3 AS
-  (SELECT concept_id, language, lui FROM foreign_classes
-             WHERE last_release_rank != 3
-               AND tobereleased IN ('Y','y')
-             MINUS
-             SELECT concept_id, language, lui FROM pref_lui_for_cui_lat)
-          }) || ((print L "<span id=red>Error at 3 ($DBI::errstr).</span>")
-     &&  return);
+
   print L "    Set last_release_rank to 3 for S,PF in foreign_classes ... ".scalar(localtime)."\n";
   $rc = $dbh->do(qq{
       UPDATE /*+ PARALLEL(a) */ foreign_classes a SET last_release_rank = 3
       WHERE (concept_id, language, lui) IN
-            (SELECT concept_id, language, lui FROM tmp_last_release_rank_3)
-        AND (concept_id, language, sui) IN
-            (SELECT concept_id, language, sui FROM pref_sui_for_cui_lat_lui)
-        AND tobereleased IN ('Y','y')
+	    (SELECT concept_id, language, lui FROM foreign_classes
+             WHERE last_release_rank != 3
+	       AND tobereleased IN ('Y','y')
+	     MINUS
+	     SELECT concept_id, language, lui FROM pref_lui_for_cui_lat)
+	AND (concept_id, language, sui) IN
+	    (SELECT concept_id, language, sui FROM pref_sui_for_cui_lat_lui)
+	AND tobereleased IN ('Y','y')
         AND last_release_rank != 3
     }) || ((print L "<span id=red>Error at 9 ($DBI::errstr).</span>")
      &&  return);
   print "      Count == $rc\n";
-$sh = $dbh->prepare("BEGIN MEME_UTILITY.drop_it('table', 'tmp_last_release_rank_3'); END;") ||
-    ((print L "<span id=red>Error preparing drop 1 ($DBI::errstr).</span>")
-     &&  return);
-  $sh->execute ||
-    ((print L "<span id=red>Error executing drop 1 ($DBI::errstr).</span>")
-     &&  return);
 
-
-   $sh = $dbh->prepare("BEGIN MEME_UTILITY.drop_it('table', 'tmp_last_release_rank_2'); END;") ||
-    ((print L "<span id=red>Error preparing drop 1 ($DBI::errstr).</span>")
-     &&  return);
-  $sh->execute ||
-    ((print L "<span id=red>Error executing drop 1 ($DBI::errstr).</span>")
-     &&  return);
-
-  print L "    Set last_release_rank to 2 for P,VF in classes ... ".scalar(localtime)."\n";
-  $dbh->do(qq{
-  CREATE TABLE tmp_last_release_rank_2 AS
-  SELECT concept_id, language, sui FROM foreign_classes
-             WHERE last_release_rank != 2
-               AND tobereleased IN ('Y','y')
-             MINUS
-             SELECT concept_id, language, sui FROM pref_sui_for_cui_lat_lui
-}) || ((print L "<span id=red>Error at 5 ($DBI::errstr).</span>")
-     &&  return);
   print L "    Set last_release_rank to 2 for P,VF in foreign_classes ... ".scalar(localtime)."\n";
   $rc = $dbh->do(qq{
       UPDATE /*+ PARALLEL(a) */ foreign_classes a SET last_release_rank = 2
       WHERE (concept_id, language, lui) IN
-            (SELECT concept_id, language, lui FROM pref_lui_for_cui_lat)
-        AND (concept_id, language, sui) IN
-            (SELECT concept_id, language, sui FROM tmp_last_release_rank_2)
-        AND tobereleased IN ('Y','y')
+	    (SELECT concept_id, language, lui FROM pref_lui_for_cui_lat)
+	AND (concept_id, language, sui) IN
+	    (SELECT concept_id, language, sui FROM foreign_classes
+             WHERE last_release_rank != 2
+	       AND tobereleased IN ('Y','y')
+	     MINUS
+	     SELECT concept_id, language, sui FROM pref_sui_for_cui_lat_lui)
+	AND tobereleased IN ('Y','y')
         AND last_release_rank != 2
     }) || ((print L "<span id=red>Error at 10 ($DBI::errstr).</span>")
      &&  return);
-
   print "      Count == $rc\n";
 
-$sh = $dbh->prepare("BEGIN MEME_UTILITY.drop_it('table', 'tmp_last_release_rank_2'); END;") ||
-    ((print L "<span id=red>Error preparing drop 1 ($DBI::errstr).</span>")
-     &&  return);
-  $sh->execute ||
-    ((print L "<span id=red>Error executing drop 1 ($DBI::errstr).</span>")
-     &&  return);
-
-$sh = $dbh->prepare("BEGIN MEME_UTILITY.drop_it('table', 'tmp_last_release_rank_1'); END;") ||
-    ((print L "<span id=red>Error preparing drop 1 ($DBI::errstr).</span>")
-     &&  return);
-  $sh->execute ||
-    ((print L "<span id=red>Error executing drop 1 ($DBI::errstr).</span>")
-     &&  return);
-
-  $sh = $dbh->prepare("BEGIN MEME_UTILITY.drop_it('table', 'tmp_last_release_rank_1_a'); END;") ||
-    ((print L "<span id=red>Error preparing drop 1 ($DBI::errstr).</span>")
-     &&  return);
-  $sh->execute ||
-    ((print L "<span id=red>Error executing drop 1 ($DBI::errstr).</span>")
-     &&  return);
-
- 
-  $dbh->do(qq{
-  CREATE TABLE tmp_last_release_rank_1 AS
-  SELECT concept_id, language, lui FROM foreign_classes
-             WHERE last_release_rank != 1
-               AND tobereleased IN ('Y','y')
-             MINUS
-             SELECT concept_id, language, lui FROM pref_lui_for_cui_lat
-    }) || ((print L "<span id=red>Error at 6 ($DBI::errstr).</span>")
-     &&  return);
-
-  $dbh->do(qq{
-  CREATE TABLE tmp_last_release_rank_1_a AS
-  (SELECT concept_id, language, sui FROM foreign_classes
-             WHERE last_release_rank != 1
-               AND tobereleased IN ('Y','y')
-             MINUS
-             SELECT concept_id, language, sui FROM pref_sui_for_cui_lat_lui)
-    }) || ((print L "<span id=red>Error at 6 ($DBI::errstr).</span>") &&  return);
-
   print L "    Set last_release_rank to 1 for S,VF in foreign_classes ... ".scalar(localtime)."\n";
-
   $rc = $dbh->do(qq{
       UPDATE /*+ PARALLEL(a) */ foreign_classes a SET last_release_rank = 1
       WHERE (concept_id, language, lui) IN
-            (SELECT concept_id, language, lui FROM tmp_last_release_rank_1)
-        AND (concept_id, language, sui) IN
-            (SELECT concept_id, language, sui FROM tmp_last_release_rank_1_a)
-        AND tobereleased IN ('Y','y')
+	    (SELECT concept_id, language, lui FROM foreign_classes
+             WHERE last_release_rank != 1
+	       AND tobereleased IN ('Y','y')
+	     MINUS
+	     SELECT concept_id, language, lui FROM pref_lui_for_cui_lat)
+	AND (concept_id, language, sui) IN
+	    (SELECT concept_id, language, sui FROM foreign_classes
+             WHERE last_release_rank != 1
+	       AND tobereleased IN ('Y','y')
+	     MINUS
+	     SELECT concept_id, language, sui FROM pref_sui_for_cui_lat_lui)
+	AND tobereleased IN ('Y','y')
         AND last_release_rank != 1
     }) || ((print L "<span id=red>Error at 11 ($DBI::errstr).</span>")
      &&  return);
   print "      Count == $rc\n";
-$sh = $dbh->prepare("BEGIN MEME_UTILITY.drop_it('table', 'tmp_last_release_rank_1'); END;") ||
-    ((print L "<span id=red>Error preparing drop 1 ($DBI::errstr).</span>")
-     &&  return);
-  $sh->execute ||
-    ((print L "<span id=red>Error executing drop 1 ($DBI::errstr).</span>")
-     &&  return);
 
-  $sh = $dbh->prepare("BEGIN MEME_UTILITY.drop_it('table', 'tmp_last_release_rank_1_a'); END;") ||
-    ((print L "<span id=red>Error preparing drop 1 ($DBI::errstr).</span>")
-     &&  return);
-  $sh->execute ||
-    ((print L "<span id=red>Error executing drop 1 ($DBI::errstr).</span>")
-     &&  return);
   print L "    Set last_release_rank to 0 in foreign_classes ... ".scalar(localtime)."\n";
   $rc = $dbh->do(qq{
       UPDATE /*+ PARALLEL(a) */ foreign_classes a SET last_release_rank = 0
@@ -3214,7 +2948,7 @@ sub Handle_sims_info {
      return);
 
   # set variables
-  $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl -d $db`;
+  $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl`;
   ($user,$password) = split /\//, $userpass;
   chop($password);
 
@@ -3334,7 +3068,7 @@ sub Handle_sims_info {
   print L "    Set term_frequency, cui_frequency ... ".scalar(localtime)."\n";
   $sh = $dbh->prepare(qq{
 	 SELECT /*+ PARALLEL(b) */
-	        count(distinct aui) as tfr,
+	        count(distinct concept_id||sui) as tfr,
                 count(distinct concept_id) as cfr,
 		b.source
          FROM classes b, source_rank c, source_version d
@@ -3416,28 +3150,18 @@ sub Handle_sims_info {
   $list = "";
   print L "    Set attribute_name_list ... ".scalar(localtime)."\n";
   $sh = $dbh->prepare(qq{
-    SELECT DISTINCT source, DECODE(attribute_name,
-       'LEXICAL_TAG','LT','NON_HUMAN','NH',attribute_name)
-        as attribute_name
-    FROM (
-      SELECT /*+ PARALLEL(a) */ distinct a.source, attribute_name
-      FROM attributes a, source_rank b, source_version c
-      WHERE a.tobereleased in ('Y','y')
-        AND a.source = b.source AND b.normalized_source = c.current_name
-        AND attribute_level = 'S'
-        AND attribute_name not IN
-          ('DEFINITION','ATX_REL','MRLO','HDA','HPC','COC',
-           'XMAPTO','XMAP','XMAPFROM','COMPONENTHISTORY')
-      UNION ALL
-      SELECT distinct 'MTH', attribute_name
-      FROM attributes a
-      WHERE a.tobereleased in ('Y','y')
-        AND attribute_level = 'C'
-        AND attribute_name not IN ('SEMANTIC_TYPE')
-      UNION ALL SELECT 'MTH','DA' FROM dual
-      UNION ALL SELECT 'MTH','MR' FROM dual
-      UNION ALL SELECT 'MTH','ST' FROM dual
-  ) ORDER BY source, attribute_name
+    SELECT /*+ PARALLEL(a) */ distinct a.source, attribute_name
+    FROM attributes a, source_rank b, source_version c
+    WHERE tobereleased in ('Y','y')
+      AND a.source = b.source AND b.normalized_source = c.current_name
+      AND attribute_level = 'S'
+      AND attribute_name not IN
+        ('DEFINITION','ATX_REL','MRLO','HDA','HPC','COC','LEXICAL_TAG',
+         'XMAPTO','XMAP','XMAPFROM','COMPONENTHISTORY')
+    UNION ALL
+    SELECT current_name, 'LT' FROM source_version
+    WHERE source = 'MSH'
+    ORDER BY source, attribute_name
   }) || ((print L "<span id=red>Error preparing qa1 ($DBI::errstr).</span>")
      && return);
   $sh->execute ||
@@ -3481,6 +3205,23 @@ sub Handle_sims_info {
      &&  return);
   }
 
+
+  #
+  # Set MTH list
+  #
+  $list = "DA,FROMRSAB,FROMVSAB,LT,MAPSETGRAMMAR,MAPSETID,MAPSETNAME,MAPSETRSAB,MAPSETTYPE,MAPSETVSAB,MR,MTH_MAPFROMCOMPLEXITY,MTH_MAPFROMEXHAUSTIVE,MTH_MAPSETCOMPLEXITY,MTH_MAPTOCOMPLEXITY,MTH_MAPTOEXHAUSTIVE,NH,SOS,ST,TORSAB,TOVSAB";
+  print L "    Set MTH attribute_name_list ... ".scalar(localtime)."\n";
+  print L "      $list\n";
+  $row_ct = $dbh->do(qq{
+	    UPDATE sims_info SET attribute_name_list = ?
+	    WHERE source = 'MTH'
+  }, undef, $list);
+  unless ($row_ct) {
+    ((print L "<span id=red>Error executing update 1 ($DBI::errstr).</span>")
+     &&  return);
+  }
+
+
   # disconnect
   $dbh->disconnect;
 
@@ -3500,7 +3241,7 @@ sub Handle_classes_feedback {
      return);
 
   # set variables
-  $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl -d $db`;
+  $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl`;
   ($user,$password) = split /\//, $userpass;
   chop($password);
 
@@ -3689,7 +3430,7 @@ sub Handle_set_imeta_rmeta {
      return);
 
   # set variables
-  $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl -d $db`;
+  $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl`;
   ($user,$password) = split /\//, $userpass;
   chop($password);
 
@@ -3705,7 +3446,7 @@ sub Handle_set_imeta_rmeta {
   $row_ct = $dbh->do(qq{
     UPDATE sims_info SET remove_meta_version=?
     WHERE source in (SELECT previous_name FROM source_version)
-      AND remove_meta_version IS NULL AND insert_meta_version IS NOT NULL
+      AND remove_meta_version IS NULL
 	     }, undef, $old_release);
   unless ($row_ct) {
     (print L "<span id=red>Error executing update 1 ($DBI::errstr).</span>")
@@ -3723,7 +3464,7 @@ sub Handle_set_imeta_rmeta {
     WHERE source in (SELECT string FROM string_ui a, classes b
      	             WHERE a.sui=b.sui AND b.source='SRC'
      	               AND b.tty='VAB' and b.tobereleased in ('N','n'))
-      AND remove_meta_version IS NULL AND insert_meta_version IS NOT NULL
+      AND remove_meta_version IS NULL
 	     }) || (print L "<span id=red>Error preparing to select non-immediate obsolete sources ($DBI::errstr).</span>")
      &&  return;
   $sh->execute ||  (print L "<span id=red>Error selecting non-immediate obsolete sources ($DBI::errstr).</span>")
@@ -3737,7 +3478,7 @@ sub Handle_set_imeta_rmeta {
     WHERE source in (SELECT string FROM string_ui a, classes b
      	             WHERE a.sui=b.sui AND b.source='SRC'
      	               AND b.tty='VAB' and b.tobereleased in ('N','n'))
-      AND remove_meta_version IS NULL AND insert_meta_version IS NOT NULL
+      AND remove_meta_version IS NULL
 	     }, undef, $old_release);
   unless ($row_ct) {
     (print L "<span id=red>Error executing update 1 ($DBI::errstr).</span>")
@@ -3755,7 +3496,7 @@ sub Handle_set_imeta_rmeta {
      (SELECT a.source FROM source_rank a, source_version b
       WHERE a.stripped_source = b.source
         AND current_name IS NULL)
-      AND remove_meta_version IS NULL AND insert_meta_version IS NOT NULL
+      AND remove_meta_version IS NULL
 	     }, undef, $old_release);
   unless ($row_ct) {
     (print L "<span id=red>Error executing update 2 ($DBI::errstr).</span>")
@@ -3780,34 +3521,16 @@ sub Handle_set_imeta_rmeta {
   print L "      Count == $row_ct\n";
 
   #
-  # Set meta_ver to CURRENT for all new sources.
   #
-  print L "    Set meta_ver for 'CURRENT' sources in SMIS ... ".scalar(localtime)."\n";
+  #
+  print L "    Set meta_ver for 'Current' sources in SMIS ... ".scalar(localtime)."\n";
   $row_ct = $dbh->do(qq{
       UPDATE sims_info
       SET meta_ver = ?
-      WHERE meta_ver='CURRENT'
+      WHERE meta_ver='Current'
         AND source in (SELECT string FROM string_ui a, classes b
 		       WHERE a.sui = b.sui AND b.source='SRC'
 		         AND b.termgroup='VAB' and b.tobereleased in ('Y','y'))
-	     }, undef, $new_release);
-  unless ($row_ct) {
-    (print L "<span id=red>Error executing update 4 ($DBI::errstr).</span>")
-      && return;
-  }
-  print L "      Count == $row_ct\n";
-
-  #
-  # Set meta_ver to $new_release for all sources inserted but not released.
-  # This way meta_ver can be used by archive handling scripts to know
-  # what editing cycle a source was inserted for, even if it wasn't released.
-  #
-  print L "    Set meta_ver for 'CURRENT' sources in SMIS but without SRC ... ".scalar(localtime)."\n";
-  $row_ct = $dbh->do(qq{
-      UPDATE sims_info
-      SET meta_ver = ?
-      WHERE meta_ver = 'CURRENT' 
-        AND source IN (SELECT source FROM source_rank)
 	     }, undef, $new_release);
   unless ($row_ct) {
     (print L "<span id=red>Error executing update 4 ($DBI::errstr).</span>")
@@ -3833,7 +3556,7 @@ sub Handle_set_context_type {
      return);
 
   # set variables
-  $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl -d $db`;
+  $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl`;
   ($user,$password) = split /\//, $userpass;
   chop($password);
 
@@ -3868,7 +3591,7 @@ sub Handle_set_context_type {
   # Initialze to FULL-NOSIB
   $dbh->do(qq{
         CREATE TABLE ${uniq}_ct (
-            source VARCHAR2(40),
+            source VARCHAR2(20),
             context_type VARCHAR2(100))
     }) || ((print L "<span id=red>Error executing create 1 ($DBI::errstr).</span>")
      &&  return);
@@ -3879,7 +3602,6 @@ sub Handle_set_context_type {
         SELECT /*+ parallel(cr) */ DISTINCT source,'FULL-NOSIB' AS context_type
         FROM context_relationships cr
         WHERE relationship_name='PAR'
-        AND tobereleased in ('Y','y')
     }) || ((print L "<span id=red>Error executing insert 1 ($DBI::errstr).</span>")
      &&  return);
 
@@ -3890,8 +3612,7 @@ sub Handle_set_context_type {
         WHERE source IN
         (SELECT /*+ PARALLEL(cr) */ DISTINCT source
 	 FROM context_relationships cr
-         WHERE relationship_name='SIB'
-         AND tobereleased in ('Y','y'))
+         WHERE relationship_name='SIB')
     }) || ((print L "<span id=red>Error executing update 1 ($DBI::errstr).</span>")
      &&  return);
 
@@ -3909,11 +3630,11 @@ sub Handle_set_context_type {
      &&  return);
 
   # Update where RELA does not matter for context computation
-  print L "      Compute IGNORE-RELA flag (for HL7V3.0) ... ".scalar(localtime)."\n";
+  print L "      Compute IGNORE-RELA flag (for GO,NIC) ... ".scalar(localtime)."\n";
   $dbh->do(qq{
         UPDATE ${uniq}_ct
         SET context_type = context_type || '-IGNORE-RELA'
-        WHERE source IN (SELECT current_name FROM source_version WHERE source in ('HL7V3.0','ATC'))
+        WHERE source IN (SELECT current_name FROM source_version WHERE source in ('GO','NIC'))
     }) || ((print L "<span id=red>Error executing update 2 ($DBI::errstr).</span>")
      &&  return);
 
@@ -3962,7 +3683,7 @@ sub Handle_set_official_name {
      return);
 
   # set variables
-  $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl -d $db`;
+  $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl`;
   ($user,$password) = split /\//, $userpass;
   chop($password);
 
@@ -4101,7 +3822,7 @@ sub Handle_mthtm {
      return);
 
   # set variables
-  $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl -d $db`;
+  $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl`;
   ($user,$password) = split /\//, $userpass;
   chop($password);
 
@@ -4318,7 +4039,7 @@ sub Handle_prod_mid_cleanup {
      return);
 
   # set variables
-  $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl -d $db`;
+  $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl`;
   ($user,$password) = split /\//, $userpass;
   chop($password);
 
@@ -4350,8 +4071,7 @@ sub Handle_prod_mid_cleanup {
 	     UNION SELECT 'PROPERNOUN' FROM dual
 	     UNION SELECT 'CHAINED_ROWS' FROM dual
 	     UNION SELECT 'MTHSTATS' FROM dual
-         UNION SELECT 'CONTENT_VIEW_MEMBERS' from dual
-         UNION SELECT 'TPM_BADCHARS' from dual)
+         UNION SELECT 'CONTENT_VIEW_MEMBERS' from dual)
    }) ||
     ((print L "<span id=red>Error preparing to drop non-meme tables ($DBI::errstr).</span>")
      &&  return);
@@ -4398,7 +4118,7 @@ sub Handle_prod_mid_cleanup {
      &&  return);
   print L "    Current sources include:\n     ";
   while (($sab) = $sh->fetchrow_array) {
-    print L " $sab\n";
+    print L " $sab";
   }
   print L "\n";
 
@@ -4423,7 +4143,7 @@ sub Handle_prod_mid_cleanup {
   # Calculate old atoms
   #
   print L "    Calculate old atoms (atoms with old sources) ... ".scalar(localtime)."\n";
-  $dbh->do(qq{BEGIN MEME_UTILITY.drop_it('table', 'old_atom_ids'); END;}) ||
+  $dbh->do(qq(BEGIN MEME_UTILITY.drop_it('table', 'old_atom_ids'); END;}) ||
     ((print L "<span id=red>Error dropping old_atom_ids ($DBI::errstr).</span>")
      &&  return);
 
@@ -4445,11 +4165,8 @@ sub Handle_prod_mid_cleanup {
   print L "    Calculate old,new atoms (SRC,MTH) ... ".scalar(localtime)."\n";
   $dbh->do(qq{
         INSERT INTO old_atom_ids
-        SELECT atom_id FROM classes
-        WHERE tobereleased in ('N') AND concept_id > 999
-        UNION ALL
-        SELECT atom_id FROM classes
-        WHERE tobereleased = 'n' AND source = 'SRC'
+        SELECT atom_id FROM classes WHERE source IN ('SRC','MTH')
+          AND tobereleased in ('N') AND concept_id > 999
     }) || ((print L "<span id=red>Error adding SRC,MTH to old_atom_ids ($DBI::errstr).</span>")
      &&  return);
 
@@ -4477,23 +4194,12 @@ sub Handle_prod_mid_cleanup {
   # Remove references to old atoms from worklists
   #
   print L "      worklists ... ".scalar(localtime)."\n";
-
-  #
-  # Open connection as meow user
-  #
-  $userpass2 = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl -d $db -u meow`;
-  ($user2,$password2) = split /\//, $userpass2;
-  chop($password2);
-  $dbh2 = DBI->connect("dbi:Oracle:$db", "$user2", "$password2") ||
-    ((print L "<span id=red>Error opening $db as $user2($DBI::errstr).</span>")
-     &&  return);
-
-  $dbh2->do(qq{
+  $dbh->do(qq{
     DECLARE
 	  ct                 INTEGER;
 	  CURSOR cur IS
-	    (SELECT upper(checklist_name) as name FROM ems_checklist_info
-	     UNION SELECT upper(worklist_name) FROM wms_worklist_info)
+	    (SELECT upper(checklist_name) as name FROM meow.ems_checklist_info
+	     UNION SELECT upper(worklist_name) FROM meow.wms_worklist_info)
 	     INTERSECT SELECT upper(table_name) FROM all_tables WHERE owner='MEOW';
   	  cv cur%rowtype;
     BEGIN
@@ -4504,16 +4210,16 @@ sub Handle_prod_mid_cleanup {
 	    	EXIT when cur%NOTFOUND;
 
 			EXECUTE IMMEDIATE
-		        'DELETE FROM ' || cv.name || ' WHERE atom_id IN
-                   (SELECT atom_id FROM MTH.old_atom_ids) ';
+		        'DELETE FROM meow.' || cv.name || ' WHERE atom_id IN
+                   (SELECT atom_id FROM old_atom_ids) ';
 			COMMIT;
 			--MEME_UTILITY.put_message('HANDLED ' || cv.name || '.');
 		END LOOP;
     END;
     }) ||
     ((print L "<span id=red>Error cleaning up worklists ($DBI::errstr).</span>") &&  return);
-  $dbh2->disconnect;
-  
+  &FlushBuffer;
+
   #
   # Remove references to old atoms from atom_ordering
   #
@@ -4654,65 +4360,6 @@ sub Handle_prod_mid_cleanup {
   print L "    Remove references in tables to old atoms, old_concepts ... ".scalar(localtime)."\n";
 
   #
-  # Remove bequeathal relationships
-  #
-  print L "    Remove bequeathal relationships... ".scalar(localtime)."\n";
-  $sh = $dbh->prepare("BEGIN MEME_UTILITY.drop_it('table', 't_$$'); END;") ||
-    ((print L "<span id=red>Error preparing drop t_$$ ($DBI::errstr).</span>")
-     &&  return);
-  $sh->execute ||
-    ((print L "<span id=red>Error executing drop t_$$ ($DBI::errstr).</span>")
-     &&  return);
-
-  $dbh->do(qq{
-        CREATE TABLE t_$$ AS
-        SELECT relationship_id AS row_id
-        FROM relationships r
-        WHERE relationship_name in ('BBT','BRT','BNT')
-    }) || ((print L "<span id=red>Error creating table of bequeathal rels ($DBI::errstr).</span>")
-     &&  return);
-
-  $sh = $dbh->prepare(qq{
-              SELECT COUNT(*) FROM t_$$
-    }) ||
-    ((print L "<span id=red>Error preparing count of bequeathal rels ($DBI::errstr).</span>")
-     &&  return);
-  $sh->execute ||
-    ((print L "<span id=red>Error executing count of bequeathal rels ($DBI::errstr).</span>")
-     &&  return);
-
-  while (($ct) = $sh->fetchrow_array){
-    $row_ct = $ct;
-  }
-  print L "      Count == $row_ct\n";
-
-  if ($row_ct > 0) {
-    $sh = $dbh->prepare( qq{
-        BEGIN
-            :transaction_id := MEME_BATCH_ACTIONS.macro_action (
-                action => 'D',
-                id_type => 'R',
-                authority => 'MAINTENANCE',
-                table_name => 't_$$',
-                work_id => 0,
-                status => 'R');
-        END;
-    }) ||
-    ((print L "<span id=red>Error preparing batch action to delete bequeathal rels ($DBI::errstr).</span>")
-     &&  return);
-
-    $sh->bind_param_inout(":transaction_id",\$transaction_id,12);
-    $sh->execute ||
-    ((print L "<span id=red>Error executing batch action to delete beqeuathal rels ($DBI::errstr).</span>")
-     &&  return);
-    print L "      Transaction_id == $transaction_id\n";
-  }
-
-  $sh = $dbh->prepare("BEGIN MEME_UTILITY.drop_it('table', 't_$$'); END;") ||
-    ((print L "<span id=red>Error preparing drop t_$$ ($DBI::errstr).</span>")
-     &&  return);
-  
-  #
   # Remove relationships connected to old atoms and concepts
   #
   print L "      relationships ... ".scalar(localtime)."\n";
@@ -4810,10 +4457,10 @@ sub Handle_prod_mid_cleanup {
              WHERE attribute_level = ''S''
                AND source IN (SELECT source FROM current_sources)
                AND atom_id IN
-    	      (SELECT atom_id FROM new_atom_ids) ORDER BY concept_id';
+    	      (SELECT atom_id FROM new_atom_ids)';
     	EXECUTE IMMEDIATE
     	   'INSERT INTO attributes_$$
-            SELECT /*+ PARALLEL(a) */ * FROM attributes a
+            (SELECT /*+ PARALLEL(a) */ * FROM attributes a
              WHERE attribute_level = ''C''
                AND attribute_name != ''SEMANTIC_TYPE''
                AND concept_id IN
@@ -4827,8 +4474,8 @@ sub Handle_prod_mid_cleanup {
     	       AND attribute_id IN
     	       	(SELECT min(attribute_id) FROM attributes b
     	       	 WHERE attribute_name=''SEMANTIC_TYPE''
-    	       	 GROUP BY concept_id,attribute_value)';
-    	COMMIT;
+    	       	 GROUP BY concept_id,atui)
+    	     ) ORDER BY concept_id';
 	    MEME_UTILITY.drop_it('table','attributes');
     	EXECUTE IMMEDIATE
     		'RENAME attributes_$$ TO attributes';
@@ -4923,12 +4570,7 @@ sub Handle_prod_mid_cleanup {
         	'CREATE TABLE source_id_map_$$ AS
              SELECT * FROM source_id_map a
              WHERE table_name=''C''
-               AND local_row_id in (SELECT atom_id FROM new_atom_ids)
-               AND source IN (SELECT source FROM current_sources)
-             UNION SELECT * FROM source_id_map
-             WHERE table_name=''C''
-               AND local_row_id in (SELECT atom_id FROM classes 
-                                    WHERE source=''SRC'' AND tobereleased in (''Y'',''y''))';
+               AND local_row_id in (SELECT atom_id FROM new_atom_ids)';
 	    MEME_UTILITY.drop_it('table','source_id_map');
     	EXECUTE IMMEDIATE
     		'RENAME source_id_map_$$ TO source_id_map';
@@ -4971,8 +4613,7 @@ sub Handle_prod_mid_cleanup {
         MEME_SYSTEM.truncate('mom_merge_facts');
         MEME_SYSTEM.truncate('mom_precomputed_facts');
         MEME_SYSTEM.truncate('mom_safe_replacement');
-        -- This is a view
-        -- MEME_SYSTEM.truncate('qa_diff_results');
+        MEME_SYSTEM.truncate('qa_diff_results');
         MEME_SYSTEM.truncate('snapshot_results');
         MEME_SYSTEM.truncate('source_attributes');
         MEME_SYSTEM.truncate('source_classes_atoms');
@@ -5210,7 +4851,7 @@ sub Handle_prod_mid_cleanup {
   $dbh->do(qq{
         CREATE TABLE tqa_src AS
         SELECT value FROM src_qa_results, current_sources
-        WHERE (value LIKE '%' || source || ',%' or value = source)
+        WHERE value LIKE '%' || source || ',%'
     }) || ((print L "<span id=red>Error executing create 5 ($DBI::errstr).</span>")
      &&  return);
 
@@ -5289,7 +4930,7 @@ sub Handle_prod_mid_cleanup {
     ((print L "<span id=red>Error computing preferred atom ids ($DBI::errstr).</span>") &&  return);
 
   print L "    Reindexing MID ... ".scalar(localtime)."\n";
-  open (CMD,"$ENV{MEME_HOME}/bin/reindex_mid.pl -p 5 $db |");
+  open (CMD,"$ENV{MEME_HOME}/bin/reindex_mid.pl -p 5 $database |");
   while (<CMD>) {
     chop;
     print L "      $_\r\n";
@@ -5333,7 +4974,7 @@ sub Handle_atui_rui {
      return);
 
   # set variables
-  $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl -d $db`;
+  $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl`;
   ($user,$password) = split /\//, $userpass;
   chop($password);
 
@@ -5375,38 +5016,30 @@ sub Handle_atui_rui {
 	   relationship_level, relationship_name, relationship_attribute,
 	   generated_status, status, released, tobereleased, source_rank,
 	   suppressible)
-SELECT DISTINCT 'R', 0, 0,a.atom_id,f.atom_id,
-       a.concept_id, b.concept_id, to_char(e.source_dui),'SOURCE_DUI',b.source,
-       to_char(f.source_dui),'SOURCE_DUI',b.source, current_name, current_name,
-          'S', 'AQ', '', 'Y','R', 'N','Y',0,'N'
-    FROM classes b, attributes a, source_version c, string_ui d,classes e,classes f
-    WHERE b.tty = 'QAB'
-      and b.sui = d.sui
-      and f.code = B.CODE 
-      and f.tty = 'TQ'
+    SELECT DISTINCT 'R', 0, 0, a.atom_id, b.atom_id,
+	   a.concept_id, b.concept_id, to_char(a.atom_id),'ATOM_ID','',
+	   to_char(b.atom_id),'ATOM_ID','', current_name, current_name,
+	      'S', 'AQ', '', 'Y','R', 'N','Y',0,'N'
+    FROM attributes b, attributes a, source_version c
+    WHERE b.attribute_name = 'QA'
       AND a.attribute_name IN ('ATN','AQL')
-      AND INSTR(a.attribute_value,d.string) > 0
-      and a.atom_id = e.atom_id
+      AND INSTR(a.attribute_value,b.attribute_value) > 0
       AND a.source = current_name
       AND b.source = current_name
       AND a.tobereleased in ('Y','y')
       AND b.tobereleased in ('Y','y')
       AND c.source = 'MSH'
     UNION
-    SELECT DISTINCT 'R', 0, 0, a.atom_id, g.atom_id,
-       a.concept_id, b.concept_id, to_char(f.source_dui),'SOURCE_DUI',a.source,
-       to_char(g.source_dui),'SOURCE_DUI',b.source, current_name, current_name,
-          'S', 'AQ', '', 'Y','R', 'N','Y',0,'N'
-    FROM classes b, attributes a, source_version c, stringtab d,string_ui e,classes f,classes g
-    WHERE b.tty = 'QAB'
-      AND g.code = b.code
-      and g.tty = 'TQ'
-      and b.sui = e.sui
+    SELECT DISTINCT 'R', 0, 0, a.atom_id, b.atom_id,
+	   a.concept_id, b.concept_id, to_char(a.atom_id),'ATOM_ID','',
+	   to_char(b.atom_id),'ATOM_ID','', current_name, current_name,
+	      'S', 'AQ', '', 'Y','R', 'N','Y',0,'N'
+    FROM attributes b, attributes a, source_version c, stringtab d
+    WHERE b.attribute_name = 'QA'
       AND a.attribute_name IN ('ATN','AQL')
       AND a.attribute_value like '<>Long%'
-      and a.atom_id = f.atom_id
       AND string_id = to_number(substr(a.attribute_value,20))
-      AND INSTR(d.text_value,e.string) > 0
+      AND INSTR(d.text_value,b.attribute_value) > 0
       AND a.source = current_name
       AND b.source = current_name
       AND a.tobereleased in ('Y','y')
@@ -5526,12 +5159,8 @@ SELECT DISTINCT 'R', 0, 0,a.atom_id,f.atom_id,
 	   'R', 'N','Y',0,'N','','', to_char(cs.timestamp,'YYYYmmDD')
     FROM concept_status cs
     WHERE tobereleased in ('Y','y')
-      AND (cui, to_char(cs.timestamp,'YYYYmmDD')) IN
-	      (SELECT cui, to_char(cs.timestamp,'YYYYmmDD')
-	       FROM concept_status WHERE tobereleased in ('Y','y')
-	       MINUS
-	       SELECT sg_id,hashcode FROM attributes_ui
-	       WHERE attribute_name = 'MR')
+      AND cui IN
+	      (SELECT sg_id FROM source_attributes)
 	  AND cui <= ?
     }, undef, $prev_cui) || ((print L "<span id=red>Error at 2 ($DBI::errstr).</span>")
      &&  return);
@@ -5547,75 +5176,13 @@ SELECT DISTINCT 'R', 0, 0,a.atom_id,f.atom_id,
 	   'R', 'N','Y',0,'N','','', '00000000'
     FROM concept_status cs
     WHERE tobereleased in ('Y','y')
-      AND (cui, to_char(cs.timestamp,'YYYYmmDD')) IN
-	      (SELECT cui, to_char(cs.timestamp,'YYYYmmDD')
-	       FROM concept_status WHERE tobereleased in ('Y','y')
-	       MINUS
-	       SELECT sg_id,hashcode FROM attributes_ui
-	       WHERE attribute_name = 'MR')
+      AND cui IN
+	      (SELECT sg_id FROM source_attributes)
 	  AND cui > ?
     }, undef, $prev_cui) || ((print L "<span id=red>Error at 2 ($DBI::errstr).</span>")
      &&  return);
   print L "      Count == $rc (MR=00000000 entries)\n";
   
-  #
-  # Insert SEMANTIC_TYPE
-  #
-  print L "    Create SEMANTIC_TYPE attribute placeholders ... ".scalar(localtime)."\n";
-  $sh = $dbh->prepare("BEGIN MEME_UTILITY.drop_it('table','tpm_tmp'); END;") ||
-        ((print L "<span id=red>Error at 1 ($DBI::errstr).</span>") &&  return);
-        
-  $sh->execute || ((print L "<span id=red>Error at 1 ($DBI::errstr).</span>") &&  return);
-  $dbh->do(qq{
-       create table tpm_tmp as
- (SELECT /*+ index(a X_ATTR_AN) */ cs.cui,a.attribute_name,a.hashcode
-              FROM concept_status cs, attributes a
-              WHERE cs.tobereleased in ('Y','y')
-                AND a.tobereleased in ('Y','y')
-                AND a.attribute_name ='SEMANTIC_TYPE'
-            AND a.concept_id = cs.concept_id
-              MINUS
-              SELECT sg_id,attribute_name, hashcode
-              FROM attributes_ui
-              WHERE sg_type = 'CUI'
-                AND attribute_name ='SEMANTIC_TYPE'
-                AND root_source = 'MTH')
-   }) || ((print L "<span id=red>Error at 2.2 ($DBI::errstr).</span>")
-     &&  return);
-
-  $sh = $dbh->prepare("BEGIN MEME_UTILITY.drop_it('table','tpm_tmp1'); END;") ||
-        ((print L "<span id=red>Error at 1 ($DBI::errstr).</span>") &&  return);
-        
-  $sh->execute || ((print L "<span id=red>Error at 1 ($DBI::errstr).</span>") &&  return);
-  $dbh->do(qq{
-       create table tpm_tmp1 as
-SELECT /*+ index(a X_ATTR_AN) */ DISTINCT 'R' switch, 0 as source_attribute_id, 0 as attribute_id, 0 as atom_id, cs.concept_id,
-           cs.cui, 'CUI' as sg_type, /*'' as sg_qualifier,*/ 'C' as attribute_level, a.attribute_name, a.attribute_value, 'Y' as generated_status,'MTH' as source,
-           'R' as status, 'N' as released,'Y' as tobereleased,0 as source_rank,'N' as suppressible,/*'' as atui,'' as source_atui*/a.hashcode
-    FROM concept_status cs, attributes a
-    WHERE cs.tobereleased in ('Y','y')
-          AND a.tobereleased in ('Y','y')
-          AND a.attribute_name = 'SEMANTIC_TYPE'
-          AND a.concept_id = cs.concept_id
-          and exists (select 1 from tpm_tmp b where cs.cui=B.CUI and a.attribute_name=b.attribute_name and a.hashcode=b.hashcode)
-   }) || ((print L "<span id=red>Error at 2.2 ($DBI::errstr).</span>")
-     &&  return);
-     
-     
-  $dbh->do(qq{
-     INSERT /*+ append */ INTO source_attributes
-          (switch, source_attribute_id, attribute_id, atom_id, concept_id,
-           sg_id, sg_type, sg_qualifier, attribute_level, attribute_name,
-           attribute_value, generated_status, source, status, released,
-           tobereleased, source_rank, suppressible, atui, source_atui, hashcode)
-    SELECT switch, source_attribute_id, attribute_id, atom_id, concept_id,
-           cui, sg_type, '' sg_qualifier, attribute_level, attribute_name, attribute_value, generated_status, source,
-           status, released,
-           tobereleased, source_rank, suppressible, '' atui, '' source_atui,hashcode
-    FROM tpm_tmp1
-    }) || ((print L "<span id=red>Error at 1 ($DBI::errstr).</span>")
-     &&  return);
-
   #
   # Insert AM -- NO LONGER BUILT for 2004AC and beyond
   #
@@ -5644,60 +5211,107 @@ SELECT /*+ index(a X_ATTR_AN) */ DISTINCT 'R' switch, 0 as source_attribute_id, 
   #
   # Insert MTH owned LT rows.
   #
-  # Include all the Lexical tag.
-  # soma changling b.source != (SELECT current_name FROM source_version WHERE source='MSH')
-  # to b.source = (SELECT current_name FROM source_version)
   print L "    Create LT attribute placeholders ... ".scalar(localtime)."\n";
-   $sh = $dbh->prepare("BEGIN MEME_UTILITY.drop_it('table','t_sl_aui'); END;") ||
-        ((print L "<span id=red>Error at 1 ($DBI::errstr).</span>") &&  return);
- $sh->execute || ((print L "<span id=red>Error at 1 ($DBI::errstr).</span>") &&  return);
-  $dbh->do(qq{
-       create table t_sl_aui as
-                      SELECT aui
-                      FROM classes
-                    MINUS
-                      SELECT sg_id
-                        FROM attributes_ui
-                       WHERE root_source = 'MTH'
-                         AND attribute_name = 'LT'
-                         AND sg_type = 'AUI'
-   }) || ((print L "<span id=red>Error at 2.2 ($DBI::errstr).</span>")
-     &&  return);
-  $sh = $dbh->prepare("BEGIN MEME_UTILITY.drop_it('table','t_sl_lext_concept_sui'); END;") ||
-        ((print L "<span id=red>Error at 1 ($DBI::errstr).</span>") &&  return);
- $sh->execute || ((print L "<span id=red>Error at 1 ($DBI::errstr).</span>") &&  return);
-  $dbh->do(qq{
-    create table t_sl_lext_concept_sui as
-                  SELECT a.concept_id, sui
-                  FROM ATTRIBUTES a, classes b
-                  WHERE a.atom_id = b.atom_id
-                         AND attribute_name = 'LEXICAL_TAG'
-                         AND attribute_value = 'TRD'
-                         AND b.source in ( select current_name from source_version)
-                         AND b.tobereleased IN ('Y', 'y')
-   }) || ((print L "<span id=red>Error at 2.2 ($DBI::errstr).</span>")
-     &&  return);
   $dbh->do(qq{
     INSERT INTO source_attributes
           (switch, source_attribute_id, attribute_id, atom_id, concept_id,
-           sg_id, sg_type, sg_qualifier, attribute_level, attribute_name,
-           attribute_value, generated_status, source, status, released,
-           tobereleased, source_rank, suppressible, atui, source_atui, hashcode)
+	   sg_id, sg_type, sg_qualifier, attribute_level, attribute_name,
+	   attribute_value, generated_status, source, status, released,
+	   tobereleased, source_rank, suppressible, atui, source_atui, hashcode)
     SELECT /*+ parallel(c) */ DISTINCT 'R', 0, 0, atom_id, concept_id,
-           aui, 'AUI', '', 'S', 'LT', 'TRD', 'Y','MTH',
-           'R', 'N','Y',0,'N','','',''
+	   aui, 'AUI', '', 'S', 'LT', 'TRD', 'Y','MTH',
+	   'R', 'N','Y',0,'N','','',''
     FROM classes c
-    WHERE (concept_id,sui) IN ( SELECT concept_id, sui from t_sl_lext_concept_sui)
+    WHERE (concept_id,sui) IN
+     (SELECT a.concept_id,sui
+      FROM attributes a, classes b
+      WHERE a.atom_id = b.atom_id
+        AND attribute_name = 'LEXICAL_TAG'
+        AND attribute_value = 'TRD'
+        AND b.source != (SELECT current_name FROM source_version WHERE source='MSH')
+        AND b.tobereleased in ('Y','y'))
       AND tobereleased in ('Y','y')
-      AND aui IN (SELECT aui FROM t_sl_aui )
+      AND aui IN (SELECT aui FROM classes MINUS
+		  SELECT sg_id FROM attributes_ui
+		  WHERE root_source='MTH' and attribute_name='LT'
+		    AND sg_type='AUI')
     }) || ((print L "<span id=red>Error at 2 ($DBI::errstr).</span>")
      &&  return);
-  $sh = $dbh->prepare("BEGIN MEME_UTILITY.drop_it('table','t_sl_aui'); END;") ||
-        ((print L "<span id=red>Error at 1 ($DBI::errstr).</span>") &&  return);
-  $sh->execute || ((print L "<span id=red>Error at 1 ($DBI::errstr).</span>") &&  return);        
-  $sh = $dbh->prepare("BEGIN MEME_UTILITY.drop_it('table','t_sl_lext_concept_sui'); END;") ||
-        ((print L "<span id=red>Error at 1 ($DBI::errstr).</span>") &&  return);
-  $sh->execute || ((print L "<span id=red>Error at 1 ($DBI::errstr).</span>") &&  return);
+
+  #
+  # Insert MED<year> attributes
+  # Any AUIs already in attributes_ui will have entries for every year
+  # except possibly the most recent year
+  #
+  print L "    Create MED attribute placeholders ... ".scalar(localtime)."\n";
+  $dbh->do(qq{
+    INSERT INTO source_attributes
+          (switch, source_attribute_id, attribute_id, atom_id, concept_id,
+	   sg_id, sg_type, sg_qualifier, attribute_level, attribute_name,
+	   attribute_value, generated_status, source, status, released,
+	   tobereleased, source_rank, suppressible, atui, source_atui, hashcode)
+    SELECT DISTINCT 'R', 0, 0, atom_id, concept_id,
+	   aui, 'AUI', '', 'S', 'MED'||year, '', 'Y','NLM-MED',
+	   'R', 'N','Y',0,'N','','',''
+    FROM
+    (SELECT a.atom_id, a.concept_id, a.aui FROM classes a
+    WHERE tobereleased in ('Y','y')
+      AND source = (select current_name FROM source_version WHERE source='MSH')
+      AND tty IN ('MH','TQ')
+      AND aui IN
+	 (SELECT a.aui FROM classes a, source_version b
+          WHERE a.tobereleased in ('Y','y')
+          AND a.source = b.current_name and b.source='MSH' AND a.tty IN ('MH','TQ')
+	  MINUS SELECT /*+ parallel(a) */ sg_id FROM attributes_ui a
+	  WHERE root_source = 'NLM-MED' and attribute_name like 'MED____') ) a,
+      (SELECT rownum+1900 as year FROM classes
+       WHERE rownum< (to_number(to_char(sysdate,'YYYY'))-1899)) b
+    }) || ((print L "<span id=red>Error at 2 ($DBI::errstr).</span>")
+     &&  return);
+
+  #
+  # Insert entries for current year
+  #
+  $dbh->do(qq{
+    INSERT INTO source_attributes
+          (switch, source_attribute_id, attribute_id, atom_id, concept_id,
+	   sg_id, sg_type, sg_qualifier, attribute_level, attribute_name,
+	   attribute_value, generated_status, source, status, released,
+	   tobereleased, source_rank, suppressible, atui, source_atui,
+	   hashcode)
+    SELECT DISTINCT 'R', 0, 0, atom_id, concept_id,
+	   aui, 'AUI', '', 'S', 'MED'||(to_number(to_char(sysdate,'YYYY'))),
+	   '', 'Y','NLM-MED',
+	   'R', 'N','Y',0,'N','','',''
+    FROM classes a
+    WHERE tobereleased in ('Y','y')
+      AND source = (select current_name FROM source_version WHERE source='MSH')
+      AND tty IN ('MH','TQ')
+    }) || ((print L "<span id=red>Error at 2 ($DBI::errstr).</span>")
+     &&  return);
+
+
+  #
+  # Insert MED<year>* attributes
+  # We can safely insert one of these for each MED attribute
+  # already inserted into source_attributes
+  #
+  print L "    Create MED* attribute placeholders ... ".scalar(localtime)."\n";
+  $dbh->do(qq{
+    INSERT INTO source_attributes
+          (switch, source_attribute_id, attribute_id, atom_id, concept_id,
+	   sg_id, sg_type, sg_qualifier, attribute_level, attribute_name,
+	   attribute_value, generated_status, source, status, released,
+	   tobereleased, source_rank, suppressible, atui, source_atui, hashcode)
+    SELECT DISTINCT 'R', 0, 0, atom_id, concept_id,
+	   sg_id, 'AUI', '', 'S', attribute_name||'*', '', 'Y','NLM-MED',
+	   'R', 'N','Y',0,'N','','',''
+    FROM source_attributes
+    WHERE attribute_name like 'MED____'
+      AND source = 'NLM-MED'
+    }) || ((print L "<span id=red>Error at 2 ($DBI::errstr).</span>")
+     &&  return);
+
   #
   # Set fake attribute id
   #
@@ -5732,175 +5346,6 @@ SELECT /*+ index(a X_ATTR_AN) */ DISTINCT 'R' switch, 0 as source_attribute_id, 
   return 1;
 } # Handle_atui_rui
 
-##############################################################################
-# Assign RUIs for AQ/QB relationships
-#
-sub Handle_atui_med {
-  $| = 1;
-
-  open(L,">>MIDLogs/$log_name") ||
-    ((print L "<span id=red>Error opening $log_name.</span>") &&
-     return);
-
-  # set variables
-  $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl -d $db`;
-  ($user,$password) = split /\//, $userpass;
-  chop($password);
-
-  # open connection
-  $dbh = DBI->connect("dbi:Oracle:$db", "$user", "$password") ||
-    ((print L "<span id=red>Error opening $db ($DBI::errstr).</span>")
-     &&  return);
-  &EnableBuffer;
-
-  $dbh->do(qq{
-    ALTER SESSION set sort_area_size=400000000
-    }) ||
-    ((print "<span id=red>Error setting sort area size ($DBI::errstr).</span>")    &&  return);
-
-  $dbh->do(qq{
-    ALTER SESSION set hash_area_size=400000000
-    }) ||
-    ((print "<span id=red>Error setting hash area size ($DBI::errstr).</span>")    &&  return);
-
-
-  #
-  # Load source_attributes
-  #
-  # Note that the ATUI semantic for these attributes are slightly different
-  # We do not actually care what the attribute value is, because what makes
-  # the attribute the same is that it is attached to the same CUI
-  #
-  print L "   Truncate source_attributes ... ".scalar(localtime)."\n";
-  $sh = $dbh->prepare("BEGIN MEME_SYSTEM.truncate('source_attributes'); END;") ||
-    ((print L "<span id=red>Error at 1 ($DBI::errstr).</span>")
-     &&  return);
-  $sh->execute ||
-    ((print L "<span id=red>Error at 1 ($DBI::errstr).</span>")
-     &&  return);
-
-  #
-  # Insert MED<year> attributes
-  # Any AUIs already in attributes_ui will have entries for every year
-  # except possibly the most recent year
-  #
-  print L "    Create MED attribute placeholders (D,mt=y)... ".scalar(localtime)."\n";
-  $rc = $dbh->do(qq{
-    INSERT INTO source_attributes
-          (switch, source_attribute_id, attribute_id, atom_id, concept_id,
-	   sg_id, sg_type, sg_qualifier, attribute_level, attribute_name,
-	   attribute_value, generated_status, source, status, released,
-	   tobereleased, source_rank, suppressible, atui, source_atui, hashcode)
-    SELECT DISTINCT 'R', 0, 0, atom_id, concept_id,
-       aui, 'AUI', '', 'S', 'MED'||atn, '*'||ct, 'Y', 'NLM-MED',
-	   'R', 'N','Y',0,'N','','','*'||ct
-    FROM
-     (SELECT /*+ PARALLEL(coc) */  count(*) ct,
-	    TO_CHAR(publication_date,'YYYY') as atn, heading_id
-      FROM coc_headings coc
-      WHERE source = 'NLM-MED'
-        AND major_topic = 'Y'
-      GROUP BY heading_id, TO_CHAR(publication_date,'YYYY')) a, classes b
-    WHERE heading_id = atom_id
-      AND b.tobereleased in ('Y','y')
-    }) || ((print L "<span id=red>Error at 2 ($DBI::errstr).</span>")
-     &&  return);
-  print L "      Count==$rc\n";
-  
-  print L "    Create MED attribute placeholders (D,mt=n)... ".scalar(localtime)."\n";
-  $rc = $dbh->do(qq{
-    INSERT INTO source_attributes
-          (switch, source_attribute_id, attribute_id, atom_id, concept_id,
-	   sg_id, sg_type, sg_qualifier, attribute_level, attribute_name,
-	   attribute_value, generated_status, source, status, released,
-	   tobereleased, source_rank, suppressible, atui, source_atui, hashcode)
-    SELECT DISTINCT 'R', 0, 0, atom_id, concept_id,
-       aui, 'AUI', '', 'S', 'MED'||atn, ''||ct, 'Y', 'NLM-MED',
-	   'R', 'N','Y',0,'N','','',''||ct
-    FROM
-     (SELECT /*+ PARALLEL(coc) */  count(*) ct,
-	    TO_CHAR(publication_date,'YYYY') as atn, heading_id
-      FROM coc_headings coc
-      WHERE source = 'NLM-MED'
-      GROUP BY heading_id, TO_CHAR(publication_date,'YYYY')) a, classes b
-    WHERE heading_id = atom_id 
-      AND b.tobereleased in ('Y','y')
-    }) || ((print L "<span id=red>Error at 2 ($DBI::errstr).</span>")
-     &&  return);
-  print L "      Count==$rc\n";
-
-  print L "    Create MED attribute placeholders (Q,mt=y)...".scalar(localtime)."\n";
-  $sh = $dbh->prepare("BEGIN MEME_UTILITY.drop_it('table','tmp_coc_heading1_$$'); END;") ||
-        ((print L "<span id=red>Error at 1 ($DBI::errstr).</span>") &&  return);
-   $sh->execute || ((print L "<span id=red>Error at 1 ($DBI::errstr).</span>") &&  return);
-
-  $rc = $dbh->do(qq{ CREATE table tmp_coc_heading1_$$ AS (SELECT /*+ PARALLEL(coc) */ DISTINCT citation_set_id, TO_CHAR(publication_date,'YYYY') as year FROM coc_headings coc WHERE source='NLM-MED') }) || ((print L "<span id=red>Error at 3a ($DBI::errstr).</span>"
-) &&  return);
-
-  $sh = $dbh->prepare("BEGIN MEME_UTILITY.drop_it('table','tmp_coc_heading2_$$'); END;") ||
-        ((print L "<span id=red>Error at 1 ($DBI::errstr).</span>") &&  return);
-   $sh->execute || ((print L "<span id=red>Error at 1 ($DBI::errstr).</span>") &&  return);
-
-  $rc = $dbh->do(qq{ CREATE table tmp_coc_heading2_$$ AS ( SELECT year, subheading_qa, count(*) as ct FROM tmp_coc_heading1_$$ a, coc_subheadings b  WHERE a.citation_set_id = b.citation_set_id          GROUP BY year, subheading_qa) }) || ((print L "<span id=red>Error at 3a ($DBI::errstr).</span>") &&  return);
-  
-  $rc = $dbh->do(qq{
-    INSERT INTO source_attributes
-          (switch, source_attribute_id, attribute_id, atom_id, concept_id,
-	   sg_id, sg_type, sg_qualifier, attribute_level, attribute_name,
-	   attribute_value, generated_status, source, status, released,
-	   tobereleased, source_rank, suppressible, atui, source_atui, hashcode)
-    SELECT DISTINCT 'R', 0, 0, c.atom_id, c.concept_id,
-       c.aui, 'AUI', '', 'S', 'MED'||year, ''||sum(ct), 'Y', 'NLM-MED',
-	   'R', 'N','Y',0,'N','','',''||sum(ct)
-    FROM string_ui a, tmp_coc_heading2_$$ b, classes c, classes d
-    WHERE a.string = b.subheading_qa
-      AND a.sui = d.sui
-      AND c.source = (SELECT current_name FROM source_version WHERE source='MSH')
-      AND d.source = (SELECT current_name FROM source_version WHERE source='MSH')
-      AND c.tty = 'TQ'
-      AND d.tty = 'QAB'
-      AND c.tobereleased in ('Y','y')
-      AND d.tobereleased in ('Y','y')
-      AND c.code = d.code
-    GROUP BY c.concept_id, c.atom_id, c.aui, b.year  
-    }) || ((print L "<span id=red>Error at 3 ($DBI::errstr).</span>")
-     &&  return);
-  print L "      Count==$rc\n";
-
-  #
-  # Set fake attribute id
-  #
-  $dbh->do(qq{
-    UPDATE source_attributes
-    SET attribute_id = rownum
-    }) || ((print L "<span id=red>Error at 2.2 ($DBI::errstr).</span>")
-     &&  return);
-
-  #
-  # Assign the ATUIs
-  #
-  print L "    Assign ATUIs ... ".scalar(localtime)."\n";
-  $sh = $dbh->prepare(qq{
-    BEGIN
-        MEME_SOURCE_PROCESSING.assign_atuis(
-		   table_name => 'SA',
-		   authority => 'MTH',
-		   work_id => 0);
-    END;
-  }) ||
-    ((print L "<span id=red>Error at 3 ($DBI::errstr).</span>")
-     &&  return);
-  $sh->execute ||
-    ((print L "<span id=red>Error at 3 ($DBI::errstr).</span>")
-     &&  return);
-
-  # disconnect
-  $dbh->disconnect;
-
-  close(L);
-  return 1;
-} # Handle_atui_med
-
 
 ##############################################################################
 #
@@ -5914,7 +5359,7 @@ sub Handle_atx_cui_map {
      return);
 
   # set variables
-  $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl -d $db`;
+  $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl`;
   ($user,$password) = split /\//, $userpass;
   chop($password);
 
@@ -5978,29 +5423,22 @@ sub Handle_atx_cui_map {
     ((print L "<span id=red>Error at 1.1b ($DBI::errstr).</span>")
      &&  return);
   ($aui_length) = $sh->fetchrow_array;
-
+  
   #
   # identify merges
   #
   $dbh->do(qq{
-     CREATE TABLE t_pre_mergecui_$$ as
-     select cui, to_number(SUBSTR(max_rank,INSTR(max_rank,'/')+1)) concept_id from
-(SELECT last_release_cui as cui,
-          max(MEME_RANKS.get_atom_editing_rank(tbr.rank, tr.release_rank,
-                last_release_rank, sui, aui, atom_id)
-          ||'/'||concept_id) max_rank
-       FROM classes c, t_delcui_$$ d, termgroup_rank tr, tobereleased_rank tbr
-       WHERE c.last_release_cui = d.cui
-                AND c.termgroup = tr.termgroup
-        AND c.tobereleased = tbr.tobereleased
-       GROUP BY last_release_cui)
-}) || ((print L "<span id=red>Error at 2.1 ($DBI::errstr).</span>")
-     &&  return);
-
-  $dbh->do(qq{
     CREATE TABLE t_mergecui_$$ as
     SELECT a.cui as old_cui, b.cui as new_cui
-    FROM t_delcui_$$ a, concept_status b, t_pre_mergecui_$$ c
+    FROM t_delcui_$$ a, concept_status b,
+      (SELECT last_release_cui as cui,
+          to_number(substr(max(rank||sui||
+          LPAD(SUBSTR(aui,INSTR(aui,'$aui_prefix')+1),
+          $aui_length,'0')
+          ||'/'||concept_id),24)) concept_id
+       FROM classes c, t_delcui_$$ d
+       WHERE c.last_release_cui = d.cui
+       GROUP BY last_release_cui) c
     WHERE b.concept_id = c.concept_id
       AND a.cui = c.cui
       AND b.tobereleased in ('Y','y')
@@ -6071,9 +5509,9 @@ sub Handle_atx_cui_map {
     FROM attributes a, cui_history b
     WHERE attribute_name='XMAPFROM'
       AND concept_id in (SELECT concept_id FROM attributes
-                         WHERE attribute_name = 'MAPSETTYPE'
-                           AND attribute_value='ATX'
-                           AND tobereleased in ('Y','y'))
+			 WHERE attribute_name = 'MAPSETTYPE'
+			   AND attribute_value='ATX'
+			   AND tobereleased in ('Y','y'))
       AND substr(attribute_value,1,instr(attribute_value,'~')-1) = cui1
       AND relationship_name = 'SY'
       AND a.tobereleased in ('Y','y')
@@ -6082,9 +5520,9 @@ sub Handle_atx_cui_map {
     FROM attributes a, t_mergecui_$$ b
     WHERE attribute_name='XMAPFROM'
       AND concept_id in (SELECT concept_id FROM attributes
-                         WHERE attribute_name = 'MAPSETTYPE'
-                           AND attribute_value='ATX'
-                           AND tobereleased in ('Y','y'))
+			 WHERE attribute_name = 'MAPSETTYPE'
+			   AND attribute_value='ATX'
+			   AND tobereleased in ('Y','y'))
       AND substr(attribute_value,1,instr(attribute_value,'~')-1) = old_cui
       AND a.tobereleased in ('Y','y')
     }) || ((print L "<span id=red>Error at 2 ($DBI::errstr).</span>")
@@ -6123,9 +5561,9 @@ sub Handle_atx_cui_map {
     FROM attributes a, cui_history b
     WHERE attribute_name='XMAP'
       AND concept_id in (SELECT concept_id FROM attributes
-                         WHERE attribute_name = 'MAPSETTYPE'
-                           AND attribute_value='ATX'
-                           AND tobereleased in ('Y','y'))
+			 WHERE attribute_name = 'MAPSETTYPE'
+			   AND attribute_value='ATX'
+			   AND tobereleased in ('Y','y'))
       AND substr(attribute_value,3,instr(attribute_value,'~',3)-3) = cui1
       AND relationship_name = 'SY'
       AND a.tobereleased in ('Y','y')
@@ -6134,9 +5572,9 @@ sub Handle_atx_cui_map {
     FROM attributes a, t_mergecui_$$ b
     WHERE attribute_name='XMAP'
       AND concept_id in (SELECT concept_id FROM attributes
-                         WHERE attribute_name = 'MAPSETTYPE'
-                           AND attribute_value='ATX'
-                           AND tobereleased in ('Y','y'))
+			 WHERE attribute_name = 'MAPSETTYPE'
+			   AND attribute_value='ATX'
+			   AND tobereleased in ('Y','y'))
       AND substr(attribute_value,3,instr(attribute_value,'~',3)-3) = old_cui
       AND a.tobereleased in ('Y','y')
     }) || ((print L "<span id=red>Error at 6 ($DBI::errstr).</span>")
@@ -6180,9 +5618,9 @@ sub Handle_atx_cui_map {
     FROM attributes a, cui_history b
     WHERE attribute_name='XMAP'
       AND concept_id in (SELECT concept_id FROM attributes
-                         WHERE attribute_name='MAPSETTYPE'
-                           AND attribute_value='ATX'
-                           AND tobereleased in ('Y','y'))
+			 WHERE attribute_name='MAPSETTYPE'
+			   AND attribute_value='ATX'
+			   AND tobereleased in ('Y','y'))
       AND substr(attribute_value,3,instr(attribute_value,'~',3)-3) = cui1
       AND relationship_name = 'DEL'
     UNION
@@ -6190,18 +5628,18 @@ sub Handle_atx_cui_map {
     FROM attributes a, t_delcui_$$ b
     WHERE attribute_name='XMAP'
       AND concept_id in (SELECT concept_id FROM attributes
-                         WHERE attribute_name='MAPSETTYPE'
-                           AND attribute_value='ATX'
-                           AND tobereleased in ('Y','y'))
+			 WHERE attribute_name='MAPSETTYPE'
+			   AND attribute_value='ATX'
+			   AND tobereleased in ('Y','y'))
       AND substr(attribute_value,3,instr(attribute_value,'~',3)-3) = b.cui
     UNION
     SELECT attribute_id
     FROM attributes a, cui_history b
     WHERE attribute_name='XMAPFROM'
       AND concept_id in (SELECT concept_id FROM attributes
-                         WHERE attribute_name='MAPSETTYPE'
-                           AND attribute_value='ATX'
-                           AND tobereleased in ('Y','y'))
+			 WHERE attribute_name='MAPSETTYPE'
+			   AND attribute_value='ATX'
+			   AND tobereleased in ('Y','y'))
       AND substr(attribute_value,1,instr(attribute_value,'~')-1) = cui1
       AND relationship_name = 'DEL'
     UNION
@@ -6209,19 +5647,17 @@ sub Handle_atx_cui_map {
     FROM attributes a, t_delcui_$$ b
     WHERE attribute_name='XMAPFROM'
       AND concept_id in (SELECT concept_id FROM attributes
-                         WHERE attribute_name='MAPSETTYPE'
-                           AND attribute_value='ATX'
-                           AND tobereleased in ('Y','y'))
+			 WHERE attribute_name='MAPSETTYPE'
+			   AND attribute_value='ATX'
+			   AND tobereleased in ('Y','y'))
       AND substr(attribute_value,1,instr(attribute_value,'~')-1) = b.cui
     }) || ((print L "<span id=red>Error at 11 ($DBI::errstr).</span>")
      &&  return);
 
-	
-
   #
-  # Turn off old XMAP and XMAPFROM and XMAPTO attributes
+  # Turn off old XMAP and XMAPFROM attributes
   #
-  print L "    Remove old XMAP,XMAPFROM,XMAPTO ... ".scalar(localtime)."\n";
+  print L "    Remove old XMAP,XMAPFROM ... ".scalar(localtime)."\n";
   $sh = $dbh->prepare(qq{
      SELECT COUNT(*) FROM tdel_$$
   }) ||
@@ -6328,392 +5764,6 @@ sub Handle_atx_cui_map {
   close(L);
   return 1;
 } # Handle_atx_cui_map
-
-##############################################################################
-# Run Move foreign MSH concepts
-sub Handle_move_foreign_MSH_concepts {
-  $| = 1;
-
-  open(L,">>MIDLogs/$log_name") ||
-    ((print L "<span id=red>Error opening $log_name.</span>") &&
-     return);
-
-  # set variables
-  $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl -d $db`;
-  ($user,$password) = split /\//, $userpass;
-  chop($password);
-
-  # open connection
-  $dbh = DBI->connect("dbi:Oracle:$db", "$user", "$password") ||
-    ((print L "<span id=red>Error opening $db ($DBI::errstr).</span>")
-     &&  return);
-  &EnableBuffer;
-
-  $dbh->do(qq{
-    ALTER SESSION set sort_area_size=200000000
-    }) ||
-    ((print "<span id=red>Error setting sort area size ($DBI::errstr).</span>")    &&  return);
-
-  $dbh->do(qq{
-    ALTER SESSION set hash_area_size=200000000
-    }) ||
-    ((print "<span id=red>Error setting hash area size ($DBI::errstr).</span>")    &&  return);
-
-  #
-  # The following code run moving MSH foreign concepts into English concepts procedures
-  #
-  print L "    Move MSH foreign concepts ... ".scalar(localtime)."\n";
-
-  $sh = $dbh->prepare("BEGIN MEME_UTILITY.drop_it('table', '${uniq}_t'); END;") ||
-    ((print L "<span id=red>Error preparing drop 1 ($DBI::errstr).</span>")
-     &&  return);
-  $sh->execute ||
-    ((print L "<span id=red>Error executing drop 1 ($DBI::errstr).</span>")
-     &&  return);
-
-  print L "    Find MSH MUIs and their corresponding English Preferred Concept ... ".scalar(localtime)."\n";
-  
-  $dbh->do(qq{
-        CREATE TABLE ${uniq}_t AS
-        select distinct source_cui, concept_id from (
-         select source_cui, concept_id, row_number() over (partition by source_cui order by rank desc) r from (
-          select source_cui, concept_id,
-             meme_ranks.get_atom_release_rank (d.release_rank,
-                                             last_release_rank,
-                                             sui,
-                                             aui
-                                            )  RANK
-           from classes a, source_version c, termgroup_rank d
-           where a.language = 'ENG'
-           and a.source = c.current_name
-           and c.source = 'MSH'
-           and a.TERMGROUP = d.TERMGROUP
-           and a.TOBERELEASED in ('Y', 'y')
-          )
-         ) where r=1
-    }) || ((print L "<span id=red>Error executing create 1 ($DBI::errstr).</span>")
-     &&  return);
-
-  $sh = $dbh->prepare("BEGIN MEME_UTILITY.drop_it('table', '${uniq}_ta'); END;") ||
-    ((print L "<span id=red>Error preparing drop 2 ($DBI::errstr).</span>")
-     &&  return);
-  $sh->execute ||
-    ((print L "<span id=red>Error executing drop 2 ($DBI::errstr).</span>")
-     &&  return);
-
-  print L "    Find non_english MSH MUIs that are split between concepts  ... ".scalar(localtime)."\n";
-
-  $dbh->do(qq{
-        CREATE TABLE ${uniq}_ta AS
-        SELECT source_cui FROM classes WHERE source_cui LIKE 'M%'
-		AND SOURCE LIKE 'MSH%'
-		AND tobereleased IN ('Y', 'y')
-		GROUP BY source_cui
-		HAVING COUNT (DISTINCT concept_id) > 1
-			INTERSECT
-		SELECT source_cui FROM classes WHERE
-		tobereleased IN ('Y', 'y')
-		AND LANGUAGE != 'ENG'
-		AND SOURCE LIKE 'MSH%'
-		AND source_cui LIKE 'M%'
-    }) || ((print L "<span id=red>Error executing create 2 ($DBI::errstr).</span>")
-     &&  return);
-
-  print L "    Compile the list of non-english atoms that need to move ... ".scalar(localtime)."\n";
-
-  $sh = $dbh->prepare("BEGIN MEME_UTILITY.drop_it('table', '${uniq}_tb'); END;") ||
-    ((print L "<span id=red>Error preparing drop 3 ($DBI::errstr).</span>")
-     &&  return);
-  $sh->execute ||
-    ((print L "<span id=red>Error executing drop 3 ($DBI::errstr).</span>")
-     &&  return);
-
-
-  $dbh->do(qq{
-    create table ${uniq}_tb as 
-    SELECT atom_id AS row_id, a.concept_id old_value, b.pref_eng new_value 
-    FROM classes a, (SELECT DISTINCT d.source_cui, concept_id pref_eng
-	FROM ${uniq}_ta c, ${uniq}_t d
-	WHERE c.source_cui = d.source_cui) b
-	WHERE a.source_cui = b.source_cui
-	AND a.concept_id != b.pref_eng
-	AND a.LANGUAGE !='ENG'
-	AND a.tobereleased IN ('Y', 'y')
-    }) || ((print L "<span id=red>Error executing create 3 ($DBI::errstr).</span>")
-     &&  return);
-
-  print L "    Delete translation atoms that have translation_of relationship ... ".scalar(localtime)."\n";
-  
-  $dbh->do(qq{
-        DELETE FROM ${uniq}_tb a
-		where row_id in (select atom_id_2 from relationships b where relationship_attribute='translation_of' 
-		and tobereleased in ('Y', 'y') and relationship_name = 'SFO/LFO' and a.old_value = b.concept_id_2
-		and b.concept_id_1 != b.concept_id_2)
-    }) || ((print L "<span id=red>Error executing delete 1 ($DBI::errstr).</span>")
-     &&  return);
-
-  $sh = $dbh->prepare(qq{
-     SELECT COUNT(*) FROM ${uniq}_tb
-  }) ||
-    ((print L "<span id=red>Error preparing count 1 ($DBI::errstr).</span>")
-     &&  return);
-  $sh->execute ||
-    ((print L "<span id=red>Error executing count 1 ($DBI::errstr).</span>")
-     &&  return);
-
-  while (($ct) = $sh->fetchrow_array){
-    $row_ct = $ct;
-  }
-  print L "      Count == $row_ct\n";
-     
-   print L "    Move them     ... ".scalar(localtime)."\n";     
-
- # Move them!
-  if ($row_ct > 0) {
-    open(CMD,"$ENV{MEME_HOME}/bin/batch.pl $port $host -a=C -t=C -s=t t{uniq}_tb $db E-PM | /bin/sed 's/^/      /' |") ||
-      ((print L "<span id=red>Error running batch.pl ($! $?).</span>")
-       &&  return);
-    while (<CMD>) {
-      print L $_;
-    }
-    close(CMD);
-  }  
-  
-  #
-  # Cleanup
-  #
-  print L "    Cleanup ... ".scalar(localtime)."\n";
-  $sh = $dbh->prepare(qq{
-    BEGIN
-      MEME_UTILITY.drop_it('table','${uniq}_t');
-    END;}) ||
-    ((print L "<span id=red>Error preparing drop 5 ($DBI::errstr).</span>")
-     &&  return);
-  $sh->execute ||
-    ((print L "<span id=red>Error executing drop 5 ($DBI::errstr).</span>")
-     &&  return);
-  
-  $sh = $dbh->prepare(qq{
-      BEGIN
-      MEME_UTILITY.drop_it('table','${uniq}_ta');
-    END;}) ||
-    ((print L "<span id=red>Error preparing drop 6 ($DBI::errstr).</span>")
-     &&  return);
-  $sh->execute ||
-    ((print L "<span id=red>Error executing drop 6 ($DBI::errstr).</span>")
-     &&  return);
-  
-    $sh = $dbh->prepare(qq{   
-    BEGIN
-      MEME_UTILITY.drop_it('table','${uniq}_tb');
-    END;}) ||
-    ((print L "<span id=red>Error preparing drop 7 ($DBI::errstr).</span>")
-     &&  return);
-  $sh->execute ||
-    ((print L "<span id=red>Error executing drop 7 ($DBI::errstr).</span>")
-     &&  return);
-     
-  # disconnect
-  $dbh->disconnect;
-
-  close(L);
-  return 1;
-
-}
-
-
-##############################################################################
-# Run Move foreign MDR concepts
-sub Handle_move_foreign_MDR_concepts {
-  $| = 1;
-
-  open(L,">>MIDLogs/$log_name") ||
-    ((print L "<span id=red>Error opening $log_name.</span>") &&
-     return);
-
-  # set variables
-  $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl -d $db`;
-  ($user,$password) = split /\//, $userpass;
-  chop($password);
-
-  # open connection
-  $dbh = DBI->connect("dbi:Oracle:$db", "$user", "$password") ||
-    ((print L "<span id=red>Error opening $db ($DBI::errstr).</span>")
-     &&  return);
-  &EnableBuffer;
-
-  $dbh->do(qq{
-    ALTER SESSION set sort_area_size=200000000
-    }) ||
-    ((print "<span id=red>Error setting sort area size ($DBI::errstr).</span>")    &&  return);
-
-  $dbh->do(qq{
-    ALTER SESSION set hash_area_size=200000000
-    }) ||
-    ((print "<span id=red>Error setting hash area size ($DBI::errstr).</span>")    &&  return);
-
-  #
-  # The following code run moving MDR foreign concepts into English concepts procedures
-  #
-  print L "    Move MDR foreign concepts ... ".scalar(localtime)."\n";
-
-  $sh = $dbh->prepare("BEGIN MEME_UTILITY.drop_it('table', '${uniq}_t'); END;") ||
-    ((print L "<span id=red>Error preparing drop 1 ($DBI::errstr).</span>")
-     &&  return);
-  $sh->execute ||
-    ((print L "<span id=red>Error executing drop 1 ($DBI::errstr).</span>")
-     &&  return);
-
-  print L "    Find distinct MDR Codes and their corresponding English Preferred Concept ... ".scalar(localtime)."\n";
-  
-  $dbh->do(qq{
-        CREATE TABLE ${uniq}_t AS
-        select code, concept_id from (
-         select code, concept_id, row_number() over (partition by code order by rank desc) r from (
-          select code, concept_id,
-           meme_ranks.get_atom_release_rank (d.release_rank,
-                                             last_release_rank,
-                                             sui,
-                                             aui
-                                            )  RANK
-           from classes a, source_version c, termgroup_rank d
-           where a.language = 'ENG'
-           and a.source = c.current_name
-           and c.source like 'MDR%'
-           and a.TERMGROUP = d.TERMGROUP
-           and a.TOBERELEASED in ('Y', 'y')
-          )
-         ) where r=1
-    }) || ((print L "<span id=red>Error executing create 1 ($DBI::errstr).</span>")
-     &&  return);
-
-  $sh = $dbh->prepare("BEGIN MEME_UTILITY.drop_it('table', '${uniq}_ta'); END;") ||
-    ((print L "<span id=red>Error preparing drop 2 ($DBI::errstr).</span>")
-     &&  return);
-  $sh->execute ||
-    ((print L "<span id=red>Error executing drop 2 ($DBI::errstr).</span>")
-     &&  return);
-
-  print L "    Find non_english MDR concepts that share code with a different English concept and that do not have existing translation_of relationship  ... ".scalar(localtime)."\n";
-
-  $dbh->do(qq{
-        CREATE TABLE ${uniq}_ta AS
-        SELECT code FROM classes WHERE SOURCE LIKE 'MDR%'
-		AND tobereleased IN ('Y', 'y')
-		GROUP BY code
-		HAVING COUNT (DISTINCT concept_id) > 1
-			INTERSECT
-		SELECT code FROM classes WHERE
-		tobereleased IN ('Y', 'y')
-		AND LANGUAGE != 'ENG'
-		AND SOURCE LIKE 'MDR%'
-    }) || ((print L "<span id=red>Error executing create 2 ($DBI::errstr).</span>")
-     &&  return);
-
-  print L "    Compile the list of non-english atoms that need to move ... ".scalar(localtime)."\n";
-
-  $sh = $dbh->prepare("BEGIN MEME_UTILITY.drop_it('table', '${uniq}_tb'); END;") ||
-    ((print L "<span id=red>Error preparing drop 3 ($DBI::errstr).</span>")
-     &&  return);
-  $sh->execute ||
-    ((print L "<span id=red>Error executing drop 3 ($DBI::errstr).</span>")
-     &&  return);
-
-
-  $dbh->do(qq{
-    create table ${uniq}_tb as 
-    SELECT atom_id AS row_id, a.concept_id old_value, b.pref_eng new_value 
-    FROM classes a, (SELECT DISTINCT d.code, concept_id pref_eng
-	FROM ${uniq}_ta c, ${uniq}_t d
-	WHERE c.code = d.code) b
-	WHERE a.code = b.code
-	AND a.concept_id != b.pref_eng
-	AND a.LANGUAGE !='ENG'
-	AND a.tobereleased IN ('Y', 'y')
-    }) || ((print L "<span id=red>Error executing create 3 ($DBI::errstr).</span>")
-     &&  return);
-     
- print L "    Delete translation atoms that have translation_of relationship ... ".scalar(localtime)."\n";
-  
-  $dbh->do(qq{
-        DELETE FROM ${uniq}_tb a
-		where row_id in (select atom_id_2 from relationships b where relationship_attribute='translation_of' 
-		and tobereleased in ('Y', 'y') and relationship_name = 'SFO/LFO' and a.old_value = b.concept_id_2
-		and b.concept_id_1 != b.concept_id_2)
-    }) || ((print L "<span id=red>Error executing delete 1 ($DBI::errstr).</span>")
-     &&  return);     
-
-  $sh = $dbh->prepare(qq{
-     SELECT COUNT(*) FROM ${uniq}_tb
-  }) ||
-    ((print L "<span id=red>Error preparing count 1 ($DBI::errstr).</span>")
-     &&  return);
-  $sh->execute ||
-    ((print L "<span id=red>Error executing count 1 ($DBI::errstr).</span>")
-     &&  return);
-
-  while (($ct) = $sh->fetchrow_array){
-    $row_ct = $ct;
-  }
-  print L "      Count == $row_ct\n";
-     
-   print L "    Move them     ... ".scalar(localtime)."\n";     
-
- # Move them!
-  if ($row_ct > 0) {
-    open(CMD,"$ENV{MEME_HOME}/bin/batch.pl $port $host -a=C -t=C -s=t t{uniq}_tb $db E-PM | /bin/sed 's/^/      /' |") ||
-      ((print L "<span id=red>Error running batch.pl ($! $?).</span>")
-       &&  return);
-    while (<CMD>) {
-      print L $_;
-    }
-    close(CMD);
-  }  
-
-  
-  #
-  # Cleanup
-  #
-  print L "    Cleanup ... ".scalar(localtime)."\n";
-  $sh = $dbh->prepare(qq{
-    BEGIN
-      MEME_UTILITY.drop_it('table','${uniq}_t');
-    END;}) ||
-    ((print L "<span id=red>Error preparing drop 5 ($DBI::errstr).</span>")
-     &&  return);
-  $sh->execute ||
-    ((print L "<span id=red>Error executing drop 5 ($DBI::errstr).</span>")
-     &&  return);
-  
-  $sh = $dbh->prepare(qq{
-      BEGIN
-      MEME_UTILITY.drop_it('table','${uniq}_ta');
-    END;}) ||
-    ((print L "<span id=red>Error preparing drop 6 ($DBI::errstr).</span>")
-     &&  return);
-  $sh->execute ||
-    ((print L "<span id=red>Error executing drop 6 ($DBI::errstr).</span>")
-     &&  return);
-  
-    $sh = $dbh->prepare(qq{   
-    BEGIN
-      MEME_UTILITY.drop_it('table','${uniq}_tb');
-    END;}) ||
-    ((print L "<span id=red>Error preparing drop 7 ($DBI::errstr).</span>")
-     &&  return);
-  $sh->execute ||
-    ((print L "<span id=red>Error executing drop 7 ($DBI::errstr).</span>")
-     &&  return);
-     
-  
-  # disconnect
-  $dbh->disconnect;
-
-  close(L);
-  return 1;
-
-}
-
 
 ##############################################################################
 # Enables DBMS_OUTPUT buffer

@@ -14,7 +14,7 @@ import javax.swing.text.PlainDocument;
  * {@link PlainDocument} implementation that only accepts
  * floating point numerical values.
  *
- * @author  Brian Carlsen (bcarlsen@msdinc.com)
+ * @author  Brian Carlsen (bcarlsen@apelon.com)
  */
 public class DoubleDocument extends PlainDocument {
 

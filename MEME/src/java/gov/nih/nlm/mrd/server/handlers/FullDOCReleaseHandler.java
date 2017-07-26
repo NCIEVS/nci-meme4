@@ -299,12 +299,11 @@ public class FullDOCReleaseHandler
           xml.append(rset.getString(1));
           xml.append("</sources_by_language>\n");
         }
-        query = " SELECT count(distinct root_source)  " +
-        		"FROM mrd_classes a " +
-        		"WHERE expiration_date IS NULL " +
-        		"and exists (select 1 from mrd_source_rank b where a.root_source=b.root_source " +
-        		" AND is_current = 'Y'  " +
-        		"  AND b.source = normalized_source) ";
+        query =
+            "SELECT count(distinct source) " +
+            "FROM mrd_source_rank " +
+            "WHERE expiration_date IS NULL AND is_current = 'Y' " +
+            "  AND source = normalized_source ";
         rset = stmt.executeQuery(query);
         if (rset.next()) {
           xml.append("<sources>");
@@ -582,6 +581,7 @@ public class FullDOCReleaseHandler
       e.printStackTrace();
       throw e;
     }
+
     return xml.toString();
   }
 
@@ -775,11 +775,6 @@ public class FullDOCReleaseHandler
             ch == '"' ||
             ch == ' ' ||
             ch == '>' ||
-            ch == ',' ||
-            ch == '[' ||
-            ch == ']' ||
-            ch == '(' ||
-            ch == ')' ||
             ch == '&') {
           return i;
         }

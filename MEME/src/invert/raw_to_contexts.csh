@@ -8,11 +8,7 @@
 #           format was updated on 4/04/2001 and this script
 #           produces that updated format.
 #
-# Changes
-# 08/18/2006 BAC(1-BVS6F): Better support for -i and -o
-# 08/10/2006 BAC(1-BVS6F): Support -i and -o
-# 
-# Old Version info
+# Version info
 # 04/12/2005 3.1: Ignore CHD (99) lines in .raw3 file
 # 11/19/2004 3.0: Released, Better error handling doesn't bother with .raw2
 # 12/19/2003 2.0: Supports "native identifiers" for context relationships
@@ -43,17 +39,16 @@ set sort="/bin/sort -T $HUGETMP"
 set awk=/bin/awk
 
 if ($#argv > 0) then
-    if ("x-version" == "x$argv[1]") then
+    if ("-version" == $argv[1]) then
 	echo "Release ${release}: version $version, $date ($authority)"
 	exit 0
-    else if ("x$argv[1]" == "x-v") then
+    else if ("$argv[1]" == "-v") then
 	echo "$version"
 	exit 0
-    else if ("x$argv[1]" == "x--help" || "x$argv[1]" == "x-help") then
+    else if ("$argv[1]" == "--help" || "$argv[1]" == "-help") then
     cat <<EOF
  This script has the following usage:
-   Usage: $0 -o <output dir> -i <input dir>
-   Usage: $0 <input dir>
+   Usage: $0 <directory>
 
     This script takes a directory containing *raw[23] files
     and produces a contexts.src file from it. The contexts.src
@@ -66,38 +61,23 @@ EOF
     endif
 endif
 
-set out_dir=.
-if ($#argv == 1) then
-  set in_dir = $1
-else if ($#argv == 4) then
-  if ("x$argv[1]" == "x-o" && "x$argv[3]" == "x-i") then
-    set out_dir = $2
-    set in_dir = $4
-  else if ("x$argv[3]" == "x-o" && "x$argv[1]" == "x-i") then
-    set out_dir = $4
-    set in_dir = $2
-  else
-    echo "Usage: $0 -o <output dir> -i <input dir>"
-    echo "Usage: $0 <input dir>"
-    exit 1
-  endif
-else
-    echo "Usage: $0 -o <output dir> -i <input dir>"
-    echo "Usage: $0 <input dir>"
+if ($#argv != 1) then
+    echo "Usage: $0 <directory>"
     exit 1
 endif
 
-if (! (-d $in_dir)) then
-    echo "$in_dir must be a directory."
+set src_dir=$1
+if (! (-d $src_dir)) then
+    echo "$src_dir must be a directory."
     exit 1
 endif
 
 echo "--------------------------------------------------------------"
 echo "Starting `/bin/date`"
 echo "--------------------------------------------------------------"
-echo "in dir:          $in_dir"
-echo "out dir:         $out_dir"
-echo "raw3 files:      `ls $in_dir/*raw3`"
+echo "source directory: $src_dir"
+echo "raw3 files:       `ls $src_dir/*raw3`"
+echo "raw2 files:       `ls $src_dir/*raw2`"
 
 # 
 # Sort file on source, then first 5 fields
@@ -164,18 +144,18 @@ EOF
 chmod 755 /tmp/t.$$.pl
 
 # sort by source of context and then first 5 fields
-$awk -F\| '$3!=99 {print $0}' $in_dir/*.raw3 |\
+$awk -F\| '$3!=99 {print $0}' $src_dir/*.raw3 |\
  $sort -t\| -k 12,12 -k 1,5  |\
  /tmp/t.$$.pl |\
- $sort -u >! $out_dir/contexts.src
-#$sort -u >! $in_dir/contexts.src 
+ $sort -u >! contexts.src
+#$sort -u >! $src_dir/contexts.src 
 if ($status != 0) then
     echo "Error generating contexts.src"
     exit 1
 endif
 
 # Cleanup
-\rm -f $in_dir/$$.work
+\rm -f $src_dir/$$.work
 \rm -f /tmp/t.$$.pl
 
 echo "--------------------------------------------------------------"

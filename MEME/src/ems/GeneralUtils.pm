@@ -2,13 +2,9 @@
 # Author: suresh@nlm.nih.gov 1/2003
 
 package GeneralUtils;
-BEGIN
-{
 unshift @INC, "$ENV{ENV_HOME}/bin";
+
 require "env.pl";
-unshift @INC, "$ENV{EMS_HOME}/lib";
-unshift @INC, "$ENV{EMS_HOME}/bin";
-}
 
 use Archive::Zip;
 use Digest::MD5 qw(md5_hex);
@@ -59,13 +55,13 @@ sub new {
 # gets the password for the user; if user is not given,
 # the password for the first user is returned.
 sub getOraclePassword {
-  my($self, $user,$db) = @_;
+  my($self, $user) = @_;
   my($cmd) = $ENV{MIDSVCS_HOME} . "/bin/get-oracle-pwd.pl";
   die "ERROR: DBPASSWORD_HOME not set\n" unless $ENV{MIDSVCS_HOME};
   die "ERROR: password script not found\n" unless (-e $cmd && -x $cmd);
 
-  $_ = `$cmd -u $user -d $db`;
-  my($u, $p,$d) = split /\//, $_;
+  $_ = `$cmd -u $user`;
+  my($u, $p) = split /\//, $_;
   chomp($p);
   return $p;
 }

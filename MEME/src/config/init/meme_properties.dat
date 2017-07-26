@@ -56,7 +56,7 @@
 |||MAPRES|MRCOLS|varchar(4000)|Human readable restriction on when to apply mapping|
 |||MAPSID|MRCOLS|varchar(50)|Source asserted identifier for mapping|
 |||MAPSUBSETID|MRCOLS|char(8)|Map sub set identifier|
-|||MAPSETSAB|MRCOLS|varchar(40)|SAB of the map set|
+|||MAPSETSAB|MRCOLS|varchar(20)|SAB of the map set|
 |||MRAUI|MRFILES|AUI1,CUI1,VER,REL,RELA,MAPREASON,AUI2,CUI2,MAPIN|AUI History|
 |||MRSMAP|MRFILES|MAPSETCUI,MAPSETSAB,MAPID,MAPSID,FROMEXPR,FROMTYPE,REL,RELA,TOEXPR,TOTYPE,CVF|Simple Mappings|
 |||expanded_form|ATN|AQ|SNOMED CT "allowable qualifier" attribute for representing certain relationships (those having a characteristic type of "Qualifier" and a refinability of "Mandatory") which indicate one of several allowable types of qualifiers, such as laterality or severity, that a concept may have|
@@ -251,11 +251,11 @@
 |||RNK|MRCOLS|integer|Rank|
 |||RMETA|MRCOLS|varchar(10)|Version of the Metathesaurus where a version is removed|
 |||RWS|MRCOLS|integer|Number of rows|
-|||SAB|MRCOLS|varchar(40)|Source abbreviation|
+|||SAB|MRCOLS|varchar(20)|Source abbreviation|
 |||SCC|MRCOLS|varchar(1000)|Content contact info for a source|
-|||SF|MRCOLS|varchar(40)|Source Family|
+|||SF|MRCOLS|varchar(20)|Source Family|
 |||SLC|MRCOLS|varchar(1000)|License contact info for a source|
-|||SL|MRCOLS|varchar(40)|Source of relationship labels|
+|||SL|MRCOLS|varchar(20)|Source of relationship labels|
 |||SNA|MRCOLS|varchar(3000)|Actual name present in the information source, if not present in the Metathesaurus when the locator information was added|
 |||SOC|MRCOLS|varchar(20)|Source of co-occurrence information|
 |||SON|MRCOLS|varchar(3000)|Source Official Name|
@@ -427,8 +427,8 @@
 |||MAPIN|MRCOLS|char(1)|Mapping in current subset|
 |||VCUI|MRCOLS|char(8)|Unique identifier for versioned SRC concept|
 |||RCUI|MRCOLS|char(8)|Unique identifier for root SRC concept|
-|||VSAB|MRCOLS|varchar(40)|Versioned source abbreviation|
-|||RSAB|MRCOLS|varchar(40)|Root source abbreviation|
+|||VSAB|MRCOLS|varchar(20)|Versioned source abbreviation|
+|||RSAB|MRCOLS|varchar(20)|Root source abbreviation|
 |||C1145638|MRSAT|20030101|DA values for CUIs <= key|
 |||C1140719|MRSAT|20021101|DA Values for CUIs <= key|
 |||ISPREF|MRCOLS|char(1)|Indicates whether AUI is preferred|

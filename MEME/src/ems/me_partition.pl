@@ -35,7 +35,7 @@ sub do_me_partition {
       $html = "Are you sure you want to proceed with partitioning?";
     }
     $html .= $query->p;
-    $html .= $query->start_form(-method=>'POST', -action=>$query->url(-absolute=>1));
+    $html .= $query->start_form(-method=>'POST', -action=>$query->url());
     $html .= $query->p . $query->submit({-value=>'Yes!'});
     $html .= $query->hidden(-name=>'action', -value=>$action, -override=>1);
     $html .= $DBpost;

@@ -1,6 +1,4 @@
 # Home page for EMS
-# CHANGES
-#  04/07/2007 BAC (1-DX6C7): changed ems_reports to ems_reports/
 # suresh@nlm.nih.gov 9/98
 # suresh@nlm.nih.gov 8/99 - Modified for Oracle
 # suresh@nlm.nih.gov 6/05 - EMS3 mods
@@ -66,8 +64,7 @@ sub do_ems_home {
     push @toolbardata, [ &toHTMLtable($query, {bgcolor=>$toolbarbgcolor, border=>0, cellpadding=>0, cellspacing=>0, width=>$toolbarwidth}, \@d) ];
     push @toolbardata, [ $query->p ];
   }
-   push @toolbardata, [ $query->a({-href=>'/cgi-lti-oracle/mid_maintenance.cgi/'}, "Matrix Init") ];
-   push @toolbardata, [ $query->a({-href=>'/ems_reports/'}, "EMS Reports") ];
+
   $toolbar = &toHTMLtable($query, {bgcolor=>$toolbarbgcolor, border=>0, cellpadding=>0, cellspacing=>0, width=>$toolbarwidth}, \@toolbardata);
   $body = <<"EOD";
 The Editing Management System is used to create and manage the editing process

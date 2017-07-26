@@ -2,6 +2,9 @@
 # to actual data names.  The mechanism is extensible.  Just ensure
 # that the key (e.g., current-editing-mid) does not have spaces.
 
+# Changes:
+# 03/24/2006 RBE (1-AQRCB): Added list to MID Services mailing list
+
 # suresh@nlm.nih.gov 9/98
 
 # Database and JDBC URL services have been made more symbolic (e.g.,
@@ -9,56 +12,52 @@
 # suresh@nlm 1/2002
 
 # Symbolic names
-editing-db|cheek_midp
-production-db|cheek_midp
-testsw-db|chin_midqa
-testsrc-db|femur_midtest
-testsrc2-db|femur_midtest2
-testdev-db|femur_midd
-mrd-db|chin_mrdp
+editing-db|trachea_pdb10
+unedited-db|trachea_pdb10
+testsw-db|trachea_pdb10
+testsrc-db|trachea_pdb10
+testmisc-db|trachea_pdb10
+production-db|trachea_pdb10
+mrd-db|trachea_ddb11
 
 # Java jdbc names
-editing-jdbc|jdbc:oracle:thin:@cheek:1521:midp
-mrd-jdbc|jdbc:oracle:thin:@chin:1521:mrdp
-testsw-jdbc|jdbc:oracle:thin:@chin:1521:midqa
-testsrc-jdbc|jdbc:oracle:thin:@chin:1521:midtest
-midp-jdbc|jdbc:oracle:thin:@cheek:1521:midp
-local-occs-jdbc|jdbc:oracle:thin:@localhost:8121:midp
-local-occs-db|cheek_midp
+editing-jdbc|jdbc:oracle:thin:@trachea.nlm.nih.gov:1521:pdb10
+mrd-jdbc|jdbc:oracle:thin:@trachea.nlm.nih.gov:1521:ddb11
+testsw-jdbc|jdbc:oracle:thin:@trachea.nlm.nih.gov:1521:pdb10
+testmisc-jdbc|jdbc:oracle:thin:@trachea.nlm.nih.gov:1521:pdb10
 
 # All databases, list all available database save for mrd
 # For use by concept reports
-databases|chin_mrdp,cheek_midp,chin_midqa,femur_midtest,femur_midd,femur_midtest2
+databases|trachea_pdb10,trachea_ddb11
 
 # Host and port where MEME server is running
-meme-server-host|cheek.nlm.nih.gov
+meme-server-host|umlsdev1.nlm.nih.gov
 meme-server-port|1526
 
-
-# LVG services
-lvg-server-host|chin.nlm.nih.gov
+# LVG services 
+lvg-server-host|umlsdev1.nlm.nih.gov
 lvg-server-port|16001
 
 # Test services
-test-meme-server-host|cheek.nlm.nih.gov
+test-meme-server-host|trachea.nlm.nih.gov
 test-meme-server-port|1526
 
 # Apelon request mid services
-test-insertion-meme-server-host|cheek.nlm.nih.gov
+test-insertion-meme-server-host|trachea.nlm.nih.gov
 test-insertion-meme-server-port|1526
-insertion-meme-server-host|cheek.nlm.nih.gov
+insertion-meme-server-host|trachea.nlm.nih.gov
 insertion-meme-server-port|1526
 
 #
 # List all MEME servers
 #
-meme-server-hostport|cheek.nlm.nih.gov:1526
+meme-server-hostport|umlsdev1.nlm.nih.gov:1526,trachea.nlm.nih.gov:1526
 
 #
 # MRD Servers
 #
-mrd-server-host|chin.nlm.nih.gov
-mrd-server-port|8081
+mrd-server-host|mrd.nlm.nih.gov
+mrd-server-port|8080
 
 # Release databases
 ReleaseMetadataFile|/net/umls-source/umls/Releases/ReleaseMetadata.xml
@@ -66,34 +65,17 @@ ReleaseMetadataFile|/net/umls-source/umls/Releases/ReleaseMetadata.xml
 #
 # Mailing lists by name (email addresses separated by spaces)
 #
-smtp-host|localhost
+smtp-host|mailfwd.nih.gov
+db-request-from|meme@apelon.com
+db-request-list|nlmumls-l@list.nih.gov, reg@apelon.com, klindsay@apelon.com, ajacobs@msdinc.com
+db-response-list|smayhugh@mail.nih.gov
+sos-from|meme@apelon.com
+sos-list|nlmumls-l@list.nih.gov, reg@apelon.com, klindsay@apelon.com, ajacobs@msdinc.com
 
-db-request-from|umls@cheek.nlm.nih.gov
-db-request-list|nlmumls-l@list.nih.gov, laura.a.roth@lmco.com, amy.k.jacobs@lmco.com, chanr@mail.nih.gov, yaoh@mail.nih.gov, dmccully@mail.nih.gov
-db-response-list|brian.a.carlsen@lmco.com
-
-sos-from|umls@cheek.nlm.nih.gov
-sos-list|nlmumls-l@list.nih.gov, laura.a.roth@lmco.com, amy.k.jacobs@lmco.com,lankas@mail.nlm.nih.gov,hotan@mail.nlm.nih.gov, chanr@mail.nih.gov, yaoh@mail.nih.gov
-
-meme-from|umls@cheek.nlm.nih.gov
-mrd-from|umls@cheek.nlm.nih.gov
-meme-admin-midsvcs-list|lankas@mail.nlm.nih.gov,hotan@mail.nlm.nih.gov,chanr@mail.nih.gov, yaoh@mail.nih.gov,brian.a.carlsen@lmco.com,tim.kao@lmco.com
-meme-admin-database-list|lankas@mail.nlm.nih.gov,hotan@mail.nlm.nih.gov,chanr@mail.nih.gov, yaoh@mail.nih.gov, brian.a.carlsen@lmco.com,tim.kao@lmco.com
-meme-admin-system-list|lankas@mail.nlm.nih.gov,hotan@mail.nlm.nih.gov,chanr@mail.nih.gov, yaoh@mail.nih.gov, brian.a.carlsen@lmco.com,tim.kao@lmco.com
-meme-admin-meme-list|lankas@mail.nlm.nih.gov,hotan@mail.nlm.nih.gov,chanr@mail.nih.gov, yaoh@mail.nih.gov, brian.a.carlsen@lmco.com,tim.kao@lmco.com
-
-recipe-from|umls@cheek.nlm.nih.gov
-recipe-list|meme@msdinc.com
-
-#
-# Request tracking
-#
-request-list|nlmumls-l@list.nih.gov, laura.a.roth@lmco.com, amy.k.jacobs@lmco.com, chanr@mail.nih.gov, yaoh@mail.nih.gov
-request-state-9-list|nlmumls-l@list.nih.gov, laura.a.roth@lmco.com, amy.k.jacobs@lmco.com, echegol@mail.nlm.nih.gov
-request-from-list| laura.a.roth@lmco.com, amy.k.jacobs@lmco.com, chanr@mail.nih.gov, yaoh@mail.nih.gov, dmccully@mail.nih.gov, willisj@mail.nih.gov, brian.a.carlsen@lmco.com, joanne.f.wong@lmco.com, hotan@mail.nlm.nih.gov, lankas@mail.nlm.nih.gov, chanv@mail.nlm.nih.gov, powellt@mail.nlm.nih.gov, creechc@mail.nih.gov, echegol@mail.nlm.nih.gov, stephanie.s.lipow@lmco.com, bill.a.king@lmco.com, nels.e.olson@lmco.com, sharon.l.quan@lmco.com, huangk@mail.nlm.nih.gov, gururajs@mail.nlm.nih.gov
-#request-cc-list|meme@msdinc.com
-request-cc-list|
-request-details-to|brian.a.carlsen@lmco.com
-request-time|6:30 EDT
-request-backups|Enabled
-request-cutoff-editing|No
+meme-admin-midsvcs-list|bcarlsen@apelon.com,tkao@apelon.com,smayhugh@mail.nih.gov
+meme-admin-database-list|bcarlsen@apelon.com,tkao@apelon.com,smayhugh@mail.nih.gov
+meme-admin-system-list|bcarlsen@apelon.com,tkao@apelon.com,smayhugh@mail.nih.gov
+meme-admin-meme-list|bcarlsen@apelon.com,tkao@apelon.com,smayhugh@mail.nih.gov
+meme-smtp-host|mailfwd.nih.gov
+meme-from|meme@apelon.com
+mrd-from|tuttle@nlm.nih.gov

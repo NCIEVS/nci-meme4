@@ -39,7 +39,7 @@ import java.util.Enumeration;
  * employed by the {@link TestFinderFrame} and by the
  * RxNorm editor code.
  *
- * @author Brian Carlsen (bcarlsen@msdinc.com)
+ * @author Brian Carlsen (bcarlsen@apelon.com)
  */
 public class ReportFrame
     extends JFrame

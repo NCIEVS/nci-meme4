@@ -6,7 +6,6 @@
 #      meme_utils.pl
 #
 # Changes
-# 07/26/2006 BAC (1-BRD37): Added CODE_SOURCE and CODE_ROOT_SOURCE
 # 01/30/2006 BAC (1-769EW): support for ROOT_SOURCE_AUI
 #
 $release = "4";
@@ -224,7 +223,7 @@ sub PrintFooter {
 	      <address><a href="$cgi?db=$db">Back to Index</a></address>
             </td>
 	    <td ALIGN=RIGHT VALIGN=TOP >
-	      <font size="-1"><address>Contact: <a href="mailto:jwong\@msdinc.com">Joanne Wong</a></address>
+	      <font size="-1"><address>Contact: <a href="mailto:jwong\@apelon.com">Joanne Wong</a></address>
 	      <address>Generated on:},scalar(localtime),qq{</address>
               <address>This page took $elapsed_time seconds to generate.</address>
 	      <address>};
@@ -334,7 +333,7 @@ problematic.
 sub PrintLIST_TYPES {
 
     # set variables
-    $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl -d $db`;
+    $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl`;
     ($user,$password) = split /\//, $userpass;
     chop($password);
 
@@ -395,7 +394,7 @@ Following are the problematic types.  Select one to review cases.
 sub PrintLIST_CASES {
 
     # set variables
-    $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl -d $db`;
+    $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl`;
     ($user,$password) = split /\//, $userpass;
     chop($password);
 
@@ -577,24 +576,6 @@ SELECT sg_id$suffix, sg_qualifier$suffix, 'No match' FROM
 };
 
     #
-    # CODE_SOURCE
-    #
-    } elsif ($sg_type eq "CODE_SOURCE") {
-      #
-      # CODE_SOURCE doesn't have a "too many" condition
-      # because we map to the highest ranking atom
-      #
-      $query = qq{
-SELECT sg_id$suffix, sg_qualifier$suffix, 'No match' FROM 
-  (SELECT sg_id$suffix, sg_qualifier$suffix FROM $table
-   WHERE sg_type$suffix = '$sg_type' 
-   MINUS
-   SELECT a.code, a.source
-   FROM classes a
-   WHERE a.tobereleased in ('Y','y'))
-};
-
-    #
     # CODE_ROOT_TERMGROUP
     #
     } elsif ($sg_type eq "CODE_ROOT_TERMGROUP") {
@@ -602,31 +583,12 @@ SELECT sg_id$suffix, sg_qualifier$suffix, 'No match' FROM
       # CODE_ROOT_TERMGROUP doesn't have a "too many" condition
       # because we map to the highest ranking atom
       #
-       $query = qq{
+      $query = qq{
 SELECT sg_id$suffix, sg_qualifier$suffix, 'No match' FROM 
   (SELECT sg_id$suffix, sg_qualifier$suffix FROM $table
    WHERE sg_type$suffix = '$sg_type' 
    MINUS
    SELECT a.code, b.source || '/' || a.tty
-   FROM classes a, source_version b
-   WHERE b.current_name = a.source
-     AND a.tobereleased in ('Y','y'))
-};
-
-    #
-    # CODE_ROOT_SOURCE
-    #
-    } elsif ($sg_type eq "CODE_ROOT_SOURCE") {
-      #
-      # CODE_ROOT_SOURCE doesn't have a "too many" condition
-      # because we map to the highest ranking atom
-      #
-      $query = qq{
-   SELECT sg_id$suffix, sg_qualifier$suffix, 'No match' FROM 
-  (SELECT sg_id$suffix, sg_qualifier$suffix FROM $table
-   WHERE sg_type$suffix = '$sg_type' 
-   MINUS
-   SELECT a.code, b.source
    FROM classes a, source_version b
    WHERE b.current_name = a.source
      AND a.tobereleased in ('Y','y'))

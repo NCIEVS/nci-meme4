@@ -13,13 +13,12 @@
 # -f (force data to be collected even if present)
 # -n (catches up data collection for the previous n days)
 
-BEGIN
-{
 unshift @INC, "$ENV{ENV_HOME}/bin";
+
 require "env.pl";
-unshift @INC, "$ENV{EMS_HOME}/lib";
-unshift @INC, "$ENV{EMS_HOME}/bin";
-}
+
+use lib "$ENV{EMS_HOME}/lib";
+push @INC, "$ENV{EMS_HOME}/bin";
 
 use OracleIF;
 use EMSUtils;
@@ -55,7 +54,7 @@ EMSUtils->loadConfig;
 
 $db = $opt_d || Midsvcs->get($opt_s || 'editing-db');
 $user = $main::EMSCONFIG{ORACLE_USER};
-$password = GeneralUtils->getOraclePassword($user,$db);
+$password = GeneralUtils->getOraclePassword($user);
 $dbh = new OracleIF("db=$db&user=$user&password=$password");
 die "ERROR: Database $db is unavailable\n" unless $dbh;
 
@@ -229,7 +228,7 @@ sub doit {
       and    a.row_id = t.attribute_id
       and    m.molecular_action LIKE '%INSERT%'
       and    a.action='I'
-      and    t.attribute_name ='SEMANTIC_TYPE'
+      and    t.attribute_name || '' ='SEMANTIC_TYPE'
       group by m.authority",
 
      "create table $splits as

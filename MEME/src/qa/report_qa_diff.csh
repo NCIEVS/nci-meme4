@@ -62,7 +62,7 @@ endif
 set db=$1
 set qa1=$2
 set qa2=$3
-set mu=`$MIDSVCS_HOME/bin/get-oracle-pwd.pl -d $db`
+set mu=`$MIDSVCS_HOME/bin/get-oracle-pwd.pl`
 
 
 #

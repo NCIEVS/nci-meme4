@@ -7,14 +7,7 @@ CREATE OR REPLACE PACKAGE MEME_BATCH_ACTIONS AS
  * This package contains functions to perform batch and macro action operations
  *
  * Version Information
- * 02/24/2009 BAC (1-GCLNT): Avoid assigning attribute/rel ranks. Avoid
- *     using preferred level.
- *  06/26/2008 BAC (1-HWOAW): Check if the row_id collection is empty before FORALL statement
- *  01/31/2008 BAC (1-GCLNT): Use BULK COLLECT and FORALL with simple actions.
- * 02/21/2007 BAC (1-DJWJX): Support action=A, id_type=CR
- * 02/08/2007 BAC (1-D3YMM): When deleting atoms, properly handle error
- *  conditions associated with cascading deletes (of attributes/relationships)
- * 11/18/2006 BAC (1-CUCOX): Fix "NVL" clause in action_change_field to properly support numeric values.
+ *
  * 03/11/2005 4.30.0: last_release_cui is loaded into classes from s_c_a 
  * 12/30/2004 4.29.0: Released. Includes better log_operation call 
  * 12/23/2004 4.28.2: action_log bug fix for query to delete attributes 
@@ -65,21 +58,21 @@ CREATE OR REPLACE PACKAGE MEME_BATCH_ACTIONS AS
  *                    to_char around it. Now, we check the field type first. 
  * 12/14/2001 3.13.0: Released
  * 10/23/2001 3.12.1: Performance enhancment: sometimes you  know that
- *               precedence will be recomputed later so this package
- *              does not need to do it.  A set_preferred_flag
- *              was added to batch_action and macro_action
- *               that can disable or enable the setting of the preferred
- *              concept_id.
+ * 		      precedence will be recomputed later so this package
+ *		      does not need to do it.  A set_preferred_flag
+ *		      was added to batch_action and macro_action
+ * 		      that can disable or enable the setting of the preferred
+ *		      concept_id.
  * 09/05/2001 3.12.0: Released 11.* changes
  *    07/11/2001 3.11.1: Location 310 action_help had an error
- *              where the query was selecting from
- *             molecular_Actions using transaction_id=transaction_id
- *             instead of transaction_id=action_help.transaction_id;
+ *		 	 where the query was selecting from
+ *			 molecular_Actions using transaction_id=transaction_id
+ *			 instead of transaction_id=action_help.transaction_id;
  *
- *              Fixed up report_macro_change to correctly report
- *              changes
+ * 			 Fixed up report_macro_change to correctly report
+ * 			 changes
  *
- *             Removed package variables: cracs_field, macro_field,
+ *			 Removed package variables: cracs_field, macro_field,
  *                       action_method, cracs_source  by using local variables.
  *    06/04/2001 3.11.0: Changed so action_change_field requires a table
  *                        with a varchar2 new_value field
@@ -88,16 +81,16 @@ CREATE OR REPLACE PACKAGE MEME_BATCH_ACTIONS AS
  *                       use key_field="".  There is no good reason
  *                       why the key field should be set.
  *    05/11/2001 3.10.1: Problem in macro_insert if oq_mode was on.
- *                       dropping the tmp tables (t_rtc_...) was not
- *            working because of transaction scope issues.
- *            The drop tables were moved to after the COMMIT
- *            in action_help to just avoid the issue
+ *                   	dropping the tmp tables (t_rtc_...) was not
+ *			working because of transaction scope issues.
+ *			The drop tables were moved to after the COMMIT
+ *			in action_help to just avoid the issue
  *    04/20/2001 3.10.0: Released to NLM
  *    04/10/2001 3.9.2: Changes to macro_insert to support the new
  *                      [*_]context_relationships schema
  *    04/09/2001 3.9.1: Fix to action_change_atom_id to allow 
  *                      atom_ids of C level
- *            stuff to be maintained also.
+ *			stuff to be maintained also.
  *    03/28/2001 3.9.0: Released version
  *    03/21/2001 3.8.1: Changes in action_help, macro_redo (action_redo) and
  *                    macro_undo (action_undo) to correct reporting of table
@@ -111,73 +104,60 @@ CREATE OR REPLACE PACKAGE MEME_BATCH_ACTIONS AS
  *    10/26/2000:     Changes in macro_insert
  *    10/18/2000:     batch_redo, batch_undo, macro_redo, macro_undo
  *    10/16/2000:     Major changes to package
- *              batch_change_atom_id, macro_action
+ *		      batch_change_atom_id, macro_action
  *    8/02/2000:      Macro-insert calculates preferred atom ids
- *              This is actually done now in MEME_SOURCE_PROCESSING
+ *		      This is actually done now in MEME_SOURCE_PROCESSING
  *    8/01/2000:      Package handover version
  *    9/09/1999:      First version created and compiled
  *    7/26/2000:      Better error messages, switch='R' for macro insert
- *              Better elapsed time calculations
+ *		      Better elapsed time calculations
  *    7/21/2000:      Core table insert CR: don't rank these rows
- *              classes.last_release_cui should be '' not 0 (macro ins)
- *    6/30/2000:      INSERT
+ *		      classes.last_release_cui should be '' not 0 (macro ins)
+ *    6/30/2000:      INSERT /*+ APPEND * /
  *    3/23/2000:      Package re-creation
  *
  * Status:
  *    Functionality:  DONE?
- *    Testing:          DONE?
+ *    Testing:	      DONE?
  *    Enhancements:
  *
  *    Description of the function being called from outside:
- *     The batch_action and macro_action expect necessary input parameters to
- *     perform a batch or macro action operation.  It calls internal function
- *     to produced the desired results.
+ *	 The batch_action and macro_action expect necessary input parameters to
+ *	 perform a batch or macro action operation.  It calls internal function
+ *	 to produced the desired results.
  *
- *     The differences between these two actions are batch action logged each
- *     row  for atomic and  molecular action, while macro action logged  each
- *     atomic action    into a single  molecular action.  
+ *	 The differences between these two actions are batch action logged each
+ *	 row  for atomic and  molecular action, while macro action logged  each
+ *	 atomic action	into a single  molecular action.  
  *
- *     The   batch_undo,   macro_undo,    batch_redo and   macro_redo  expect
+ *	 The   batch_undo,   macro_undo,    batch_redo and   macro_redo  expect
  *       transaction_id and authority as input parameters to perform a batch or
  *       macro undo and redo operation.
  *
  *       Reporting to MRD now happens in MEME directly.
  *
- ************************************************************************/
+ ******************************************************************************/
 
    /* package info */
-   package_name     VARCHAR2(25) := 'MEME_BATCH_ACTIONS';
-   release_number    VARCHAR2(1)  := '4';
-   version_number    VARCHAR2(5)  := '30.0';
-   version_date     DATE         := '11-Mar-2005';
-   version_authority    VARCHAR2(3)  := 'BAC';
+   package_name 	VARCHAR2(25) := 'MEME_BATCH_ACTIONS';
+   release_number	VARCHAR2(1)  := '4';
+   version_number	VARCHAR2(5)  := '30.0';
+   version_date 	DATE	     := '11-Mar-2005';
+   version_authority	VARCHAR2(3)  := 'BAC';
 
    /* public variables */
-   mba_debug        BOOLEAN := FALSE;
-   mba_trace        BOOLEAN := FALSE;
+   mba_debug		BOOLEAN := FALSE;
+   mba_trace		BOOLEAN := FALSE;
 
-   method        VARCHAR2(50);
-   location        VARCHAR2(10);
-   error_code        INTEGER;
-   error_detail     VARCHAR2(4000);
+   method		VARCHAR2(50);
+   location		VARCHAR2(10);
+   error_code		INTEGER;
+   error_detail 	VARCHAR2(4000);
 
-   cracs_table        VARCHAR2(50) := NULL;
-   primary_key        VARCHAR2(50) := NULL;
+   cracs_table		VARCHAR2(50) := NULL;
+   primary_key		VARCHAR2(50) := NULL;
 
    msp_set_preferred_flag      VARCHAR2(1) := MEME_CONSTANTS.YES;
-
-  TYPE molecule_id          IS TABLE OF molecular_actions.molecule_id%TYPE;
-  TYPE row_id               IS TABLE OF atomic_actions.row_id%TYPE;
-  TYPE old_value            IS TABLE OF atomic_actions.old_value%TYPE;
-  TYPE new_value            IS TABLE OF atomic_actions.new_value%TYPE;
-  TYPE timestamp            IS TABLE OF atomic_actions.timestamp%TYPE;
-  TYPE authority            IS TABLE OF atomic_actions.authority%TYPE;
-  TYPE atomic_action_id     IS TABLE OF atomic_actions.atomic_action_id%TYPE;
-  TYPE rank                 IS TABLE OF VARCHAR2(1000);
-
-  TYPE concept_id           IS TABLE OF classes.concept_id%TYPE;
-  TYPE atom_id              IS TABLE OF classes.atom_id%TYPE;
-
 
    /* functions and procedures */
 
@@ -205,141 +185,140 @@ CREATE OR REPLACE PACKAGE MEME_BATCH_ACTIONS AS
    PROCEDURE initialize_trace(l_method IN VARCHAR2);
 
    PROCEDURE error_log(
-      method        IN VARCHAR2,
-      location        IN VARCHAR2,
-      error_code    IN INTEGER,
-      detail        IN VARCHAR2);
+      method		IN VARCHAR2,
+      location		IN VARCHAR2,
+      error_code	IN INTEGER,
+      detail		IN VARCHAR2);
 
    FUNCTION action_check(
-      action        IN VARCHAR2,
-      id_type        IN VARCHAR2,
-      table_name    IN VARCHAR2,
-      new_value        IN VARCHAR2,
-      action_field    IN VARCHAR2)
+      action		IN VARCHAR2,
+      id_type		IN VARCHAR2,
+      table_name	IN VARCHAR2,
+      new_value		IN VARCHAR2,
+      action_field	IN VARCHAR2)
    RETURN INTEGER;
 
    FUNCTION action_log(
-      action        IN VARCHAR2,
-      id_type        IN VARCHAR2,
-      authority     IN VARCHAR2,
-      table_name    IN VARCHAR2,
-      action_name    IN VARCHAR2,
-      action_short    IN VARCHAR2,
-      work_id        IN NUMBER,
-      status        IN VARCHAR2,
-      new_value     IN VARCHAR2,
-      action_field    IN VARCHAR2)
+      action		IN VARCHAR2,
+      id_type		IN VARCHAR2,
+      authority 	IN VARCHAR2,
+      table_name	IN VARCHAR2,
+      action_name	IN VARCHAR2,
+      action_short	IN VARCHAR2,
+      work_id		IN NUMBER,
+      status		IN VARCHAR2,
+      new_value 	IN VARCHAR2,
+      action_field	IN VARCHAR2)
    RETURN INTEGER;
 
    FUNCTION macro_insert(
-      id_type        IN VARCHAR2,
-      authority     IN VARCHAR2,
-      transaction_id    IN INTEGER)
+      id_type		IN VARCHAR2,
+      authority 	IN VARCHAR2,
+      transaction_id	IN INTEGER)
    RETURN INTEGER;
 
    FUNCTION action_change_field(
-      id_type        IN VARCHAR2,
-      transaction_id    IN INTEGER,
-      action_field    IN VARCHAR2)
+      id_type		IN VARCHAR2,
+      transaction_id	IN INTEGER,
+      action_field	IN VARCHAR2)
    RETURN INTEGER;
 
    FUNCTION action_move(
-      id_type        IN VARCHAR2,
-      transaction_id    IN INTEGER)
+      id_type		IN VARCHAR2,
+      transaction_id	IN INTEGER)
    RETURN INTEGER;
 
    FUNCTION action_change_atom_id(
-      id_type        IN VARCHAR2,
-      transaction_id    IN INTEGER)
+      id_type		IN VARCHAR2,
+      transaction_id	IN INTEGER)
    RETURN INTEGER;
 
    FUNCTION action_delete(
-      id_type        IN VARCHAR2,
-      transaction_id    IN INTEGER)
+      id_type		IN VARCHAR2,
+      transaction_id	IN INTEGER)
    RETURN INTEGER;
 
    FUNCTION action_change_status(
-      id_type        IN VARCHAR2,
-      transaction_id    IN INTEGER)
+      id_type		IN VARCHAR2,
+      transaction_id	IN INTEGER)
    RETURN INTEGER;
 
    FUNCTION action_change_tobereleased(
-      id_type        IN VARCHAR2,
-      transaction_id    IN INTEGER)
+      id_type		IN VARCHAR2,
+      transaction_id	IN INTEGER)
    RETURN INTEGER;
 
    FUNCTION action_redo(
-      transaction_id    IN INTEGER,
-      authority     IN VARCHAR2,
-      batch_or_macro    IN VARCHAR2,
-      force                IN VARCHAR2 := 'N'
+      transaction_id	IN INTEGER,
+      authority 	IN VARCHAR2,
+      batch_or_macro	IN VARCHAR2,
+      force    	        IN VARCHAR2 := 'N'
    ) RETURN INTEGER;
 
    FUNCTION macro_redo(
-      transaction_id    IN INTEGER,
-      authority     IN VARCHAR2,
-      force                IN VARCHAR2 := 'N'
+      transaction_id	IN INTEGER,
+      authority 	IN VARCHAR2,
+      force    	        IN VARCHAR2 := 'N'
    ) RETURN INTEGER;
 
    FUNCTION batch_redo(
-      transaction_id    IN INTEGER,
-      authority     IN VARCHAR2)
+      transaction_id	IN INTEGER,
+      authority 	IN VARCHAR2)
    RETURN INTEGER;
 
    FUNCTION action_undo(
-      transaction_id    IN INTEGER,
-      authority     IN VARCHAR2,
-      batch_or_macro    IN VARCHAR2,
-      force                IN VARCHAR2 := 'N'
+      transaction_id	IN INTEGER,
+      authority 	IN VARCHAR2,
+      batch_or_macro	IN VARCHAR2,
+      force    	        IN VARCHAR2 := 'N'
    ) RETURN INTEGER;
 
    FUNCTION macro_undo(
-      transaction_id    IN INTEGER,
-      authority     IN VARCHAR2,
-      force                IN VARCHAR2 := 'N'
+      transaction_id	IN INTEGER,
+      authority 	IN VARCHAR2,
+      force    	        IN VARCHAR2 := 'N'
    ) RETURN INTEGER;
 
    FUNCTION batch_undo(
-      transaction_id    IN INTEGER,
-      authority     IN VARCHAR2)
+      transaction_id	IN INTEGER,
+      authority 	IN VARCHAR2)
    RETURN INTEGER;
 
    FUNCTION action_help(
-      action        IN VARCHAR2,
-      id_type        IN VARCHAR2,
-      authority     IN VARCHAR2,
-      table_name    IN VARCHAR2,
-      work_id        IN NUMBER,
-      status        IN VARCHAR2,
-      new_value     IN VARCHAR2 DEFAULT NULL,
-      action_field    IN VARCHAR2 DEFAULT 'NONE',
-      batch_or_macro    IN VARCHAR2)
+      action		IN VARCHAR2,
+      id_type		IN VARCHAR2,
+      authority 	IN VARCHAR2,
+      table_name	IN VARCHAR2,
+      work_id		IN NUMBER,
+      status		IN VARCHAR2,
+      new_value 	IN VARCHAR2 DEFAULT NULL,
+      action_field	IN VARCHAR2 DEFAULT 'NONE',
+      batch_or_macro	IN VARCHAR2)
    RETURN INTEGER;
 
    FUNCTION macro_action(
-      action        IN VARCHAR2,
-      id_type        IN VARCHAR2,
-      authority     IN VARCHAR2,
-      table_name    IN VARCHAR2,
-      work_id        IN NUMBER,
-      status        IN VARCHAR2 := 'R',
-      new_value     IN VARCHAR2 DEFAULT NULL,
-      action_field    IN VARCHAR2 DEFAULT 'NONE',
+      action		IN VARCHAR2,
+      id_type		IN VARCHAR2,
+      authority 	IN VARCHAR2,
+      table_name	IN VARCHAR2,
+      work_id		IN NUMBER,
+      status		IN VARCHAR2 := 'R',
+      new_value 	IN VARCHAR2 DEFAULT NULL,
+      action_field	IN VARCHAR2 DEFAULT 'NONE',
       set_preferred_flag IN VARCHAR2 DEFAULT MEME_CONSTANTS.YES)
    RETURN INTEGER;
 
    FUNCTION batch_action(
-      action        IN VARCHAR2,
-      id_type        IN VARCHAR2,
-      authority     IN VARCHAR2,
-      table_name    IN VARCHAR2,
-      work_id        IN NUMBER,
-      status        IN VARCHAR2 := 'R',
-      new_value     IN VARCHAR2 DEFAULT NULL,
-      action_field    IN VARCHAR2 DEFAULT 'NONE',
+      action		IN VARCHAR2,
+      id_type		IN VARCHAR2,
+      authority 	IN VARCHAR2,
+      table_name	IN VARCHAR2,
+      work_id		IN NUMBER,
+      status		IN VARCHAR2 := 'R',
+      new_value 	IN VARCHAR2 DEFAULT NULL,
+      action_field	IN VARCHAR2 DEFAULT 'NONE',
       set_preferred_flag IN VARCHAR2 DEFAULT MEME_CONSTANTS.YES)
    RETURN INTEGER;
-   
 
 END meme_batch_actions;
 /
@@ -373,9 +352,9 @@ IS
 BEGIN
    MEME_UTILITY.put_message('Package: ' || package_name);
    MEME_UTILITY.put_message('Release ' || release_number || ': ' ||
-                'version ' || version_number || ', ' ||
-                version_date || ' (' ||
-                version_authority || ')');
+			    'version ' || version_number || ', ' ||
+			    version_date || ' (' ||
+			    version_authority || ')');
 END version;
 
 /* FUNCTION VERSION INFO *******************************************************
@@ -490,14 +469,14 @@ END local_exec;
  * It must be called at the begginning of every function.
  */
 PROCEDURE initialize_trace(
-   l_method         IN VARCHAR2
+   l_method 		IN VARCHAR2
 )
 IS
 BEGIN
 
-   method    := UPPER(l_method);
-   location    := '00';
-   error_code    := 0;
+   method	:= UPPER(l_method);
+   location	:= '00';
+   error_code	:= 0;
    error_detail := '';
 END initialize_trace;
 
@@ -506,13 +485,13 @@ END initialize_trace;
  * encountered in this package.
  */
 PROCEDURE error_log(
-   method             IN VARCHAR2,
-   location           IN VARCHAR2,
-   error_code         IN INTEGER,
-   detail             IN VARCHAR2
+   method     		IN VARCHAR2,
+   location   		IN VARCHAR2,
+   error_code 		IN INTEGER,
+   detail     		IN VARCHAR2
 )
 IS
-   error_msg          VARCHAR2(100);
+   error_msg  		VARCHAR2(100);
 BEGIN
 
    ROLLBACK;
@@ -524,10 +503,10 @@ BEGIN
       error_msg := 'MBA0010: Table does not exist.';
    ELSIF error_code = 11 THEN
       error_msg := 'MBA0011: Table does not have an integer '||
-     SUBSTR(detail,INSTR(detail,',')+12)||' field.';
+	 SUBSTR(detail,INSTR(detail,',')+12)||' field.';
    ELSIF error_code = 13 THEN
       error_msg := 'MBA0011: Table does not have an varchar2 '||
-     SUBSTR(detail,INSTR(detail,',')+12)||' field.';
+	 SUBSTR(detail,INSTR(detail,',')+12)||' field.';
    ELSIF error_code = 12 THEN
       error_msg := 'MBA0012: Row ID is not unique.';
    -- Invalid
@@ -597,11 +576,11 @@ BEGIN
    END IF;
 
    MEME_UTILITY.put_error
-        ('Error in MEME_BATCH_ACTIONS.'||
-     ' Method: '||method||
-         ' Location: '||location||
-     ' Error Code: '||error_msg||
-     ' Detail: '||detail||'('||SQLERRM||')');
+    	('Error in MEME_BATCH_ACTIONS.'||
+	 ' Method: '||method||
+    	 ' Location: '||location||
+	 ' Error Code: '||error_msg||
+	 ' Detail: '||detail||'('||SQLERRM||')');
 
 END error_log;
 
@@ -610,19 +589,19 @@ END error_log;
  * of the current action.
  */
 FUNCTION action_check(
-   action         IN VARCHAR2,
-   id_type         IN VARCHAR2,
-   table_name         IN VARCHAR2,
-   new_value         IN VARCHAR2,
-   action_field      IN VARCHAR2
+   action	 	IN VARCHAR2,
+   id_type	 	IN VARCHAR2,
+   table_name	 	IN VARCHAR2,
+   new_value	 	IN VARCHAR2,
+   action_field  	IN VARCHAR2
 )
 RETURN INTEGER
 IS
-   row_count              INTEGER := 0;
-   unique_ct              INTEGER := 0;
-   retval              INTEGER;
-   row_id              VARCHAR2(20);
-   action_check_exc       EXCEPTION;
+   row_count	      	INTEGER := 0;
+   unique_ct	      	INTEGER := 0;
+   retval	      	INTEGER;
+   row_id	      	VARCHAR2(20);
+   action_check_exc   	EXCEPTION;
 BEGIN
 
    initialize_trace('ACTION_CHECK');
@@ -648,20 +627,19 @@ BEGIN
    IF UPPER(action) = MEME_CONSTANTS.MA_MOVE THEN
       /* Disallow action molecular move if id_type is relationships */
       IF UPPER(id_type) = MEME_CONSTANTS.TN_RELATIONSHIPS THEN
-     RAISE action_check_exc;
+	 RAISE action_check_exc;
       END IF;
    ELSIF UPPER(action) = MEME_CONSTANTS.AA_MOVE THEN
       /* Disallow action move if id_type is concept_status */
       IF UPPER(id_type) = MEME_CONSTANTS.TN_CONCEPT_STATUS THEN
-     RAISE action_check_exc;
+	 RAISE action_check_exc;
       END IF;
    ELSIF UPPER(action) = MEME_CONSTANTS.AA_CHANGE_ATOM_ID THEN
       /* Disallow action change_atom_id
-     if id_type is not attributes or relationships */
+	 if id_type is not attributes or relationships */
       IF UPPER(id_type) NOT IN (MEME_CONSTANTS.TN_ATTRIBUTES,
-     MEME_CONSTANTS.TN_RELATIONSHIPS,
-     MEME_CONSTANTS.TN_CONTEXT_RELATIONSHIPS) THEN
-     RAISE action_check_exc;
+	 MEME_CONSTANTS.TN_RELATIONSHIPS) THEN
+	 RAISE action_check_exc;
       END IF;
    END IF;
 
@@ -680,21 +658,21 @@ BEGIN
    IF UPPER(action) = MEME_CONSTANTS.AA_CHANGE_STATUS THEN
       retval := MEME_RANKS.get_status_rank(id_type,new_value);
       IF retval = -1 THEN -- bad return, status 0 or positive values expected
-     location := '10.5'; error_code := 71;
-     error_detail := 'action='||action||', new_value='||new_value;
-     RAISE action_check_exc;
+	 location := '10.5'; error_code := 71;
+	 error_detail := 'action='||action||', new_value='||new_value;
+	 RAISE action_check_exc;
       END IF;
    ELSIF UPPER(action) = MEME_CONSTANTS.AA_CHANGE_TOBERELEASED THEN
       IF UPPER(id_type) = MEME_CONSTANTS.TN_CONCEPT_STATUS THEN
-     location := '10.6'; error_code := 99;
-     error_detail := 'action='||action||', id_type='||id_type;
-     RAISE action_check_exc;
+	 location := '10.6'; error_code := 99;
+	 error_detail := 'action='||action||', id_type='||id_type;
+	 RAISE action_check_exc;
       END IF;
       retval := MEME_RANKS.get_tobereleased_rank(new_value);
       IF retval = -1 THEN -- bad return, status 0 or positive values expected
-     location := '10.6'; error_code := 72;
-     error_detail := 'action='||action||', new_value='||new_value;
-     RAISE action_check_exc;
+	 location := '10.6'; error_code := 72;
+	 error_detail := 'action='||action||', new_value='||new_value;
+	 RAISE action_check_exc;
       END IF;
    END IF;
 
@@ -718,20 +696,20 @@ BEGIN
    IF UPPER(action) = MEME_CONSTANTS.AA_MOVE OR
       UPPER(action) = MEME_CONSTANTS.AA_CHANGE_ATOM_ID THEN
       /* Disallow action move or change_atom_id if table does not have an
-     integer new_value field */
+	 integer new_value field */
       IF mba_debug = FALSE THEN
-     location := '40.1';
-     IF MEME_UTILITY.get_field_type(table_name, 'NEW_VALUE') != 'NUMBER' THEN
-        error_code := 11;
-        error_detail := 'table_name='||table_name||',field_name=new_value';
-        RAISE action_check_exc;
-     END IF;
-     location := '40.2';
-     IF MEME_UTILITY.get_field_type(table_name, 'OLD_VALUE') != 'NUMBER' THEN
-        error_code := 11;
-        error_detail := 'table_name='||table_name||',field_name=old_value';
-        RAISE action_check_exc;
-     END IF;
+	 location := '40.1';
+	 IF MEME_UTILITY.get_field_type(table_name, 'NEW_VALUE') != 'NUMBER' THEN
+	    error_code := 11;
+	    error_detail := 'table_name='||table_name||',field_name=new_value';
+	    RAISE action_check_exc;
+	 END IF;
+	 location := '40.2';
+	 IF MEME_UTILITY.get_field_type(table_name, 'OLD_VALUE') != 'NUMBER' THEN
+	    error_code := 11;
+	    error_detail := 'table_name='||table_name||',field_name=old_value';
+	    RAISE action_check_exc;
+	 END IF;
       END IF;
    END IF;
 
@@ -741,12 +719,12 @@ BEGIN
    IF UPPER(action) = MEME_CONSTANTS.AA_CHANGE_FIELD THEN
       /* Change Field action must have varchar2 old_value and new_value fields */
       IF mba_debug = FALSE THEN
-     location := '45.1';
-     IF MEME_UTILITY.get_field_type(table_name, 'NEW_VALUE') != 'VARCHAR2' THEN
-        error_code := 13;
-        error_detail := 'table_name='||table_name||',field_name=new_value';
-        RAISE action_check_exc;
-     END IF;
+	 location := '45.1';
+	 IF MEME_UTILITY.get_field_type(table_name, 'NEW_VALUE') != 'VARCHAR2' THEN
+	    error_code := 13;
+	    error_detail := 'table_name='||table_name||',field_name=new_value';
+	    RAISE action_check_exc;
+	 END IF;
       END IF;
    END IF;
 
@@ -778,41 +756,41 @@ END action_check;
  *
  */
 FUNCTION action_log (
-   action        IN VARCHAR2,
-   id_type        IN VARCHAR2,
-   authority        IN VARCHAR2,
-   table_name        IN VARCHAR2,
-   action_name        IN VARCHAR2,
-   action_short     IN VARCHAR2,
-   work_id        IN NUMBER,
-   status        IN VARCHAR2,
-   new_value        IN VARCHAR2,
-   action_field     IN VARCHAR2
+   action		IN VARCHAR2,
+   id_type		IN VARCHAR2,
+   authority		IN VARCHAR2,
+   table_name		IN VARCHAR2,
+   action_name		IN VARCHAR2,
+   action_short 	IN VARCHAR2,
+   work_id		IN NUMBER,
+   status		IN VARCHAR2,
+   new_value		IN VARCHAR2,
+   action_field 	IN VARCHAR2
 )
 RETURN INTEGER
 IS
-   retval        INTEGER := 0;
-   aa_row_count        INTEGER := 0;
-   ma_row_count        INTEGER := 0;
-   atomic_id        INTEGER := 0;
-   molecule_id        INTEGER := 0;
-   transaction_id    INTEGER := 0;
-   timestamp        DATE := SYSDATE;
-   l_join_field        VARCHAR2(30);
-   l_join_table        VARCHAR2(30);
-   l_temp_table        VARCHAR2(30);
-   l_source_id        VARCHAR2(30);
-   l_target_id        VARCHAR2(30);
-   l_new_value        VARCHAR2(50);
-   l_old_value        VARCHAR2(50);
-   l_status        VARCHAR2(30);
-   l_query        VARCHAR2(2000);
+   retval		INTEGER := 0;
+   aa_row_count		INTEGER := 0;
+   ma_row_count		INTEGER := 0;
+   atomic_id		INTEGER := 0;
+   molecule_id		INTEGER := 0;
+   transaction_id	INTEGER := 0;
+   timestamp		DATE := SYSDATE;
+   l_join_field		VARCHAR2(30);
+   l_join_table		VARCHAR2(30);
+   l_temp_table		VARCHAR2(30);
+   l_source_id		VARCHAR2(30);
+   l_target_id		VARCHAR2(30);
+   l_new_value		VARCHAR2(50);
+   l_old_value		VARCHAR2(50);
+   l_status		VARCHAR2(30);
+   l_query		VARCHAR2(2000);
 
   
    l_dep_field          VARCHAR2(50);
    l_dep_table          VARCHAR2(50);
 
-   action_log_exc    EXCEPTION;
+   action_log_exc	EXCEPTION;
 BEGIN
 
    initialize_trace('BATCH_ACTION_LOG');
@@ -824,13 +802,13 @@ BEGIN
    --
    location := '10';
    aa_row_count := 
-    MEME_UTILITY.exec_select('SELECT COUNT(*) FROM ' || table_name);
+	MEME_UTILITY.exec_select('SELECT COUNT(*) FROM ' || table_name);
    location := '30';
    molecule_id := 
-    MEME_UTILITY.get_next_id(MEME_CONSTANTS.LTN_MOLECULAR_ACTIONS);
+	MEME_UTILITY.get_next_id(MEME_CONSTANTS.LTN_MOLECULAR_ACTIONS);
    location := '40';
    transaction_id := 
-    MEME_UTILITY.get_next_id(MEME_CONSTANTS.LTN_TRANSACTIONS);
+	MEME_UTILITY.get_next_id(MEME_CONSTANTS.LTN_TRANSACTIONS);
 
    --
    -- Lock max tab
@@ -874,7 +852,7 @@ BEGIN
    IF UPPER(action) = MEME_CONSTANTS.AA_INSERT THEN
       -- use the source table
       l_join_table := 
-    MEME_UTILITY.get_value_by_code('S'||UPPER(id_type),'table_name');
+	MEME_UTILITY.get_value_by_code('S'||UPPER(id_type),'table_name');
       l_new_value := '''N''';
       l_old_value := '''Y''';
    ELSIF UPPER(action) = MEME_CONSTANTS.AA_DELETE THEN
@@ -887,9 +865,9 @@ BEGIN
       l_old_value := ' to_char(ct.' || action_field || ') ';
       -- if the action field is varchar2 already
       IF MEME_UTILITY.get_field_type(
-        tab_name=>cracs_table, 
-        col_name=>action_field ) = 'VARCHAR2' THEN
-    l_old_value := ' ct.' || action_field;
+		tab_name=>cracs_table, 
+		col_name=>action_field ) = 'VARCHAR2' THEN
+	l_old_value := ' ct.' || action_field;
       END IF;
 
    ELSIF UPPER(action) = MEME_CONSTANTS.AA_MOVE THEN
@@ -920,26 +898,27 @@ BEGIN
    --
    location := '130';
    EXECUTE IMMEDIATE
-    'CREATE TABLE ' || l_temp_table || '
+	'CREATE TABLE ' || l_temp_table || '
           (row_id, source_id, target_id, new_value, old_value,
            status, authority, timestamp, atomic_action_id, molecule_id, 
-           table_name) NOLOGGING AS
-     SELECT c.row_id, c.row_id, c.row_id, 
-              ' || l_new_value || ',' || l_old_value || ', 
-       c.status, c.authority, c.timestamp, c.atomic_action_id, 
-       c.molecule_id, c.table_name 
-     FROM ' || l_join_table || ' ct, ' || table_name || ' tn, atomic_actions c
-     WHERE 1=0
-     UNION ALL
-     SELECT tn.row_id, 
-              ' || l_source_id || ',' || l_target_id || ',
-              ' || l_new_value || ',' || l_old_value || ', 
-              NVL(' || l_status || ',''R''),
-            ''' || authority || ''', to_date(''' || timestamp || '''),
-              rownum + ' || atomic_id || ',
-              rownum + ' || molecule_id || ', ''' || id_type || '''
-     FROM ' || l_join_table || ' ct, ' || table_name || ' tn
-     WHERE tn.row_id = ct.' || l_join_field;
+	   table_name) AS
+         SELECT c.row_id, c.row_id, c.row_id, 
+      		' || l_new_value || ',' || l_old_value || ', 
+	   c.status, c.authority, c.timestamp, c.atomic_action_id, 
+	   c.molecule_id, c.table_name 
+  	 FROM ' || l_join_table || ' ct, ' || table_name || ' tn,
+              atomic_actions c
+         WHERE 1=0
+   	 UNION ALL
+	 SELECT tn.row_id, 
+      		' || l_source_id || ',' || l_target_id || ',
+      		' || l_new_value || ',' || l_old_value || ', 
+      		NVL(' || l_status || ',''R''),
+	        ''' || authority || ''', to_date(''' || timestamp || '''),
+      		rownum + ' || atomic_id || ',
+      		rownum + ' || molecule_id || ', ''' || id_type || '''
+  	 FROM ' || l_join_table || ' ct, ' || table_name || ' tn
+         WHERE tn.row_id = ct.' || l_join_field;
 
    --
    -- Compute dependencies here and load atomic_actions rows.
@@ -954,18 +933,18 @@ BEGIN
       --
       location := '130.1';
       EXECUTE IMMEDIATE
-        'INSERT INTO ' || l_temp_table || '
+	'INSERT INTO ' || l_temp_table || '
            (row_id, source_id, target_id, new_value, old_value,
             status, authority, timestamp, atomic_action_id, molecule_id,table_name)
          SELECT b.attribute_id, a.source_id, a.target_id,
-              ' || l_new_value || ',' || l_old_value || ', 
-              NVL(' || l_status || ',''R''),
-            ''' || authority || ''', ''' || timestamp || ''',
-              rownum + (select max(atomic_action_id) from ' || l_temp_table || '),
-              a.molecule_id, ''A''
-         FROM ' || l_temp_table || ' a, attributes b
+      		' || l_new_value || ',' || l_old_value || ', 
+      		NVL(' || l_status || ',''R''),
+	        ''' || authority || ''', ''' || timestamp || ''',
+      		rownum + (select max(atomic_action_id) from ' || l_temp_table || '),
+      		a.molecule_id, ''A''
+  	 FROM ' || l_temp_table || ' a, attributes b
          WHERE row_id = atom_id AND table_name = ''C''
-           AND attribute_level = ''S''';
+	   AND attribute_level = ''S''';
 
       aa_row_count := aa_row_count + SQL%ROWCOUNT;
 
@@ -974,18 +953,18 @@ BEGIN
       --
       location := '130.2';
       EXECUTE IMMEDIATE
-        'INSERT INTO ' || l_temp_table || '
+	'INSERT INTO ' || l_temp_table || '
            (row_id, source_id, target_id, new_value, old_value,
             status, authority, timestamp, atomic_action_id, molecule_id,table_name)
          SELECT b.relationship_id, a.source_id, a.target_id,
-              ' || l_new_value || ',' || l_old_value || ', 
-              NVL(' || l_status || ',''R''),
-            ''' || authority || ''', ''' || timestamp || ''',
-              rownum + (select max(atomic_action_id) from ' || l_temp_table || '),
-              a.molecule_id,''R''
-         FROM ' || l_temp_table || ' a, relationships b
+      		' || l_new_value || ',' || l_old_value || ', 
+      		NVL(' || l_status || ',''R''),
+	        ''' || authority || ''', ''' || timestamp || ''',
+      		rownum + (select max(atomic_action_id) from ' || l_temp_table || '),
+      		a.molecule_id,''R''
+  	 FROM ' || l_temp_table || ' a, relationships b
          WHERE row_id in (atom_id_1,atom_id_2) AND table_name = ''C''
-           AND relationship_level = ''S''';
+	   AND relationship_level = ''S''';
 
       aa_row_count := aa_row_count + SQL%ROWCOUNT;
 
@@ -994,18 +973,18 @@ BEGIN
       --
       location := '130.3';
       EXECUTE IMMEDIATE
-        'INSERT INTO ' || l_temp_table || '
+	'INSERT INTO ' || l_temp_table || '
            (row_id, source_id, target_id, new_value, old_value,
             status, authority, timestamp, atomic_action_id, molecule_id,table_name)
          SELECT b.relationship_id, a.source_id, a.target_id,
-              ' || l_new_value || ',' || l_old_value || ', 
-              NVL(' || l_status || ',''R''),
-            ''' || authority || ''', ''' || timestamp || ''',
-              rownum + (select max(atomic_action_id) from ' || l_temp_table || '),
-              a.molecule_id,''CR''
-         FROM ' || l_temp_table || ' a, context_relationships b
+      		' || l_new_value || ',' || l_old_value || ', 
+      		NVL(' || l_status || ',''R''),
+	        ''' || authority || ''', ''' || timestamp || ''',
+      		rownum + (select max(atomic_action_id) from ' || l_temp_table || '),
+      		a.molecule_id,''CR''
+  	 FROM ' || l_temp_table || ' a, context_relationships b
          WHERE row_id in (atom_id_1,atom_id_2) AND table_name = ''C''
-           AND relationship_level = ''S''';
+	   AND relationship_level = ''S''';
 
       aa_row_count := aa_row_count + SQL%ROWCOUNT;
 
@@ -1015,23 +994,23 @@ BEGIN
       --
       location := '130.4';
       EXECUTE IMMEDIATE
-        'INSERT INTO ' || l_temp_table || '
+	'INSERT INTO ' || l_temp_table || '
            (row_id, source_id, target_id, new_value, old_value,
             status, authority, timestamp, atomic_action_id, molecule_id,table_name)
          SELECT attribute_id, source_id, target_id, 
-              ' || l_new_value || ',' || l_old_value || ', 
-              NVL(' || l_status || ',''R''),
-            ''' || authority || ''', ''' || timestamp || ''',
-              rownum + (select max(atomic_action_id) from ' || l_temp_table || '),
-              molecule_id,''A''  FROM
-           (SELECT DISTINCT a.molecule_id, b.attribute_id, a.source_id, a.target_id
-            FROM ' || l_temp_table || ' a, attributes b, relationships c
-            WHERE row_id = c.relationship_id AND table_name = ''R''
-             AND attribute_level = ''S''
-             AND relationship_level = ''S''
-             AND b.sg_meme_id = relationship_id
-             AND b.sg_meme_data_type = ''R''
-             AND b.atom_id in atom_id_1) ';
+      		' || l_new_value || ',' || l_old_value || ', 
+      		NVL(' || l_status || ',''R''),
+	        ''' || authority || ''', ''' || timestamp || ''',
+      		rownum + (select max(atomic_action_id) from ' || l_temp_table || '),
+      		molecule_id,''A''  FROM
+	(SELECT DISTINCT a.molecule_id, b.attribute_id, a.source_id, a.target_id
+  	 FROM ' || l_temp_table || ' a, attributes b, relationships c
+         WHERE row_id = c.relationship_id AND table_name = ''R''
+	   AND attribute_level = ''S''
+	   AND relationship_level = ''S''
+  	   AND b.sg_meme_id = relationship_id
+           AND b.sg_meme_data_type = ''R''
+	   AND b.atom_id in atom_id_1) ';
 
       aa_row_count := aa_row_count + SQL%ROWCOUNT;
 
@@ -1041,23 +1020,23 @@ BEGIN
       -- 
       location := '130.5';
       EXECUTE IMMEDIATE
-        'INSERT INTO ' || l_temp_table || '
+	'INSERT INTO ' || l_temp_table || '
            (row_id, source_id, target_id, new_value, old_value,
             status, authority, timestamp, atomic_action_id, molecule_id,table_name)
          SELECT attribute_id, source_id, target_id, 
-              ' || l_new_value || ',' || l_old_value || ', 
-              NVL(' || l_status || ',''R''),
-            ''' || authority || ''', ''' || timestamp || ''',
-              rownum + (select max(atomic_action_id) from ' || l_temp_table || '),
-              molecule_id,''A'' FROM
-            (SELECT DISTINCT a.molecule_id, b.attribute_id, a.source_id, a.target_id
-             FROM ' || l_temp_table || ' a, attributes b, context_relationships c
-             WHERE row_id = c.relationship_id AND table_name = ''R''
-               AND attribute_level = ''S''
-               AND relationship_level = ''S''
-               AND b.sg_meme_id = relationship_id
-               AND b.sg_meme_data_type = ''R''
-               AND b.atom_id in atom_id_1) ';
+      		' || l_new_value || ',' || l_old_value || ', 
+      		NVL(' || l_status || ',''R''),
+	        ''' || authority || ''', ''' || timestamp || ''',
+      		rownum + (select max(atomic_action_id) from ' || l_temp_table || '),
+      		molecule_id,''A'' FROM
+	(SELECT DISTINCT a.molecule_id, b.attribute_id, a.source_id, a.target_id
+  	 FROM ' || l_temp_table || ' a, attributes b, context_relationships c
+         WHERE row_id = c.relationship_id AND table_name = ''R''
+	   AND attribute_level = ''S''
+	   AND relationship_level = ''S''
+  	   AND b.sg_meme_id = relationship_id
+           AND b.sg_meme_data_type = ''R''
+	   AND b.atom_id in atom_id_1) ';
 
       aa_row_count := aa_row_count + SQL%ROWCOUNT;
 
@@ -1091,8 +1070,8 @@ BEGIN
       WHERE table_name = MEME_CONSTANTS.LTN_MOLECULAR_ACTIONS;
 
       IF SQL%ROWCOUNT != 1 THEN
-     error_code := 53; error_detail := 'SQL%ROWCOUNT='||SQL%ROWCOUNT;
-     RAISE action_log_exc;
+	 error_code := 53; error_detail := 'SQL%ROWCOUNT='||SQL%ROWCOUNT;
+	 RAISE action_log_exc;
       END IF;
    END IF;
 
@@ -1102,7 +1081,7 @@ BEGIN
    --
    location := '150';
    l_query := 
-          'INSERT INTO atomic_actions 
+      	'INSERT INTO atomic_actions 
            (molecule_id, atomic_action_id, action, table_name, row_id,
             new_version_id, old_version_id, old_value, new_value, authority,
             timestamp, status, action_field)';
@@ -1146,38 +1125,38 @@ BEGIN
    IF action_name LIKE 'MOLECULAR%' THEN
       location := '200';
       l_query := l_query||
-     'SELECT DISTINCT ' || transaction_id || ', molecule_id, 
-             ''' || authority || ''', 
-             ''' || timestamp || ''',
-             ''' || action_name || ''',
-             source_id, target_id, ''N'', '''', '''',
-             status, 0, ' || work_id || ' 
+	 'SELECT DISTINCT ' || transaction_id || ', molecule_id, 
+	         ''' || authority || ''', 
+	         ''' || timestamp || ''',
+	         ''' || action_name || ''',
+	         source_id, target_id, ''N'', '''', '''',
+	         status, 0, ' || work_id || ' 
           FROM ' || l_temp_table;
 
       retval := local_exec(l_query);
       IF retval != ma_row_count THEN 
          -- count mismatch, equal to ma_row_count expected
-     error_code := 55;
-     error_detail := 'retval='||retval||',ma_row_count='||ma_row_count;
-     RAISE action_log_exc;
+	 error_code := 55;
+	 error_detail := 'retval='||retval||',ma_row_count='||ma_row_count;
+	 RAISE action_log_exc;
       END IF;
 
    ELSIF action_name LIKE 'MACRO%' THEN
   
       location := '210';
       l_query := l_query ||
-     ' VALUES ( ' || transaction_id || ',' || molecule_id || ',
-                ''' || authority || ''',
-                ''' || timestamp || ''',
-                ''' || action_name || ''',
-                0, 0, ''N'', '''', '''',
-                ''' || status || ''',
-                0, ' || work_id || ')';
+	 ' VALUES ( ' || transaction_id || ',' || molecule_id || ',
+	            ''' || authority || ''',
+	            ''' || timestamp || ''',
+	            ''' || action_name || ''',
+	            0, 0, ''N'', '''', '''',
+	            ''' || status || ''',
+	            0, ' || work_id || ')';
 
       retval := local_exec(l_query);
       IF retval != 1 THEN -- bad return, single row insert expected
-     error_code := 51; error_detail := 'retval='||retval;
-     RAISE action_log_exc;
+	 error_code := 51; error_detail := 'retval='||retval;
+	 RAISE action_log_exc;
       END IF;
    END IF;
 
@@ -1200,58 +1179,58 @@ END action_log;
 
 /* FUNCTION MACRO_INSERT *******************************************************
  * Preconditions:
- *    Target source_* table and support tables preloaded with correct data
- *    Max_tab.<row_id> ranger reserved
- *    Macro actions rows inserted into action tables
+ *	Target source_* table and support tables preloaded with correct data
+ *	Max_tab.<row_id> ranger reserved
+ *	Macro actions rows inserted into action tables
  *
  * Postconditions:
- *    Ids loaded into source-id_map if non-zero
- *    Data inserted into target core table
- *    Rank set in target core table
- *    Preferred_atom_id set in CS if inserting into C
+ *	Ids loaded into source-id_map if non-zero
+ *	Data inserted into target core table
+ *	Rank set in target core table
+ *	Preferred_atom_id set in CS if inserting into C
  *
- *    Word indexes will be handled correctly elsewhere if inserting into C
- *    (string_ui normwrd word_index normstr)
+ *	Word indexes will be handled correctly elsewhere if inserting into C
+ *	(string_ui normwrd word_index normstr)
  *
- *    Report table changes
+ *	Report table changes
  *
  */
 FUNCTION macro_insert(
-   id_type            IN VARCHAR2,
-   authority            IN VARCHAR2,
-   transaction_id       INTEGER
+   id_type	    	IN VARCHAR2,
+   authority	    	IN VARCHAR2,
+   transaction_id   	INTEGER
 )
 RETURN INTEGER
 IS
-   retval            INTEGER := 0;
-   row_count            INTEGER := 0;
-   row_count2            INTEGER := 0;
-   timestamp            DATE := SYSDATE;
+   retval	    	INTEGER := 0;
+   row_count	    	INTEGER := 0;
+   row_count2	    	INTEGER := 0;
+   timestamp	    	DATE := SYSDATE;
 
-   loop_ctr            INTEGER;
-   loop_table            DBMS_SQL.VARCHAR2_TABLE;
+   loop_ctr	    	INTEGER;
+   loop_table	    	DBMS_SQL.VARCHAR2_TABLE;
 
-   l_temp_table         VARCHAR2(50);
-   l_source_table       VARCHAR2(50);
-    
-   l_query            VARCHAR2(2000);
-   l_state_flag         VARCHAR2(2) DEFAULT MEME_CONSTANTS.NO;
-   macro_insert_exc     EXCEPTION;
+   l_temp_table     	VARCHAR2(50);
+   l_source_table   	VARCHAR2(50);
+	
+   l_query	    	VARCHAR2(2000);
+   l_state_flag     	VARCHAR2(2) DEFAULT MEME_CONSTANTS.NO;
+   macro_insert_exc 	EXCEPTION;
 
    TYPE ct IS REF CURSOR;
-   cv                ct;
-   col                VARCHAR2(30);
-   col_list            VARCHAR2(2000);
+   cv		    	ct;
+   col		    	VARCHAR2(30);
+   col_list	    	VARCHAR2(2000);
 
    CURSOR sca_cur IS SELECT DISTINCT concept_id FROM source_classes_atoms;
-   sca_rec         sca_cur%ROWTYPE;
+   sca_rec 		sca_cur%ROWTYPE;
 
 BEGIN
 
    initialize_trace('MACRO_INSERT');
 
    l_source_table :=
-     MEME_UTILITY.get_value_by_code('S'||UPPER(id_type),'table_name');
+	 MEME_UTILITY.get_value_by_code('S'||UPPER(id_type),'table_name');
 
    IF UPPER(id_type) = MEME_CONSTANTS.TN_CONCEPT_STATUS THEN
 
@@ -1261,24 +1240,24 @@ BEGIN
 
       location := '10.1';
       INSERT /*+ APPEND */ INTO concept_status
-        (concept_id, version_id, status, dead, authority,
-        timestamp, insertion_date, preferred_atom_id,
-        released, tobereleased, last_molecule_id,
-        last_atomic_action_id, rank, editing_authority,
-        editing_timestamp, approval_molecule_id)
-     SELECT concept_id, 0, a.status, 'N', macro_insert.authority,
-        timestamp, timestamp, 0, released, tobereleased, 0, 0,
-        MEME_RANKS.get_rank(concept_id,
-        MEME_CONSTANTS.TN_SOURCE_CONCEPT_STATUS),
-        macro_insert.authority, timestamp, 0
-     FROM source_concept_status a, molecular_actions m
-     WHERE m.transaction_id = macro_insert.transaction_id
-     AND switch = 'R';
+	    (concept_id, version_id, status, dead, authority,
+	    timestamp, insertion_date, preferred_atom_id,
+	    released, tobereleased, last_molecule_id,
+	    last_atomic_action_id, rank, editing_authority,
+	    editing_timestamp, approval_molecule_id)
+	 SELECT concept_id, 0, a.status, 'N', macro_insert.authority,
+	    timestamp, timestamp, 0, released, tobereleased, 0, 0,
+	    MEME_RANKS.get_rank(concept_id,
+	    MEME_CONSTANTS.TN_SOURCE_CONCEPT_STATUS),
+	    macro_insert.authority, timestamp, 0
+	 FROM source_concept_status a, molecular_actions m
+	 WHERE m.transaction_id = macro_insert.transaction_id
+	 AND switch = 'R';
 
       IF SQL%ROWCOUNT != row_count THEN
-     error_code := 55;
-     error_detail := 'SQL%ROWCOUNT='||SQL%ROWCOUNT||'; row_count='||row_count;
-     RAISE macro_insert_exc;
+	 error_code := 55;
+	 error_detail := 'SQL%ROWCOUNT='||SQL%ROWCOUNT||'; row_count='||row_count;
+	 RAISE macro_insert_exc;
       END IF;
 
    ELSIF UPPER(id_type) = MEME_CONSTANTS.TN_CLASSES THEN
@@ -1289,47 +1268,46 @@ BEGIN
 
       location := '20.1';
       INSERT /*+ APPEND */ INTO classes
-        (atom_id, version_id, source, termgroup,
-        termgroup_rank, code, sui, lui, generated_status,
-        last_release_cui, dead, status, authority, timestamp,
-        insertion_date, concept_id, released, tobereleased,
-        last_molecule_id, last_atomic_action_id, sort_key,
-        rank, last_release_rank, suppressible,
-        last_assigned_cui, isui, tty, aui, language,
-        source_aui, source_cui, source_dui)
-     SELECT atom_id, 0, source, a.termgroup, b.release_rank, code, sui,
-        lui, generated_status, last_release_cui, 'N', a.status,
-        macro_insert.authority, timestamp, timestamp, concept_id,
-        released, tobereleased, 0, 0, a.sort_key,
-        to_number(
-            DECODE(a.tobereleased,'Y','9','y','7','n','3','1')
-             || lpad(b.release_rank,4,0)||'0'),
-        a.last_release_rank, a.suppressible, a.last_assigned_cui,
-        a.isui, a.tty, aui, nvl(language,'ENG'),
-        source_aui, source_cui, source_dui
-     FROM source_classes_atoms a, termgroup_rank b, molecular_actions c
-     WHERE transaction_id = macro_insert.transaction_id
-     AND a.termgroup = b.termgroup
-     AND switch = 'R';
+	    (atom_id, version_id, source, termgroup,
+	    termgroup_rank, code, sui, lui, generated_status,
+	    last_release_cui, dead, status, authority, timestamp,
+	    insertion_date, concept_id, released, tobereleased,
+	    last_molecule_id, last_atomic_action_id, sort_key,
+	    rank, last_release_rank, suppressible,
+	    last_assigned_cui, isui, tty, aui, language,
+	    source_aui, source_cui, source_dui)
+	 SELECT atom_id, 0, source, a.termgroup, termgroup_rank, code, sui,
+	    lui, generated_status, last_release_cui, 'N', a.status,
+	    macro_insert.authority, timestamp, timestamp, concept_id,
+	    released, tobereleased, 0, 0, a.sort_key,
+	    to_number(
+	        DECODE(a.tobereleased,'Y','9','y','7','n','3','1')
+	         || lpad(a.termgroup_rank,4,0)||'0'),
+	    a.last_release_rank, a.suppressible, a.last_assigned_cui,
+	    a.isui, tty, aui, nvl(language,'ENG'),
+	    source_aui, source_cui, source_dui
+	 FROM source_classes_atoms a, molecular_actions c
+	 WHERE transaction_id = macro_insert.transaction_id
+	 AND switch = 'R';
 
       IF SQL%ROWCOUNT != row_count THEN
-     error_code := 55;
-     error_detail := 'SQL%ROWCOUNT='||SQL%ROWCOUNT||'; row_count='||row_count;
-     RAISE macro_insert_exc;
+	 error_code := 55;
+	 error_detail := 'SQL%ROWCOUNT='||SQL%ROWCOUNT||'; row_count='||row_count;
+	 RAISE macro_insert_exc;
       END IF;
 
       /* set preferred atom_id */
 
       location := '20.2';
       INSERT /*+ APPEND */ INTO atoms (atom_id, version_id, atom_name)
-     SELECT atom_id, 0, atom_name
-     FROM source_classes_atoms
-     WHERE switch = 'R';
+	 SELECT atom_id, 0, atom_name
+	 FROM source_classes_atoms
+	 WHERE switch = 'R';
 
       IF SQL%ROWCOUNT != row_count THEN
-     error_code := 55;
-     error_detail := 'SQL%ROWCOUNT='||SQL%ROWCOUNT||'; row_count='||row_count;
-     RAISE macro_insert_exc;
+	 error_code := 55;
+	 error_detail := 'SQL%ROWCOUNT='||SQL%ROWCOUNT||'; row_count='||row_count;
+	 RAISE macro_insert_exc;
       END IF;
 
    ELSIF UPPER(id_type) = MEME_CONSTANTS.TN_ATTRIBUTES THEN
@@ -1340,28 +1318,29 @@ BEGIN
 COMMIT;
 
       location := '30.1';
-      INSERT /*+ APPEND */ INTO attributes
-        (atom_id, version_id, attribute_id, attribute_level,
-        attribute_name, attribute_value, generated_status, source,
-        dead, status, authority, timestamp, insertion_date,
-        concept_id, released,tobereleased, 
-        last_molecule_id, last_atomic_action_id,
-        suppressible, sg_id, sg_type, sg_qualifier,
-        atui, source_atui, hashcode)
-     SELECT atom_id, 0, attribute_id, attribute_level, attribute_name,
-        attribute_value, generated_status, a.source, 'N', a.status,
-        macro_insert.authority, timestamp, timestamp, concept_id,
-        released, tobereleased, 0,0, 
-        a.suppressible, sg_id, sg_type, sg_qualifier,
-        atui, source_atui, hashcode
-     FROM source_attributes a, molecular_actions c
-     WHERE transaction_id = macro_insert.transaction_id
-       AND switch = 'R';
+      INSERT INTO attributes
+	    (atom_id, version_id, attribute_id, attribute_level,
+	    attribute_name, attribute_value, generated_status, source,
+	    dead, status, authority, timestamp, insertion_date,
+	    concept_id, released,tobereleased, source_rank,
+	    preferred_level, last_molecule_id, last_atomic_action_id,
+	    rank, suppressible, sg_id, sg_type, sg_qualifier,
+	    atui, source_atui, hashcode)
+	 SELECT atom_id, 0, attribute_id, attribute_level, attribute_name,
+	    attribute_value, generated_status, source, 'N', a.status,
+	    macro_insert.authority, timestamp, timestamp, concept_id,
+	    released, tobereleased, source_rank, '', 0, 0,
+	    to_number(DECODE(a.tobereleased,'Y','9','n','3','1')||lpad(a.source_rank,4,0)||'0'), 
+	    a.suppressible, sg_id, sg_type, sg_qualifier,
+	    atui, source_atui, hashcode
+	 FROM source_attributes a, molecular_actions c
+	 WHERE transaction_id = macro_insert.transaction_id
+	   AND switch = 'R';
 
       IF SQL%ROWCOUNT != row_count THEN
-     error_code := 55;
-     error_detail := 'SQL%ROWCOUNT='||SQL%ROWCOUNT||'; row_count='||row_count;
-     RAISE macro_insert_exc;
+	 error_code := 55;
+	 error_detail := 'SQL%ROWCOUNT='||SQL%ROWCOUNT||'; row_count='||row_count;
+	 RAISE macro_insert_exc;
       END IF;
 
       location := '30.3';
@@ -1372,9 +1351,9 @@ COMMIT;
       SELECT COUNT(DISTINCT(string_id)) INTO row_count2 FROM source_stringtab;
 
       IF row_count2 != row_count THEN
-     error_code := 55;
-     error_detail := 'row_count2='||row_count2|| '; row_count='||row_count;
-     RAISE macro_insert_exc;
+	 error_code := 55;
+	 error_detail := 'row_count2='||row_count2|| '; row_count='||row_count;
+	 RAISE macro_insert_exc;
       END IF;
 
       location := '30.5';
@@ -1388,33 +1367,34 @@ COMMIT;
 
       location := '40.1';
       INSERT /*+ APPEND */ INTO relationships
-        (relationship_id, version_id, relationship_level, atom_id_1,
-        relationship_name, relationship_attribute, atom_id_2,
-        source, generated_status, dead, status,
-        authority, timestamp, insertion_date, concept_id_1,
-        concept_id_2, released, tobereleased,
-        last_molecule_id, last_atomic_action_id,
-        source_of_label, suppressible,
-        sg_id_1, sg_type_1, sg_qualifier_1, 
-        sg_id_2, sg_type_2, sg_qualifier_2,
-        rui, source_rui, relationship_group)
-     SELECT relationship_id, 0, relationship_level, atom_id_1,
-        relationship_name, relationship_attribute, atom_id_2,
-        a.source, generated_status, 'N', a.status,
-        macro_insert.authority, timestamp, timestamp, concept_id_1,
-        concept_id_2, released, tobereleased, 0, 0,
-        a.source_of_label, a.suppressible, 
-        sg_id_1, sg_type_1, sg_qualifier_1, 
-        sg_id_2, sg_type_2, sg_qualifier_2,
-        rui, source_rui, relationship_group
-     FROM source_relationships a, molecular_actions c
-     WHERE transaction_id = macro_insert.transaction_id
-        AND switch = 'R';
+	    (relationship_id, version_id, relationship_level, atom_id_1,
+	    relationship_name, relationship_attribute, atom_id_2,
+	    source, generated_status, dead, status,
+	    authority, timestamp, insertion_date, concept_id_1,
+	    concept_id_2, released, tobereleased, source_rank,
+	    preferred_level, last_molecule_id, last_atomic_action_id,
+	    rank, source_of_label, suppressible,
+	    sg_id_1, sg_type_1, sg_qualifier_1, 
+	    sg_id_2, sg_type_2, sg_qualifier_2,
+	    rui, source_rui, relationship_group)
+	 SELECT relationship_id, 0, relationship_level, atom_id_1,
+	    relationship_name, relationship_attribute, atom_id_2,
+	    source, generated_status, 'N', a.status,
+	    macro_insert.authority, timestamp, timestamp, concept_id_1,
+	    concept_id_2, released, tobereleased, source_rank, '', 0, 0,
+	    to_number(DECODE(a.tobereleased,'Y','9','n','3','1')||lpad(a.source_rank,4,0)||'0'), 
+	    a.source_of_label, a.suppressible, 
+	    sg_id_1, sg_type_1, sg_qualifier_1, 
+	    sg_id_2, sg_type_2, sg_qualifier_2,
+	    rui, source_rui, relationship_group
+	 FROM source_relationships a, molecular_actions c
+	 WHERE transaction_id = macro_insert.transaction_id
+ 	   AND switch = 'R';
 
       IF SQL%ROWCOUNT != row_count THEN
-     error_code := 55;
-     error_detail := 'SQL%ROWCOUNT='||SQL%ROWCOUNT||'; row_count='||row_count;
-     RAISE macro_insert_exc;
+	 error_code := 55;
+	 error_detail := 'SQL%ROWCOUNT='||SQL%ROWCOUNT||'; row_count='||row_count;
+	 RAISE macro_insert_exc;
       END IF;
 
    ELSIF UPPER(id_type) = MEME_CONSTANTS.TN_CONTEXT_RELATIONSHIPS THEN
@@ -1426,35 +1406,36 @@ COMMIT;
       location := '50.1';
       -- Rank field is not maintained in context_relationships.
       INSERT /*+ APPEND */ INTO context_relationships
-        (relationship_id, version_id, relationship_level, atom_id_1,
-        relationship_name, relationship_attribute, atom_id_2, source,
-        generated_status, dead, status, authority, timestamp,
-        insertion_date, concept_id_1, concept_id_2, released,
-        tobereleased, last_molecule_id,
-        last_atomic_action_id, source_of_label, suppressible,
+	    (relationship_id, version_id, relationship_level, atom_id_1,
+	    relationship_name, relationship_attribute, atom_id_2, source,
+	    generated_status, dead, status, authority, timestamp,
+	    insertion_date, concept_id_1, concept_id_2, released,
+	    tobereleased, source_rank, preferred_level, last_molecule_id,
+	    last_atomic_action_id, rank, source_of_label, suppressible,
             hierarchical_code, parent_treenum, release_mode, rui,
-        sg_id_1, sg_type_1, sg_qualifier_1, 
-        sg_id_2, sg_type_2, sg_qualifier_2,
-        source_rui, relationship_group)
-     SELECT relationship_id, 0, relationship_level, atom_id_1,
-        relationship_name, relationship_attribute, atom_id_2,
-        source, generated_status, 'N', a.status,
-        macro_insert.authority, c.timestamp, c.timestamp,
-        concept_id_1, concept_id_2, released, tobereleased,
-        0, 0, a.source_of_label, a.suppressible,
+	    sg_id_1, sg_type_1, sg_qualifier_1, 
+	    sg_id_2, sg_type_2, sg_qualifier_2,
+	    source_rui, relationship_group)
+	 SELECT relationship_id, 0, relationship_level, atom_id_1,
+	    relationship_name, relationship_attribute, atom_id_2,
+	    source, generated_status, 'N', a.status,
+	    macro_insert.authority, c.timestamp, c.timestamp,
+	    concept_id_1, concept_id_2, released, tobereleased,
+	    source_rank, '', 0, 0, 0,
+	    a.source_of_label, a.suppressible,
             a.hierarchical_code, a.parent_treenum, a.release_mode,
             a.rui,
-        sg_id_1, sg_type_1, sg_qualifier_1, 
-        sg_id_2, sg_type_2, sg_qualifier_2,
-        source_rui, a.relationship_group
-     FROM source_context_relationships a, molecular_actions c
-     WHERE transaction_id = macro_insert.transaction_id
-       AND switch = 'R';
+	    sg_id_1, sg_type_1, sg_qualifier_1, 
+	    sg_id_2, sg_type_2, sg_qualifier_2,
+	    source_rui, a.relationship_group
+	 FROM source_context_relationships a, molecular_actions c
+	 WHERE transaction_id = macro_insert.transaction_id
+	   AND switch = 'R';
 
       IF SQL%ROWCOUNT != row_count THEN
-     error_code := 55;
-     error_detail := 'SQL%ROWCOUNT='||SQL%ROWCOUNT||'; row_count='||row_count;
-     RAISE macro_insert_exc;
+	 error_code := 55;
+	 error_detail := 'SQL%ROWCOUNT='||SQL%ROWCOUNT||'; row_count='||row_count;
+	 RAISE macro_insert_exc;
       END IF;
 
    ELSE
@@ -1483,23 +1464,24 @@ END macro_insert;
  * This function change the value of field
  */
 FUNCTION action_change_field(
-   id_type          IN VARCHAR2,
-   transaction_id      IN INTEGER,
-   action_field       IN VARCHAR2
+   id_type		  IN VARCHAR2,
+   transaction_id	  IN INTEGER,
+   action_field 	  IN VARCHAR2
 )
 RETURN INTEGER
 IS
-   retval          INTEGER := 0;
-   row_count          INTEGER := 0;
-   cfstring          VARCHAR2(20) :='';
-   nvl_clause      VARCHAR2(1000);
-   l_ui              VARCHAR2(20);
-   action_cf_exc      EXCEPTION;
+   retval		  INTEGER := 0;
+   row_count		  INTEGER := 0;
+   cfstring		  VARCHAR2(20) :='';
+   l_update		  VARCHAR2(2000);
+   l_ui			  VARCHAR2(20);
+   action_cf_exc	  EXCEPTION;
 
    CURSOR aa_cur(id IN INTEGER) IS
-   SELECT /*+ USE_NL(a,m) */ m.source_id, m.target_id, m.molecule_id,
-     a.row_id, a.old_value, a.new_value, a.timestamp, a.authority,
-     a.atomic_action_id
+
+   SELECT m.source_id, m.target_id, m.molecule_id,
+	 a.row_id, a.old_value, a.new_value, a.timestamp, a.authority,
+	 a.atomic_action_id
    FROM atomic_actions a, molecular_actions m
    WHERE a.molecule_id = m.molecule_id
      AND m.transaction_id = id
@@ -1508,172 +1490,131 @@ IS
 
    aa_rec aa_cur%ROWTYPE;
 
-   l_source_ids            concept_id;
-   l_target_ids            concept_id;
-   l_molecule_ids           molecule_id;
-   l_row_ids                row_id;
-   l_old_values             old_value;
-   l_new_values             new_value;
-   l_timestamps             timestamp;
-   l_authorities            authority;
-   l_atomic_action_ids      atomic_action_id;
-
 BEGIN
 
-    initialize_trace('ACTION_CHANGE_FIELD');
+   initialize_trace('ACTION_CHANGE_FIELD');
 
     location := '5';
     -- Certain fields are not allowed to change
     IF lower(action_field) like 'sg_%' OR
-    lower(action_field) in ('tobereleased','status','sg_id','sg_type','sg_qualifier') THEN
-    error_detail := 
-      'Changing tobereleased, status, sg_type, sg_id, or sg_qualifier fields is not allowed.';
-    RAISE action_cf_exc;
+	lower(action_field) in ('tobereleased','status') THEN
+	error_detail := 'Changing tobereleaesd, status, sg_type, sg_id, or sg_qualifier fields is not allowed.';
+	RAISE action_cf_exc;
     END IF;
 
-   -- determine conversion function (varchar or number)
-   nvl_clause := 'NVL(' || action_field || ',''null'') = ''null'' ';
+   /* calculate conversion function */
    IF MEME_UTILITY.get_field_type(cracs_table,action_field) = 'NUMBER' THEN
       cfstring := 'TO_NUMBER';
-      nvl_clause := 'NVL(' || action_field || ',-1) = -1';
    END IF;
 
    location := '20';
    OPEN aa_cur(transaction_id);
-   location := '100';
-   LOOP
-       FETCH aa_cur BULK COLLECT INTO l_source_ids, l_target_ids, l_molecule_ids, l_row_ids,
-              l_old_values, l_new_values, l_timestamps, l_authorities,
-              l_atomic_action_ids
-       LIMIT 2000;
-
-       location := '200';
-	   IF l_row_ids IS NULL OR l_row_ids.COUNT = 0 THEN
-	   		EXIT; -- Don't delete anything if collections are empty.
-	   END IF; 
-       row_count := l_row_ids.last;
-
-       location := '300';
-       FORALL i in l_row_ids.first .. l_row_ids.last
-          EXECUTE IMMEDIATE
-            'UPDATE ' || cracs_table || '
-             SET ' || action_field || ' = ' || cfstring || '(:x),
-                timestamp = :x, authority = :x,
-                 last_atomic_action_id = :x, last_molecule_id = :x
-             WHERE ' || primary_key || ' = :x
-               AND (' || action_field || ' = ' || cfstring || '(:x) OR 
-                    ' || nvl_clause || ')'
-          USING l_new_values(i), l_timestamps(i), l_authorities(i), l_atomic_action_ids(i),
-             l_molecule_ids(i), l_row_ids(i), l_old_values(i); 
-
-       IF row_count != SQL%ROWCOUNT THEN
-         location := '400';
-         error_detail := 'Not all rows of driving table were found in ' || cracs_table;
-         error_code := 55;
-         RAISE action_cf_exc;
-       END IF;
-
-	   EXIT WHEN aa_cur%NOTFOUND;
-   END LOOP;
-
-   location := '500';
-   CLOSE aa_cur;
-
-   location := '600';
-   open aa_cur(transaction_id);
    LOOP
       FETCH aa_cur INTO aa_rec;
       EXIT WHEN aa_cur%NOTFOUND;
 
-      -- set rank
-      IF msp_set_preferred_flag = MEME_CONSTANTS.YES THEN
-         location := '610';
-         retval := MEME_RANKS.set_rank(aa_rec.row_id,cracs_table,action_field);
-         IF retval != 0 THEN -- bad return, status 0 expected
-            location := '620';
-            error_code := 74; error_detail := 'retval='||retval;
-            RAISE action_cf_exc;
-          END IF;
+      location := '20.1';
+      l_update := 
+ 	'UPDATE ' || cracs_table || '
+	    SET ' || action_field || ' = ' || cfstring || '(''' || aa_rec.new_value || '''),
+		timestamp = ''' || aa_rec.timestamp || ''',
+		authority = ''' || aa_rec.authority || ''',
+	    	last_atomic_action_id = ' || aa_rec.atomic_action_id || ',
+		last_molecule_id = ' || aa_rec.molecule_id || '
+	 WHERE ' || primary_key || ' = ' || aa_rec.row_id || '
+	   AND (' || action_field || ' = ' || cfstring || '(''' || aa_rec.old_value || ''') OR
+	        NVL(' || action_field || ',''null'') = ''null'' ) ';
+ 
+      retval := local_exec(l_update);
+
+      IF retval != 1 THEN -- bad return, single row update expected
+	 error_code := 53; error_detail := 'SQL%ROWCOUNT='||SQL%ROWCOUNT||',query='||l_update;
+	 RAISE action_cf_exc;
       END IF;
 
-      location := '630';
-      -- check that preferred atom_id has changed
-      IF UPPER(id_type) = MEME_CONSTANTS.TN_CLASSES AND
-         msp_set_preferred_flag = MEME_CONSTANTS.YES THEN
-         location := '640';
-         retval := MEME_RANKS.set_preferred_id(aa_rec.source_id,action_field);
-         IF retval != 0 THEN -- bad return, status 0 expected
-            location := '650';	    
-            error_code := 73; error_detail := 'retval='||retval;
-            RAISE action_cf_exc;
-         END IF;
+      /* call set rank */
+      location := '20.2';
+      retval := MEME_RANKS.set_rank(aa_rec.row_id,cracs_table,action_field);
+      IF retval != 0 THEN -- bad return, status 0 expected
+	 error_code := 74; error_detail := 'retval='||retval;
+	 RAISE action_cf_exc;
+      END IF;
 
-         IF aa_rec.target_id != 0 THEN
-            location := '650';
-            retval := MEME_RANKS.set_preferred_id(aa_rec.old_value,action_field);
-            IF retval != 0 THEN -- bad return, status 0 expected
-               location := '660';
-               error_code := 73; error_detail := 'retval='||retval;
-               RAISE action_cf_exc;
-            END IF;
-         END IF;
+      location := '20.3';
+      /* check that preferred atom_id has changed */
+      IF UPPER(id_type) = MEME_CONSTANTS.TN_CLASSES AND
+	 msp_set_preferred_flag = MEME_CONSTANTS.YES THEN
+	 location := '20.31';
+	 retval := MEME_RANKS.set_preferred_id(aa_rec.source_id,action_field);
+	 IF retval != 0 THEN -- bad return, status 0 expected
+	    error_code := 73; error_detail := 'retval='||retval;
+	    RAISE action_cf_exc;
+	 END IF;
+
+	 IF aa_rec.target_id != 0 THEN
+	    location := '20.32';
+	    retval := MEME_RANKS.set_preferred_id(aa_rec.old_value,action_field);
+	    IF retval != 0 THEN -- bad return, status 0 expected
+	       error_code := 73; error_detail := 'retval='||retval;
+	       RAISE action_cf_exc;
+	    END IF;
+	 END IF;
       END IF;
 
       IF UPPER(id_type) = MEME_CONSTANTS.TN_CLASSES AND
          LOWER(action_field) IN ('source','termgroup','tty','code','sui',
-                'source_aui','source_cui','source_dui') THEN
-          location := '670';
-          l_ui := MEME_APROCS.assign_aui(atom_id => aa_rec.row_id);
-          location := '680';
-          UPDATE classes
-          SET aui = l_ui
-          WHERE atom_id = aa_rec.row_id
-            AND nvl(aui,'null') != l_ui; 
+				'source_aui','source_cui','source_dui') THEN
+      	  location := '20.32';
+	  l_ui := MEME_APROCS.assign_aui(atom_id => aa_rec.row_id);
+      	  location := '20.33';
+	  UPDATE classes
+	  SET aui = l_ui
+    	  WHERE atom_id = aa_rec.row_id
+	    AND nvl(aui,'null') != l_ui; 
       END IF;
-  
-      location := '690';
+      location := '20.4';
       IF UPPER(id_type) = MEME_CONSTANTS.TN_ATTRIBUTES THEN
-        IF LOWER(action_field) IN ('atom_id','concept_id','attribute_level',
-                   'source','attribute_name','source_atui') THEN
-            location := '700';
-            l_ui := MEME_APROCS.assign_atui(attribute_id => aa_rec.row_id);
-            location := '710';
-            UPDATE attributes
-            SET atui = l_ui
-            WHERE attribute_id = aa_rec.row_id
-              AND nvl(atui,'null') != l_ui; 
-         END IF;
+	IF LOWER(action_field) IN ('atom_id','concept_id','attribute_level',
+			       'source','attribute_name','source_atui') THEN
+      	    location := '20.41';
+	    l_ui := MEME_APROCS.assign_atui(attribute_id => aa_rec.row_id);
+      	    location := '20.42';
+	    UPDATE attributes
+	    SET atui = l_ui
+    	    WHERE attribute_id = aa_rec.row_id
+	      AND nvl(atui,'null') != l_ui; 
+ 	END IF;
       END IF;
 
-      location := '720';
+      location := '20.5';
       IF UPPER(id_type) = MEME_CONSTANTS.TN_RELATIONSHIPS THEN
-        IF LOWER(action_field) IN ('atom_id','concept_id',
-                'relationship_name','relationship_attribute',
-                   'source','source_rui') THEN
-           location := '730';
-           l_ui := MEME_APROCS.assign_rui(relationship_id => aa_rec.row_id);
-           location := '740';
-           UPDATE relationships
-           SET rui = l_ui
-           WHERE relationship_id = aa_rec.row_id
-             AND nvl(rui,'null') != nvl(l_ui,'null'); 
-        END IF;
+	IF LOWER(action_field) IN ('atom_id','concept_id',
+				'relationship_name','relationship_attribute',
+			       'source','source_rui') THEN
+      	    location := '20.51';
+	    l_ui := MEME_APROCS.assign_rui(relationship_id => aa_rec.row_id);
+      	    location := '20.52';
+	    UPDATE relationships
+	    SET rui = l_ui
+    	    WHERE relationship_id = aa_rec.row_id
+	      AND nvl(rui,'null') != nvl(l_ui,'null'); 
+ 	END IF;
 
-        IF LOWER(action_field) IN ('relationship_level') THEN
-           location := '750';
-           l_ui := MEME_APROCS.assign_rui(relationship_id => aa_rec.row_id);
-           location := '760';
-           UPDATE relationships 
-           SET (rui, sg_id_1, sg_type_1, sg_qualifier_1, 
-                 sg_id_2, sg_type_2, sg_qualifier_2 ) =
-            (SELECT rui, sg_id_1, sg_type_1, sg_qualifier_1, 
-                      sg_id_2, sg_type_2, sg_qualifier_2
-           FROM relationships_ui WHERE rui = l_ui)
-           WHERE relationship_id = aa_rec.row_id     
-             AND nvl(rui,'null') != nvl(l_ui,'null');
-         END IF;
+	IF LOWER(action_field) IN ('relationship_level') THEN
+      	    location := '20.51';
+	    l_ui := MEME_APROCS.assign_rui(relationship_id => aa_rec.row_id);
+      	    location := '20.52';
+      	      UPDATE relationships 
+              SET (rui, sg_id_1, sg_type_1, sg_qualifier_1, 
+	 	        sg_id_2, sg_type_2, sg_qualifier_2 ) =
+	        (SELECT rui, sg_id_1, sg_type_1, sg_qualifier_1, 
+	 	             sg_id_2, sg_type_2, sg_qualifier_2
+	         FROM relationships_ui WHERE rui = l_ui)
+      	      WHERE relationship_id = aa_rec.row_id 	
+	        AND nvl(rui,'null') != nvl(l_ui,'null');
+ 	END IF;
       END IF;
-
+      row_count := row_count + 1;
    END LOOP;
    CLOSE aa_cur;
 
@@ -1693,32 +1634,31 @@ END action_change_field;
  * This function move concept_ids
  */
 FUNCTION action_move(
-   id_type          IN VARCHAR2,
-   transaction_id     IN INTEGER
+   id_type	  	IN VARCHAR2,
+   transaction_id 	IN INTEGER
 )
 RETURN INTEGER
 IS
-   retval          INTEGER := 0;
-   row_count          INTEGER :=0;
-   loop_count          INTEGER :=0;
-   loop_ctr          INTEGER :=0;
+   retval	  	INTEGER := 0;
+   row_count	  	INTEGER :=0;
+   loop_count	  	INTEGER :=0;
+   loop_ctr	  	INTEGER :=0;
 
-   l_field_name       VARCHAR2(50);
-   l_field_concept_id      VARCHAR2(30);
-   l_field_sg_id       VARCHAR2(30);
-   l_field_sg_type       VARCHAR2(30);
+   l_field_name   	VARCHAR2(50);
+   l_field_concept_id  	VARCHAR2(30);
+   l_field_sg_id   	VARCHAR2(30);
+   l_field_sg_type   	VARCHAR2(30);
 
-   l_ui              VARCHAR2(20);
+   l_ui		  	VARCHAR2(20);
 
-   action_c_exc       EXCEPTION;
+   action_c_exc   	EXCEPTION;
 
    CURSOR aa_cur(id IN INTEGER) IS
-   SELECT new_value, timestamp,authority,atomic_action_id,molecule_id,row_id,old_value
-   FROM atomic_actions a
+   SELECT * FROM atomic_actions a
    WHERE molecule_id  IN (SELECT molecule_id FROM molecular_actions WHERE transaction_id = id)
      AND a.action = 'C' 
      AND a.table_name = id_type;
-   aa_rec         aa_cur%ROWTYPE;
+   aa_rec 		aa_cur%ROWTYPE;
 
 BEGIN
 
@@ -1736,155 +1676,155 @@ BEGIN
 
       location := '10.3';
       FOR loop_ctr IN 1..2 LOOP
-     IF UPPER(id_type) = MEME_CONSTANTS.TN_RELATIONSHIPS OR
-        UPPER(id_type) = MEME_CONSTANTS.TN_CONTEXT_RELATIONSHIPS THEN
-        l_field_concept_id := MEME_CONSTANTS.FN_CONCEPT_ID||'_'||loop_ctr;
-        l_field_sg_type := 'sg_type_'||loop_ctr;
-        l_field_sg_id := 'sg_id_'||loop_ctr;
-     ELSIF UPPER(id_type) = MEME_CONSTANTS.TN_ATTRIBUTES THEN
-        l_field_concept_id := MEME_CONSTANTS.FN_CONCEPT_ID;
-        l_field_sg_type := 'sg_type';
-        l_field_sg_id := 'sg_id';
-        IF loop_ctr > 1 THEN
-           EXIT;
-        END IF;
-     ELSE
-        l_field_concept_id := MEME_CONSTANTS.FN_CONCEPT_ID;
-        l_field_sg_type := '''CONCEPT_ID''';
-        l_field_sg_id := 'concept_id';
-        IF loop_ctr > 1 THEN
-           EXIT;
-        END IF;
-     END IF;
+	 IF UPPER(id_type) = MEME_CONSTANTS.TN_RELATIONSHIPS OR
+	    UPPER(id_type) = MEME_CONSTANTS.TN_CONTEXT_RELATIONSHIPS THEN
+	    l_field_concept_id := MEME_CONSTANTS.FN_CONCEPT_ID||'_'||loop_ctr;
+	    l_field_sg_type := 'sg_type_'||loop_ctr;
+	    l_field_sg_id := 'sg_id_'||loop_ctr;
+	 ELSIF UPPER(id_type) = MEME_CONSTANTS.TN_ATTRIBUTES THEN
+	    l_field_concept_id := MEME_CONSTANTS.FN_CONCEPT_ID;
+	    l_field_sg_type := 'sg_type';
+	    l_field_sg_id := 'sg_id';
+	    IF loop_ctr > 1 THEN
+	       EXIT;
+	    END IF;
+	 ELSE
+	    l_field_concept_id := MEME_CONSTANTS.FN_CONCEPT_ID;
+	    l_field_sg_type := '''CONCEPT_ID''';
+	    l_field_sg_id := 'concept_id';
+	    IF loop_ctr > 1 THEN
+	       EXIT;
+	    END IF;
+	 END IF;
 
-    IF UPPER(id_type) = MEME_CONSTANTS.TN_RELATIONSHIPS OR
-        UPPER(id_type) = MEME_CONSTANTS.TN_CONTEXT_RELATIONSHIPS OR
-        UPPER(id_type) = MEME_CONSTANTS.TN_ATTRIBUTES THEN
+	IF UPPER(id_type) = MEME_CONSTANTS.TN_RELATIONSHIPS OR
+	    UPPER(id_type) = MEME_CONSTANTS.TN_CONTEXT_RELATIONSHIPS OR
+	    UPPER(id_type) = MEME_CONSTANTS.TN_ATTRIBUTES THEN
 
            location := '10.35';
-       EXECUTE IMMEDIATE
-         'UPDATE ' || cracs_table || '
-          SET ' || l_field_concept_id || ' = :x,
-             ' || l_field_sg_id || ' = 
-        DECODE(' || l_field_sg_type || ', 
-            ''CONCEPT_ID'', :x, ' || l_field_sg_id || '),
-             timestamp = :x,
-             authority = :x,
-             last_atomic_action_id = :x,
-             last_molecule_id = :x
-           WHERE ' || primary_key || ' = :x
-             AND ' || l_field_concept_id || ' = :x '
-        USING to_number(aa_rec.new_value),
-          aa_rec.new_value,
-          aa_rec.timestamp,
-          aa_rec.authority,
-          aa_rec.atomic_action_id,
-          aa_rec.molecule_id,
-          aa_rec.row_id,
-          to_number(aa_rec.old_value);
+	   EXECUTE IMMEDIATE
+	     'UPDATE ' || cracs_table || '
+	      SET ' || l_field_concept_id || ' = :x,
+	         ' || l_field_sg_id || ' = 
+		DECODE(' || l_field_sg_type || ', 
+			''CONCEPT_ID'', :x, ' || l_field_sg_id || '),
+	         timestamp = :x,
+	         authority = :x,
+	         last_atomic_action_id = :x,
+	         last_molecule_id = :x
+	       WHERE ' || primary_key || ' = :x
+	         AND ' || l_field_concept_id || ' = :x '
+	    USING to_number(aa_rec.new_value),
+	      aa_rec.new_value,
+	      aa_rec.timestamp,
+	      aa_rec.authority,
+	      aa_rec.atomic_action_id,
+	      aa_rec.molecule_id,
+	      aa_rec.row_id,
+	      to_number(aa_rec.old_value);
 
-    ELSE
+	ELSE
 
            location := '10.36';
-       EXECUTE IMMEDIATE
-         'UPDATE ' || cracs_table || '
-          SET ' || l_field_concept_id || ' = :x,
-             timestamp = :x,
-             authority = :x,
-             last_atomic_action_id = :x,
-             last_molecule_id = :x
-           WHERE ' || primary_key || ' = :x
-             AND ' || l_field_concept_id || ' = :x '
-        USING to_number(aa_rec.new_value),
-          aa_rec.timestamp,
-          aa_rec.authority,
-          aa_rec.atomic_action_id,
-          aa_rec.molecule_id,
-          aa_rec.row_id,
-          to_number(aa_rec.old_value);
+	   EXECUTE IMMEDIATE
+	     'UPDATE ' || cracs_table || '
+	      SET ' || l_field_concept_id || ' = :x,
+	         timestamp = :x,
+	         authority = :x,
+	         last_atomic_action_id = :x,
+	         last_molecule_id = :x
+	       WHERE ' || primary_key || ' = :x
+	         AND ' || l_field_concept_id || ' = :x '
+	    USING to_number(aa_rec.new_value),
+	      aa_rec.timestamp,
+	      aa_rec.authority,
+	      aa_rec.atomic_action_id,
+	      aa_rec.molecule_id,
+	      aa_rec.row_id,
+	      to_number(aa_rec.old_value);
 
-    END IF;
+	END IF;
 
-    loop_count := loop_count + SQL%ROWCOUNT;
+	loop_count := loop_count + SQL%ROWCOUNT;
       END LOOP;
 
       -- @ this point, loop_count could not be 0,
       -- 1 or 2 for relationships, otherwise it should be 1
       location := '10.4';
       IF loop_count = 0 THEN
-     error_code := 53; error_detail := 'loop_count='||loop_count;
-     RAISE action_c_exc;
+	 error_code := 53; error_detail := 'loop_count='||loop_count;
+	 RAISE action_c_exc;
       END IF;
 
       row_count := row_count + 1;
 
       location := '10.31';
       IF UPPER(id_type) = MEME_CONSTANTS.TN_ATTRIBUTES THEN
-        location := '10.32';
-        l_ui := MEME_APROCS.assign_atui(attribute_id => aa_rec.row_id);
-        location := '10.33';
-        UPDATE attributes
-        SET atui = l_ui
-            WHERE attribute_id = aa_rec.row_id
-          AND nvl(atui,'null') != l_ui; 
+	    location := '10.32';
+	    l_ui := MEME_APROCS.assign_atui(attribute_id => aa_rec.row_id);
+	    location := '10.33';
+	    UPDATE attributes
+	    SET atui = l_ui
+    	    WHERE attribute_id = aa_rec.row_id
+	      AND nvl(atui,'null') != l_ui; 
       END IF;
 
       location := '15.1';
       IF UPPER(id_type) = MEME_CONSTANTS.TN_RELATIONSHIPS THEN
-        location := '15.2';
-        l_ui := MEME_APROCS.assign_rui(relationship_id => aa_rec.row_id);
-        location := '15.3';
-        UPDATE relationships
-        SET rui = l_ui
-            WHERE relationship_id = aa_rec.row_id
-          AND nvl(rui,'null') != nvl(l_ui,'null'); 
+	    location := '15.2';
+	    l_ui := MEME_APROCS.assign_rui(relationship_id => aa_rec.row_id);
+	    location := '15.3';
+	    UPDATE relationships
+	    SET rui = l_ui
+    	    WHERE relationship_id = aa_rec.row_id
+	      AND nvl(rui,'null') != nvl(l_ui,'null'); 
       END IF;
 
       IF UPPER(id_type) = MEME_CONSTANTS.TN_CLASSES THEN
 
-     /* move source level atts and rels */
-     /* cannot predict count -> cannot check count or
-        if concept_id changed. */
+	 /* move source level atts and rels */
+	 /* cannot predict count -> cannot check count or
+	    if concept_id changed. */
 
-     location := '20';
-     UPDATE attributes
-        SET concept_id = TO_NUMBER(aa_rec.new_value)
-        WHERE atom_id = aa_rec.row_id
-        AND attribute_level != 'C';
+	 location := '20';
+	 UPDATE attributes
+	    SET concept_id = TO_NUMBER(aa_rec.new_value)
+	    WHERE atom_id = aa_rec.row_id
+	    AND attribute_level != 'C';
 
-     location := '20.2';
-     UPDATE relationships
-        SET concept_id_1 = TO_NUMBER(aa_rec.new_value)
-        WHERE atom_id_1 = aa_rec.row_id
-        AND relationship_level IN  (MEME_CONSTANTS.SOURCE_LEVEL,
-                     MEME_CONSTANTS.PROCESSED_LEVEL);
+	 location := '20.2';
+	 UPDATE relationships
+	    SET concept_id_1 = TO_NUMBER(aa_rec.new_value)
+	    WHERE atom_id_1 = aa_rec.row_id
+	    AND relationship_level IN  (MEME_CONSTANTS.SOURCE_LEVEL,
+		 			MEME_CONSTANTS.PROCESSED_LEVEL);
 
-     location := '20.3';
-     UPDATE relationships
-        SET concept_id_2 = TO_NUMBER(aa_rec.new_value)
-        WHERE atom_id_2 = aa_rec.row_id
-        AND relationship_level IN  (MEME_CONSTANTS.SOURCE_LEVEL,
-                     MEME_CONSTANTS.PROCESSED_LEVEL);
+	 location := '20.3';
+	 UPDATE relationships
+	    SET concept_id_2 = TO_NUMBER(aa_rec.new_value)
+	    WHERE atom_id_2 = aa_rec.row_id
+	    AND relationship_level IN  (MEME_CONSTANTS.SOURCE_LEVEL,
+		 			MEME_CONSTANTS.PROCESSED_LEVEL);
 
-     /* need to reset preferred atom for each concept;
-        could optimize by sorting */
+	 /* need to reset preferred atom for each concept;
+	    could optimize by sorting */
 
-     IF msp_set_preferred_flag = MEME_CONSTANTS.YES THEN
-        location := '20.5';
-        retval := MEME_RANKS.set_preferred_id(TO_NUMBER(aa_rec.new_value));
-        IF retval != 0 THEN -- bad return, status 0 expected
-           error_code := 73; error_detail := 'retval='||retval;
-           RAISE action_c_exc;
-        END IF;
+	 IF msp_set_preferred_flag = MEME_CONSTANTS.YES THEN
+	    location := '20.5';
+	    retval := MEME_RANKS.set_preferred_id(TO_NUMBER(aa_rec.new_value));
+	    IF retval != 0 THEN -- bad return, status 0 expected
+	       error_code := 73; error_detail := 'retval='||retval;
+	       RAISE action_c_exc;
+	    END IF;
 
-        location := '20.6';
-        retval := MEME_RANKS.set_preferred_id(TO_NUMBER(aa_rec.old_value));
-        IF retval != 0 THEN -- bad return, status 0 expected
-           error_code := 73; error_detail := 'retval='||retval;
-           RAISE action_c_exc;
-        END IF;
+	    location := '20.6';
+	    retval := MEME_RANKS.set_preferred_id(TO_NUMBER(aa_rec.old_value));
+	    IF retval != 0 THEN -- bad return, status 0 expected
+	       error_code := 73; error_detail := 'retval='||retval;
+	       RAISE action_c_exc;
+	    END IF;
 
-     END IF;
+	 END IF;
 
       END IF;
 
@@ -1907,25 +1847,25 @@ END action_move;
  * This function change atom_ids
  */
 FUNCTION action_change_atom_id(
-   id_type          IN VARCHAR2,
-   transaction_id     IN INTEGER
+   id_type	  	IN VARCHAR2,
+   transaction_id 	IN INTEGER
 )
 RETURN INTEGER
 IS
-   retval          INTEGER := 0;
-   row_count          INTEGER := 0;
-   loop_count          INTEGER := 0;
-   loop_ctr          INTEGER;
+   retval	  	INTEGER := 0;
+   row_count	  	INTEGER := 0;
+   loop_count	  	INTEGER := 0;
+   loop_ctr	  	INTEGER;
 /* Dynamic  */
-   l_update         VARCHAR2(2000);
-   l_field_name       VARCHAR2(50);
-   l_field_concept_id      VARCHAR2(30);
-   l_field_sg_id       VARCHAR2(30);
-   l_field_sg_type       VARCHAR2(30);
-   l_level          VARCHAR2(30);
-   l_ui              VARCHAR2(20);
+   l_update	 	VARCHAR2(2000);
+   l_field_name   	VARCHAR2(50);
+   l_field_concept_id  	VARCHAR2(30);
+   l_field_sg_id   	VARCHAR2(30);
+   l_field_sg_type   	VARCHAR2(30);
+   l_level	  	VARCHAR2(30);
+   l_ui		  	VARCHAR2(20);
 
-   action_a_exc       EXCEPTION;
+   action_a_exc   	EXCEPTION;
 
    CURSOR aa_cur(id IN INTEGER) IS
    SELECT * 
@@ -1934,7 +1874,7 @@ IS
      (SELECT molecule_id FROM molecular_actions WHERE transaction_id = id)
      AND a.action = 'A' 
      AND a.table_name = id_type;
-   aa_rec         aa_cur%ROWTYPE;
+   aa_rec 		aa_cur%ROWTYPE;
 
 BEGIN
 
@@ -1946,59 +1886,58 @@ BEGIN
    LOOP
       FETCH aa_cur INTO aa_rec;
       EXIT WHEN aa_cur%NOTFOUND;
-    
+	
       loop_count := 0;
       location := '10.2';
       FOR loop_ctr IN 1..2 LOOP
-     IF UPPER(id_type) = MEME_CONSTANTS.TN_RELATIONSHIPS OR
-         UPPER(id_type) = MEME_CONSTANTS.TN_CONTEXT_RELATIONSHIPS THEN
-        l_field_name := MEME_CONSTANTS.FN_ATOM_ID||'_'||loop_ctr;
-        l_field_concept_id := MEME_CONSTANTS.FN_CONCEPT_ID||'_'||loop_ctr;
-        l_field_sg_id := 'sg_id_'||loop_ctr;
-        l_field_sg_type := 'sg_type_'||loop_ctr;
-        l_level := 'relationship_level';
-     ELSE
-        l_field_name := MEME_CONSTANTS.FN_ATOM_ID;
-        l_field_concept_id := MEME_CONSTANTS.FN_CONCEPT_ID;
-        l_field_sg_id := 'sg_id';
-        l_field_sg_type := 'sg_type';
-        l_level := 'attribute_level';
-        IF loop_ctr > 1 THEN
-           EXIT;
-        END IF;
-     END IF;
-     location := '10.2.1';
-     EXECUTE IMMEDIATE
-        'UPDATE ' || cracs_table || '
-         SET  (' || l_field_name || ', ' 
-               || l_field_concept_id || ', ' 
-             || l_field_sg_id || ',
-          authority, timestamp, last_molecule_id,
-          last_atomic_action_id) =
-          (SELECT :x, concept_id, 
-           DECODE(' || l_field_sg_type || ',''AUI'',aui,' || l_field_sg_id || '),
-           :x, :x, :x, :x
-              FROM classes WHERE atom_id = :x)
-         WHERE ' || primary_key || ' = :x
-           AND ' || l_field_name || ' = :x '
-      USING to_number(aa_rec.new_value),
-           aa_rec.authority,
-           aa_rec.timestamp,
-           aa_rec.molecule_id,
-           aa_rec.atomic_action_id,
-           to_number(aa_rec.new_value),
-           aa_rec.row_id,
-           to_number(aa_rec.old_value);
+	 IF UPPER(id_type) = MEME_CONSTANTS.TN_RELATIONSHIPS THEN
+	    l_field_name := MEME_CONSTANTS.FN_ATOM_ID||'_'||loop_ctr;
+	    l_field_concept_id := MEME_CONSTANTS.FN_CONCEPT_ID||'_'||loop_ctr;
+	    l_field_sg_id := 'sg_id_'||loop_ctr;
+	    l_field_sg_type := 'sg_type_'||loop_ctr;
+	    l_level := 'relationship_level';
+	 ELSE
+	    l_field_name := MEME_CONSTANTS.FN_ATOM_ID;
+	    l_field_concept_id := MEME_CONSTANTS.FN_CONCEPT_ID;
+	    l_field_sg_id := 'sg_id';
+	    l_field_sg_type := 'sg_type';
+	    l_level := 'attribute_level';
+	    IF loop_ctr > 1 THEN
+	       EXIT;
+	    END IF;
+	 END IF;
+	 location := '10.2.1';
+	 EXECUTE IMMEDIATE
+	    'UPDATE ' || cracs_table || '
+	     SET  (' || l_field_name || ', ' 
+	  	     || l_field_concept_id || ', ' 
+		     || l_field_sg_id || ',
+		  authority, timestamp, last_molecule_id,
+		  last_atomic_action_id) =
+	  	(SELECT :x, concept_id, 
+		   DECODE(' || l_field_sg_type || ',''AUI'',aui,' || l_field_sg_id || '),
+		   :x, :x, :x, :x
+ 	         FROM classes WHERE atom_id = :x)
+	     WHERE ' || primary_key || ' = :x
+	       AND ' || l_field_name || ' = :x '
+ 	 USING to_number(aa_rec.new_value),
+	       aa_rec.authority,
+	       aa_rec.timestamp,
+	       aa_rec.molecule_id,
+	       aa_rec.atomic_action_id,
+	       to_number(aa_rec.new_value),
+	       aa_rec.row_id,
+	       to_number(aa_rec.old_value);
 
-     loop_count := loop_count + SQL%ROWCOUNT;
+	 loop_count := loop_count + SQL%ROWCOUNT;
 
       END LOOP;
 
       -- @ this point, loop_count could not be 0.  It should be 1 or 2.
       location := '10.4';
       IF loop_count = 0 THEN
-     error_code := 53; error_detail := 'loop_count='||loop_count;
-     RAISE action_a_exc;
+	 error_code := 53; error_detail := 'loop_count='||loop_count;
+	 RAISE action_a_exc;
       END IF;
 
       -- increment row counter
@@ -2006,40 +1945,28 @@ BEGIN
       location := '10.51';
       IF UPPER(id_type) = MEME_CONSTANTS.TN_ATTRIBUTES THEN
           location := '10.52';
-      l_ui := MEME_APROCS.assign_atui(attribute_id => aa_rec.row_id);
+	  l_ui := MEME_APROCS.assign_atui(attribute_id => aa_rec.row_id);
           location := '10.53';
-      UPDATE attributes
-      SET atui = l_ui
-          WHERE attribute_id = aa_rec.row_id
-        AND nvl(atui,'null') != l_ui; 
+	  UPDATE attributes
+	  SET atui = l_ui
+    	  WHERE attribute_id = aa_rec.row_id
+	    AND nvl(atui,'null') != l_ui; 
       END IF;
 
       location := '15.51';
       IF UPPER(id_type) = MEME_CONSTANTS.TN_RELATIONSHIPS THEN
           location := '15.52';
-      l_ui := MEME_APROCS.assign_rui(relationship_id => aa_rec.row_id);
+	  l_ui := MEME_APROCS.assign_rui(relationship_id => aa_rec.row_id);
           location := '15.53';
-      UPDATE relationships
-      SET rui = l_ui
-          WHERE relationship_id = aa_rec.row_id
-        AND nvl(rui,'null') != nvl(l_ui,'null'); 
+	  UPDATE relationships
+	  SET rui = l_ui
+    	  WHERE relationship_id = aa_rec.row_id
+	    AND nvl(rui,'null') != nvl(l_ui,'null'); 
       END IF;
-
-      location := '15.54';
-      IF UPPER(id_type) = MEME_CONSTANTS.TN_CONTEXT_RELATIONSHIPS THEN
-          location := '15.55';
-          l_ui := MEME_APROCS.assign_cxt_rui(relationship_id => aa_rec.row_id);
-          location := '15.56';
-      UPDATE context_relationships
-      SET rui = l_ui
-          WHERE relationship_id = aa_rec.row_id
-        AND nvl(rui,'null') != nvl(l_ui,'null'); 
-      END IF;
-
    END LOOP;
 
    MEME_UTILITY.put_message('action_change_atom_id: ' || aa_cur%ROWCOUNT ||
-            ' rows processed.');
+			' rows processed.');
 
    CLOSE aa_cur;
 
@@ -2059,35 +1986,26 @@ END action_change_atom_id;
  * This function move concepts to dead
  */
 FUNCTION action_delete(
-   id_type            IN VARCHAR2,
-   transaction_id       IN INTEGER
+   id_type	    	IN VARCHAR2,
+   transaction_id   	IN INTEGER
 )
 RETURN INTEGER
 IS
-   retval        INTEGER := 0;
-   row_count        INTEGER := 0;
+   retval		INTEGER := 0;
+   row_count		INTEGER := 0;
+   l_update		VARCHAR2(2000);
 
-   action_d_exc     EXCEPTION;
+   action_d_exc 	EXCEPTION;
 
    CURSOR aa_cur(id IN INTEGER) IS
-   SELECT /*+ USE_NL(a,m) */ m.source_id, m.target_id, m.molecule_id,
-     a.row_id, a.old_value, a.new_value, a.timestamp, a.authority,
-     a.atomic_action_id
+   SELECT m.source_id, m.target_id, m.molecule_id,
+	 a.row_id, a.old_value, a.new_value, a.timestamp, a.authority,
+	 a.atomic_action_id
    FROM atomic_actions a, molecular_actions m
    WHERE a.molecule_id = m.molecule_id AND transaction_id = id
      AND a.action = 'D'
      AND a.table_name = id_type;
-   aa_rec         aa_cur%ROWTYPE;
-
-   l_source_ids            concept_id;
-   l_target_ids            concept_id;
-   l_molecule_ids           molecule_id;
-   l_row_ids                row_id;
-   l_old_values             old_value;
-   l_new_values             new_value;
-   l_timestamps             timestamp;
-   l_authorities            authority;
-   l_atomic_action_ids      atomic_action_id;
+   aa_rec 		aa_cur%ROWTYPE;
 
 BEGIN
 
@@ -2095,84 +2013,67 @@ BEGIN
 
    location := '0.1';
    OPEN aa_cur(transaction_id);
-   location := '100';
    LOOP
-       FETCH aa_cur BULK COLLECT INTO l_source_ids, l_target_ids, l_molecule_ids,
-            l_row_ids, l_old_values, l_new_values, l_timestamps, l_authorities,
-            l_atomic_action_ids
-       LIMIT 2000;
-
-       location := '200';
-	   IF l_row_ids IS NULL OR l_row_ids.COUNT = 0 THEN
-	   		EXIT; -- Don't delete anything if collections are empty.
-	   END IF; 
-       row_count := l_row_ids.last;
-
-       location := '300';
-       FORALL i in l_row_ids.first .. l_row_ids.last
-          EXECUTE IMMEDIATE
-            'UPDATE ' || cracs_table || '
-             SET dead = :x, timestamp = :x, authority = :x,
-                 last_atomic_action_id = :x, last_molecule_id = :x
-             WHERE ' || primary_key || ' = :x
-               AND dead = :x'
-          USING l_new_values(i), l_timestamps(i), l_authorities(i), l_atomic_action_ids(i),
-             l_molecule_ids(i), l_row_ids(i), l_old_values(i);
-
-       IF row_count != SQL%ROWCOUNT THEN
-         location := '400';
-         error_detail := 'Not all rows of driving table were found in ' || cracs_table;
-         error_code := 55;
-         RAISE action_d_exc;
-       END IF;
-
-       EXIT WHEN aa_cur%NOTFOUND;
-   END LOOP;
-   CLOSE aa_cur;
-
-   location := '500';
-   OPEN aa_cur(transaction_id);
-   LOOP
-      location := '600';
+      location := '0.2';
       FETCH aa_cur INTO aa_rec;
       EXIT WHEN aa_cur%NOTFOUND;
 
-      location := '610';
+      location := '0.3';
+      l_update := 
+     	'UPDATE ' || cracs_table || ' SET 
+	  dead = ''Y'',
+	  timestamp = ''' || aa_rec.timestamp || ''',
+	  authority = ''' || aa_rec.authority || ''',
+	  last_atomic_action_id = ' || aa_rec.atomic_action_id || ',
+	  last_molecule_id = ' || aa_rec.molecule_id || '
+	 WHERE ' || primary_key || ' = ' || aa_rec.row_id;
+
+      EXECUTE IMMEDIATE l_update;
+      retval := SQL%ROWCOUNT;
+      IF retval != 1 THEN -- bad return, single row update expected
+	 location := '10.0';
+	 error_code := 53; 
+	 error_detail := 'retval='||retval||
+		',id_type='||id_type||',row_id='||aa_rec.row_id;
+	 RAISE action_d_exc;
+      END IF;
+
+      row_count := row_count + 1;
 
       IF UPPER(id_type) = MEME_CONSTANTS.TN_CLASSES THEN
-         -- Reset preferred atom id
-         IF  msp_set_preferred_flag = MEME_CONSTANTS.YES THEN
-            location := '10.1'; error_code := 73;
-            retval := MEME_RANKS.set_preferred_id(aa_rec.source_id,'dead');
-            IF retval != 0 THEN -- bad return, status 0 expected
-               error_detail := 'retval='||retval;
-               RAISE action_d_exc;
-            END IF;
-         END IF;
+	 -- Reset preferred atom id
+	 IF  msp_set_preferred_flag = MEME_CONSTANTS.YES THEN
+	     location := '10.1'; error_code := 73;
+	     retval := MEME_RANKS.set_preferred_id(aa_rec.source_id,'dead');
+  	     IF retval != 0 THEN -- bad return, status 0 expected
+	   	 error_detail := 'retval='||retval;
+	         RAISE action_d_exc;
+	     END IF;
+ 	 END IF;
 
-        location := '10.2'; error_code := 81;
-        retval := MEME_APROCS.bury_classes(aa_rec.row_id);
+	 location := '10.2'; error_code := 81;
+	 retval := MEME_APROCS.bury_classes(aa_rec.row_id);
       ELSIF UPPER(id_type) = MEME_CONSTANTS.TN_CONTEXT_RELATIONSHIPS THEN
-        location := '15.1'; error_code := 90;
-        retval := MEME_APROCS.bury_cxt_relationships(aa_rec.row_id);
+	 location := '15.1'; error_code := 90;
+	 retval := MEME_APROCS.bury_cxt_relationships(aa_rec.row_id);
       ELSIF UPPER(id_type) = MEME_CONSTANTS.TN_RELATIONSHIPS THEN
-        location := '20.1'; error_code := 82;
-        retval := MEME_APROCS.bury_relationships(aa_rec.row_id);
+	 location := '20.1'; error_code := 82;
+	 retval := MEME_APROCS.bury_relationships(aa_rec.row_id);
       ELSIF UPPER(id_type) = MEME_CONSTANTS.TN_ATTRIBUTES THEN
-        location := '30.1'; error_code := 83;
-        retval := MEME_APROCS.bury_attributes(aa_rec.row_id);
+	 location := '30.1'; error_code := 83;
+	 retval := MEME_APROCS.bury_attributes(aa_rec.row_id);
       ELSIF UPPER(id_type) = MEME_CONSTANTS.TN_CONCEPT_STATUS THEN
-        location := '40.1'; error_code := 84;
-        retval := MEME_APROCS.bury_concept_status(aa_rec.row_id);
+	 location := '40.1'; error_code := 84;
+	 retval := MEME_APROCS.bury_concept_status(aa_rec.row_id);
       ELSE
-        location := '50'; error_code := 91;
-         error_detail := 'id_type='||id_type;
+	 location := '50'; error_code := 91;
+ 	 error_detail := 'id_type='||id_type;
       END IF;
 
       location := '60';
       IF retval != 0 THEN -- bad return, status 0 expected
-        error_detail := 'retval='||retval;
-        RAISE action_d_exc;
+	 error_detail := 'retval='||retval;
+	 RAISE action_d_exc;
       END IF;
 
    END LOOP;
@@ -2193,78 +2094,65 @@ END action_delete;
  * This function change the values of field status
  */
 FUNCTION action_change_status(
-   id_type           IN VARCHAR2,
-   transaction_id       IN INTEGER
+   id_type		   IN VARCHAR2,
+   transaction_id	   IN INTEGER
 )
 RETURN INTEGER
 IS
-   row_count           INTEGER := 0;
-   action_s_exc        EXCEPTION;
+   retval		   INTEGER := 0;
+   row_count		   INTEGER := 0;
+
+   l_update		   VARCHAR2(2000);
+
+   action_s_exc 	   EXCEPTION;
 
    CURSOR aa_cur(id IN INTEGER) IS
-   SELECT new_value, timestamp,authority,atomic_action_id,molecule_id,row_id,old_value 
+   SELECT * 
    FROM atomic_actions a
    WHERE molecule_id IN 
-     (SELECT molecule_id FROM molecular_actions WHERE transaction_id = id)
+	 (SELECT molecule_id FROM molecular_actions WHERE transaction_id = id)
      AND a.action = 'S' 
      AND a.table_name = id_type;
-
-   l_new_values             new_value;
-   l_timestamps             timestamp;
-   l_authorities            authority;
-   l_atomic_action_ids      atomic_action_id;
-   l_molecule_ids           molecule_id;
-   l_row_ids                row_id;
-   l_old_values             old_value;
-   l_concept_ids            concept_id;
-   l_atom_ids               atom_id;
+   aa_rec 			aa_cur%ROWTYPE;
 
 BEGIN
 
    initialize_trace('ACTION_CHANGE_STATUS');
- 
+
    OPEN aa_cur(transaction_id);
-   location := '100';
    LOOP
-       FETCH aa_cur BULK COLLECT INTO l_new_values, l_timestamps, l_authorities, l_atomic_action_ids,
-            l_molecule_ids, l_row_ids, l_old_values
-       LIMIT 2000;
+      FETCH aa_cur INTO aa_rec;
+      EXIT WHEN aa_cur%NOTFOUND;
 
-       location := '200';
-	   IF l_row_ids IS NULL OR l_row_ids.COUNT = 0 THEN
-	   		EXIT; -- Don't delete anything if collections are empty.
-	   END IF; 
-       row_count := l_row_ids.last;
+      l_update := 'UPDATE '||cracs_table||' SET '||
+	 'status = '||''''||aa_rec.new_value||''''||','||
+	 'timestamp = '||''''||aa_rec.timestamp||''''||','||
+	 'authority = '||''''||aa_rec.authority||''''||','||
+	 'last_atomic_action_id = '||aa_rec.atomic_action_id||','||
+	 'last_molecule_id = '||aa_rec.molecule_id||
+	 ' WHERE '||primary_key||' = '||aa_rec.row_id||
+	 ' AND status = '||''''||aa_rec.old_value||'''';
 
-       location := '300';
-       FORALL i in l_row_ids.first .. l_row_ids.last
-          EXECUTE IMMEDIATE
-            'UPDATE ' || cracs_table || '
-             SET status = :x, timestamp = :x, authority = :x,
-                 last_atomic_action_id = :x, last_molecule_id = :x
-             WHERE ' || primary_key || ' = :x
-               AND status = :x'
-          USING l_new_values(i), l_timestamps(i), l_authorities(i), l_atomic_action_ids(i),
-             l_molecule_ids(i), l_row_ids(i), l_old_values(i);
+      --MEME_UTILITY.put_message(method||','||location||'='||l_update);
 
-       IF row_count != SQL%ROWCOUNT THEN
-         location := '400';
-         error_detail := 'Not all rows of driving table were found in ' || cracs_table; 
-         error_code := 55; 
-         RAISE action_s_exc;
-       END IF;
+      retval := local_exec(l_update);
+      IF retval != 1 THEN -- bad return, single row update expected
+	 location := '10.1';
+	 error_code := 53; error_detail := 'retval='||retval;
+	 RAISE action_s_exc;
+      END IF;
 
-       EXIT WHEN aa_cur%NOTFOUND;
+      row_count := row_count + 1;
    END LOOP;
-
-   location := '500';
-   CLOSE aa_cur;
 
    RETURN row_count;
 
 EXCEPTION
-   WHEN OTHERS THEN
+   WHEN action_s_exc THEN
       error_log ('ACTION_CHANGE_STATUS', location, error_code, error_detail);
+      RETURN -1;
+   WHEN OTHERS THEN
+      error_log ('ACTION_CHANGE_STATUS', location, error_code, '');
       RETURN -1;
 
 END action_change_status;
@@ -2273,164 +2161,137 @@ END action_change_status;
  * This function change the values of field tobereleased
  */
 FUNCTION action_change_tobereleased(
-   id_type        IN VARCHAR2,
-   transaction_id    IN INTEGER
+   id_type		IN VARCHAR2,
+   transaction_id	IN INTEGER
 )
 RETURN INTEGER
 IS
-   retval        INTEGER := 0;
-   row_count        INTEGER := 0;
-   l_ui              VARCHAR2(20);
-   action_t_exc     EXCEPTION;
+   retval		INTEGER := 0;
+   row_count		INTEGER := 0;
+
+   l_update		VARCHAR2(2000);
+   l_ui		  	VARCHAR2(20);
+
+   action_t_exc 	EXCEPTION;
 
    CURSOR aa_cur(id IN INTEGER) IS
-   SELECT /*+ USE_NL(a,m) */ m.source_id, m.target_id, m.molecule_id,
-     a.row_id, a.old_value, a.new_value, a.timestamp, a.authority,
-     a.atomic_action_id
+   SELECT m.source_id, m.target_id, m.molecule_id,
+	 a.row_id, a.old_value, a.new_value, a.timestamp, a.authority,
+	 a.atomic_action_id
    FROM atomic_actions a, molecular_actions m
    WHERE a.molecule_id = m.molecule_id AND transaction_id = id
      AND a.action = 'T'
      AND a.table_name = id_type;
-   aa_rec                   aa_cur%ROWTYPE;
-
-   l_source_ids             concept_id;
-   l_target_ids             concept_id;
-   l_molecule_ids           molecule_id;
-   l_row_ids                row_id;
-   l_old_values             old_value;
-   l_new_values             new_value;
-   l_timestamps             timestamp;
-   l_authorities            authority;
-   l_atomic_action_ids      atomic_action_id;
+   aa_rec 		aa_cur%ROWTYPE;
 
 BEGIN
 
    initialize_trace('ACTION_CHANGE_TOBERELEASED');
 
    OPEN aa_cur(transaction_id);
-   location := '100';
    LOOP
-       FETCH aa_cur BULK COLLECT INTO l_source_ids, l_target_ids, l_molecule_ids, 
-         l_row_ids, l_old_values, l_new_values, l_timestamps, l_authorities,
-         l_atomic_action_ids
-       LIMIT 2000;
-
-       location := '200';
-	   IF l_row_ids IS NULL OR l_row_ids.COUNT = 0 THEN
-	   		EXIT; -- Don't delete anything if collections are empty.
-	   END IF; 
-       row_count := l_row_ids.last;
-
-       location := '300';
-       FORALL i in l_row_ids.first .. l_row_ids.last
-          EXECUTE IMMEDIATE
-            'UPDATE ' || cracs_table || '
-             SET tobereleased = :x, timestamp = :x, authority = :x,
-                 last_atomic_action_id = :x, last_molecule_id = :x
-             WHERE ' || primary_key || ' = :x
-               AND tobereleased = :x'
-          USING l_new_values(i), l_timestamps(i), l_authorities(i), l_atomic_action_ids(i),
-             l_molecule_ids(i), l_row_ids(i), l_old_values(i);
-
-       IF row_count != SQL%ROWCOUNT THEN
-         location := '400';
-         error_detail := 'Not all rows of driving table were found in ' || cracs_table;
-         error_code := 55;
-         RAISE action_t_exc;
-       END IF;
-
-       EXIT WHEN aa_cur%NOTFOUND;
-   END LOOP;
-   location := '500';
-   CLOSE aa_cur;
-
-   open aa_cur(transaction_id);
-   LOOP
-      location := '610';
       FETCH aa_cur INTO aa_rec;
-      location := '620';
       EXIT WHEN aa_cur%NOTFOUND;
 
-      IF msp_set_preferred_flag = MEME_CONSTANTS.YES THEN
-         retval := MEME_RANKS.set_rank(aa_rec.row_id,cracs_table,'tobereleased');
-         IF retval != 0 THEN -- bad return, status 0 expected
-            location := '640';
-            error_code := 74; error_detail := 'retval='||retval;
-            RAISE action_t_exc;
-         END IF;
+      l_update := 
+	'UPDATE ' || cracs_table || ' 
+	 SET tobereleased = ''' || aa_rec.new_value || ''',
+	     timestamp = ''' || aa_rec.timestamp || ''',
+	     authority = ''' || aa_rec.authority || ''',
+	     last_atomic_action_id = ' || aa_rec.atomic_action_id || ',
+	     last_molecule_id = ' || aa_rec.molecule_id || '
+	 WHERE ' || primary_key || ' = ' || aa_rec.row_id || '
+	   AND tobereleased = ''' || aa_rec.old_value || '''';
+
+      --MEME_UTILITY.put_message(method||','||location||'='||l_update);
+
+      retval := local_exec(l_update);
+      IF retval != 1 THEN -- bad return, single row update expected
+	 location := '10.1';
+	 error_code := 53; error_detail := 'retval='||retval;
+	 RAISE action_t_exc;
       END IF;
 
       IF UPPER(id_type) = MEME_CONSTANTS.TN_CLASSES AND
-         msp_set_preferred_flag = MEME_CONSTANTS.YES THEN
-         retval := MEME_RANKS.set_preferred_id(aa_rec.source_id,'tobereleased');
-         IF retval != 0 THEN -- bad return, status 0 expected
-            location := '630';
-            error_code := 73; error_detail := 'retval='||retval;
-            RAISE action_t_exc;
-         END IF;
+	 msp_set_preferred_flag = MEME_CONSTANTS.YES THEN
+	 retval := MEME_RANKS.set_preferred_id(aa_rec.source_id,'tobereleased');
+	 IF retval != 0 THEN -- bad return, status 0 expected
+	    location := '10.2';
+	    error_code := 73; error_detail := 'retval='||retval;
+	    RAISE action_t_exc;
+	 END IF;
+      END IF;
+
+      retval := MEME_RANKS.set_rank(aa_rec.row_id,cracs_table,'tobereleased');
+      IF retval != 0 THEN -- bad return, status 0 expected
+	 location := '10.3';
+	 error_code := 74; error_detail := 'retval='||retval;
+	 RAISE action_t_exc;
       END IF;
 
       IF UPPER(id_type) = MEME_CONSTANTS.TN_CLASSES THEN
-         IF aa_rec.new_value = 'N' AND aa_rec.old_value != 'N' THEN
-            retval := MEME_APROCS.bury_index(aa_rec.row_id);
-            IF retval != 0 THEN -- bad return, status 0 expected
-               location := '650';
-               error_code := 85; error_detail := 'retval='||retval;
-               RAISE action_t_exc;
-            END IF;
-         END IF;
-
-         IF aa_rec.new_value != 'N' AND aa_rec.old_value = 'N' THEN
-            retval := MEME_APROCS.digup_index(aa_rec.row_id);
-            IF retval != 0 THEN -- bad return, status 0 expected
-               location := '660';
-               error_code := 86; error_detail := 'retval='||retval;
-               RAISE action_t_exc;
-            END IF;
-         END IF;
+	 IF aa_rec.new_value = 'N' AND aa_rec.old_value != 'N' THEN
+	    retval := MEME_APROCS.bury_index(aa_rec.row_id);
+	    IF retval != 0 THEN -- bad return, status 0 expected
+	       location := '10.4';
+	       error_code := 85; error_detail := 'retval='||retval;
+	       RAISE action_t_exc;
+	    END IF;
+	 END IF;
+	 IF aa_rec.new_value != 'N' AND aa_rec.old_value = 'N' THEN
+	    retval := MEME_APROCS.digup_index(aa_rec.row_id);
+	    IF retval != 0 THEN -- bad return, status 0 expected
+	       location := '10.5';
+	       error_code := 86; error_detail := 'retval='||retval;
+	       RAISE action_t_exc;
+	    END IF;
+	 END IF;
       END IF;
 
       -- Compute ATUI,RTUI if the tbr went from N,n to Y,y
       IF aa_rec.old_value in ('N','n') AND aa_rec.new_value in ('Y','y') THEN
 
-          location := '660';
+          location := '10.50';
           IF UPPER(id_type) = MEME_CONSTANTS.TN_CLASSES THEN
-             location := '670';
-             l_ui := MEME_APROCS.assign_aui(atom_id => aa_rec.row_id);
-             location := '680';
-              UPDATE classes SET aui = l_ui
-              WHERE atom_id = aa_rec.row_id     
-                AND nvl(aui,'null') != nvl(l_ui,'null');
+              location := '10.505';
+	      l_ui := MEME_APROCS.assign_aui(atom_id => aa_rec.row_id);
+              location := '10.506';
+      	      UPDATE classes SET aui = l_ui
+      	      WHERE atom_id = aa_rec.row_id 	
+	        AND nvl(aui,'null') != nvl(l_ui,'null');
           END IF;
 
-          location := '690';
+          location := '10.51';
           IF UPPER(id_type) = MEME_CONSTANTS.TN_ATTRIBUTES THEN
-             location := '700';
-             l_ui := MEME_APROCS.assign_atui(attribute_id => aa_rec.row_id);
-             location := '710';
-             UPDATE attributes SET (atui,sg_id,sg_type,sg_qualifier) =
-                (SELECT atui, sg_id, sg_type, sg_qualifier
-             FROM attributes_ui WHERE atui = l_ui)
-             WHERE attribute_id = aa_rec.row_id     
-               AND nvl(atui,'null') != l_ui;
+              location := '10.52';
+	      l_ui := MEME_APROCS.assign_atui(attribute_id => aa_rec.row_id);
+              location := '10.53';
+      	      UPDATE attributes SET (atui,sg_id,sg_type,sg_qualifier) =
+	        (SELECT atui, sg_id, sg_type, sg_qualifier
+	         FROM attributes_ui WHERE atui = l_ui)
+      	      WHERE attribute_id = aa_rec.row_id 	
+	        AND nvl(atui,'null') != l_ui;
           END IF;
 
-          location := '720';
+          location := '10.54';
           IF UPPER(id_type) = MEME_CONSTANTS.TN_RELATIONSHIPS THEN
-             location := '730';
-             l_ui := MEME_APROCS.assign_rui(relationship_id => aa_rec.row_id);
-             location := '740';
-             UPDATE relationships 
-             SET (rui, sg_id_1, sg_type_1, sg_qualifier_1, 
-                 sg_id_2, sg_type_2, sg_qualifier_2 ) =
-                 (SELECT rui, sg_id_1, sg_type_1, sg_qualifier_1, 
-                      sg_id_2, sg_type_2, sg_qualifier_2
-             FROM relationships_ui WHERE rui = l_ui)
-             WHERE relationship_id = aa_rec.row_id     
-               AND nvl(rui,'null') != nvl(l_ui,'null');
+              location := '10.55';
+	      l_ui := MEME_APROCS.assign_rui(relationship_id => aa_rec.row_id);
+              location := '10.56';
+      	      UPDATE relationships 
+              SET (rui, sg_id_1, sg_type_1, sg_qualifier_1, 
+	 	        sg_id_2, sg_type_2, sg_qualifier_2 ) =
+	        (SELECT rui, sg_id_1, sg_type_1, sg_qualifier_1, 
+	 	             sg_id_2, sg_type_2, sg_qualifier_2
+	         FROM relationships_ui WHERE rui = l_ui)
+      	      WHERE relationship_id = aa_rec.row_id 	
+	        AND nvl(rui,'null') != nvl(l_ui,'null');
           END IF;
 
       END IF;
+
+      row_count := row_count + 1;
+
    END LOOP;
    CLOSE aa_cur;
 
@@ -2446,29 +2307,30 @@ EXCEPTION
 
 END action_change_tobereleased;
 
+
 /* FUNCTION ACTION_REDO ********************************************************
  * This is a common function of macro_redo and batch_redo. The process redo
  * previously undone transaction.
  */
 FUNCTION action_redo(
-   transaction_id    IN INTEGER,
-   authority        IN VARCHAR2,
-   batch_or_macro    IN VARCHAR2,
-   force            IN VARCHAR2 := 'N'
+   transaction_id	IN INTEGER,
+   authority		IN VARCHAR2,
+   batch_or_macro	IN VARCHAR2,
+   force    		IN VARCHAR2 := 'N'
 )
 RETURN INTEGER
 IS
-   retval        INTEGER := 0;
-   row_count        INTEGER := 0;
-   loop_ctr        INTEGER;
-   l_molecule_id    INTEGER;
-   l_mid_event_id    INTEGER;
+   retval		INTEGER := 0;
+   row_count		INTEGER := 0;
+   loop_ctr		INTEGER;
+   l_molecule_id	INTEGER;
+   l_mid_event_id	INTEGER;
 
-   l_action_field    VARCHAR2(50);
-   l_table_name     VARCHAR2(50);
-   l_temp_table     VARCHAR2(50);
+   l_action_field	VARCHAR2(50);
+   l_table_name 	VARCHAR2(50);
+   l_temp_table 	VARCHAR2(50);
  
-   action_redo_exc    EXCEPTION;
+   action_redo_exc	EXCEPTION;
 
    CURSOR ma_cur(t_id IN INTEGER) IS
    SELECT molecule_id FROM molecular_actions
@@ -2477,7 +2339,7 @@ IS
    CURSOR aa_cur(m_id IN INTEGER) IS
    SELECT * FROM atomic_actions
      WHERE molecule_id = m_id ORDER BY atomic_action_id ASC;
-   aa_rec         aa_cur%ROWTYPE;
+   aa_rec 		aa_cur%ROWTYPE;
 
 BEGIN
 
@@ -2493,20 +2355,20 @@ BEGIN
       location := '10';
       OPEN aa_cur(l_molecule_id);
       LOOP
-     FETCH aa_cur INTO aa_rec;
-     EXIT WHEN aa_cur%NOTFOUND;
-     retval := MEME_APROCS.aproc_redo(
-        atomic_action_id => aa_rec.atomic_action_id,
-        authority => authority,
-        force => force);
-     location := '10.1';
-     IF retval != 0 THEN -- bad return, status 0 expected
-        error_code := 89;
-        error_detail := 'atomic_action_id= '||aa_rec.atomic_action_id;
-        RAISE action_redo_exc;
-     END IF;
-     l_action_field := aa_rec.action_field;
-     l_table_name := aa_rec.table_name;
+	 FETCH aa_cur INTO aa_rec;
+	 EXIT WHEN aa_cur%NOTFOUND;
+	 retval := MEME_APROCS.aproc_redo(
+	    atomic_action_id => aa_rec.atomic_action_id,
+	    authority => authority,
+	    force => force);
+	 location := '10.1';
+	 IF retval != 0 THEN -- bad return, status 0 expected
+	    error_code := 89;
+	    error_detail := 'atomic_action_id= '||aa_rec.atomic_action_id;
+	    RAISE action_redo_exc;
+	 END IF;
+	 l_action_field := aa_rec.action_field;
+	 l_table_name := aa_rec.table_name;
       END LOOP;
       CLOSE aa_cur;
 
@@ -2540,15 +2402,15 @@ END action_redo;
  * This function perform macro redo of transaction.
  */
 FUNCTION macro_redo(
-   transaction_id    IN INTEGER,
-   authority        IN VARCHAR2,
-   force            IN VARCHAR2 := 'N'
+   transaction_id	IN INTEGER,
+   authority		IN VARCHAR2,
+   force    		IN VARCHAR2 := 'N'
 )
 RETURN INTEGER
 IS
-   retval        INTEGER := 0;
+   retval		INTEGER := 0;
 
-   restore_flag     VARCHAR2(1);
+   restore_flag 	VARCHAR2(1);
 
 BEGIN
 
@@ -2558,10 +2420,10 @@ BEGIN
    END IF;
 
    retval := action_redo(
-        transaction_id => transaction_id, 
-        authority => authority, 
-        batch_or_macro => MEME_CONSTANTS.MACRO_ACTION,
-        force => force);
+		transaction_id => transaction_id, 
+		authority => authority, 
+		batch_or_macro => MEME_CONSTANTS.MACRO_ACTION,
+		force => force);
 
    IF restore_flag = MEME_CONSTANTS.YES THEN
       MEME_UTILITY.set_ddl_commit_on;
@@ -2575,14 +2437,14 @@ END macro_redo;
  * This function perform batch redo of transaction.
  */
 FUNCTION batch_redo(
-   transaction_id    IN INTEGER,
-   authority        IN VARCHAR2
+   transaction_id	IN INTEGER,
+   authority		IN VARCHAR2
 )
 RETURN INTEGER
 IS
-   retval        INTEGER := 0;
+   retval		INTEGER := 0;
 
-   restore_flag     VARCHAR2(1);
+   restore_flag 	VARCHAR2(1);
 
 BEGIN
 
@@ -2592,9 +2454,9 @@ BEGIN
    END IF;
 
    retval := action_redo(
-        transaction_id => transaction_id, 
-        authority => authority, 
-        batch_or_macro => MEME_CONSTANTS.BATCH_ACTION);
+		transaction_id => transaction_id, 
+		authority => authority, 
+		batch_or_macro => MEME_CONSTANTS.BATCH_ACTION);
 
    IF restore_flag = MEME_CONSTANTS.YES THEN
       MEME_UTILITY.set_ddl_commit_on;
@@ -2609,23 +2471,23 @@ END batch_redo;
  * requested transaction.
  */
 FUNCTION action_undo(
-   transaction_id    IN INTEGER,
-   authority        IN VARCHAR2,
-   batch_or_macro    IN VARCHAR2,
-   force                IN VARCHAR2 := 'N'
+   transaction_id	IN INTEGER,
+   authority		IN VARCHAR2,
+   batch_or_macro	IN VARCHAR2,
+   force    	        IN VARCHAR2 := 'N'
 )
 RETURN INTEGER
 IS
-   retval        INTEGER := 0;
-   row_count        INTEGER := 0;
-   l_molecule_id    INTEGER;
-   l_mid_event_id    INTEGER;
+   retval		INTEGER := 0;
+   row_count		INTEGER := 0;
+   l_molecule_id	INTEGER;
+   l_mid_event_id	INTEGER;
 
-   l_action_field     VARCHAR2(50);
-   l_table_name     VARCHAR2(50);
-   l_temp_table     VARCHAR2(50);
+   l_action_field 	VARCHAR2(50);
+   l_table_name 	VARCHAR2(50);
+   l_temp_table 	VARCHAR2(50);
 
-   action_undo_exc    EXCEPTION;
+   action_undo_exc	EXCEPTION;
 
    CURSOR ma_cur(t_id IN INTEGER) IS
    SELECT molecule_id FROM molecular_actions
@@ -2634,7 +2496,7 @@ IS
    CURSOR aa_cur(m_id IN INTEGER) IS
    SELECT * FROM atomic_actions
      WHERE molecule_id = m_id ORDER BY atomic_action_id DESC;
-   aa_rec         aa_cur%ROWTYPE;
+   aa_rec 		aa_cur%ROWTYPE;
 
 BEGIN
 
@@ -2650,21 +2512,21 @@ BEGIN
       location := '10';
       OPEN aa_cur(l_molecule_id);
       LOOP
-     FETCH aa_cur INTO aa_rec;
-     EXIT WHEN aa_cur%NOTFOUND;
+	 FETCH aa_cur INTO aa_rec;
+	 EXIT WHEN aa_cur%NOTFOUND;
 
-     location := '10.1';
-     retval := MEME_APROCS.aproc_undo(
-        atomic_action_id => aa_rec.atomic_action_id,
-        authority => authority,
-        force => force);
-     IF retval != 0 THEN -- bad return, status 0 expected
-        error_code := 89;
-        error_detail := 'atomic_action_id= '||aa_rec.atomic_action_id;
-        RAISE action_undo_exc;
-     END IF;
-     l_action_field := aa_rec.action_field;
-     l_table_name := aa_rec.table_name;
+	 location := '10.1';
+	 retval := MEME_APROCS.aproc_undo(
+	    atomic_action_id => aa_rec.atomic_action_id,
+	    authority => authority,
+	    force => force);
+	 IF retval != 0 THEN -- bad return, status 0 expected
+	    error_code := 89;
+	    error_detail := 'atomic_action_id= '||aa_rec.atomic_action_id;
+	    RAISE action_undo_exc;
+	 END IF;
+	 l_action_field := aa_rec.action_field;
+	 l_table_name := aa_rec.table_name;
       END LOOP;
       CLOSE aa_cur;
 
@@ -2675,8 +2537,8 @@ BEGIN
       location := '20';
       UPDATE molecular_actions
       SET undone = 'Y',
-      undone_by = action_undo.authority,
-      undone_when = SYSDATE
+	  undone_by = action_undo.authority,
+	  undone_when = SYSDATE
       WHERE molecule_id = l_molecule_id;
 
       row_count := row_count + 1;
@@ -2700,15 +2562,15 @@ END action_undo;
  * This function perform macro undo of transaction.
  */
 FUNCTION macro_undo(
-   transaction_id    IN INTEGER,
-   authority        IN VARCHAR2,
-   force            IN VARCHAR2 := 'N'
+   transaction_id	IN INTEGER,
+   authority		IN VARCHAR2,
+   force    		IN VARCHAR2 := 'N'
 )
 RETURN INTEGER
 IS
-   retval            INTEGER := 0;
+   retval	    	INTEGER := 0;
 
-   restore_flag         VARCHAR2(1);
+   restore_flag     	VARCHAR2(1);
 
 BEGIN
 
@@ -2721,10 +2583,10 @@ BEGIN
 
    location := '10';
    retval := action_undo(
-        transaction_id => transaction_id, 
-        authority => authority, 
-        batch_or_macro => MEME_CONSTANTS.MACRO_ACTION,
-        force => force);
+		transaction_id => transaction_id, 
+		authority => authority, 
+		batch_or_macro => MEME_CONSTANTS.MACRO_ACTION,
+		force => force);
 
    IF restore_flag = MEME_CONSTANTS.YES THEN
       MEME_UTILITY.set_ddl_commit_on;
@@ -2738,14 +2600,14 @@ END macro_undo;
  * This function perform batch undo of transaction.
  */
 FUNCTION batch_undo(
-   transaction_id    IN INTEGER,
-   authority        IN VARCHAR2
+   transaction_id	IN INTEGER,
+   authority		IN VARCHAR2
 )
 RETURN INTEGER
 IS
-   retval            INTEGER := 0;
+   retval	    	INTEGER := 0;
 
-   restore_flag         VARCHAR2(1);
+   restore_flag     	VARCHAR2(1);
 
 BEGIN
 
@@ -2758,9 +2620,9 @@ BEGIN
 
    location := '10';
    retval := action_undo(
-        transaction_id => transaction_id, 
-        authority => authority, 
-        batch_or_macro => MEME_CONSTANTS.BATCH_ACTION);
+		transaction_id => transaction_id, 
+		authority => authority, 
+		batch_or_macro => MEME_CONSTANTS.BATCH_ACTION);
 
    IF restore_flag = MEME_CONSTANTS.YES THEN
       MEME_UTILITY.set_ddl_commit_on;
@@ -2787,39 +2649,39 @@ END batch_undo;
  *
  */
 FUNCTION action_help(
-   action            IN VARCHAR2,         -- [molecular, atomic, macro]
-   id_type            IN VARCHAR2,         -- [C,R,A,CS]
-   authority            IN VARCHAR2,
-   table_name            IN VARCHAR2,
-   work_id            IN NUMBER,
-   status            IN VARCHAR2,
-   new_value            IN VARCHAR2 DEFAULT NULL,
-   action_field         IN VARCHAR2 DEFAULT 'NONE',
-   batch_or_macro    IN VARCHAR2
+   action	    	IN VARCHAR2,		 -- [molecular, atomic, macro]
+   id_type	    	IN VARCHAR2,		 -- [C,R,A,CS]
+   authority	    	IN VARCHAR2,
+   table_name	    	IN VARCHAR2,
+   work_id	    	IN NUMBER,
+   status	    	IN VARCHAR2,
+   new_value	    	IN VARCHAR2 DEFAULT NULL,
+   action_field     	IN VARCHAR2 DEFAULT 'NONE',
+   batch_or_macro	IN VARCHAR2
 )
 RETURN INTEGER
 IS
 
-   l_dummy            INTEGER := 0;
-   retval            INTEGER := 0;
-   row_count            INTEGER := 0;
-   transaction_id       INTEGER;
-   l_molecule_id        INTEGER;
-   l_error_code         INTEGER     := 0;
+   l_dummy	    	INTEGER := 0;
+   retval	    	INTEGER := 0;
+   row_count	    	INTEGER := 0;
+   transaction_id   	INTEGER;
+   l_molecule_id    	INTEGER;
+   l_error_code     	INTEGER	 := 0;
 
-   l_query            VARCHAR2(1024);
-   l_temp_table         VARCHAR2(50) := NULL;
-   l_source_table       VARCHAR2(50) := NULL;
-   l_new_table            VARCHAR2(50) := NULL;
-   l_table_name         VARCHAR2(50) := NULL;
-   l_action_code        VARCHAR2(50) := NULL;
-   l_action_name        VARCHAR2(50) := NULL;
-   l_action_field       VARCHAR2(50) := NULL;
-   l_report_change      VARCHAR2(1)  := MEME_CONSTANTS.YES;
-   l_location            VARCHAR2(10) := '00';
-   l_error_detail       VARCHAR2(250):= '';
+   l_query	    	VARCHAR2(1024);
+   l_temp_table     	VARCHAR2(50) := NULL;
+   l_source_table   	VARCHAR2(50) := NULL;
+   l_new_table	    	VARCHAR2(50) := NULL;
+   l_table_name     	VARCHAR2(50) := NULL;
+   l_action_code    	VARCHAR2(50) := NULL;
+   l_action_name    	VARCHAR2(50) := NULL;
+   l_action_field   	VARCHAR2(50) := NULL;
+   l_report_change  	VARCHAR2(1)  := MEME_CONSTANTS.YES;
+   l_location	    	VARCHAR2(10) := '00';
+   l_error_detail   	VARCHAR2(250):= '';
 
-   action_help_exc      EXCEPTION;
+   action_help_exc  	EXCEPTION;
 
 BEGIN
 
@@ -2877,11 +2739,11 @@ BEGIN
       MEME_UTILITY.drop_it('table',l_new_table);
 
       l_source_table :=
-     MEME_UTILITY.get_value_by_code('S'||UPPER(id_type),'table_name');
+	 MEME_UTILITY.get_value_by_code('S'||UPPER(id_type),'table_name');
 
       l_query := 'CREATE TABLE '||l_new_table||' (row_id) AS'||
-     ' SELECT '||primary_key||' FROM '||l_source_table||
-     ' WHERE switch = '||'''R''';
+	 ' SELECT '||primary_key||' FROM '||l_source_table||
+	 ' WHERE switch = '||'''R''';
 
       --MEME_UTILITY.put_message(method||','||l_location||'='||l_query);
 
@@ -2914,16 +2776,16 @@ BEGIN
    /* Logged action */
    l_location := '220'; 
    transaction_id := action_log(
-              action => l_action_code,
-        id_type => action_help.id_type,
-        authority => action_help.authority,
-        table_name => l_table_name,
-        action_name => l_action_name,    
-        action_short => l_action_code,
-        work_id => action_help.work_id,
-        status => action_help.status,
-        new_value => action_help.new_value,
-        action_field => l_action_field );
+	      	action => l_action_code,
+		id_type => action_help.id_type,
+		authority => action_help.authority,
+		table_name => l_table_name,
+		action_name => l_action_name,	
+		action_short => l_action_code,
+		work_id => action_help.work_id,
+		status => action_help.status,
+		new_value => action_help.new_value,
+		action_field => l_action_field );
 
    IF transaction_id = -1 THEN -- bad return, status 0 or positive values expected
       l_location := '250'; l_error_code := 56;
@@ -2938,64 +2800,40 @@ BEGIN
    l_location := '310'; 
    IF l_action_code = MEME_CONSTANTS.AA_DELETE THEN
       retval := action_delete(id_type, transaction_id);
-      IF retval = -1 THEN -- bad return, status 0 or positive values expected
-        l_location := '310.a'; l_error_code := 56;
-        RAISE action_help_exc;
-      END IF;
 
       --
       -- Connected actions if id_type is C,R,CR
       --
       IF id_type = 'C' THEN
-          IF retval != -1 THEN
-          cracs_table := 'attributes';
-          primary_key := 'attribute_id';
-          l_dummy := action_delete('A',transaction_id);
-          IF l_dummy = -1 THEN -- bad return, status 0 or positive values expected
-            l_location := '310.b'; l_error_code := 56;
-            RAISE action_help_exc;
-          END IF;          
-          cracs_table := 'relationships';
-          primary_key := 'relationship_id';
-          l_dummy := action_delete('R',transaction_id);
-          IF l_dummy = -1 THEN -- bad return, status 0 or positive values expected
-            l_location := '310.c'; l_error_code := 56;
-            RAISE action_help_exc;
-          END IF;          
-          cracs_table := 'context_relationships';
-          primary_key := 'relationship_id';
-          l_dummy := action_delete('CR',transaction_id);
-          IF l_dummy = -1 THEN -- bad return, status 0 or positive values expected
-            l_location := '310.d'; l_error_code := 56;
-            RAISE action_help_exc;
-          END IF;          
-          cracs_table := 'classes';
-          primary_key := 'atom_id';
-        END IF;
+	IF retval != -1 THEN
+	    cracs_table := 'attributes';
+	    primary_key := 'attribute_id';
+	    l_dummy := action_delete('A',transaction_id);
+	    cracs_table := 'relationships';
+	    primary_key := 'relationship_id';
+	    l_dummy := action_delete('R',transaction_id);
+	    cracs_table := 'context_relationships';
+	    primary_key := 'relationship_id';
+	    l_dummy := action_delete('CR',transaction_id);
+	    cracs_table := 'classes';
+	    primary_key := 'atom_id';
+	END IF;
       ELSIF id_type IN ('R') THEN
-        IF retval != -1 THEN
-          cracs_table := 'attributes';
-          primary_key := 'attribute_id';
-          l_dummy := action_delete('A',transaction_id);
-          IF l_dummy = -1 THEN -- bad return, status 0 or positive values expected
-            l_location := '310.e'; l_error_code := 56;
-            RAISE action_help_exc;
-          END IF;          
-          cracs_table := 'relationships';
-          primary_key := 'relationship_id';
-        END IF;
+	IF retval != -1 THEN
+	    cracs_table := 'attributes';
+	    primary_key := 'attribute_id';
+	    l_dummy := action_delete('A',transaction_id);
+	    cracs_table := 'relationships';
+	    primary_key := 'relationship_id';
+	END IF;
       ELSIF id_type IN ('CR') THEN
-        IF retval != -1 THEN
-          cracs_table := 'attributes';
-          primary_key := 'attribute_id';
-          l_dummy := action_delete('A',transaction_id);
-          IF l_dummy = -1 THEN -- bad return, status 0 or positive values expected
-            l_location := '310.f'; l_error_code := 56;
-            RAISE action_help_exc;
-          END IF;          
-          cracs_table := 'context_relationships';
-          primary_key := 'relationship_id';
-        END IF;
+	IF retval != -1 THEN
+	    cracs_table := 'attributes';
+	    primary_key := 'attribute_id';
+	    l_dummy := action_delete('A',transaction_id);
+	    cracs_table := 'context_relationships';
+	    primary_key := 'relationship_id';
+	END IF;
       END IF;
    ELSIF l_action_code = MEME_CONSTANTS.AA_CHANGE_STATUS THEN
       retval := action_change_status(id_type, transaction_id);
@@ -3010,9 +2848,9 @@ BEGIN
    ELSIF l_action_code = MEME_CONSTANTS.AA_INSERT THEN
       l_report_change := MEME_CONSTANTS.NO;
       IF batch_or_macro = MEME_CONSTANTS.BATCH_ACTION THEN
-     retval := macro_insert(id_type, authority, transaction_id);
+	 retval := macro_insert(id_type, authority, transaction_id);
       ELSIF batch_or_macro = MEME_CONSTANTS.MACRO_ACTION THEN
-     retval := macro_insert(id_type, authority, transaction_id);
+	 retval := macro_insert(id_type, authority, transaction_id);
       END IF;
    END IF;
 
@@ -3047,12 +2885,12 @@ BEGIN
    MEME_UTILITY.drop_it('table','t_rmc_'||l_molecule_id);
 
    MEME_UTILITY.log_operation (
-    authority => authority,
-    activity => method || ' action',
-    detail => action || ': ' || 'id_type=' || id_type || ', action_field=' || action_field,
-    transaction_id => transaction_id,
-    work_id => work_id,
-    elapsed_time => MEME_UTILITY.elapsed_time);
+	authority => authority,
+	activity => method || ' action',
+	detail => action || ': ' || 'id_type=' || id_type || ', action_field=' || action_field,
+	transaction_id => transaction_id,
+	work_id => work_id,
+	elapsed_time => MEME_UTILITY.elapsed_time);
 
    MEME_UTILITY.put_message
       ('Action '||l_action_name||' successfully completed ('||retval||').');
@@ -3080,13 +2918,13 @@ END action_help;
  *
  */
 FUNCTION macro_action(
-   action        IN VARCHAR2,         -- [macro]
-   id_type        IN VARCHAR2,         -- [C,R,A,CS]
-   authority        IN VARCHAR2,
-   table_name        IN VARCHAR2,
-   work_id        IN NUMBER,
-   status        IN VARCHAR2 := 'R',
-   new_value        IN VARCHAR2 DEFAULT NULL,
+   action	    IN VARCHAR2,		 -- [macro]
+   id_type	    IN VARCHAR2,		 -- [C,R,A,CS]
+   authority	    IN VARCHAR2,
+   table_name	    IN VARCHAR2,
+   work_id	    IN NUMBER,
+   status	    IN VARCHAR2 := 'R',
+   new_value	    IN VARCHAR2 DEFAULT NULL,
    action_field     IN VARCHAR2 DEFAULT 'NONE',
    set_preferred_flag IN VARCHAR2 DEFAULT MEME_CONSTANTS.YES
 )
@@ -3106,15 +2944,15 @@ BEGIN
    END IF;
 
    transaction_id := action_help(
-            action => action, 
-            id_type => id_type, 
-            authority => authority, 
-            table_name => table_name,
-            work_id => work_id,
-            status => status,
-            new_value => new_value,
-            action_field => action_field,
-            batch_or_macro => MEME_CONSTANTS.MACRO_ACTION );
+			action => action, 
+			id_type => id_type, 
+			authority => authority, 
+			table_name => table_name,
+			work_id => work_id,
+			status => status,
+			new_value => new_value,
+			action_field => action_field,
+			batch_or_macro => MEME_CONSTANTS.MACRO_ACTION );
 
    IF restore_flag = MEME_CONSTANTS.YES THEN
       MEME_UTILITY.set_ddl_commit_on;
@@ -3138,13 +2976,13 @@ END macro_action;
  *
  */
 FUNCTION batch_action(
-   action        IN VARCHAR2,         -- [molecular, atomic]
-   id_type        IN VARCHAR2,         -- [C,R,A,CS]
-   authority        IN VARCHAR2,
-   table_name        IN VARCHAR2,
-   work_id        IN NUMBER,
-   status        IN VARCHAR2 := 'R',
-   new_value        IN VARCHAR2 DEFAULT NULL,
+   action	    IN VARCHAR2,		 -- [molecular, atomic]
+   id_type	    IN VARCHAR2,		 -- [C,R,A,CS]
+   authority	    IN VARCHAR2,
+   table_name	    IN VARCHAR2,
+   work_id	    IN NUMBER,
+   status	    IN VARCHAR2 := 'R',
+   new_value	    IN VARCHAR2 DEFAULT NULL,
    action_field     IN VARCHAR2 DEFAULT 'NONE',
    set_preferred_flag IN VARCHAR2 DEFAULT MEME_CONSTANTS.YES
 )
@@ -3165,15 +3003,15 @@ BEGIN
    END IF;
 
    transaction_id := action_help(
-            action => action, 
-            id_type => id_type, 
-            authority => authority, 
-            table_name => table_name,
-            work_id => work_id,
-            status => status,
-            new_value => new_value,
-            action_field => action_field,
-            batch_or_macro => MEME_CONSTANTS.BATCH_ACTION );
+			action => action, 
+			id_type => id_type, 
+			authority => authority, 
+			table_name => table_name,
+			work_id => work_id,
+			status => status,
+			new_value => new_value,
+			action_field => action_field,
+			batch_or_macro => MEME_CONSTANTS.BATCH_ACTION );
 
    IF restore_flag = MEME_CONSTANTS.YES THEN
       MEME_UTILITY.set_ddl_commit_on;

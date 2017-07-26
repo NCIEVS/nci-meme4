@@ -51,7 +51,7 @@ endif
 #
 # Set variables
 #
-
+set user=`$MIDSVCS_HOME/bin/get-oracle-pwd.pl`
 set CAT=/bin/cat
 set SORT=/bin/sort
 #
@@ -122,7 +122,7 @@ echo "ORACLE_HOME:    $ORACLE_HOME"
 echo "DATABASE:       $db"
 echo "mode:           $mode"
 echo ""
-set user=`$MIDSVCS_HOME/bin/get-oracle-pwd.pl -d $db`
+
 if ($mode == "update") then
 
 #

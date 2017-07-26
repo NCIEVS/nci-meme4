@@ -16,9 +16,9 @@ public class ICTestCenter {
     TestSuiteSet[] sets = TestSuiteSet.getTestSuiteSets();
     ITestSuite[] ic_suite = sets[2].getTestSuites();
 
-    ic_suite[40].run();
+    //ic_suite[35].run();
 
-    //runThisTestSuiteSet(ic_suite);
+    runThisTestSuiteSet(ic_suite);
     //runAllTestSets(sets);
   }
 

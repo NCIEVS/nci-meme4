@@ -3,10 +3,6 @@
  * Package: gov.nih.nlm.meme.common
  * Object:  MolecularSplitAction
  *
- * 08/14/2006 BAC (1-BMLM5) : Additional bug fix to support movement of translation_of atom
- * 07/07/2006 RBE (1-BMLM5) : Bug fixes on moving atom from one concept to 
- *  						  another
- * 
  *****************************************************************************/
 
 package gov.nih.nlm.meme.action;
@@ -21,13 +17,9 @@ import gov.nih.nlm.meme.common.SemanticType;
 import gov.nih.nlm.meme.common.Source;
 import gov.nih.nlm.meme.exception.ActionException;
 import gov.nih.nlm.meme.exception.BadValueException;
-import gov.nih.nlm.meme.integrity.EnforcableIntegrityVector;
-import gov.nih.nlm.meme.integrity.ViolationsVector;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * This action splits atom out of a concept and create a new concept containing those atoms.
@@ -229,14 +221,7 @@ public class MolecularSplitAction
     addSubAction(aia);
 
     // Move atoms to new concept
-    Set atom_set = new HashSet();
-    Atom[] atoms = getSource().getAtoms();
-    for (int i=0; i<atoms.length; i++) {
-      if (atoms_to_split.contains(atoms[i]))
-        atom_set.add(atoms[i]);
-    }
-    atoms = (Atom[]) atom_set.toArray(new Atom[0]);
-
+    Atom[] atoms = (Atom[])atoms_to_split.toArray(new Atom[0]);
     for (int i = 0; i < atoms.length; i++) {
       AtomicChangeConceptAction acca = new AtomicChangeConceptAction(atoms[i]);
       acca.setNewConcept(target);
@@ -247,9 +232,9 @@ public class MolecularSplitAction
       //
       Atom[] foreign_atoms = atoms[i].getTranslationAtoms();
       for (int x = 0; x < foreign_atoms.length; x++) {
-        if (foreign_atoms[x].getConcept().getIdentifier().equals(getSource().
-            getIdentifier()) && !atoms_to_split.contains(foreign_atoms[x])) {
-          acca = new AtomicChangeConceptAction(foreign_atoms[x]);
+        if (foreign_atoms[i].getConcept().getIdentifier().equals(getSource().
+            getIdentifier())) {
+          acca = new AtomicChangeConceptAction(foreign_atoms[i]);
           acca.setNewConcept(target);
           addSubAction(acca);
         }
@@ -340,17 +325,5 @@ public class MolecularSplitAction
     }
     return sb.toString();
   }
-
-  @Override
-  public ViolationsVector checkFatalIntegrities() {
-      EnforcableIntegrityVector eiv = getIntegrityVector();
-      if (eiv == null) {
-        return new ViolationsVector();
-      }
-      return eiv.applyMoveInhibitors(getSource(), new Concept.Default(), getAtomsToSplit());
-      
-  }
-  
-  
 
 }

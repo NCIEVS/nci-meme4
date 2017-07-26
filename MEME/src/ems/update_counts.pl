@@ -39,16 +39,14 @@ sub do_update_counts {
     $counts = EMSUtils->getDemotionsCounts($dbh, $tmptable);
     $dbh->dropTable($tmptable);
   } else {
-    $counts = EMSUtils->getBinCounts($dbh, $binconfig, $bininfo);
+    $counts = EMSUtils->getBinCounts($dbh, $binconfig, $bininfo, ($binconfig->{chemalgo} || $EMSUtils::DEFAULTCHEMALGO));
   }
 
-  my(%bi);
-  $bi{bin_name} = $bininfo->{bin_name};
-  $bi{bin_type} = $bininfo->{bin_type};
+  my(%bininfo);
   foreach (keys %$counts) {
-    $bi{$_} = $counts->{$_};
+    $bininfo{$_} = $counts->{$_};
   }
-  EMSUtils->updateBininfo($dbh, \%bi);
+  EMSUtils->updateBininfo($dbh, \%bininfo);
 
   &printhtml({redirect=>$query->url() . "?$DBget&action=$newaction"});
   return;

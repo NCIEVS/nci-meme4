@@ -3,18 +3,19 @@
  * Package: gov.nih.nlm.meme.integrity
  * Object:  MGV_K
  *
- * 04/07/2006 RBE (1-AV8WP): Removed self-qa test. Test for this check is
- * 							 implemented in gov.nih.nlm.meme.qa.ic package.
- * 							 Extends AbstractBinaryDataMergeMoveInhibitor.
- * 
  *****************************************************************************/
 
 package gov.nih.nlm.meme.integrity;
 
+import gov.nih.nlm.meme.MEMEConstants;
+import gov.nih.nlm.meme.MEMEToolkit;
 import gov.nih.nlm.meme.common.Atom;
 import gov.nih.nlm.meme.common.Code;
 import gov.nih.nlm.meme.common.Concept;
+import gov.nih.nlm.meme.common.Source;
+import gov.nih.nlm.meme.exception.InitializationException;
 
+import java.util.Date;
 import java.util.HashSet;
 
 /**
@@ -26,7 +27,7 @@ import java.util.HashSet;
  *
  * @author MEME Group
  */
-public class MGV_K extends AbstractBinaryDataMergeMoveInhibitor {
+public class MGV_K extends AbstractBinaryDataMergeInhibitor {
 
   //
   // Fields
@@ -48,25 +49,18 @@ public class MGV_K extends AbstractBinaryDataMergeMoveInhibitor {
   //
   // Methods
   //
-  
+
   /**
    * Validates the pair of {@link Concept}s.
    * @param source the source {@link Concept}
    * @param target the target {@link Concept}
-   * @param source_atoms the {@link Atom}s being moved
    * @return <code>true</code> if constraint violated, <code>false</code>
    * otherwise
    */
-  public boolean validate(Concept source, Concept target, Atom[] source_atoms) {
-	//
-	// Acquire check data
-	//
-	BinaryCheckData[] data = getCheckData();
-
-	//
-	// Get target atoms
-	//
-	Atom[] target_atoms = target.getAtoms();
+  public boolean validate(Concept source, Concept target) {
+    BinaryCheckData[] data = getCheckData();
+    Atom[] source_atoms = source.getAtoms();
+    Atom[] target_atoms = target.getAtoms();
 
     // Create a set of SAB/CODE values from
     // the releasable target atoms.  Because we are
@@ -113,4 +107,128 @@ public class MGV_K extends AbstractBinaryDataMergeMoveInhibitor {
     return false;
   }
 
+  /**
+   * Self-qa test.
+   * @param args command line arguments
+   */
+  public static void main(String[] args) {
+
+    try {
+      MEMEToolkit.initialize(null, null);
+    } catch (InitializationException ie) {
+      MEMEToolkit.handleError(ie);
+    }
+    MEMEToolkit.setProperty(MEMEConstants.DEBUG, "true");
+
+    //
+    // Main Header
+    //
+
+    MEMEToolkit.trace("-------------------------------------------------------");
+    MEMEToolkit.trace("Starting test of MGV_K ..." + new Date());
+    MEMEToolkit.trace("-------------------------------------------------------");
+
+    boolean failed = false;
+
+    String test_message = "Testing MGV_K- validate():";
+    String test_result = null;
+
+    // Create an MGV_K object to work with
+    MGV_K mgv_k = new MGV_K();
+
+    BinaryCheckData bcd1 = new BinaryCheckData("Name1", "Type11", "Type12",
+                                               "MTH", "MTH", false);
+
+    BinaryCheckData[] bcds = new BinaryCheckData[1];
+    bcds[0] = bcd1;
+
+    mgv_k.setCheckData(bcds);
+
+    Concept source = new Concept.Default(1000);
+    Concept target = new Concept.Default(1001);
+    Atom atom1 = new Atom.Default(12345);
+    Atom atom2 = new Atom.Default(12346);
+
+    Source src = new Source.Default();
+    src.setSourceAbbreviation("MTH");
+    atom1.setSource(src);
+
+    Code code1 = new Code("Code1");
+    atom1.setCode(code1);
+    atom1.setTobereleased('Y');
+
+    atom2.setSource(src);
+    Code code2 = new Code("Code2");
+    atom2.setCode(code2);
+    atom2.setTobereleased('Y');
+
+    test_result = " NO VIOLATION: "; // should return false
+    if (!mgv_k.validate(source, target)) {
+      test_result += " PASSED: ";
+    } else {
+      test_result += " FAILED: ";
+      failed = true;
+    }
+    MEMEToolkit.trace(test_message + test_result + "Concept has no atom.");
+
+    // Add atom
+    source.addAtom(atom1);
+    target.addAtom(atom2);
+
+    test_result = " VIOLATION:    "; // should return true
+    if (mgv_k.validate(source, target)) {
+      test_result += " PASSED: ";
+    } else {
+      test_result += " FAILED: ";
+      failed = true;
+    }
+    MEMEToolkit.trace(test_message + test_result +
+        "Merging two concepts which contain contain releasable atoms across sources, " +
+        "(usually previous and update versions of same source) but different codes " +
+        "where these sources are listed in ic_pair.");
+
+    atom2.setTobereleased('n');
+
+    test_result = " NO VIOLATION: "; // should return false
+    if (!mgv_k.validate(source, target)) {
+      test_result += " PASSED: ";
+    } else {
+      test_result += " FAILED: ";
+      failed = true;
+    }
+    MEMEToolkit.trace(test_message + test_result +
+        "One of the merging two concepts does not contain releasable atoms.");
+
+    atom2.setTobereleased('Y');
+
+    test_result = " VIOLATION:    "; // should return true
+    if (mgv_k.validate(source, target)) {
+      test_result += " PASSED: ";
+    } else {
+      test_result += " FAILED: ";
+      failed = true;
+    }
+    MEMEToolkit.trace(test_message + test_result +
+        "Merging two concepts which contain contain releasable atoms across sources, " +
+        "where these sources are listed in ic_pair.");
+
+    //
+    // Main Footer
+    //
+
+    MEMEToolkit.trace("");
+
+    if (failed) {
+      MEMEToolkit.trace("AT LEAST ONE TEST DID NOT COMPLETE SUCCESSFULLY");
+    } else {
+      MEMEToolkit.trace("ALL TESTS PASSED");
+
+    }
+    MEMEToolkit.trace("");
+
+    MEMEToolkit.trace("-------------------------------------------------------");
+    MEMEToolkit.trace("Finished test of MGV_K ..." + new Date());
+    MEMEToolkit.trace("-------------------------------------------------------");
+
+  }
 }

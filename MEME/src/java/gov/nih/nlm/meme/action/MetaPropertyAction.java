@@ -115,8 +115,7 @@ public class MetaPropertyAction
     if (mode.equals("REMOVE"))
       meta_prop = mds.getMetaProperty(meta_prop.getKey(),
                                       meta_prop.getKeyQualifier(),
-                                      meta_prop.getValue(),
-                                      meta_prop.getDescription());//naveen UMLS-60 added description parameter to getMetaProperty method
+                                      meta_prop.getValue());
   }
 
 }

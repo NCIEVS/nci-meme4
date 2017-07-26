@@ -12,10 +12,6 @@
 
 # 05/20/2003 1.0: Release version
 #
-
-# Changes:
-# 01/09/2009 TTN (1-K3B2Y): add a link to printable list of termgroup rank
-
 $release = "4";
 $version = "1.0";
 $version_authority = "BAC";
@@ -297,7 +293,7 @@ sub PrintFooter {
 	      <address><a href="$cgi?db=$db">Back to Index</a></address>
             </td>
 	    <td ALIGN=RIGHT VALIGN=TOP NOSAVE>
-	      <font size="-1"><address>Contact: <a href="mailto:tnaing\@msdinc.com">Tun Tun Naing</a></address>
+	      <font size="-1"><address>Contact: <a href="mailto:tnaing\@apelon.com">Tun Tun Naing</a></address>
 	      <address>Generated on:},scalar(localtime),qq{</address>
               <address>This page took $elapsed_time seconds to generate.</address>
 	      <address>};
@@ -384,7 +380,7 @@ sub PrintINDEX {
 sub PrintEDIT_INDEX {
 
     # set variables
-  $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl -d $db`;
+  $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl`;
   ($user,$password) = split /\//, $userpass;
   chop($password);
 
@@ -419,9 +415,6 @@ sub PrintEDIT_INDEX {
     print qq{
 <blockquote>
 The following list reflects the current termgroup $type ranking in the $db database.
-
-Click <a href="/cgi-bin/ems.pl?db=$db&config=ems.config&action=termgroup_rank&sortby=$col">here</a> for printer friendly page.
-
 <ul>
   <li>Select one or more rows</li>
   <li>Use "Up" to increase the $type rank of selected rows</li>
@@ -472,7 +465,7 @@ Click <a href="/cgi-bin/ems.pl?db=$db&config=ems.config&action=termgroup_rank&so
 sub PrintEDIT_COMPLETE {
 
     # set variables
-    $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl -d $db`;
+    $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl`;
     ($user,$password) = split /\//, $userpass;
     chop($password);
 
@@ -523,7 +516,7 @@ sub PrintEDIT_COMPLETE {
 sub PrintRUN_COMPLETE {
 
     # set variables
-    $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl -d $db`;
+    $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl`;
     ($user,$password) = split /\//, $userpass;
     chop($password);
 

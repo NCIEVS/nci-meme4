@@ -17,240 +17,161 @@ import java.util.Map;
 
 /**
  * Generically represents a result in a QA set.
- * 
- * @author MRD Group
+ *
+ * @author  MRD Group
  */
 public class QAResult {
 
-	// Fields
-	private String name;
+  // Fields
+  private String name;
+  private String value;
+  private ArrayList reasons;
+  private long count;
+  private int code;
 
-	private String value;
+  /**
+   * Instantiates a {@link QAResult}.
+   */
+  public QAResult() {
+    reasons = new ArrayList();
+  }
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#hashCode()
-	 */
-	@Override
-	public int hashCode() {
-		
-		return (name + value + count).hashCode();
-	}
+  /**
+   * Sets the name.
+   * @param name the name
+   */
+  public void setName(String name) {
+    this.name = name;
+  }
 
-	private ArrayList reasons;
+  /**
+   * Returns the name.
+   * @return the name
+   */
+  public String getName() {
+    return name;
+  }
 
-	protected long count;
+  /**
+   * Sets the value.
+   * @param value the value.
+   */
+  public void setValue(String value) {
+    this.value = value;
+  }
 
-	private int code;
+  /**
+   * Returns the value.
+   * @return the value
+   */
+  public String getValue() {
+    return value;
+  }
 
-	private boolean shouldHaveReason;
+  /**
+   * Returns the values.
+   * @return the values
+   */
+  public String[] getValues() {
+    return FieldedStringTokenizer.split(getValue(), "~");
+  }
 
-	/**
-	 * Instantiates a {@link QAResult}.
-	 */
-	public QAResult() {
-		reasons = new ArrayList();
-	}
+  /**
+   * Sets the count.
+   * @param count the count.
+   */
+  public void setCount(long count) {
+    this.count = count;
+  }
 
-	/**
-	 * Sets the name.
-	 * 
-	 * @param name
-	 *            the name
-	 */
-	public void setName(String name) {
-		this.name = name;
-	}
+  /**
+   * Assigns source type flags
+   * @param source_type the source type map
+   */
+  public void assignRefersToCode(Map source_type) {
+    for (Iterator iter = source_type.keySet().iterator(); iter.hasNext(); ) {
+      Integer type = (Integer) iter.next();
+      Source[] sources = (Source[]) source_type.get(type);
+      for (int i = 0; i < sources.length; i++) {
+        if (getValue().indexOf(sources[i].getStrippedSourceAbbreviation()) !=
+            -1) {
+          code = code | type.intValue();
+        }
+      }
+    }
+  }
 
-	/**
-	 * Returns the name.
-	 * 
-	 * @return the name
-	 */
-	public String getName() {
-		return name;
-	}
+  /**
+   * Returns the count.
+   * @return the count
+   */
+  public long getCount() {
+    return count;
+  }
 
-	/**
-	 * Sets the value.
-	 * 
-	 * @param value
-	 *            the value.
-	 */
-	public void setValue(String value) {
-		this.value = value;
-	}
+  /**
+   * Returns the {@link QAReason}s.
+   * @return the {@link QAReason}s
+   */
+  public QAReason[] getReasons() {
+    return (QAReason[]) reasons.toArray(new QAReason[] {});
+  }
 
-	/**
-	 * Returns the value.
-	 * 
-	 * @return the value
-	 */
-	public String getValue() {
-		return value;
-	}
+  /**
+   * Returns the {@link QAReason} values
+   * @return the {@link QAReason} values
+   */
+  public String getReasonsAsString() {
+    StringBuffer sb = new StringBuffer();
+    QAReason[] reasons = getReasons();
+    Arrays.sort(reasons);
+    for (int i = 0; i < reasons.length; i++) {
+      sb.append(reasons[i].getReason());
+    }
+    return sb.toString();
+  }
 
-	/**
-	 * Returns the values.
-	 * 
-	 * @return the values
-	 */
-	public String[] getValues() {
-		return FieldedStringTokenizer.split(getValue(), "~");
-	}
+  /**
+   * Adds the specified {@link QAReason}.
+   * @param reason the {@link QAReason} to add
+   */
+  public void addReason(QAReason reason) {
+    reasons.add(reason);
+  }
 
-	/**
-	 * Sets the count.
-	 * 
-	 * @param count
-	 *            the count.
-	 */
-	public void setCount(long count) {
-		this.count = count;
-	}
+  /**
+   * Sets the {@link QAReason}s.
+   * @param reasons the {@link QAReason}s
+   */
+  public void setReasons(QAReason[] reasons) {
+    this.reasons.clear();
+    for (int i = 0; i < reasons.length; i++) {
+      this.reasons.add(reasons[i]);
+    }
+  }
 
-	/**
-	 * Assigns source type flags
-	 * 
-	 * @param source_type
-	 *            the source type map
-	 */
-	public void assignRefersToCode(Map source_type) {
-		for (Iterator iter = source_type.keySet().iterator(); iter.hasNext();) {
-			Integer type = (Integer) iter.next();
-			Source[] sources = (Source[]) source_type.get(type);
-			for (int i = 0; i < sources.length; i++) {
-				if (getValue().indexOf(
-						sources[i].getStrippedSourceAbbreviation()) != -1) {
-					code = code | type.intValue();
-				}
-			}
-		}
-	}
+  /**
+   * Indicates whether or not this result is associated with an update source.
+   * @return <code>true</code> if so, <code>false</code> otherwise
+   */
+  public boolean refersToUpdateSource() {
+    return ( (code & SourceType.UPDATE) == SourceType.UPDATE);
+  }
 
-	/**
-	 * Returns the count.
-	 * 
-	 * @return the count
-	 */
-	public long getCount() {
-		return count;
-	}
+  /**
+   * Indicates whether or not this result is associated with an new source.
+   * @return <code>true</code> if so, <code>false</code> otherwise
+   */
+  public boolean refersToNewSource() {
+    return ( (code & SourceType.NEW) == SourceType.NEW);
+  }
 
-	/**
-	 * Returns the {@link QAReason}s.
-	 * 
-	 * @return the {@link QAReason}s
-	 */
-	public QAReason[] getReasons() {
-		return (QAReason[]) reasons.toArray(new QAReason[] {});
-	}
-
-	/**
-	 * Returns the {@link QAReason} values
-	 * 
-	 * @return the {@link QAReason} values
-	 */
-	public String getReasonsAsString() {
-		StringBuffer sb = new StringBuffer();
-		QAReason[] reasons = getReasons();
-		Arrays.sort(reasons);
-		for (int i = 0; i < reasons.length; i++) {
-			sb.append(reasons[i].getReason());
-		}
-		return sb.toString();
-	}
-
-	/**
-	 * Adds the specified {@link QAReason}.
-	 * 
-	 * @param reason
-	 *            the {@link QAReason} to add
-	 */
-	public void addReason(QAReason reason) {
-		reasons.add(reason);
-	}
-
-	/**
-	 * Sets the {@link QAReason}s.
-	 * 
-	 * @param reasons
-	 *            the {@link QAReason}s
-	 */
-	public void setReasons(QAReason[] reasons) {
-		this.reasons.clear();
-		for (int i = 0; i < reasons.length; i++) {
-			this.reasons.add(reasons[i]);
-		}
-	}
-
-	/**
-	 * Indicates whether or not this result is associated with an update source.
-	 * 
-	 * @return <code>true</code> if so, <code>false</code> otherwise
-	 */
-	public boolean refersToUpdateSource() {
-		return ((code & SourceType.UPDATE) == SourceType.UPDATE);
-	}
-
-	/**
-	 * Indicates whether or not this result is associated with an new source.
-	 * 
-	 * @return <code>true</code> if so, <code>false</code> otherwise
-	 */
-	public boolean refersToNewSource() {
-		return ((code & SourceType.NEW) == SourceType.NEW);
-	}
-
-	/**
-	 * Indicates whether or not this result is associated with an obsolete
-	 * source.
-	 * 
-	 * @return <code>true</code> if so, <code>false</code> otherwise
-	 */
-	public boolean refersToObsoleteSource() {
-		return ((code & SourceType.OBSOLETE) == SourceType.OBSOLETE);
-	}
-
-	/**
-	 * Indicates whether or not this result should be explained by MCoMQA
-	 * results.
-	 * 
-	 * @return <code>true</code> if so, <code>false</code> otherwise
-	 */
-
-	public boolean isShouldHaveReason() {
-		return shouldHaveReason;
-	}
-
-	/**
-	 * Set whether or not this result should be explained by MCoMQA results.
-	 * 
-	 * @return <code>true</code> if so, <code>false</code> otherwise
-	 */
-
-	public void setShouldHaveReason(boolean shouldHaveReason) {
-		this.shouldHaveReason = shouldHaveReason;
-	}
-
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		final QAResult other = (QAResult) obj;
-		if (name == null) {
-			if (other.name != null)
-				return false;
-		} else if (!name.equals(other.name))
-			return false;
-		if (value == null) {
-			if (other.value != null)
-				return false;
-		} else if (!value.equals(other.value))
-			return false;
-		return true;
-	}
+  /**
+   * Indicates whether or not this result is associated with an obsolete source.
+   * @return <code>true</code> if so, <code>false</code> otherwise
+   */
+  public boolean refersToObsoleteSource() {
+    return ( (code & SourceType.OBSOLETE) == SourceType.OBSOLETE);
+  }
 
 }

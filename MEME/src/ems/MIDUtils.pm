@@ -2,13 +2,10 @@
 # suresh@nlm.nih.gov 3/2005
 
 package MIDUtils;
-BEGIN
-{
 unshift @INC, "$ENV{ENV_HOME}/bin";
+
 require "env.pl";
-unshift @INC, "$ENV{EMS_HOME}/lib";
-unshift @INC, "$ENV{EMS_HOME}/bin";
-}
+use lib "$ENV{EMS_HOME}/lib";
 
 use Data::Dumper;
 use GeneralUtils;

@@ -53,13 +53,9 @@ open(M, UrisUtils->getPath($metadir, "MRRANK.RRF")) || die "ERROR: Cannot open M
 while (<M>) {
   chomp;
   @_ = split /\|/, $_;
-  if ($_[$suppressindex] eq "Y") {
+  next unless $_[$suppressindex] eq "Y";
   $key = join("/", $_[$sabindex], $_[$ttyindex]);
   $suppressibleTermgroup{$key}++;
-  } else {
-  $key = join("/", $_[$sabindex], $_[$ttyindex]);
-  $nonsuppressibleTermgroup{$key}++;
-  }
 }
 close(M);
 
@@ -74,31 +70,17 @@ while (<M>) {
   $key = join("/", $_[$sabindex], $_[$ttyindex]);
 
   $suppressible{$key}++ if $_[$suppressindex] eq "Y";
-  $suppressible{$key}++ if $_[$suppressindex] eq "O";
-# if suppressible flag is 'O' MRRANK can have the suppress value as 'Y' or 'N'
-  $otherSuppressible{$key}++ if $_[$suppressindex] eq "O";
   $editor{$key}++ if $_[$suppressindex] eq "E";
 }
 close(M);
 
 foreach $key (sort keys %suppressibleTermgroup) {
-
-if ($suppressible{$key} != 0) {
+  if ($suppressible{$key} != 0) {
     print "OK: ", $key, " has ", $suppressible{$key}, " suppressible atoms in MRSONCO\n" ;
   } else {
-    print STDERR "ERROR: $key was suppressible in MRRANK, but there were no matching atoms in MRCONSO."
-, "\n";
+    print STDERR "ERROR: $key was suppressible in MRRANK, but there were no matching atoms in MRCONSO.", "\n";
   }
 }
-
-
-# The rules for MRCONSO and MRRANT Suppressible fields are
-#   MRCONSO            MRRANK
-#    Y                   Y
-#    E                   N
-#    O                   Y/N ( N for obsolete term groups)
-#    N                   N
-##################################################################
 
 $msg = "";
 $c = 0;
@@ -114,7 +96,6 @@ $c = 0;
 $msg .= "Supressible (SUPPRESS=Y) but not marked as a suppressible term type in MRRANK:\n\n";
 foreach $key (sort keys %suppressible) {
   next if $suppressibleTermgroup{$key};
-  next if ($nonsuppressibleTermgroup{$key} && $otherSuppressible{$key} != 0);
   $msg .= "ERROR: $key was suppressible in MRCONSO (" . $suppressible{$key} . " cases), but term type was not identified as suppressible in MRRANK." . "\n";
   $c++;
 }

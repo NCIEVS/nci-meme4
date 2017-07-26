@@ -1,4 +1,4 @@
-#!/bin/csh -f
+#! /bin/csh -f 
 #
 # File		add_words.csh
 # Written by 	Brian Carlsen (4/2000)
@@ -11,9 +11,7 @@
 #   requires MEME_HOME to be set
 #   $MEME_HOME/bin/oraclerc must exist
 #   source_classes_atoms must be current
-# CHANGES
-# 10/15/2007 JFW (1-FIFPN): Use unique /tmp directory based on pid
-# 12/27/2006 BAC (1-D4WUR): Ignore all languages except SPA and ENG#
+#
 # 12/30/2004 (4.5.0): Accepts a -w flag to pass in work id
 # 12/13/2004 (4.4.0): no more report table change
 # 11/19/2004 (4.3.0): Released
@@ -48,19 +46,14 @@ if ($?ORACLE_HOME != 1) then
     exit 1
 endif
 
-if ($?TMP_SPACE != 1) then
-    echo '$TMP_SPACE must be set'
-    exit 1
-endif
-
 #
 # Environment
 #
 set CAT=/bin/cat
 set AWK=/bin/awk
 set FGREP=/bin/fgrep
-set SORT="/bin/sort -T ."
-set DATA=$TMP_SPACE/addwords_$$
+set SORT=/bin/sort
+set DATA=/tmp
 set SED=/bin/sed
 set all=0
 set undo=0
@@ -88,8 +81,7 @@ while ($i <= $#argv)
 
    This script dumps the atom_id|atom_name to generate index entries
    for.  This data comes from source_classes_atoms unless -all is used
-   in which case it comes from string_ui.  Only ENG and SPA languages
-   are processed.
+   in which case it comes from string_ui.
 
    The luiNorm program is used to generate the normalized strings for 
    each atom name, and this plus the string itself are used to generate
@@ -151,7 +143,7 @@ if ($?db != 1) then
     exit 1
 endif
 
-set user=`$MIDSVCS_HOME/bin/get-oracle-pwd.pl -d $db`
+set user=`$MIDSVCS_HOME/bin/get-oracle-pwd.pl`
 
 echo "--------------------------------------------------------------"
 echo "Starting `/bin/date`"
@@ -223,17 +215,9 @@ endif
 
 
 #
-# Create tmp directory
-#
-
-/bin/mkdir $TMP_SPACE/addwords_$$
-
-#
 # Write strings to file
 #
 echo "Dump $table_name to $DATA/strings...`/bin/date`"
-
-
 
 if ($all == 1) then
 
@@ -242,7 +226,7 @@ if ($all == 1) then
     #
     # Write out strings for classes
     #
-    set query="select atom_id,c.language,string,norm_string from classes b, string_ui c where b.sui=c.sui and c.language in ('ENG','SPA')"
+    set query="select atom_id,c.language,string,norm_string from classes b, string_ui c where b.sui=c.sui"
     $MEME_HOME/bin/dump_table.pl -u $user -d $db -q "$query" \
     >! $DATA/strings
     echo "    Finished dumping classes data ...`/bin/date`"
@@ -273,7 +257,7 @@ else
     #
     # Write out strings for atoms being added
     #
-    $MEME_HOME/bin/dump_table.pl -u $user -d $db -q "select b.atom_id || '|' || c.language || '|' || string || '|' || norm_string as line from $table_name b, string_ui c where c.sui=b.sui and c.language in ('ENG','SPA')" >! $DATA/strings
+    $MEME_HOME/bin/dump_table.pl -u $user -d $db -q "select b.atom_id || '|' || c.language || '|' || string || '|' || norm_string as line from $table_name b, string_ui c where c.sui=b.sui" >! $DATA/strings
     echo "    Finished dumping $table_name data ...`/bin/date`"
 
 endif
@@ -283,7 +267,7 @@ endif
 #
 if ($all == 1) then
     echo "Dump dead_$table_name to $DATA/strings...`/bin/date`"
-    set query="select atom_id,c.language,string,norm_string from dead_classes b, string_ui c where b.sui=c.sui and c.language in ('ENG','SPA')"
+    set query="select atom_id,c.language,string,norm_string from dead_classes b, string_ui c where b.sui=c.sui"
     $MEME_HOME/bin/dump_table.pl -u $user -d $db -q "$query" \
      >> $DATA/strings
 endif
@@ -487,7 +471,6 @@ echo "Cleaning up... `/bin/date`"
 \rm -f {normstr,normwrd,word_index}.{log,ctl} 
 \rm -f $DATA/{normstr,normwrd,word_index}.dat
 \rm -f $DATA/strings $DATA/sql.$$
-
 
 if ($work_id != 0) then
     $MEME_HOME/bin/log_operation.pl $db MTH "Manage word indexes" \

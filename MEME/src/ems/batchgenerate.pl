@@ -16,14 +16,11 @@
 # -g (debug messages)
 
 # Default behavior is to generate contents for one or more bins
-
-BEGIN
-{
 unshift @INC, "$ENV{ENV_HOME}/bin";
+
 require "env.pl";
-unshift @INC, "$ENV{EMS_HOME}/lib";
-unshift @INC, "$ENV{EMS_HOME}/bin";
-}
+use lib "$ENV{EMS_HOME}/lib";
+push @INC, "$ENV{EMS_HOME}/bin";
 
 use Getopt::Std;
 use EMSUtils;
@@ -50,7 +47,7 @@ die "Bin type should be QA or AH" unless uc($opt_t) eq "QA" || uc($opt_t) eq "AH
 
 $db = $opt_d || Midsvcs->get('editing-db');
 $user = $main::EMSCONFIG{ORACLE_USER};
-$password = GeneralUtils->getOraclePassword($user,$db);
+$password = GeneralUtils->getOraclePassword($user);
 $dbh = new OracleIF("db=$db&user=$user&password=$password");
 
 if ($opt_b) {

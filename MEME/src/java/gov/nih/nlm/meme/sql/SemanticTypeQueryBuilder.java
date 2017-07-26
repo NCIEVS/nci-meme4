@@ -46,7 +46,7 @@ public class SemanticTypeQueryBuilder {
           name.equals("non_chemical_semantic_type")) {
         query.append(" AND concept_id IN ")
             .append("(SELECT concept_id FROM attributes a, semantic_types b ")
-            .append("WHERE attribute_name = 'SEMANTIC_TYPE' ")
+            .append("WHERE attribute_name||'' = 'SEMANTIC_TYPE' ")
             .append("AND attribute_value = semantic_type");
 
         if (name.equals("chemical_semantic_type")) {
@@ -59,7 +59,7 @@ public class SemanticTypeQueryBuilder {
       if (name.equals("semantic_type")) {
         query.append(" AND concept_id IN ")
             .append("(SELECT concept_id FROM attributes ")
-            .append("WHERE attribute_name = 'SEMANTIC_TYPE' ")
+            .append("WHERE attribute_name||'' = 'SEMANTIC_TYPE' ")
             .append("AND attribute_value ");
 
         // Single value means equality test should be used

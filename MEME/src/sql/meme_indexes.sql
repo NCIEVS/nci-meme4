@@ -7,9 +7,7 @@
 *	    Note:  It also creates the table meme_indexes & meme_ind_columns.
 *
 * Changes
-* 02/24/2009 BAC (1-GCLNT): Additional classes, foreign_classes, string_ui indexes
 *  03/15/2006 BAC (1-AOH1T): x_attr_an now on attribute_name, attribute_value
-*  08/26/2008 SL   -  Changing the index x_atui_atui and x_rui_rui to UNIQUE indexes
 *
 * Version Info:
 *   Release: 4
@@ -198,13 +196,13 @@ PCTFREE 10 STORAGE (INITIAL 80M) TABLESPACE MIDI;
 CREATE INDEX x_aui_sui ON atoms_ui (sui)
 PCTFREE 10 STORAGE (INITIAL 100M) TABLESPACE MIDI;
 
-CREATE UNIQUE INDEX x_atui_atui ON attributes_ui (atui)
+CREATE INDEX x_atui_atui ON attributes_ui (atui)
 PCTFREE 10 STORAGE (INITIAL 100M) TABLESPACE MIDI;
 
 CREATE INDEX x_atui_sg_id ON attributes_ui (sg_id,sg_type)
 PCTFREE 10 STORAGE (INITIAL 100M) TABLESPACE MIDI;
 
-CREATE UNIQUE INDEX x_rui_rui ON relationships_ui (rui)
+CREATE INDEX x_rui_rui ON relationships_ui (rui)
 PCTFREE 10 STORAGE (INITIAL 100M) TABLESPACE MIDI;
 
 CREATE INDEX x_rui_sg_id_1 ON relationships_ui (sg_id_1,sg_type_1)
@@ -264,11 +262,6 @@ PCTFREE 10 STORAGE (INITIAL 120M) TABLESPACE MIDI;
 CREATE BITMAP INDEX x_classes_source ON classes(source,tty)
 PCTFREE 10 STORAGE (INITIAL 60M) TABLESPACE MIDI;
 
-CREATE INDEX x_classes_scui ON classes (source_cui) TABLESPACE MIDI;
-CREATE INDEX x_classes_sdui ON classes (source_dui) TABLESPACE MIDI;
-CREATE INDEX x_classes_saui ON classes (source_aui) TABLESPACE MIDI;
-CREATE INDEX x_classes_aui ON classes (aui) TABLESPACE MIDI;
-
 CREATE INDEX x_cs_cui on concept_status (cui)
 PCTFREE 10 STORAGE (INITIAL 40M) TABLESPACE MIDI;
 	
@@ -294,18 +287,11 @@ PCTFREE 10 STORAGE (INITIAL 300M) TABLESPACE MIDI;
 CREATE INDEX x_cr_a2 ON context_relationships(atom_id_2)
 PCTFREE 10 STORAGE (INITIAL 300M) TABLESPACE MIDI;
 
-CREATE INDEX x_cr_srui ON context_relationships(source_rui)
-PCTFREE 10 STORAGE (INITIAL 100M) TABLESPACE MIDI;
-
 --CREATE INDEX x_cr_pn ON context_relationships(parent_treenum)
 --PCTFREE 10 STORAGE (INITIAL 500M) TABLESPACE MIDI;
 
 CREATE INDEX x_foreign_classes_eaid ON foreign_classes(eng_atom_id)
 PCTFREE 10 STORAGE (INITIAL 50M) TABLESPACE MIDI;
-
-CREATE INDEX x_fclasses_scui ON foreign_classes (source_cui) TABLESPACE MIDI;
-CREATE INDEX x_fclasses_sdui ON foreign_classes (source_dui) TABLESPACE MIDI;
-CREATE INDEX x_fclasses_saui ON foreign_classes (source_aui) TABLESPACE MIDI;
 
 --CREATE INDEX x_foreign_attributes_aid ON foreign_attributes(atom_id)
 --PCTFREE 10 STORAGE (INITIAL 50M) TABLESPACE MIDI;
@@ -369,9 +355,6 @@ PCTFREE 10 STORAGE (INITIAL 100M) TABLESPACE MIDI;
 CREATE INDEX x_ns_ns ON normstr (normstr)
 PCTFREE 10 STORAGE (INITIAL 200M) TABLESPACE MIDI;
 
-CREATE INDEX x_r_srui ON relationships(source_rui)
-PCTFREE 10 STORAGE (INITIAL 100M) TABLESPACE MIDI;
-
 CREATE INDEX x_r_a1 ON relationships(atom_id_1)
 PCTFREE 10 STORAGE (INITIAL 80M) TABLESPACE MIDI;
 
@@ -401,10 +384,6 @@ PCTFREE 10 STORAGE (INITIAL 50M) TABLESPACE MIDI;
 
 CREATE INDEX x_su_isui ON string_ui (isui)
 PCTFREE 10 STORAGE (INITIAL 50M) TABLESPACE MIDI;
-
-CREATE UNIQUE INDEX x_s_ui_string_lat on string_ui (string,language) TABLESPACE MIDI;
-CREATE INDEX x_s_ui_lstring_lat on string_ui (LOWER(string),language) TABLESPACE MIDI;
-CREATE INDEX x_s_ui_nstring_lat on string_ui (norm_string,language) TABLESPACE MIDI;
 
 -- 200 M
 CREATE INDEX x_su_nsp ON string_ui (norm_string_pre)
