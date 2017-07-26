@@ -1,0 +1,72 @@
+<HTML>
+<HEAD>
+<TITLE>Making CD-Rs</TITLE>
+</HEAD>
+
+<BODY>
+<h5><P ALIGN=right>santor@nlm.nih.gov 12/2000 </h5>
+
+<H1>Making CD-Rs</H1>
+
+This document describes how to make the master release CD-R's from the ZIP and TAR directories, created using the master2dist.pl script.
+<p>
+
+<OL>
+
+<LI>
+   Run Adaptec Easy CD Creator 4.x
+<LI>
+   Select the files that you wish to place on the CD from the top half of the window.
+   These files include the TGZ or the ZIP files containing the UMLS Metathesaurus MR files.
+       Drag these files to the CD Layout portion of the window.
+<LI>
+   Select "Add items to CD layout" from the popup menu 
+<LI>
+   From the Main Menu select File | Properties 
+<UL>
+<LI>       Volume Label: Enter volume label text (i.e. 2001_TAR) 
+<LI>       File System: "ISO9660" 
+<LI>       Select: "Preserve normal file ordering" 
+<LI>       Check:  "Single data track only" 
+<LI>       Check:  "Automatically verify files Systems" 
+<LI>       Select: "Mode 1: CDROM" 
+</UL>
+<LI>
+   Click on the File Systems tab 
+<UL>
+<LI>
+       Select: "Use this date" and enter in the time/date stamp you wish to use. 
+<LI>   Select OK to close the File Properties dialog box 
+</UL>
+<LI>
+   From the Main Menu select File | Create CD 
+<UL>
+<LI>    Be sure that you are writing to the correct device 
+<LI>    Verify the write speed against the specs for your writer 
+<LI>    Set number of copies (usually 1) 
+</UL>
+<LI>
+   Click on the "Advanced >>" button 
+<LI>
+   Under "Create options" select:
+<DD>
+"Test and Create CD" 
+Or just "Create CD" if you are have tested the CD writer out already 
+
+
+<LI>
+  Under the "Write Method" select 
+<UL>
+<LI>Select: "Disc-at-once" 
+<LI>Select: "Close CD" 
+</UL>
+
+<LI>
+   Insert blank CDR media 
+<LI>
+   Select OK
+
+</OL>
+</BODY>
+</HTML>
+

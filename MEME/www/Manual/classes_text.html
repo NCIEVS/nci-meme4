@@ -1,0 +1,192 @@
+
+<HTML>
+<HEAD>
+<TITLE>Classes screen section</TITLE></HEAD>
+<BODY>
+<UL>
+<LI><B>7.1.5.0 Introduction to Classes screen - </B></LI></UL>
+<P ALIGN="CENTER"><IMG SRC="classes"></P>
+<P>The Classes Screen is used to display all the atoms in a concept and allows
+these atoms to be edited (ex. merging, splitting, etc.).  As usual, the concept
+name and concept_id is present at the top of the screen in a yellow box so that
+the editor is always aware of which concept is being edited.</P>
+<P>Atom information is contained in the center of the screen. There is a row
+for each atom contained in the concept and then seven columns of information.
+The columns are as follows:</P>
+<UL>
+<LI>Switch - The two values in this column are Y (yes) and N (no). The switch
+has to be turned to Y in order for a row to be edited. In order to change the
+switch to Y, an editor highlights the row to be edited and clicks the green  &quot;Switch&quot;
+button. More than one row can be switched to Y at the same time.</LI></UL>
+<UL>
+<LI>Status - Lists the status of the atom - R (Reviewed), N (Needs Review) or U
+(Unreviewed).</LI></UL>
+<UL>
+<LI>Termgroup -  Contains the abbreviation of the source and term type of the
+atom.</LI></UL>
+<UL>
+<LI>Code - Identification code assigned to each atom from its source. This is
+not assigned by the Metathesaurus.</LI></UL>
+<UL>
+<LI>Atom Name </LI></UL>
+<UL>
+<LI>Atom_id - Each atom is assigned a unique atom_id to help identify it in the
+database.</LI></UL>
+<UL>
+<LI>Authority - Initials of last source or editor that approved this atom.</LI></UL>
+<P>There is a sort list at the top of the atom rows that allows editors to
+change the order of how the atoms appear. The atom order can be sorted on the
+screen  by termgroup rank, SUI, LUI, atom name, source and code. The default is
+the termgroup rank which is determined by algorithmic precedence. </P>
+<P>As seen in other screens, if an atom has a status of N (Needs Review), it
+will appear in red in the interface. If the atom is marked as tbr (to be
+released) ='n', it will appear in green. This means the atom is not to be
+released at the end of the year.</P>
+<P><BR></P>
+<UL>
+<LI><B>7.1.5.1 Move atoms - </B></LI></UL>
+<P>If an editor decides that an atom(s) does not belong in the concept, one
+option is to Move the atom(s) to another concept. The Move command can only be
+used  if there is another concept that the atom can be moved to. If atoms should
+be removed from a concept  but there is no concept to move them to, an editor
+can Split them out into a whole new concept. Splitting atoms out of a concept
+will be discussed in Section 7.1.5.3.</P>
+<P ALIGN="CENTER"><IMG SRC="move"></P>
+<P>The Move function can be performed using the Move menu option at the top of
+the screen or can be done using the blue button at the bottom of the screen.
+With either option, the editor needs to know the concept_id of the concept the
+atom(s) is to be moved to. The concept_id is entered into the box next to &quot;switched
+atoms into:&quot;. See example above.</P>
+<P>Then, an editor switches the atom or atoms to be moved to Y. This is done by
+highlighting the desired atom and clicking the green Switch button. The value in
+the Switch column should change from N to Y. This can be done on as many atoms
+as needed.</P>
+<P>Once the atoms are selected, the editor can click the Blue Move button. The
+atoms will be removed from the current concept and placed in the specified
+concept. If the editor has the SEL screen open, the concept the atoms were moved
+to will appear there. An editor can also use the Move menu option to do the same
+action.</P>
+<P>Once the Move action is performed, the selected atoms should no longer be in
+the current concept. To see the atoms, the editor would have to make the concept
+they were moved to the Current Concept. When a move is done, the Relationships
+and the STYs are not copied over with the atoms.</P>
+<P><BR></P>
+<UL>
+<LI><B>7.1.5.2 Merge -  </B></LI></UL>
+<P>If an editor decides that all the atoms belong in another concept, the
+editor can simply merge the two concepts. Moving or splitting all the atoms in a
+concept is not allowed. At least one atom has to be in every concept. Merging of
+concepts can be done from the SEL screen but can also be done from the Classes
+screen. An editor simply enters the concept_id of the concept to be merged with
+the Current Concept (or the concept that is currently being edited) in the
+bottom white box on the left side of the screen. Then, the blue Merge button is
+clicked or the Merge menu option is chosen. Once the merge is done, all the new
+atoms will appear in the Current Concept. They will all be in red since they
+will have a status of N (for Needs Review).</P>
+<P></P>
+<P><BR></P>
+<UL>
+<LI><B>7.1.5.3 Split - </B></LI></UL>
+<P>If an editor decides that an atom (s) does not belong in the concept being
+edited, the atoms can be removed by splitting them out. Atoms can be split out
+even if there is no concept to merge them to. A split will create a new concept
+containing the atoms removed.</P>
+<P>To split out atoms, an editor would switch the atoms to be split to Y. This
+can be done by highlighting the atom and clicking the Switch button or can be
+done by double-clicking the atom. </P>
+<P>Then, the editor goes to the Split menu option at the top of the screen and
+chooses the relationship that will be created when the new concept is created.
+When atoms are split out, the new concept(s) always has a relationship to the
+original concept. When the split relationship is selected, the atoms will be
+removed from the Current Concept and the new concept will appear in the SEL
+screen.</P>
+<P>When splitting, the default is for the STYs and the relationships to be
+copied with the atoms into the new concept. If this is the desired action, the
+editor does not need to do anything. If the editor does not want to copy the
+STYs or relationships, the &quot;nocopy&quot; option needs to be selected BEFORE
+the split is performed. At the top of the Classes screen, there is an area that
+says Rels &amp; STY on Split. Under that is a selection for copy and nocopy. In
+order to select nocopy, the editor clicks on the diamond in front of it so that
+it turns black. Then, the split can be performed without that information
+copying over with it.</P>
+<P></P>
+<P><BR></P>
+<UL>
+<LI><B>7.1.5.4 Definitions - </B></LI></UL>
+<P>On the right side of the Classes screen, there is a brown button with DEF on
+it. If an editor clicks this, the Definitions Editor will open. This screen
+allows editors to view definitions associated with atoms and to add definitions.
+In most cases, the definitions came with the atoms from their sources.</P>
+<P ALIGN="CENTER"><IMG SRC="classdef"></P>
+<P>The Definitions Editor lists the atom_id, the termgroup, the atom name, the
+releasability status, the Status, and the initials and date of the last
+approval. When a row is highlighted, the definition for that atom will appear at
+the bottom of the screen.</P>
+<P>An editor can change the status of the definition (to R or N) and can also
+change the releasability. An editor can also use this to add a new definition to
+an atom to further clarify its meaning.</P>
+<P></P>
+<P><BR></P>
+<UL>
+<LI><B>7.1.5.5 Atom Notes - </B></LI></UL>
+<P>Atom notes are similar to Concept notes except that they travel with an atom
+and not a concept. So, if an atom is split and merged with a new concept, the
+atom note will go with it. When an atom note is present, the Atom Note button
+turns red.</P>
+<P>To add an Atom Note, an editor would click the Atom Note button. An Atom
+Notes screen will appear. An editor can type in the atom note in the white space
+at the bottom of the screen. Once the note is typed, the editor selects the Add
+menu option. The  atom name will then appear in a row as well as the editor's
+initials and the date the atom note was created. To delete an atom note, the
+editor selects the row and selects the delete menu option.</P>
+<P>When adding atom notes, the name of the atom that the definition is going to
+be added to is displayed at the bottom of the screen (as well as the atom_id).
+An editor needs to make sure the correct atom is displayed there or the atom
+note will get attached to the wrong atom. To change the atom, simply highlight
+the desired atom in the Classes screen.</P>
+<P><BR></P>
+<UL>
+<LI><B>7.1.5.6 Lexical Tags and Lexical Rels - </B></LI></UL>
+<P>At the top right of the screen, there are blue buttons for Lexical Rels and
+Lexical Tags. Lexical Tags  lead an editor to the Lexical Type Editor.</P>
+<P ALIGN="CENTER"><A><IMG SRC="lextags"></A></P>
+<P>The Lexical Type Editor allows an editor to add or delete Lexical Tags to
+atoms in a  concept. There are two Lexical Tags that can be added - Trade name
+and Lab Number.  If a Lexical Tag exists, a row will appear on the screen under
+Lexical Types. It will list the type of tag, the atom name, the Status, the
+source of the Tag and the date the tag was added. If an editor wants to delete
+the tag, simply highlight the row and select the Delete menu option from the top
+of the screen.</P>
+<P>To add a Lexical Tag, an editor first needs to specify the atom that the tag
+is to be attached to. To use the Lexical Type Editor, the SEL screen needs to be
+open also. An editor would just highlight the desired atom on the SEL screen.
+The atom_id and atom name should appear on the bottom of the Editor screen (see
+example above). Once the atom information appears in the Editor screen, the
+editor can select which tag to add by clicking on the diamond shape in front of
+the choices. The, the editor needs to select the Add menu option at the top of
+the screen. Once this is done, the atom and tag information will appear in the
+rows in the middle of the screen.</P>
+<P>The Lexical Rels button will lead to the Lexical Rels Editor. This is where
+an editor can add an SFO/LFO relationship to a concept.</P>
+<P ALIGN="CENTER"><IMG SRC="lexrels"></P>
+<P>The Editor screen will list any SFO/LFO relationships that already exist in
+the rows in the middle of the screen. In the example above, there are two
+relationships. The two atoms involved in the relationship are listed as well as
+the status, the authority and the date the rel was added.  To delete a rel,
+simply highlight the appropriate row and select the delete option from the menu
+at the top of the screen.</P>
+<P>To add a rel, the SEL screen must also be open. The SFO atom is highlighted
+in the SEL screen and the Blue SFO button is clicked so that the atom appears in
+the SFO box on the editor (See atom_id #3083821 above). Then, the LFO atom is
+highlighted in the SEL screen  and the blue LFO button is clicked so that the
+atom appears in the LFO box on the editor (see atom_id #3083822 above). Then,
+the Add menu option is selected from the top of the screen and the new rel will
+appear on the Editor screen.</P>
+<P><BR></P>
+<HR>
+<ADDRESS>Contact: <A HREF="mailto:lad@nlm.nih.gov">Laura Roth</A></ADDRESS>
+<ADDRESS>Created: April 1, 1999</ADDRESS>
+<ADDRESS>Last Updated: August  27, 1999</ADDRESS><!-- These comments are used
+by the What's new Generator --><!-- Changed On: 1998/05/20--><!-- Changed by:
+Laura Davis --><!-- Change Note: Meme-II manual - main screen documentation.--><!--
+Fresh for: 2 week --></BODY></HTML>

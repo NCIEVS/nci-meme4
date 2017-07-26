@@ -1,0 +1,413 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <title>Semantic Normal Form Model and Proposal</title>
+    
+</head>
+  <body>
+<div align="Center">
+<h3>Semantic Normal Form Model and Proposal</h3>
+<div align="Left">
+<hr width="100%" size="2">
+<h3>Overview</h3>
+    It is estimated that there are over 80,000 concepts in the Metathesaurus
+  that can be considered <i>clinical drugs</i>. &nbsp;Given that the FDA
+only   approves some 10,000 drugs for use, one can conclude that clinical
+drug missed  synonymy is prevalent in the Metathesaurus. &nbsp;One approach
+to solving  this problems is to create algorithms and processes for normalizing
+drug names so that missed synonymy can be found by using the traditional
+lexical matching methods. &nbsp;An additional benefit of this approach is
+that it presents a model to the user community for how this kind of information
+can be represented in a more structured and usable way, which eventually
+could lead to improvements in the underlying source vocabularies.<br>
+<h3>Goal</h3>
+    To overcome the problems associated with disparate naming conventions 
+(or  lack of conventions) for clinical drugs in the Metathesaurus' component
+ sources  there are five goals which will need to be met.<br>
+<ol>
+  <li>First, we must specify a <i>Semantic Normal Form Model</i> which will
+  indicate how the various pieces of data will be represented in the MID
+and   in the Metathesaurus.<br>
+  </li>
+  <li>We must create a <i>Semantic Normal Form (SNF) </i>for every instance
+  of a clinical drug atom in the Metathesaurus. &nbsp;This normal form will
+  actually take the form of a <i>graph</i> that connects the clinical drug
+ atom to a semantic normal form of that clinical drug. &nbsp;The normalized
+ drug name will then be connected to normalized <i>component</i> atoms and
+ a normalized     <i>dose form</i> atom. &nbsp;Each of the normalized <i>
+component</i>    atoms will then be connected to <i>ingredient</i> atoms.
+&nbsp;These data   structures will be created both through batch inversion
+processes, and manual   insertion of normal forms where the inversion processes
+fail.</li>
+  <li>Each normal form created in the previous step will be manually reviewed
+  by a human before it is released (by using the <i>Semantic Normal Form
+Editor</i>    ).<br>
+  </li>
+  <li>Next, we will apply our matching and merging machinery to identify
+ and correct cases of missed synonymy based on matching normal forms in distinct
+  CUIs. &nbsp;Since not all semantic normal forms are synonymous with the
+clinical  drugs to which they are connected, we can additionally apply more
+sophisticated  matching algorithms (such as finding all cases of clinical
+drugs connected  to SNF atoms that share the same component list, which could
+find missed synonymy between clinical drugs that have an <i>inverse isa</i>
+  relationship to their respective normal forms).</li>
+  <li>Finally, we must formalize the update model for these normal forms
+ to ensure that updates to drug sources can benefit from the normalization
+  work performed in the past. &nbsp;That is to say that for every <i>safe
+replacement</i>    atom from an update source, we must ensure that the new
+version atom is  connected to the same <i>SNF Graph</i> as the old version
+atom; &nbsp;this  will ensure that prior inversion and editing efforts were
+not in vain. </li>
+</ol>
+<h3>Background</h3>
+    The first effort to create SNFs was the inversion of VANDF01 in late
+2001.   &nbsp;As stated above, a <i>SNF</i> actually takes the form of a
+graph with   several layers of atoms connected by a structured set of relationships.
+&nbsp;At  the top of the graph is a <i>clinical drug</i> atom which is an
+actual named  atom in the VANDF terminology. &nbsp;This atom is connected
+to a normalized  form of the name, the <i>SNF</i>,&nbsp; that consists of
+a slash (/) separated  list of component names followed by an HL7 dose form.
+&nbsp;The <i>SNF</i>    is then connected to one or more <i>component </i>
+ atoms that consist of  an ingredient name followed by strength and unit
+information. &nbsp;The <i>  component</i> atoms are connected to the <i>SNF</i>
+ by <i> constitutes</i>    relationships, and the atom representing the HL7
+dose form is connected  to the <i>SNF</i> atom by a <i>dose_form_of</i> relationship.
+&nbsp;For each  <i>component</i> atom, there is at least one <i>ingredient</i>
+  atom that indicates the <i>active</i> ingredient of the component. &nbsp;There
+ may be an additional <i>ingredient</i> atom that indicates the <i>precise
+ </i> ingredient of the component. &nbsp;These <i>ingredient</i> atoms are
+ connected to the <i>component</i>  atoms by <i>ingredient_of</i> relationships.
+ &nbsp;The figure below diagrams these atoms and their respective relationships.<br>
+    &nbsp;<br>
+<div align="Center"><img src="vandf01.gif" alt="Current VANDF Data Structure" width="657" height="380">
+<br>
+<tt><b><br>
+    FIGURE 1</b></tt><br>
+<div align="Left">&nbsp;<br>
+    In this model, all atoms in the graph are owned by the source (VANDF01),
+  except for the dose form which is owned by HL7, and all of the atoms are
+ <i> releasable</i>, which is to say that they can be found in the 2002AA
+MRCON/MRSO.  &nbsp;The <i>SNF</i> atoms are given a term type of <i>SCD </i>
+ (<i>SNF Clinical  Drug</i>), the <i>component </i>atoms are given a term
+type of <i>SCDC </i>  (<i>SCD Component</i>), and the <i>ingredient</i> atoms
+are given a term  type of &nbsp;<i>IN</i> (<i>INgredient</i>). &nbsp;The
+<i>SCD</i> , <i>SCDC</i> , and <i>IN</i> atoms were all algorithmically generated
+and subjected to human review before insertion, but the graphs were not directly
+ edited in the <i>MID</i>.<br>
+<br>
+   The inversion of the <i>SNF</i> graphs for VANDF was important for several 
+ reasons: it proposed a model for how to represent normalized drug information 
+ in the <i>MID</i>, it normalized the dose forms by using a standard terminology, 
+ and it facilitated the development of sophisticated algorithms for automatically 
+ generating normalized forms of potentially very ugly drug names. &nbsp;However, 
+ the human review of VANDF in the <i>MID</i> exposed problems in the algorithmic 
+ approach to creating normalized forms and revealed the need for direct human 
+ editing of the <i>SNF</i> graphs in the <i>MID</i>. &nbsp;Additionally, the
+ model of attributing the <i>SNF</i> graph's atoms and relationships to a
+particular source (such as VANDF) creates a number of problems when we consider
+that all drug sources should be inverted to make use of SNF data. &nbsp;In
+particular, we would have mass duplication of all <i>SCD</i>, <i> SCDC</i>
+ , and <i>IN</i>  atoms in MRSO because there would be multiple copies of
+the same row with different source values and we would have mass duplication 
+of the relationships that connect the graph in MRREL for the same reason.<br>
+<h3>Proposed Model</h3>
+   Some changes need to be made to the VANDF model to make the best, most 
+efficient  use of the <i>SNF</i> as well as to allow direct editing of the 
+graph in the <i>MID</i>. &nbsp;In particular, there are four areas that must 
+be addressed:<br>
+<ol>
+  <li><a href="#inversion">Inversion Model</a>
+. What is the nature of the inversion time <i>SNF graph</i> for a drug  source?
+&nbsp;In particular, what sources are the various pieces attributed  to,
+how are <i>precise</i> vs. <i>active</i> ingredients represented, how  are
+ingredients represented for a source that does not natively name ingredients?<br>
+  </li>
+  <li><a href="#editing">Editing Model</a>
+. What is the nature of the <i>SNF graph</i> editing? In particular, what
+are the editing operations, what effects do the editing operations have on
+the data, how is the duplication of <i>(SCD</i>, <i>SCDC</i>, and <i>IN</i>
+   ) atoms constrained, and how does editing affect the release view of the 
+ graph?</li>
+  <li><a href="post_editing">Post Editing Model</a>
+. What post editing tasks, such as matching and merging, need to be performed 
+ and how are these processes managed?<br>
+  </li>
+  <li><a href="#update">Update Model</a>
+. When a drug source is updated, how is it inverted/inserted to best preserve
+previous editing work?</li>
+</ol>
+   The following subsections attempt to address the questions raised above.<br>
+<h4><a name="inversion"></a>
+Inversion Model</h4>
+   The model used to invert the <i>SNF graphs</i> for VANDF is a good starting 
+ point. &nbsp;It needs to be expanded to capture the complexity that arises 
+ when more sources are thrown into the mix. &nbsp;Following are the variables 
+ that the model must account for:<br>
+<ul>
+  <li><b>The SAB of the SCD and SCDC atoms</b>. &nbsp;At inversion time these 
+ will belong to the source in question, such as VANDF01.</li>
+  <li><b>The SAB of the relationships in the graph</b>. &nbsp;At inversion 
+ time these will belong to the source in question, such as VANDF01.</li>
+  <li><b>The SAB of the dose form atom</b>. &nbsp;This will be an HL7/DF.</li>
+  <li><b>The SAB of the IN atoms</b>.&nbsp;At inversion time these will belong 
+ to the source in question, such as VANDF01.</li>
+  <li><b>The releasability of the SCD, SCDC, and IN atoms</b>. &nbsp;The SCD
+and SCDC atoms will always be inserted as unreleasable (<tt>tobereleased='n'</tt>
+   ). &nbsp;The IN atoms will be marked as releasable (<tt>tobereleased='y'</tt>
+   ) if they are legitimate atoms from the source and will be marked as unreleasable 
+ otherwise. &nbsp;So, a source like MMX may contain clinical drugs that include 
+ ingredients that are not explicitly named in MMX itself. &nbsp;In this case, 
+ IN atoms attributed to MMX will be inverted but as unreleasable atoms. &nbsp;If 
+ the ingredient <i>is</i> explicitly named in MMX, then it will be inserted 
+ as a releasable IN atom attributed to MMX.</li>
+  <li><b>The RELA values for the CD to SCD relationships</b>. &nbsp;There 
+ are four possibilities for describing this relationship.          
+    <ol>
+      <li>If the atoms are synonymous, they should be connected by an SFO/LFO 
+ relationship with a null RELA.</li>
+      <li>If the atoms are synonymous and the CD is the trade name they should
+be connected by an SY <i>tradename_of</i> relationship.</li>
+      <li>If the SCD atom includes a dose form and the CD atom does not explicitly 
+ indicate a dose form, they should be connected by an NT <i>isa</i> relationship.</li>
+      <li>If the relationship is of another type, they should be connected 
+ by an RT <i>mapped_to</i> relationship.       </li>
+    </ol>
+  </li>
+  <li><b>The RELA values for the SCDC to SCD relationships</b>. &nbsp;This 
+ will be <i>constitutes</i>. &nbsp;One or more SCDC atoms may be connected 
+ to an SCD for this type of relationship.</li>
+  <li><b>The RELA values for the IN to SCDC relationships</b>. &nbsp;For things
+considered <i>active</i> ingredients, the value will be <i>active_ingredient_of</i>
+    and for things considered <i>precise</i> ingredients, the value will
+be      <i>precise_ingredient_of</i>. &nbsp;Each SCDC is allowed one <i>active</i>
+    and one <i>precise</i> ingredient. &nbsp;The <i>active</i> ingredient 
+is  required, but the <i>precise</i> ingredient is not.</li>
+  <li><b>The RELA values for the DF to SCD relationships</b>. &nbsp;This will
+be <i>has_dose_form.</i></li>
+</ul>
+ The figure below shows a modified inversion diagram to represent the VANDF 
+example from above under this new model.<br>
+ &nbsp;<br>
+<div align="Center"><img src="vandf01-fix.gif" alt="Revised VANDF Data Structure" width="657" height="470">
+<br>
+<tt><b>FIGURE 2</b></tt><br>
+</div>
+ &nbsp;<br>
+ There are two main changes to this diagram. &nbsp;First, it indicates that 
+the HL7/DF atoms are not part of the inversion, this is because they have 
+already been inserted, future inversions should use the existing atoms from 
+the <i>MID</i> and create relationships from the newly inverted SCD atoms 
+to the existing HL7/DF atoms. &nbsp;Second, the SCD and SCDC atoms are marked 
+as unreleasable. &nbsp;If the ingredient atoms were not native to VANDF, they
+would also be marked as unreleasable. &nbsp;All atoms in the inversion are
+attributed to the source, VANDF, as well as all of the relationships.<br>
+<h4><a name="editing"></a>
+Editing Model</h4>
+Every <i>new SNF graph</i> must be explicitly reviewed by an editor to determine 
+if the SCD accompanying the <i>clinical drug</i> atom from a given drug source 
+is actually a correct normalized form of the atom. &nbsp;In practice, this 
+means an editor will manipulate various parts of this graph to ensure that 
+the final product accurately represents the meaning of the <i>clinical drug</i>
+ . &nbsp;The graphs that result from editing operations employ a different
+model than the one used for inversion to correct problems associated with
+duplication of SCDC atoms and misattribution of atoms to a source. &nbsp;Following
+is a description of how the editing model handles the variables.<br>
+<ul>
+  <li><b>The SAB of the SCD and SCDC atoms</b>. &nbsp;Once editing actions
+are <i>approved</i>, these atoms will be attributed to NLM02.</li>
+  <li><b>The SAB of the relationships in the graph</b>. &nbsp;Once editing
+actions are <i>approved</i>, these atoms will be attributed to NLM02.</li>
+  <li><b>The SAB of the dose form atom</b>. &nbsp;This will be an HL7/DF.</li>
+  <li><b>The SAB of the IN atoms</b>. If there are matching ingredient atoms
+native to the source, they will belong to the source. &nbsp;If not, we will
+use MeSH ingredients present in the <i>MID</i>. &nbsp;If no matching MeSH
+ingredients can be found, we will create new NLM02/IN atoms.</li>
+  <li><b>The releasability of the SCD, SCDC, and IN atoms</b>. &nbsp;Once
+editing actions are <i>approved</i>, all of these atoms will be releasable
+.</li>
+  <li><b>The RELA values for the CD to SCD relationships</b>. &nbsp;The same
+four possibilities as before are available here:.          
+    <ol>
+      <li>If the atoms are synonymous, they should be connected by an SFO/LFO 
+ relationship with a null RELA.</li>
+      <li>If the atoms are synonymous and the CD is the trade name they should
+be connected by an SY <i>tradename_of</i> relationship.</li>
+      <li>If the SCD atom includes a dose form and the CD atom does not explicitly 
+ indicate a dose form, they should be connected by an NT <i>isa</i> relationship.</li>
+      <li>If the relationship is of another type, they should be connected 
+ by an RT <i>mapped_to</i> relationship.       </li>
+    </ol>
+  </li>
+  <li><b>The RELA values for the SCDC to SCD relationships</b>. &nbsp;This 
+ will be <i>constitutes</i>. &nbsp;One or more SCDC atoms may be connected 
+ to an SCD for this type of relationship.</li>
+  <li><b>The RELA values for the IN to SCDC relationships</b>. &nbsp;For things
+considered <i>active</i> ingredients, the value will be <i>active_ingredient_of</i>
+    and for things considered <i>precise</i> ingredients, the value will
+be      <i>precise_ingredient_of</i>. &nbsp;Each SCDC is allowed one <i>active</i>
+    and one <i>precise</i> ingredient. &nbsp;The <i>active</i> ingredient 
+is  required, but the <i>precise</i> ingredient is not.</li>
+  <li><b>The RELA values for the DF to SCD relationships</b>. &nbsp;This will
+be <i>has_dose_form.</i></li>
+</ul>
+ Following is a list of the various editing tasks and their effects on the
+database.<br>
+&nbsp;<br>
+<div align="Center">
+<table cellpadding="2" cellspacing="2" border="0" width="90%">
+  <tbody>
+    <tr>
+      <td valign="Top" width="25%"><b>Action:</b><br>
+      </td>
+      <td valign="Top">Insert a new SCD atom for a <i>clinical drug</i> that
+lacks one.<br>
+      </td>
+    </tr>
+    <tr>
+      <td valign="Top"><b>Description:</b><br>
+      </td>
+      <td valign="Top">In some cases, inversion algorithms will fail to produce
+an adequate SCD atom for a <i>clinical drug</i> in which case an editor will
+have to add one.<br>
+&nbsp;<br>
+The process of choosing an SCD atom involves choosing the various component 
+atoms (SCDC), specifying a dose form (HL7/DF), and specifying a relationship
+between the <i>clinical drug</i> and the SCD. &nbsp;The process of choosing 
+an SCDC atom involves specifying an ingredient (IN), a strength, and a dose
+form.<br>
+      </td>
+    </tr>
+    <tr>
+      <td valign="Top"><b>Effect in MID:</b><br>
+      </td>
+      <td valign="Top">This will do one of two things. &nbsp;If there is
+already an SCD atom matching (in a case-insensitive string comparison) the
+one specified by this editing operation in the concept with the <i>clinical
+drug</i>, then there is no operation. &nbsp;However, if there is not a matching
+SCD atom, a new SCD atom will be created, along with a graph of SCDC and
+IN atoms. &nbsp;In every case where an SCDC or IN atom already exists, it
+will be reused instead of duplicated.<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+&nbsp;<br>
+<div align="Center">
+<table cellpadding="2" cellspacing="2" border="0" width="90%">
+  <tbody>
+    <tr>
+      <td valign="Top" width="25%"><b>Action:</b><br>
+      </td>
+      <td valign="Top">Change an existing SCD attached to a <i>clinical drug</i>
+.<br>
+      </td>
+    </tr>
+    <tr>
+      <td valign="Top"><b>Description:</b><br>
+      </td>
+      <td valign="Top">In some cases, inversion algorithms will produce an
+erroneous SCD atom for a <i>clinical drug</i> in which case an editor will
+have to change the SCD.<br>
+ &nbsp;<br>
+ The process of editing an SCD atom involves adding or removing component
+atoms (SCDC), changing the dose form (HL7/DF), or changing the relationship
+between the <i>clinical drug</i> and the SCD atom.<br>
+      </td>
+    </tr>
+    <tr>
+      <td valign="Top"><b>Effect in MID:</b><br>
+      </td>
+      <td valign="Top">This operation is similar to the previous one. &nbsp;If
+any changes were made to the SCD, and an SCD matching (in a case-insensitive
+way) the <i>edited</i> SCD does not exist in the concept a new SCD atom will
+be created along with a graph of SCDC and IN atoms. &nbsp;In every case where
+an SCDC or IN atom already exists, it will be reused instead of duplicated.
+&nbsp;If a matching SCD is found, there is no change.<br>
+      <br>
+If the relationship between the <i>clinical drug</i> and the SCD was changed,
+no new atoms need to be inserted, but the existing relationship will be made
+unreleasable and a new one will be added.<br>
+      <br>
+If the existing SCD being edited is already releasable and attributed to
+NLM02, then any NLM02 atoms or relationships in the entire graph for the
+      <i>old</i> SCD will be made unreleasable. &nbsp;This will most likely
+happen when an editor fixes up an SCD atom and then later changes his/her
+mind and changes it again. &nbsp;When the first change is made, the <i>old
+      </i>SCD atom SCD atom will be composed of unreleasable atoms attributed
+to the source in question, but after the second change, the  <i>old</i> SCD
+atom will be composed of releasable NLM02 atoms.<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+ &nbsp;<br>
+<div align="Center">
+<table cellpadding="2" cellspacing="2" border="0" width="90%">
+  <tbody>
+    <tr>
+      <td valign="Top" width="25%"><b>Action:</b><br>
+      </td>
+      <td valign="Top">Approve an SCD atom.<br>
+      </td>
+    </tr>
+    <tr>
+      <td valign="Top"><b>Description:</b><br>
+      </td>
+      <td valign="Top">Once an editor has determined that an SCD atom and
+its relationship to its <i>clinical drug</i> is correct, the graph is approved.
+&nbsp;<br>
+      </td>
+    </tr>
+    <tr>
+      <td valign="Top"><b>Effect in MID:</b><br>
+      </td>
+      <td valign="Top">Changes to the MID are actually only &nbsp;made upon
+approval of an SNF graph. &nbsp;An editor will make changes by either adding/editing
+SCD atoms, or the relationship between <i>clinical drug</i> and SCD atoms
+and once everything looks correct, the <i>action engine</i> will construct
+actions necessary to correct the state of the <i>old</i> and <i>new</i> graphs
+in the <i>MID</i> to correspond to the view intended by the editor.<br>
+      <br>
+Typically, if any changes take place, the <i>new</i> graph is inserted (or
+reused if it already exists), and the <i>old</i> graph is made unreleasable
+(if it is not already) and the relationship between the <i>clinical drug</i>
+ and SCD is switched from the <i>old</i> SCD to the <i>new</i> SCD.<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+ &nbsp;<br>
+<div align="Left">The most common operation while editing <i>SNF graphs</i>
+ will be to simply approve what the algorithm produced. &nbsp;Consider <i>
+figure 2</i> above which shows the inversion model of a VANDF case. &nbsp;The
+following diagram shows what this looks like after an editor <i>approves</i>
+ the SCD. <br>
+<div align="Center"><br>
+</div>
+</div>
+&nbsp;<img src="vandf02.gif" alt="VANDF Data Structure After Editing" width="657" height="477">
+<br>
+<b><tt>FIGURE 3</tt></b><br>
+<div align="Left">&nbsp;<br>
+</div>
+<div align="Left">This graph shows that the VANDF SCD and SCDC atoms were
+made unreleasable and the relationships were reconfigured to be connected
+to the NLM02 SCD and SCDC atoms.<br>
+<h4><a name="post_editing"></a>
+Post Editing Model</h4>
+<h4><a name="update"></a>
+Update Model<br>
+</h4>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<hr width="100%" size="2"><br>
+<h3><br>
+</h3>
+</div>
+</div>
+</body>
+</html>

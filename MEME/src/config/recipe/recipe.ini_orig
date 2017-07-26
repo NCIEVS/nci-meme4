@@ -1,0 +1,14 @@
+MEME_HOME=value does not matter, don't change this
+DB_USER=mth
+DB_PASSWORD=umls_tuttle
+DB_DRIVER_CLASS=oracle.jdbc.driver.OracleDriver
+DEBUG=true
+RECIPE_FILE=
+DB_SERVICE=editing
+LOG_FILE=
+VIEW=true
+SRC_DIRECTORY=
+TMP_DIRECTORY=/tmp
+DEBUG=true
+MIDSVCS_HOST=unimed.nlm.nih.gov
+MIDSVCS_PORT=5125

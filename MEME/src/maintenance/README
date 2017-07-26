@@ -1,0 +1,46 @@
+
+README - 07/11/2005
+
+  A - Admin
+  EM - Editing Management
+  M - Maintenance Operator
+  R - Reports
+  Q - QA
+  U - Utility
+
+
+File				Description
+-----------------------------	----------------------------------------------
+activity_logs.cgi	RM	Report recent DB activity
+
+add_words.csh		M	Maintain word index tables
+
+assign_cuis.pl		M	Assigns CUIs for whole db
+
+assign_luis.csh		M	Assigns LUIs (used when LVG changes)
+
+batch.pl		M	Batch molecular actionws
+
+db_request.cgi		M	Request Db access
+
+insert.pl		M	Batch insert actions
+
+matrixinit.pl		M	Compute concepts that require editing
+
+merge.pl		M	Batch merge actions
+
+mid_maintenance.cgi	M	General MID maintenance ops
+
+mthtm.pl		M	Maintan MTH/TM MTH/MM atoms
+
+redo.pl			M	Redo a transaction
+
+release_termgroup_rank.cgi M	Edit termgroup ranks
+
+src_info.cgi		M	Edit some source metadata
+
+stamping.pl		M	Batch approve concepts
+
+undo.pl			M	Undo transaction
+
+update_src.csh		M	Maintain MED/MBD SRC concepts.

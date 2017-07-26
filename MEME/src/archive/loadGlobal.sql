@@ -1,0 +1,6 @@
+--
+-- Oracle .sql script for populating global tables
+-- It makes use of globalTables.sql and extGlobal.sql
+-- and leverages the external table structure in order to load
+-- the global tables
+--

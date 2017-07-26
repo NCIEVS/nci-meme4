@@ -1,0 +1,243 @@
+<HTML>
+<HEAD>
+<TITLE>Missed Synonymy</TITLE>
+</HEAD>
+
+<BODY>
+<P ALIGN=right>suresh@nlm.nih.gov 12/2001
+
+<H1>Missed Synonymy</H1>
+
+The missed synonmymy suite has been rewritten as a client-server application
+and modified to support client and server-side parallelism.
+As we look for more word or phrase level synonymy that
+drives this processes, speed will be a critical issue.
+We are, for example, evaluating Wordnet (http://www.cogsci.princeton.edu/~wn/)
+as a source of additional synonymy.
+<P>
+Other areas of progress include:
+<UL>
+<P><LI>The programs do not need a database refresh anymore.  Relevant
+data from the current database are loaded into one or more databases
+before the process begins.  <P><LI>The program runs in TCP
+client-server mode (default port 17000).  The server serves up pairs
+of words or phrases along with the name of a database search in.  The
+clients take this information and run newphrasesub.pl against the database
+suggested by the server to look for missed synonymy.
+</UL>
+
+
+<P>
+
+<H1>How to run</H1>
+
+<UL>
+
+<P><LI> The missed synonymy "home" is in ob.nlm.nih.gov:/d3/rpts/missyn.
+
+<P><LI> Identify machines and databases that can be spared for up to a week without
+affecting editing.  As noted, these databases do not need to be refreshed, just be available
+for this work.  Also identify the machine that will run the server process.  <EM>ob</EM> should
+be a good choice for this as the load falls most heavily on this machine.
+
+<P><LI>
+Note that it is not necessary to disable backups on machines running the databases from the
+above step. The server can be conservatively run during the day say between 8am and 8pm
+via cron (see below).
+
+<P><LI>The server will log to the files: progress.log, result.log and concepts.log, synfile.log
+in /d3/rpts/missyn.  So back up the old versions of these files (first three, anyway) if needed.
+Then remove them to start from a clean state.  The synfile.log file tracks which file was
+last being processed and at what offset.
+
+<P><LI> Create the normstr_lvg184h and normwrd_lvg184h tables in the databases you wish
+to use.  The script /site/umls/missyn/make-missyn-tables.pl will make them for you.
+It is a good idea to create the tables in as many databases as you can afford to
+(these are created in parallel).  This gives you the flexibility to use them or not
+later when running the synonymy finder.
+<P>
+Run as:
+
+<FONT SIZE=-1>
+<PRE>
+
+/site/umls/missyn/make-missyn-tables.pl -d &lt;database to load from&gt;
+                                  -o &lt;databases to load to&gt;
+                                  -t &lt;tmpdir&gt;
+
+For example,
+
+/site/umls/missyn/make-missyn-tables.pl -d oa_mid2002 -o ob_mid2002,oc_testsrc,oc_testsw,oa_mid2002 -t /tmp
+
+</PRE>
+</FONT>
+
+will load current data from oa_mid2002 into the specified databases.
+
+<P><LI>After the tables have been loaded (should take a few hours), you can configure
+the missed synonymy server.  This uses a config file (/d3/rpts/missyn/missyn.config) to direct
+requests to the different databases with uniform probability.  The config file
+consists of lines of the form:
+
+<FONT SIZE=-1>
+<PRE>
+database|percentage
+</PRE>
+</FONT>
+
+For example:
+
+<FONT SIZE=-1>
+<PRE>
+oa_mid2002|10
+oc_testsrc|40
+ob_mid2002|
+</PRE>
+</FONT>
+
+If the percentage is left unspecified, the remainder of the queries are sent to it.
+Ideally the percentages should add to 100%.  Here oa_mid2002 will get 10% of the requests,
+oc_testsrc 40% and ob_mid2002 50%.  You can change the data on the fly (for better load
+balancing); the data is re-read at each iteration.
+
+<P><LI>
+Decide how long you want to run the server.  The server takes the -t {\d+}{hms} option
+to tell it how long to run.  Or the -n option to tell it how many iterations.
+If backups cannot be turned off, you can run the server
+everyday between 8am and 8pm via cron.  The cron should have:
+
+<FONT SIZE=-1>
+<PRE>
+
+0 8 * * * /site/umls/missyn/missyn-server.pl -c /d3/rpts/missyn/missyn.config
+				    -w /net/smis/aux/d3/ems/worklists
+				    -t 12h
+
+</PRE>
+</FONT>
+
+Make sure to turn off the cron when you are done!
+
+<LI> Run the server as:
+
+<FONT SIZE=-1>
+<PRE>
+
+/site/umls/missyn/missyn-server.pl -c &lt;config file&gt;
+                                   -t &lt;time to run&gt;
+                                   -n &lt;iterations to run&gt;
+                                   -w &lt;path to worklist directory for history&gt;
+                                   -p &lt;TCP port - default is 17000&gt;
+
+</PRE>
+</FONT>
+
+The path to the directory containing the worklists (ZIP files) is usually
+/net/smis/aux/d3/ems/worklists and this should work from all machines.
+
+<P><LI>
+The client program in /site/umls/missyn/missyn-client.pl simply queries the server
+for the next phrase pair and a database and runs the newphrasesub.pl program against
+that database.  The results are sent back to the server.  The client exits
+if the server is either unavailable, returns an empty string or there is a control
+file (see below).  The client options are:
+
+<FONT SIZE=-1>
+<PRE>
+
+/site/umls/missyn/missyn-client.pl -t &lt;time to run&gt;
+                                   -n &lt;iterations to run&gt;
+                                   -h &lt;server host&gt; (default is ob)
+                                   -p &lt;server TCP port - default is 17000&gt;
+                                   -w &lt;number of forked copies of the client&gt; (default is 1)
+
+</PRE>
+</FONT>
+
+As you see, you can tell the client to replicate itself with the -w option to speed the
+process along.  Or you can run the client for an hour on your machine while you are
+at lunch.  All spare CPUs can be brought to bear on the problem.  Of course, as with
+all good things in life, there is a limit - or the server's TCP queue will be swamped.
+I find that about 15-20 client going full blast is the upper end.
+
+</UL>
+
+<H1>Control files</H1>
+
+How can you stop the client or the server midway through the processing?
+The server exits immediately (when there is a connection from a client) if it detects
+the file: /tmp/missyn.server.trigger while the clients exit if they find the
+file: /tmp/missyn.client.trigger on the local machine.
+
+<DL>
+<P><DT> /tmp/missyn.server.trigger
+<DD> Presence of this file causes the server program to immediately stop processing
+additional word pairs.  Additional client requests will fail and cause the client to
+exit as well.
+
+<P><DT> /tmp/missyn.client.trigger
+<DD> The client (all subprocesses) will quit before the next iteration if it detects this file.
+
+<P><DT> /tmp/missyn.lock
+<DD> On the server, this file prevents multiple copies of the server from running.  You shouldn't
+have to deal with this file except to remove it if the server exists abnormally for some reason
+(shouldn't!).
+
+<P><DT> The database
+<DD>The server will also exit if the database it is in the process of returning to a client
+is not available.  This guards against the possiblity that the database can crash.
+</DL>
+
+<H1>Log files</H1>
+
+Data is logged in 3 files in /d3/rpts/missyn:
+
+<DL>
+<P><DT> concepts.log
+<DD> Contains the concept_id pairs for feeding to the EMS.  Columns are:
+<FONT SIZE=-1>
+<PRE>
+
+concept_id_1|concept_id_2|edited?|phrase 1|norm phrase 1|phrase 2|norm phrase 2|DB|phrase #|Algorithm|date
+
+</PRE>
+</FONT>
+
+<P><DT> result.log
+<DD> Contains meta information about the search results.  This is used by the server to
+determine which phrases have already been processed.  Columns are:
+<FONT SIZE=-1>
+<PRE>
+
+phrase 1|norm phrase 1|phrase 2|norm phrase 2|DB|phrase #|Client IP|client name|client ID|time secs|number matched|Algo|Date
+
+</PRE>
+</FONT>
+
+<P><DT> progress.log
+<DD> Logs helpful self-explanatory messages from the program.  A tail -f of this file
+should give you some idea of the progress being made.  Columns are:
+
+<FONT SIZE=-1>
+<PRE>
+
+Msg|Phrase1|Normphrase1|Phrase2|Normphrase2|DB|Phrase #|Client IP|Client Name|Client ID|time secs|number matched|algo|Date
+
+</PRE>
+</FONT>
+
+</DL>
+
+<H1>On completion</H1>
+If the tail of the progress log file shows the line: ALL SYNONYM FILES DONE,
+then you are done.
+
+<P>
+Copy the concepts.log file over to smis:/d3/rpts/missyn/ into a file called
+concepts.log.MM.DD.YYYY.
+
+<P>
+Change the link on smis:/d3/rpts/missyn/concepts.current to point to
+this new file.  The AH bin generator script: /site/umls/missyn/missyn-cat.pl
+which simply cat's the content of this file will pick up the new info
+on the next regenerate.

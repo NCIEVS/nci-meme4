@@ -1,0 +1,209 @@
+<HTML>
+<HEAD>
+<TITLE>Managing ME Bins</TITLE>
+</HEAD>
+
+<BODY>
+<P ALIGN=right>suresh@nlm.nih.gov 10/2000
+
+<H1>Managing ME bins</H1>
+
+The ME bins in the EMS are driven by a configuration file in smis:/d3/ems/config.
+The default config file is named <A HREF="ME.config">ME.config</A>.  If there is a DB specific
+file named ME.config.&lt;db&gt;, e.g., ME.config.ob_mid2001 then that takes
+precedence for that database.  This is useful for testing insertions on
+a test database and is used for that reason.
+
+<P>
+
+Each line in the file contains several '|' separated fields which are
+described below.
+Comment lines start with a '#' and blank lines are allowed.
+
+<P>
+<B>NOTE</B>:
+Please make changes to this file with care.  Changes made to this
+file are instrumental in the behavior of the ME bins scheme.
+For instance, do not delete the lines for any of the pre-defined ME bins.
+These are clearly marked in the configuration file.
+
+<P>
+
+Once the changes are made, call up the ME bins via the EMS.  It will report any
+errors it finds.
+Fix them IMMEDIATELY, else the scheme will not work.
+
+<P>
+
+The field formats are:
+
+<OL>
+
+<LI><B>bin_name</B>: The name of the bin.  Bin names are made up of lowercase
+alphabetic and numeric characters and the "_" (underscore) character
+and must be less than 32 characters long.
+NOTE: the names of some bins are standardized and these
+are prefixed by the label: "DO NOT CHANGE THESE".  Do NOT change those!
+The current standard set is: demotions, norelease, reviewed, embryos, noreview, leftovers.
+The order of bins is also important.  Hence the 'leftovers' bin must be the last
+defined bin.  User bins go in between these pre-defined bins.  Example: meddra31,
+icdproc, missyn, etc.
+
+<P>
+
+Bin names should be all lowercase upto a maximum of 32 chars.  Try to use meaningful
+names.  If the bin is organized by a specific source (most common), use the source name
+in the bin, e.g., icd2000.  Note that bin names do not need the 'wrk' prefix like
+in MEME-2, that is automatically tacked on to worklists made from this bin.
+
+<P>
+
+<LI><B>Editable</B>: This field should have a Y or a N for whether the bin is editable or not.
+User defined bins should always be Y so that worklists can be made from them.
+
+<P>
+
+<LI><B>Description</B>: A short, pithy description for the bin.  I usually steal this
+from the source description file on meow that is maintained by the folks that do
+the inversion.  The description should be less than 240 chars.
+
+<P>
+
+<LI><B>Generator Script</B>: This field contains the name of a script that is used
+to generate the set of concepts for this bin and optionally, its arguments.
+<P>
+All generator scripts:
+
+<OL>
+<P><LI>gen_source.pl (generates concepts by source/termgroup criteria).
+Concepts with atoms from any source or termgroup is retrieved.  This is the
+workhorse query for ME bins.
+<PRE>
+Options are: -s (comma separated versioned SABs)
+             -R (single ROOT SAB)
+             -r (comma separated versioned termgroups)
+Examples:
+
+gen_source.pl -s 'MDREX,MDR41,MDRAE,MDREA'
+gen_source.pl -R 'SNOMEDCT'
+gen_source.pl -r 'MTH/PN'
+
+</PRE>
+
+<P><LI>gen_order_id.pl (generates by ranges of order_id in the ATOM_ORDERING table).
+This was mainly intended for SNOMEDCT editing.
+<PRE>
+Options are: -s (versionless SAB)
+             -F (begining order_id)
+             -T (ending order_id)
+Examples:
+
+gen_order_id.pl -s SNOMEDCT -F 1170247 -T 1205774
+
+</PRE>
+<P><LI>gen_sty.pl (generates concepts by source and STY).
+Concepts with any of the STYs specified and any of the sources
+specified are extracted.  For the -s option, case is not important,
+but make sure the semantic type names are spelled correctly.
+Also, use quotes around the argument since they tend to have
+spaces.  Both -s and -T have to be specified.
+<PRE>
+Options are: -s (comma separated list of versioned/versionless SABs)
+             -T (comma separated list of semantic types or T numbers)
+
+Example:
+
+gen_sty.pl -s SNOMEDCT -T T009
+gen_sty.pl -s SNOMEDCT -T 'disease or syndrome'
+
+</PRE>
+</OL>
+
+<P>
+
+<LI><B>Order Script</B>: This field contains the name of a script that orders and
+optionally clusters the
+concepts in the bin on the way to making worklists and checklists.
+Obviously not needed for un-editable bins from which worklists or checklists
+cannot be made.
+Bin sorting hints are in the source information page maintained by the
+inversion folks.
+I have a useful set of these scripts already implemented and these should suffice
+for most purposes.  They are: order_treenum.pl, order_code.pl, order_alpha.pl,
+order_mesh.pl.
+
+<P>
+
+<DL>
+<DT>order_treenum.pl
+<DD>Orders concepts according to a treenum file that Apelon provides.  This file
+is the best sort order for editing as determined by the folks that inverted the
+source.  The information is obtained from the source info page.
+The treenum file format is: source_atom_id|some sort field.
+Command line options are:
+<BR>
+<UL>
+<LI>-t &lt;full path to treenums file&gt; these files usually live in smis:/d3/rpts/&lt;yy&gt;.
+<LI>-s &lt;source name(s)&gt; Comma separated if multiple SABs.
+<LI>-n forces a numeric sort on the second field
+</UL>
+<P>
+<DT>order_code.pl
+<DD>Some sources are best ordered by code.  Use this script for that.  Specify
+the source name in the -s option, e.g., -s MTHICD9.  This option is required since
+code is a source-specific attribute.
+
+<DT>order_alpha.pl
+<DD>This is a fall back ordering scheme.  It orders the concepts by the
+alphabetically on the atom name of one or more sources.  Specify
+the source name in the -s option, e.g., -s MTHICD9.  This option is required since
+this is source-specific.
+
+<DT>order_mesh.pl
+<DD>Well, MeSH is special.  It is ordered by the tree number which is the MN attribute.
+No options are needed. It finds the current version of MeSH from the source_version table.
+
+<DT>order_order_id.pl
+<DD>Orders by the order_id field in the ATOM_ORDERING table.
+</DL>
+
+<P>
+
+If you want to test a order script without having to repartition the ME bins,
+you can do so by calling these scripts directly.  They read in a list of concept_id's
+and output them in sort order, so you need to extract a list of matching concepts to
+feed the script (using the dump_table.pl script) and feed the output to make_checklist.pl
+to see what the ordering really looks like.
+
+<P>
+
+For example, let us assume you want to test the ordering script for source MMX01
+(with bin name of 'mmx01') from database oc_testsrc:
+
+<P>
+<FONT SIZE="-1">
+<PRE>
+/site/umls/oracle/scripts/dump_table.pl -d oc_testsrc -q "select concept_id from ems_me_bins where bin_name='mmx01'" |
+/site/umls/oracle/ems/ME/order_treenum.pl -d oc_testsrc -s MMX01 -t /d3/rpts/02/worklist.sortkey.MMX01 |
+head -200 |
+/site/umls/oracle/wms/scripts/make-checklist.pl -d oc_testsrc
+</PRE>
+</FONT>
+<P>
+
+<LI><B>Contents</B>: This field tells the EMS whether the contents of the bin are known to be
+chemicals (C), non-chemicals (N) or a mixture (M).  If M, the bin is split
+in to chem and nonchem components.
+
+<P>
+
+<LI><B>Chem Algo</B>: For mixed chem/nonchem bins, this field tells the EMS how a cluster
+of concepts should be classified as a chemical or non-chemical.  Allowed values are:
+A (a cluster is chemical if ALL concepts have chemical STYs), or O (a cluster is a chemical
+if any ONE concept has a chemical STY).  This can be left empty and defaults to A.
+
+</OL>
+
+</BODY>
+</HTML>
+

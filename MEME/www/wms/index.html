@@ -1,0 +1,71 @@
+<HTML>
+
+<HEAD>
+<TITLE>Worklist Management System (WMS)</TITLE>
+<META DESCRIPTION="Internal Web site for use by UMLS Metathesaurus Editors">
+<META KEYWORDS="UMLS,Metathesaurus,NLM">
+</HEAD>
+
+<BODY>
+<H1><A HREF="/wms/wms-help.html"><IMG SRC="/wms/help.gif" ALT="Help on the Worklist Management System"></A> Worklist Management System (WMS)</H1>
+
+The WMS is a Web-based system to track and manage the editing process for the UMLS
+Metathesaurus.  The WMS allows different classes of users to examine and modify data
+relating to worklists.  The unauthenticated user is allowed read-only access
+to the worklist information.
+
+<P>
+
+Selecting the information icon: <IMG SRC="/wms/help.gif"> while using the WMS provides
+context sensitive help.
+
+<H2>Read-only Access</H2>
+
+<UL>
+<LI> <A HREF="/cgi-bin/wms2.pl?action=query">Query</A> worklist data (User IDs: no authentication necessary)
+<LI> <A HREF="/cgi-bin/wms2.pl?action=staleworklists">How fresh</A> are worklists in current epoch?
+<LI> <A HREF="/cgi-bin/wms2.pl?action=query_wrk_desc">Show Descriptive</A> information for a worklist
+<LI> <A HREF="/cgi-bin/wms2.pl?action=customquery">Custom Queries</A> (User IDs: no authentication necessary)
+<LI> <A HREF="/cgi-bin/wms2.pl?action=plotselect">Plots</A> (User IDs: no authentication necessary)
+</UL>
+
+<H2>Read/Write Access</H2>
+
+<UL>
+<LI> <A HREF="/cgi2/wms2.pl?action=query">Query and update</A> worklist data (User IDs: <EM>nlmmgr</EM>,
+	<EM>editor</EM>)
+<LI> <A HREF="/cgi2/wms2.pl?action=stampselect">Stamp</A> worklists
+	(User IDs: <EM>nlmmgr</EM>)
+<LI> <A HREF="/cgi2/wms2.pl?action=refresh">Refresh</A> worklist information from system catalogs
+	(User IDs: <EM>nlmmgr</EM>)
+</UL>
+
+<H2>Checklists</H2>
+
+<UL>
+<LI> <A HREF="/cgi2/wms2.pl?action=pickcheck">View or Delete Checklists</A>
+</UL>
+
+<H2>Worklist Descriptions</H2>
+
+<UL>
+<LI> <A HREF="/cgi2/wms2.pl?action=query_wrk_desc">Query/Edit Descriptions</A>
+<LI> <A HREF="/cgi2/wms2.pl?action=edit_wrk_desc">Add New Worklist Description</A>
+</UL>
+
+<H2>Administrative Access</H2>
+
+<UL>
+<LI> <A HREF="/cgi2/wms2.pl?action=clean">Clean up</A> stale state files (User IDs: nlmmgr)
+<LI> <FORM METHOD=POST ACTION="/cgi2/wms2.pl">
+Delete record for worklist: <INPUT TYPE=text name="worklist" SIZE=16><INPUT TYPE=hidden NAME="action" VALUE="delete"> from <EM>worklist_info</EM></FORM>
+
+</UL>
+
+<P><HR>
+<ADDRESS>Contact: <A HREF="mailto:suresh@nlm.nih.gov">Suresh Srinivasan</A></ADDRESS>
+<ADDRESS>Created: September 1997</ADDRESS>
+<ADDRESS>Last Updated: 4/98</ADDRESS>
+<ADDRESS><A HREF="/index.html">Meta News Home</A></ADDRESS>
+</BODY>
+</HTML>

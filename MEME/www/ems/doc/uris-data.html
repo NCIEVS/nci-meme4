@@ -1,0 +1,134 @@
+<HTML>
+<HEAD>
+<TITLE>Generating Data for URIS</TITLE>
+</HEAD>
+
+<BODY>
+
+<P ALIGN=right>suresh@nlm.nih.gov 11/2002
+
+<H1>Generating Data for URIS</H1>
+
+<A HREF="/cgi-bin/uris.pl">URIS</A> (UMLS Release Information System)
+displays summary data from a release and across releases of the UMLS. 
+This document describes how to generate the data that is used by URIS
+after a release has been made.
+
+<P>
+
+The script /site/umls/release/post-release.pl is the master script
+that calls on other scripts (in /site/umls/release).  It is designed to
+be run in parallel on multiple machines.  Here are its options:
+
+<DL>
+
+<P>
+<DT>-m &lt;metadir&gt;
+<DD>The path to the META directory for a release, e.g., /d3/Release/2002AA/META.
+This can be a local path if you have unpacked the data locally or a NFS mounted
+path such as /net/smis/aux/d3/Release/2002AA/META which enables the script to
+be run remotely with NFS access to the data files.
+
+<P>
+<DT>-q &lt;qadir&gt;
+<DD>The path to the QA directory for a release, e.g., /d3/Release/QA/2002AA.
+All QA data used by URIS are archived on smis in /d3/Release/QA/$VERSION.
+Again, this can be a local or NFS mounted path.
+
+<P>
+<DT>-t &lt;tmpdir&gt;
+<DD>The path to a temporary directory.  Ideally this should be local to
+the machine that the script is being run on. /tmp is the default.
+
+<P>
+<DT>-v &lt;VERSION&gt;
+<DD>The version of the Metathesaurus, e.g., 2002AA.  Refer to
+<A HREF="release-naming.html">this document</A> for the naming convention.
+
+<P>
+<DT>-P
+<DD>A flag that says to report progress on STDERR (note this is the
+capital 'P' flag).
+
+<P>
+<FONT COLOR=red>
+NOTE: All URIS scripts understand the above options.  The following are
+specific to the post-release.pl script.
+</FONT>
+
+<P>
+<DT>-T
+<DD>The top directory where releases are stored.  The default is:
+/net/smis/aux/d3/Release.
+
+<P>
+<DT>-n &lt;script numbers&gt;
+<DD>This option indicates which scripts to run (see the -r flag).
+The numbers are comma separated.  Ranges can be specified with a
+hyphen.  Example, 2,3,5-8.  If the option is omitted, the script
+will run the first un-run sub script.
+
+<P>
+<DT>-e
+<DD>This flag forces the sub script to exit immediately if the
+output file (in the QA directory) exists.  The default is to
+overwrite it.
+
+<P>
+<DT>-r
+<DD>This flag produces a list of all the subscripts and their numbers.
+This is useful if you plan to run on several machines in parallel.
+
+</DL>
+
+<H1>How to Run</H1>
+
+<UL>
+
+<P><LI>Decide which machine(s) will be used.  Some of the more intensive scripts will benefit
+from having a copy of the Metathesaurus locally installed.  Unpack a copy locally if necessary.
+The output (in the -q option) has to be on smis via a automount path (/net/smis...).
+
+<P><LI>Decide which script(s) will be run on which machine(s).  The -r
+option will tell you the numbers.  Or you can run first-come-first-served without the -n option.
+The -r option will give the script numbers:
+
+<FONT SIZE=-1>
+<PRE>
+
+/site/umls/release/uris-qa-generator.pl -m /tmp/2002AA/META -v 2002AA -r -q .
+
+</PRE>
+</FONT>
+
+For example, we will run on machines smis, ob, oc and mrd. smis will run scripts 4 and 5 while the
+rest will run in FIFO mode.  ob, oc and mrd have the release unpacked in /tmp.
+
+<P><LI>Run the script for real (or via cron) as:
+
+<FONT SIZE=-1>
+<PRE>
+
+On smis:
+
+/site/umls/release/uris-qa-generator.pl -m /d3/Release/2002AA/META -v 2002AA
+    -q /d3/Release/QA/2002AA
+    -n 4,5
+
+On ob, oc and mrd:
+
+/site/umls/release/uris-qa-generator.pl -m /tmp/2002AA/META -v 2002AA
+    -q /net/smis/aux/d3/Release/QA/2002AA
+
+</PRE>
+</FONT>
+
+This could run for a while.  The more machines that can run in parallel,
+the better, obviously.
+
+<P><LI>As the scripts complete, the data should become available on URIS.
+</UL>
+
+</BODY>
+</HTML>
+

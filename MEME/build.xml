@@ -1,0 +1,1452 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="MEME" basedir="." default="init">
+	<!-- Include the build.properties file in the same directory as build.xml to read the environment specific variables
+	     Example: PATH_TO_PERL, PATH_TO_64PERL
+	  -->
+
+	<property file="build.properties" />
+
+	<target name="check_perl_path" unless="PATH_TO_PERL">
+		<fail message="Please set the PATH_TO_PERLin build.properties file." />
+	</target>
+	<target name="check_perl_64path" unless="PATH_TO_64PERL">
+		<fail message="Please set the PATH_TO_64PERL in build.properties file." />
+	</target>
+	<!--
+	 CHANGES
+	  05/31/2007 BAC (1-D9NBZ): include Contexts.pm when building dist_invert
+	-->
+
+	<!--
+	   08/13/2007  SL () : Adding the ANt task in the init to remove the DOS characters
+	 -->
+	<!-- These settings should be edited -->
+
+	<!-- Path for perl calls on distributed system -->
+
+
+	<filter token="PATH_TO_PERL" value="${PATH_TO_PERL}" />
+	<filter token="PATH_TO_64PERL" value="${PATH_TO_64PERL}" />
+
+	<!-- Set environment container -->
+	<property environment="env" />
+	<!-- Top-level directories -->
+	<property name="build.dir" value="build" />
+	<property name="class.dir" value="build/classes" />
+	<property name="src.dir" value="src" />
+	<property name="www.dir" value="www" />
+	<property name="dist.dir" value="dist" />
+	<property name="extlib.dir" value="extlib" />
+	<property name="weblib.dir" value="src/webapps-meme/lib" />
+	<!-- define the pattern here for CRLF DOS/UNIX characters -->
+	<property name="crlfPattern" value="**/*.txt, 
+	 									 **/*.pm,
+	 									 **/*.pl,
+	 									 **/*.csh, 
+	 									 **/*.cgi, 
+	 									 **/*.sh, 
+	 									 **/*.ksh,
+	 									 **/*.java, 
+	 									 **/*orig*,
+	                                     **/*cfg*" />
+
+
+	<!-- Java configuration -->
+	<path id="classpath.compile">
+		<fileset dir="${env.JAVA_HOME}/jre/lib">
+			<include name="*.jar" />
+		</fileset>
+		<fileset dir="${env.JAVA_HOME}/jre/lib/ext">
+			<include name="*.jar" />
+		</fileset>
+		<fileset dir="${extlib.dir}">
+			<include name="*.jar" />
+		</fileset>
+		<fileset dir="${weblib.dir}">
+			<include name="*.jar" />
+		</fileset>
+		<pathelement path="${class.dir}" />
+	</path>
+	<property name="cmpclp" refid="classpath.compile" />
+	<echo message="base directory is ${basedir}" />
+	<echo message="build directory is ${build.dir}" />
+	<tstamp>
+		<format property="cur.date" pattern="yyyyMMdd" />
+		<format property="cur.time" pattern="hhmmss" />
+	</tstamp>
+
+	<target name="fixLineFeed" description="Modify CR LF chars in the repository files">
+		<echo>Running fixcrlf to fix CRLF chars for ${dir.value} </echo>
+		<fixcrlf eol="lf" srcdir="${dir.value}" includes="${crlfPattern}" eof="remove" />
+	</target>
+	<!-- Create initial Directories -->
+	<target name="init" description="Initialize directory structure" depends="check_perl_64path,check_perl_path">
+		<property name="dist.suffix" value="" />
+		<mkdir dir="${build.dir}" />
+		<mkdir dir="${class.dir}" />
+		<mkdir dir="${dist.dir}" />
+		<delete>
+			<fileset dir="." includes="**/*~" />
+			<fileset dir="." includes="**/*.scc" />
+		</delete>
+		<echo message="compile class path is ${cmpclp}" />
+		<echo message="java home is set to ${env.JAVA_HOME}" />
+	</target>
+
+	<!-- Make $ARCHIVE_HOME target -->
+	<target name="make_archive" description="Build ARCHIVE_HOME" depends="init">
+		<property name="d_archive.dir" value="dist/archive" />
+
+		<!-- Make distribution dirs -->
+		<mkdir dir="${d_archive.dir}" />
+		<mkdir dir="${d_archive.dir}/bin" />
+		<mkdir dir="${d_archive.dir}/lib" />
+		<mkdir dir="${d_archive.dir}/etc" />
+		<mkdir dir="${d_archive.dir}/etc/sql" />
+		<mkdir dir="${d_archive.dir}/etc/DB_ORF" />
+		<mkdir dir="${d_archive.dir}/etc/DB_RRF" />
+
+		<!-- Compile -->
+		<javac destdir="${class.dir}" debug="true" srcdir="${src.dir}/java">
+			<classpath>
+				<pathelement path="${classpath.compile}" />
+				<pathelement location="${src.dir}/archive/mms.jar" />
+				<pathelement location="${src.dir}/archive/objects.jar" />
+			</classpath>
+			<include name="gov/nih/nlm/umls/archive/*.java" />
+		</javac>
+
+		<!-- bin -->
+		<copy todir="${d_archive.dir}/bin" filtering="true">
+			<fileset dir="${src.dir}/archive" includes="*sh, *pl" />
+		</copy>
+
+        <!-- lib -->
+        <mkdir dir="${class.dir}/config" />
+        <copy todir="${class.dir}/config" file="${src.dir}/config/archive/mmsys.a.prop" filtering="true" />
+        <copy todir="${class.dir}/config" file="${src.dir}/config/archive/mrpluscolsfiles.dat" filtering="true" />
+		<jar basedir="${class.dir}" includes="config/**, gov/nih/nlm/umls/archive/**" destfile="${d_archive.dir}/lib/archive.jar" />
+        <copy todir="${d_archive.dir}/lib" filtering="true">
+            <fileset dir="${src.dir}/archive" includes="**/*.pm" />
+        </copy>
+
+		<!-- etc  -->
+		<copy todir="${d_archive.dir}/etc/sql" filtering="true">
+			<fileset dir="${src.dir}/archive" includes="*sql" />
+		</copy>
+		<copy todir="${d_archive.dir}/etc/DB_ORF" filtering="true">
+			<fileset dir="${src.dir}/archive/DB_ORF" />
+		</copy>
+		<copy todir="${d_archive.dir}/etc/DB_RRF" filtering="true">
+			<fileset dir="${src.dir}/archive/DB_RRF" />
+		</copy>
+		<copy todir="${d_archive.dir}/etc/" filtering="true">
+			<fileset dir="${src.dir}/config/archive" excludes="README.txt,INSTALL.txt" />
+		</copy>
+
+
+		<!-- INSTALL/README -->
+		<copy file="${src.dir}/config/archive/INSTALL.txt" tofile="${d_archive.dir}/INSTALL.txt" filtering="true" />
+		<copy file="${src.dir}/config/archive/README.txt" tofile="${d_archive.dir}/README.txt" filtering="true" />
+
+		<!-- Fixing the DOS Chars -->
+		<antcall target="fixLineFeed">
+			<param name="dir.value" value="${d_archive.dir}" />
+		</antcall>
+
+		<!-- Fix line termination -->
+		<fixcrlf srcdir="${dist.dir}" includes="**/*.sh,**/*.command" eol="lf" eof="remove" />
+		<fixcrlf srcdir="${dist.dir}" includes="**/*.bat" eol="crlf" />
+		<fixcrlf srcdir="${dist.dir}" includes="**/*.java" tab="remove" tablength="4" eol="lf" javafiles="yes" />
+		<zip destfile="dist_archive${dist.suffix}.zip">
+			<zipfileset dir="${d_archive.dir}" includes="*.txt" />
+			<zipfileset dir="${d_archive.dir}/bin" prefix="bin/" filemode="775" />
+			<zipfileset dir="${d_archive.dir}/lib" prefix="lib/" />
+			<zipfileset dir="${src.dir}/archive" prefix="lib/" includes="*jar" />
+			<zipfileset dir="${d_archive.dir}/etc" prefix="etc/" />
+		</zip>
+		
+	</target>
+
+	<!-- Make ENV -->
+	<target name="make_env" description="Build ENV_HOME" depends="init">
+
+		<property name="d_env.dir" value="dist/env" />
+		<!-- Make distribution dirs -->
+		<mkdir dir="${d_env.dir}" />
+		<mkdir dir="${d_env.dir}/bin" />
+		<mkdir dir="${d_env.dir}/lib" />
+		<mkdir dir="${d_env.dir}/etc" />
+
+		<!-- bin -->
+		<copy todir="${d_env.dir}/bin" filtering="true">
+			<fileset dir="${src.dir}/env" excludes="**/*.cgi, **/*.pm, **/README" />
+		</copy>
+		<chmod dir="${d_env.dir}/bin" perm="ugo+rx" includes="**/*" />
+		<chmod dir="${d_env.dir}/bin" perm="ug+w" includes="**/*" />
+		<!-- lib -->
+		<!-- etc -->
+		<copy todir="${d_env.dir}/etc" filtering="true">
+			<fileset dir="${src.dir}/config/env" excludes="**/*.txt" />
+		</copy>
+		<!-- INSTALL/README -->
+		<copy file="${src.dir}/config/env/INSTALL.txt" tofile="${d_env.dir}/INSTALL.txt" filtering="true" />
+		<copy file="${src.dir}/config/env/README.txt" tofile="${d_env.dir}/README.txt" filtering="true" />
+		<!-- env libraries -->
+		<!-- Fixing the DOS Chars -->
+		<antcall target="fixLineFeed">
+			<param name="dir.value" value="${d_env.dir}" />
+		</antcall>
+		<!-- buildnumber file="build_env.number"/ -->
+		<zip destfile="dist_env${dist.suffix}.zip">
+			<zipfileset dir="${d_env.dir}" includes="*.txt" />
+			<zipfileset dir="${d_env.dir}/bin" prefix="bin/" filemode="775" />
+			<zipfileset dir="${d_env.dir}/lib" prefix="lib/" />
+			<zipfileset dir="${d_env.dir}/etc" prefix="etc/" />
+		</zip>
+
+	</target>
+
+	<!-- Make EXTLIB -->
+	<target name="make_extlib" description="external libraries" depends="init">
+		<!--buildnumber file="build_extlib.number"/-->
+		<!-- Fixing the DOS Chars -->
+		<antcall target="fixLineFeed">
+			<param name="dir.value" value="${extlib.dir}" />
+		</antcall>
+		<zip destfile="dist_extlib${dist.suffix}.zip">
+			<zipfileset dir="${extlib.dir}" includes="*.jar" />
+		</zip>
+	</target>
+
+	<!-- Build a distribution for loading a new MID -->
+	<target name="make_initmid" description="Build MEME_HOME for a new MID" depends="init">
+		<property name="d_initmid.dir" value="dist/initmid" />
+
+		<!-- properties -->
+		<property name="d_initmid.dir" value="dist/initmid" />
+		<!-- Make distribution dirs -->
+		<mkdir dir="${d_initmid.dir}" />
+		<mkdir dir="${d_initmid.dir}/bin" />
+		<mkdir dir="${d_initmid.dir}/etc" />
+		<mkdir dir="${d_initmid.dir}/lib" />
+		<!-- bin -->
+		<copy todir="${d_initmid.dir}/bin" filtering="true">
+			<fileset dir="${src.dir}/init" excludes="**/*.cgi, **/*.pm, **/README" />
+		</copy>
+		<chmod dir="${d_initmid.dir}/bin" perm="ugo+rx" includes="**/*" />
+		<chmod dir="${d_initmid.dir}/bin" perm="ug+w" includes="**/*" />
+		<!-- lib -->
+		<!-- etc -->
+		<copy todir="${d_initmid.dir}/etc" filtering="true">
+			<fileset dir="${src.dir}/config/init" includes="*.ctl, *dat" />
+		</copy>
+		<copy todir="${d_initmid.dir}/etc/sql" filtering="true">
+			<fileset dir="${src.dir}/sql" excludes="MRD*, mrd*, README" />
+		</copy>
+		<!-- INSTALL/README -->
+		<copy file="${src.dir}/config/init/INSTALL_mid.txt" tofile="${d_initmid.dir}/INSTALL.txt" filtering="true" />
+		<copy file="${src.dir}/config/init/README_mid.txt" tofile="${d_initmid.dir}/README.txt" filtering="true" />
+		<!-- zip midsvcs -->
+		<!-- Fixing the DOS Chars -->
+		<antcall target="fixLineFeed">
+			<param name="dir.value" value="${d_initmid.dir}" />
+		</antcall>
+		<!-- buildnumber file="build_initmid.number"/-->
+		<zip destfile="dist_initmid${dist.suffix}.zip">
+			<zipfileset dir="${d_initmid.dir}" includes="*.txt" />
+			<zipfileset dir="${d_initmid.dir}/bin" prefix="bin/" filemode="775" />
+			<zipfileset dir="${d_initmid.dir}/lib" prefix="lib/" />
+			<zipfileset dir="${d_initmid.dir}/etc" prefix="etc/" />
+		</zip>
+	</target>
+
+
+	<!-- Build a distribution for loading a new MRD -->
+	<target name="make_initmrd" description="Build MEME_HOME for a new MRD" depends="init">
+		<property name="d_initmrd.dir" value="dist/initmrd" />
+		<!-- properties -->
+		<property name="d_initmrd.dir" value="dist/initmrd" />
+		<!-- Make distribution dirs -->
+		<mkdir dir="${d_initmrd.dir}" />
+		<mkdir dir="${d_initmrd.dir}/bin" />
+		<mkdir dir="${d_initmrd.dir}/etc" />
+		<mkdir dir="${d_initmrd.dir}/lib" />
+		<!-- bin -->
+		<!-- lib -->
+		<!-- etc -->
+		<copy todir="${d_initmrd.dir}/etc/sql" filtering="true">
+			<fileset dir="${src.dir}/sql" excludes="meme*, README" />
+		</copy>
+		<!-- INSTALL/README -->
+		<copy file="${src.dir}/config/init/INSTALL_mrd.txt" tofile="${d_initmrd.dir}/INSTALL.txt" filtering="true" />
+		<copy file="${src.dir}/config/init/README_mrd.txt" tofile="${d_initmrd.dir}/README.txt" filtering="true" />
+		<!-- zip mrdsvcs -->
+		<!-- Fixing the DOS Chars -->
+		<antcall target="fixLineFeed">
+			<param name="dir.value" value="${d_initmrd.dir}" />
+		</antcall>
+		<!-- buildnumber file="build_initmrd.number"/ -->
+		<zip destfile="dist_initmrd${dist.suffix}.zip">
+			<zipfileset dir="${d_initmrd.dir}" includes="*.txt" />
+			<zipfileset dir="${d_initmrd.dir}/bin" prefix="bin/" filemode="775" />
+			<zipfileset dir="${d_initmrd.dir}/lib" prefix="lib/" />
+			<zipfileset dir="${d_initmrd.dir}/etc" prefix="etc/" />
+		</zip>
+
+	</target>
+
+	<!-- Make Inversion -->
+	<target name="make_invert_old" description="Build INV_HOME" depends="init">
+		<!-- properties -->
+		<property name="d_invert.dir" value="dist/invert" />
+
+		<!-- Make distribution dirs -->
+		<mkdir dir="${d_invert.dir}" />
+		<mkdir dir="${d_invert.dir}/bin" />
+		<mkdir dir="${d_invert.dir}/lib" />
+		<mkdir dir="${d_invert.dir}/etc" />
+		<mkdir dir="${d_invert.dir}/etc/sql" />
+
+		<!-- bin -->
+		<copy todir="${d_invert.dir}/bin" filtering="true">
+			<fileset dir="${src.dir}/invert" excludes="echarcount_*, **/*.cgi, **/*.pm, **/README" />
+			<fileset dir="${src.dir}/contexts" excludes="**/*.cgi, **/*.pm, **/README" />
+		</copy>
+		<chmod dir="${d_invert.dir}/bin" perm="ugo+rx" includes="**/*" />
+		<chmod dir="${d_invert.dir}/bin" perm="ug+w" includes="**/*" />
+
+		<!-- lib -->
+		<copy todir="${d_invert.dir}/lib" filtering="true">
+			<fileset dir="${src.dir}/invert" includes="**/*.pm" />
+			<fileset dir="${src.dir}/contexts" includes="**/*.pm" />
+		</copy>
+
+		<!-- etc -->
+		<copy todir="${d_invert.dir}/etc" filtering="true">
+			<fileset dir="${src.dir}/config/invert" excludes="README.txt, INSTALL.txt" />
+		</copy>
+		<copy todir="${d_invert.dir}/etc/sql" filtering="true">
+			<fileset dir="${src.dir}/sql" includes="MEME_CONTEXTS.sql, cxt_tables.sql, cxt_indexes.sql" />
+		</copy>
+
+		<!-- INSTALL/README -->
+		<copy file="${src.dir}/config/invert/INSTALL.txt" tofile="${d_invert.dir}/INSTALL.txt" filtering="true" />
+		<copy file="${src.dir}/config/invert/README.txt" tofile="${d_invert.dir}/README.txt" filtering="true" />
+		<!-- zip midsvcs -->
+		<!-- Fixing the DOS Chars -->
+		<antcall target="fixLineFeed">
+			<param name="dir.value" value="${d_invert.dir}" />
+		</antcall>
+		<!--buildnumber file="build_midsvcs.number"/-->
+		<zip destfile="dist_invert${dist.suffix}.zip">
+			<zipfileset dir="${d_invert.dir}" includes="*.txt" />
+			<zipfileset dir="${d_invert.dir}/bin" prefix="bin/" filemode="775" />
+			<zipfileset file="${src.dir}/invert/echarcount_*" prefix="bin/" filemode="775" />
+			<zipfileset dir="${d_invert.dir}/etc" prefix="etc/" />
+			<zipfileset dir="${d_invert.dir}/lib" prefix="lib/" />
+		</zip>
+	</target>
+	<!-- Make Inversion -->
+	<target name="make_invert" description="Build INV_HOME" depends="init">
+		<!-- properties -->
+		<property name="d_invert.dir" value="dist/inversion" />
+		<!-- Make distribution dirs -->
+		<mkdir dir="${d_invert.dir}" />
+		<mkdir dir="${d_invert.dir}/bin" />
+		<mkdir dir="${d_invert.dir}/img" />
+		<mkdir dir="${d_invert.dir}/lib" />
+		<mkdir dir="${d_invert.dir}/etc" />
+		<mkdir dir="${d_invert.dir}/lib" />
+
+		<!-- bin -->
+		<copy todir="${d_invert.dir}/bin/Config" filtering="true">
+			<fileset dir="${src.dir}/inversion/bin/Config" />
+		</copy>
+		<copy todir="${d_invert.dir}/img" filtering="true">
+			<fileset dir="${src.dir}/inversion/img" />
+		</copy>
+		<copy todir="${d_invert.dir}/bin" filtering="true">
+			<fileset dir="${src.dir}/inversion/bin" />
+		</copy>
+		<chmod dir="${d_invert.dir}/bin" perm="ugo+rx" includes="**/*" />
+		<chmod dir="${d_invert.dir}/bin" perm="ug+w" includes="**/*" />
+
+		<!-- lib -->
+		<copy todir="${d_invert.dir}/lib" filtering="true">
+			<fileset dir="${src.dir}/inversion/lib" includes="**/*" />
+		</copy>
+
+		<!-- etc -->
+		<copy todir="${d_invert.dir}/etc" filtering="true">
+			<fileset dir="${src.dir}/inversion/etc" />
+		</copy>
+
+		<!-- img -->
+		<copy todir="${d_invert.dir}/img" filtering="true">
+			<fileset dir="${src.dir}/inversion/img" />
+		</copy>
+
+		<!-- INSTALL/README -->
+		<copy file="${src.dir}/config/inversion/INSTALL.TXT" tofile="${d_invert.dir}/INSTALL.txt" filtering="true" />
+		<copy file="${src.dir}/config/inversion/README.TXT" tofile="${d_invert.dir}/README.txt" filtering="true" />
+		<!-- zip midsvcs -->
+		<!-- Fixing the DOS Chars -->
+		<antcall target="fixLineFeed">
+			<param name="dir.value" value="${d_invert.dir}" />
+		</antcall>
+
+		<!--buildnumber file="build_midsvcs.number"/-->
+		<zip destfile="dist_invert${dist.suffix}.zip">
+			<zipfileset dir="${d_invert.dir}" includes="*.txt" />
+			<zipfileset dir="${d_invert.dir}/bin" prefix="bin/" filemode="775" />
+			<zipfileset dir="${d_invert.dir}/etc" prefix="etc/" />
+			<zipfileset dir="${d_invert.dir}/lib" prefix="lib/" />
+			<zipfileset dir="${d_invert.dir}/img" prefix="img" />
+		</zip>
+	</target>
+	<!-- Make LVGIF -->
+	<target name="make_lvgif" description="Build LVGIF_HOME" depends="init">
+		<!-- properties -->
+		<property name="d_lvgif.dir" value="dist/lvgif" />
+		<!-- mkdirs -->
+		<mkdir dir="${d_lvgif.dir}" />
+		<mkdir dir="${d_lvgif.dir}/bin" />
+		<mkdir dir="${d_lvgif.dir}/etc" />
+		<mkdir dir="${d_lvgif.dir}/lib" />
+		<!-- compile -->
+		<!-- Copy files to build in order to perform filtering -->
+		<mkdir dir="${build.dir}/src" />
+		<copy todir="${build.dir}/src" filtering="true">
+			<fileset dir="${src.dir}/java/" includes="gov/nih/nlm/umls/ems/lvg/*.java" />
+		</copy>
+		<javac srcdir="${build.dir}/src/gov/nih/nlm/umls/ems/lvg" destdir="${class.dir}" debug="true">
+			<classpath refid="classpath.compile" />
+		</javac>
+		<!-- make jars -->
+		<jar basedir="${class.dir}" destfile="${d_lvgif.dir}/lib/lvgif.jar" includes="gov/nih/nlm/umls/ems/lvg/*.class" />
+		<!-- bin -->
+		<!-- lvgif bin and lib -->
+		<copy todir="${d_lvgif.dir}/bin" filtering="true">
+			<fileset dir="${src.dir}/lvg" excludes="**/*.cgi, **/*.pm, **/README, lvgcgi.pl" />
+		</copy>
+		<chmod dir="${d_lvgif.dir}/bin" perm="ugo+rx" includes="**/*" />
+		<chmod dir="${d_lvgif.dir}/bin" perm="ug+w" includes="**/*" />
+		<!-- lib -->
+		<copy todir="${d_lvgif.dir}/lib" filtering="true">
+			<fileset dir="${src.dir}/lvg" includes="**/*.pm" />
+		</copy>
+		<chmod dir="${d_lvgif.dir}/lib" perm="ugo+r" includes="**/*" />
+		<chmod dir="${d_lvgif.dir}/lib" perm="ug+w" includes="**/*" />
+		<!-- etc -->
+		<copy todir="${d_lvgif.dir}/etc" filtering="true">
+			<fileset dir="${src.dir}/config/lvgif" excludes="**/*.txt" />
+		</copy>
+		<!-- Get INSTALL/README -->
+		<copy file="${src.dir}/config/lvgif/INSTALL.txt" tofile="${d_lvgif.dir}/INSTALL.txt" filtering="true" />
+		<copy file="${src.dir}/config/lvgif/README.txt" tofile="${d_lvgif.dir}/README.txt" filtering="true" />
+		<!-- zip -->
+		<!-- Fixing the DOS Chars -->
+		<antcall target="fixLineFeed">
+			<param name="dir.value" value="${d_lvgif.dir}" />
+		</antcall>
+		<!--buildnumber file="build_lvgif.number"/-->
+		<zip destfile="dist_lvgif${dist.suffix}.zip">
+			<zipfileset dir="${d_lvgif.dir}" includes="*.txt" />
+			<zipfileset dir="${d_lvgif.dir}/bin" prefix="bin/" filemode="775" />
+			<zipfileset dir="${d_lvgif.dir}/lib" prefix="lib/" />
+			<zipfileset dir="${d_lvgif.dir}/etc" prefix="etc/" />
+		</zip>
+
+	</target>
+
+	<!-- Make Jekyll -->
+	<target name="make_jekyll" description="Build Jekyll distribution" depends="init">
+
+		<!-- Set dir property -->
+		<property name="d_jekyll.dir" value="dist/jekyll" />
+
+		<!-- mkdirs -->
+		<mkdir dir="${d_jekyll.dir}" />
+		<mkdir dir="${d_jekyll.dir}/lib" />
+
+		<!-- compile classes -->
+		<antcall target="meme_compile" />
+		<antcall target="jekyll_compile" />
+
+		<!-- Copy appropriate extlib files lib dir -->
+		<copy todir="${d_jekyll.dir}/lib">
+			<fileset dir="${extlib.dir}" includes="jaxp.jar, xercesImpl.jar, samples.jar, utils.jar" />
+		</copy>
+
+		<!-- Make meme.jar -->
+		<jar destfile="${d_jekyll.dir}/lib/meme.jar">
+			<fileset dir="${class.dir}" includes="gov/nih/nlm/util/*class" />
+			<fileset dir="${class.dir}" includes="gov/nih/nlm/swing/*class" />
+			<fileset dir="${class.dir}" includes="gov/nih/nlm/meme/**/*class" />
+		</jar>
+
+		<!-- Make jekyll.jar -->
+		<mkdir dir="${class.dir}/bundles" />
+		<copy todir="${class.dir}/bundles">
+			<fileset dir="${src.dir}/config/jekyll" includes="*properties" />
+		</copy>
+		<mkdir dir="${class.dir}/auxfiles" />
+		<copy todir="${class.dir}/auxfiles">
+			<fileset dir="${src.dir}/config/jekyll" includes="*sty_groups_help.txt" />
+		</copy>
+		<mkdir dir="${class.dir}/images" />
+		<copy todir="${class.dir}/images">
+			<fileset dir="${src.dir}/config/jekyll" includes="jekyll.jpg" />
+		</copy>
+		<!-- Fixing the DOS Chars -->
+		<antcall target="fixLineFeed">
+			<param name="dir.value" value="${d_jekyll.dir}" />
+		</antcall>
+		<jar destfile="${d_jekyll.dir}/lib/jekyll.jar">
+			<fileset dir="${class.dir}" includes="gov/nih/nlm/umls/jekyll/**/*class" />
+			<fileset dir="${class.dir}" includes="bundles/*" />
+			<fileset dir="${class.dir}" includes="auxfiles/*" />
+			<fileset dir="${class.dir}" includes="images/*" />
+		</jar>
+
+		<!-- bin -->
+		<delete file="${d_jekyll.dir}/bin/makejnlp.csh" />
+		<copy file="${src.dir}/config/jekyll/makejnlp.csh" tofile="${d_jekyll.dir}/bin/makejnlp.csh" filtering="true">
+			<filterset>
+				<filter token="MAIN_CLASS" value="gov.nih.nlm.umls.jekyll.JekyllStart" />
+			</filterset>
+		</copy>
+
+		<!-- etc -->
+		<copy file="${src.dir}/config/meme/meme.client.prop_orig" tofile="${d_jekyll.dir}/etc/meme.prop_orig" filtering="true" />
+		<!-- INSTALL/README -->
+		<copy file="${src.dir}/config/jekyll/INSTALL.txt" tofile="${d_jekyll.dir}/INSTALL.txt" filtering="true" />
+		<copy file="${src.dir}/config/jekyll/README.txt" tofile="${d_jekyll.dir}/README.txt" filtering="true" />
+
+		<!-- zip jekyll -->
+		<zip destfile="dist_jekyll${dist.suffix}.zip">
+			<zipfileset dir="${d_jekyll.dir}" includes="*.txt" />
+			<zipfileset dir="${d_jekyll.dir}/bin" prefix="bin/" filemode="775" />
+			<zipfileset dir="${d_jekyll.dir}/lib" prefix="lib/" />
+			<zipfileset dir="${d_jekyll.dir}/etc" prefix="etc/" />
+			<zipfileset file="${src.dir}/config/meme/myKeystore" prefix="etc/" />
+		</zip>
+	</target>
+
+
+	<!-- Make MEME Target -->
+	<target name="make_meme" description="Build MEME_HOME" depends="init">
+		<property name="d_meme.dir" value="dist/meme" />
+
+		<!-- Make distribution dirs -->
+		<mkdir dir="${d_meme.dir}" />
+		<mkdir dir="${d_meme.dir}/bin" />
+		<mkdir dir="${d_meme.dir}/lib" />
+		<mkdir dir="${d_meme.dir}/etc" />
+		<mkdir dir="${d_meme.dir}/log" />
+
+		<antcall target="meme_compile" />
+		<antcall target="meme_server_jar" />
+
+		<!-- bin -->
+		<copy todir="${d_meme.dir}/bin" filtering="true">
+			<fileset dir="${src.dir}/admin" excludes="**/*.cgi, **/*.pm, **/README, mrd_server.sh" />
+			<fileset dir="${src.dir}/contexts" excludes="cxt_ptr.pl" />
+			<fileset dir="${src.dir}/maintenance" excludes="**/*.cgi, **/*.pm, **/README" />
+			<fileset dir="${src.dir}/production" excludes="**/*.cgi, **/*.pm, **/README, *mrd*, make_config.csh" />
+			<fileset dir="${src.dir}/reports" excludes="**/*.cgi, **/*.pm, **/README, cui_report.csh, showrel.pl" />
+			<fileset dir="${src.dir}/util" excludes="**/*.cgi, **/*.pm, **/README, make_utils.pl" />
+			<fileset dir="${src.dir}/qa" excludes="**/*.cgi, **/*.pm, **/README, *qa*csh, orf*csh, gold_script.csh, cui_compare.csh, validate.pl" />
+		</copy>
+		<chmod dir="${d_meme.dir}/bin" perm="ugo+rx" includes="**/*" />
+		<chmod dir="${d_meme.dir}/bin" perm="ug+w" includes="**/*" />
+		<!-- lib -->
+		<copy todir="${d_meme.dir}/lib" filtering="true">
+			<fileset dir="${src.dir}/admin" includes="**/*.pm" />
+			<fileset dir="${src.dir}/doc-gen" includes="**/*.pm" />
+			<fileset dir="${src.dir}/dvd" includes="**/*.pm" />
+			<fileset dir="${src.dir}/maintenance" includes="**/*.pm" />
+			<fileset dir="${src.dir}/production" includes="**/*.pm" />
+			<fileset dir="${src.dir}/qa" includes="**/*.pm" />
+			<fileset dir="${src.dir}/reports" includes="**/*.pm" />
+			<fileset dir="${src.dir}/sql" includes="**/*.pm" />
+			<fileset dir="${src.dir}/util" includes="**/*.pm" />
+		</copy>
+		<chmod dir="${d_meme.dir}/lib" perm="ugo+r" includes="**/*" />
+		<chmod dir="${d_meme.dir}/lib" perm="ug+w" includes="**/*" />
+		<!-- etc -->
+		<copy file="${src.dir}/config/meme/meme.prop_orig" todir="${d_meme.dir}/etc" filtering="true" />
+		<copy file="${src.dir}/config/meme/crontab_orig" todir="${d_meme.dir}/etc" filtering="true" />
+		<copy file="${src.dir}/config/meme/nightly_tasks.csh_orig" todir="${d_meme.dir}/etc" filtering="true" />
+		<copy file="${src.dir}/config/meme/cronvalidate.csh_orig" todir="${d_meme.dir}/etc" filtering="true" />
+		<copy todir="${d_meme.dir}/etc/sql" filtering="true">
+			<fileset dir="${src.dir}/sql" includes="MEME*sql, gen_qa_data.sql, meme_*sql, stale_stats.sql, clean_regen_qa_data.sql" />
+		</copy>
+		<!-- INSTALL/README -->
+		<copy file="${src.dir}/config/meme/INSTALL_meme.txt" tofile="${d_meme.dir}/INSTALL.txt" filtering="true" />
+		<copy file="${src.dir}/config/meme/README_meme.txt" tofile="${d_meme.dir}/README.txt" filtering="true" />
+		<!-- zip meme -->
+		<!-- Fixing the DOS Chars -->
+		<antcall target="fixLineFeed">
+			<param name="dir.value" value="${d_meme.dir}" />
+		</antcall>
+		<!-- buildnumber file="build_meme.number"/ -->
+		<zip destfile="dist_meme${dist.suffix}.zip">
+			<zipfileset dir="${d_meme.dir}" includes="*.txt" />
+			<zipfileset dir="${d_meme.dir}/bin" prefix="bin/" filemode="775" />
+			<zipfileset dir="${d_meme.dir}/lib" prefix="lib/" />
+			<zipfileset dir="${d_meme.dir}/etc" prefix="etc/" />
+			<!-- start with empty log dir -->
+			<zipfileset dir="${d_meme.dir}/log" prefix="log/" />
+		</zip>
+
+	</target>
+
+	<!-- Make MEOW -->
+	<target name="make_meow" description="Build MEOW website" depends="init">
+
+		<property name="d_meow.dir" value="dist/meow" />
+		<property name="d_meme.dir" value="dist/meow" />
+		<property name="d_mrd.dir" value="dist/meow" />
+
+		<!-- Make distribution dirs -->
+		<mkdir dir="${d_meow.dir}" />
+		<mkdir dir="${d_meow.dir}/bin" />
+		<mkdir dir="${d_meow.dir}/etc" />
+		<mkdir dir="${d_meow.dir}/lib" />
+		<mkdir dir="${d_meow.dir}/webapps-meme" />
+		<mkdir dir="${d_meow.dir}/webapps-meme/img" />
+		<mkdir dir="${d_meow.dir}/webapps-meme/WEB-INF" />
+		<mkdir dir="${d_meow.dir}/webapps-meme/WEB-INF/classes" />
+		<mkdir dir="${d_meow.dir}/webapps-meme/WEB-INF/lib" />
+		<mkdir dir="${d_meow.dir}/webapps-meme-editors" />
+		<mkdir dir="${d_meow.dir}/webapps-meme-editors/img" />
+		<mkdir dir="${d_meow.dir}/webapps-meme-editors/WEB-INF" />
+		<mkdir dir="${d_meow.dir}/webapps-meme-editors/WEB-INF/classes" />
+		<mkdir dir="${d_meow.dir}/webapps-meme-editors/WEB-INF/lib" />
+		<mkdir dir="${d_meow.dir}/log" />
+
+		<!-- For MEME tasks -->
+		<antcall target="web_compile" />
+		<antcall target="meme_web_jar" />
+		<antcall target="meme_webapps" />
+		<antcall target="meme_webapps_editors" />
+
+		<!-- javadoc -->
+		<mkdir dir="${build.dir}/javadoc" />
+		<javadoc packagenames="gov.nih.nlm.*" sourcepath="${src.dir}/java" destdir="${build.dir}/javadoc" classpathref="classpath.compile" author="true" version="false" windowtitle="UMLS Java Documentation">
+			<bottom>
+				<![CDATA[<em>Copyright &copy;2005</em>
+		</div>]]>
+            </bottom>
+	<link href="http://java.sun.com/j2se/1.4/docs/api" />
+	<link href="http://java.sun.com/xml/jaxp-1.0.1/docs/api" />
+</javadoc>
+
+<!-- cgi-bin -->
+<copy todir="${d_meow.dir}/cgi-bin" filtering="true">
+	<fileset dir="${src.dir}/admin" includes="*.cgi" />
+	<fileset dir="${src.dir}/doc-gen" includes="*.cgi" />
+	<fileset dir="${src.dir}/maintenance" includes="*.cgi" />
+	<fileset dir="${src.dir}/qa" includes="*.cgi" />
+	<fileset dir="${src.dir}/lvg" includes="lvgcgi.pl" />
+	<fileset dir="${src.dir}/production" includes="*.cgi" />
+	<fileset dir="${src.dir}/util" includes="meme_utils.pl" />
+	<fileset dir="${src.dir}/invert" includes="*.cgi" />
+</copy>
+<chmod dir="${d_meow.dir}/cgi-bin" perm="ugo+rx" includes="**/*" />
+<chmod dir="${d_meow.dir}/cgi-bin" perm="ug+w" includes="**/*" />
+<mkdir dir="${d_meow.dir}/cgi-bin/Logs" />
+<mkdir dir="${d_meow.dir}/cgi-bin/DBRequests" />
+<mkdir dir="${d_meow.dir}/cgi-bin/DBResponses" />
+<mkdir dir="${d_meow.dir}/cgi-bin/DBProblems" />
+<mkdir dir="${d_meow.dir}/cgi-bin/MIDLogs" />
+<mkdir dir="${d_meow.dir}/cgi-bin/StatusReports" />
+
+<!-- !attention: need EMS/WMS and other CGI scripts, when available -->
+<!-- bin: only keep a limited set -->
+<copy todir="${d_meow.dir}/bin" filtering="true">
+	<fileset dir="${src.dir}/admin" includes="admin.pl, dump_mid.pl, rebuild_mid.pl, memerun.pl" />
+	<fileset dir="${src.dir}/doc-gen" includes="table_documentation.pl" />
+	<fileset dir="${src.dir}/maintenance" excludes="**/*.cgi, **/*.pm, **/README" />
+	<fileset dir="${src.dir}/reports" includes="editing.csh, reports.pl, xreports.pl" />
+	<fileset dir="${src.dir}/util" excludes="**/*.cgi, **/*.pm, **/README, meme_utils.pl" />
+	<fileset dir="${src.dir}/qa" includes="validate.pl" />
+</copy>
+<chmod dir="${d_meow.dir}/bin" perm="ugo+rx" includes="**/*" />
+<chmod dir="${d_meow.dir}/bin" perm="ug+w" includes="**/*" />
+<!-- lib -->
+<copy todir="${d_meow.dir}/lib" filtering="true">
+	<fileset dir="${src.dir}/admin" includes="**/*.pm" />
+	<fileset dir="${src.dir}/doc-gen" includes="**/*.pm" />
+	<fileset dir="${src.dir}/maintenance" includes="**/*.pm" />
+	<fileset dir="${src.dir}/production" includes="**/*.pm" />
+	<fileset dir="${src.dir}/qa" includes="**/*.pm" />
+	<fileset dir="${src.dir}/reports" includes="**/*.pm" />
+	<fileset dir="${src.dir}/sql" includes="**/*.pm" />
+	<fileset dir="${src.dir}/util" includes="**/*.pm" />
+	<fileset dir="${src.dir}/inversion/lib" includes="SrcReport.pm" />
+</copy>
+<chmod dir="${d_meow.dir}/lib" perm="ugo+r" includes="**/*" />
+<chmod dir="${d_meow.dir}/lib" perm="ug+w" includes="**/*" />
+<!-- etc -->
+<copy file="${src.dir}/config/meme/meme.client.prop_orig" todir="${d_meow.dir}/etc/" filtering="true" />
+<copy file="${src.dir}/config/meme/mrd.client.prop_orig" todir="${d_meow.dir}/etc/" filtering="true" />
+<copy file="${src.dir}/config/meme/build.xml" todir="${d_meow.dir}/etc/" filtering="true" />
+<copy file="${src.dir}/config/meme/crontab_orig" todir="${d_meow.dir}/etc" filtering="true" />
+<copy file="${src.dir}/config/meme/nightly_tasks.csh_orig" todir="${d_meow.dir}/etc" filtering="true" />
+<copy file="${src.dir}/config/meme/cronvalidate.csh_orig" todir="${d_meow.dir}/etc" filtering="true" />
+<!-- These do not need to exist on web server
+		<copy todir="${d_meme.dir}/etc/sql" filtering="true">
+			<fileset dir="${src.dir}/sql" includes="MEME*sql, gen_qa_data.sql, meme_*sql, stale_stats.sql, clean_regen_qa_data.sql"/>
+		</copy>
+		-->
+<!-- INSTALL/README -->
+<copy file="${src.dir}/config/meme/INSTALL_web.txt" tofile="${d_meow.dir}/INSTALL.txt" filtering="true" />
+<copy file="${src.dir}/config/meme/README_web.txt" tofile="${d_meow.dir}/README.txt" filtering="true" />
+<!-- zip meme -->
+<!-- Fixing the DOS Chars -->
+<antcall target="fixLineFeed">
+	<param name="dir.value" value="${d_meow.dir}" />
+</antcall>
+<!--buildnumber file="build_meow.number"/-->
+<zip destfile="dist_meow${dist.suffix}.zip">
+	<zipfileset dir="${d_meow.dir}" includes="*.txt" />
+	<zipfileset dir="${d_meow.dir}/bin" prefix="bin/" filemode="775" />
+	<zipfileset dir="${d_meow.dir}/cgi-bin" prefix="cgi-bin/" filemode="775" />
+	<zipfileset dir="${d_meow.dir}/lib" prefix="lib/" />
+	<zipfileset dir="${d_meow.dir}/etc" prefix="etc/" />
+	<zipfileset dir="${d_meow.dir}/webapps-meme" prefix="webapps-meme/" includes="**/*" />
+	<zipfileset dir="${d_meow.dir}/webapps-meme-editors" prefix="webapps-meme-editors/" includes="**/*" />
+	<zipfileset dir="${www.dir}" prefix="www/" includes="**/*" />
+	<zipfileset dir="${build.dir}/javadoc" prefix="www/javadoc" />
+	<zipfileset dir="${src.dir}/sql" prefix="www/MRD/Data" includes="mrd*sql" />
+	<zipfileset dir="${src.dir}/sql" prefix="www/MEME/Data" includes="meme*sql" />
+	<zipfileset file="${src.dir}/config/meme/myKeystore" prefix="etc/" />
+	<zipfileset dir="${d_meme.dir}/lib" prefix="webapps-meme/WEB-INF/lib" includes="*.jar" />
+	<zipfileset dir="${d_meme.dir}/lib" prefix="webapps-meme-editors/WEB-INF/lib" includes="*.jar" />
+	<zipfileset dir="${weblib.dir}" prefix="webapps-meme/WEB-INF/lib" includes="commons*.jar, struts*.jar, Struts-Layout.jar, antlr*.jar, oro.jar" />
+	<zipfileset dir="${weblib.dir}" prefix="webapps-meme-editors/WEB-INF/lib" includes="commons*.jar, struts*.jar, Struts-Layout.jar, antlr*.jar, oro.jar" />
+</zip>
+</target>
+
+<!-- Make MEOW without www -->
+<target name="make_meow_no_www" description="Build MEOW website without www" depends="init">
+
+<property name="d_meow.dir" value="dist/meow" />
+<property name="d_meme.dir" value="dist/meow" />
+<property name="d_mrd.dir" value="dist/meow" />
+
+<!-- Make distribution dirs -->
+<mkdir dir="${d_meow.dir}" />
+<mkdir dir="${d_meow.dir}/bin" />
+<mkdir dir="${d_meow.dir}/etc" />
+<mkdir dir="${d_meow.dir}/lib" />
+<mkdir dir="${d_meow.dir}/webapps-meme" />
+<mkdir dir="${d_meow.dir}/webapps-meme/img" />
+<mkdir dir="${d_meow.dir}/webapps-meme/WEB-INF" />
+<mkdir dir="${d_meow.dir}/webapps-meme/WEB-INF/classes" />
+<mkdir dir="${d_meow.dir}/webapps-meme/WEB-INF/lib" />
+<mkdir dir="${d_meow.dir}/webapps-meme-editors" />
+<mkdir dir="${d_meow.dir}/webapps-meme-editors/img" />
+<mkdir dir="${d_meow.dir}/webapps-meme-editors/WEB-INF" />
+<mkdir dir="${d_meow.dir}/webapps-meme-editors/WEB-INF/classes" />
+<mkdir dir="${d_meow.dir}/webapps-meme-editors/WEB-INF/lib" />
+<mkdir dir="${d_meow.dir}/log" />
+
+<!-- For MEME tasks -->
+<antcall target="web_compile" />
+<antcall target="meme_web_jar" />
+<antcall target="meme_webapps" />
+<antcall target="meme_webapps_editors" />
+
+<!-- cgi-bin -->
+<copy todir="${d_meow.dir}/cgi-bin" filtering="true">
+	<fileset dir="${src.dir}/admin" includes="*.cgi" />
+	<fileset dir="${src.dir}/doc-gen" includes="*.cgi" />
+	<fileset dir="${src.dir}/maintenance" includes="*.cgi" />
+	<fileset dir="${src.dir}/qa" includes="*.cgi" />
+	<fileset dir="${src.dir}/lvg" includes="lvgcgi.pl" />
+	<fileset dir="${src.dir}/production" includes="*.cgi" />
+	<fileset dir="${src.dir}/util" includes="meme_utils.pl" />
+	<fileset dir="${src.dir}/invert" includes="*.cgi" />
+</copy>
+<chmod dir="${d_meow.dir}/cgi-bin" perm="ugo+rx" includes="**/*" />
+<chmod dir="${d_meow.dir}/cgi-bin" perm="ug+w" includes="**/*" />
+<mkdir dir="${d_meow.dir}/cgi-bin/Logs" />
+<mkdir dir="${d_meow.dir}/cgi-bin/DBRequests" />
+<mkdir dir="${d_meow.dir}/cgi-bin/DBResponses" />
+<mkdir dir="${d_meow.dir}/cgi-bin/DBProblems" />
+<mkdir dir="${d_meow.dir}/cgi-bin/MIDLogs" />
+<mkdir dir="${d_meow.dir}/cgi-bin/StatusReports" />
+
+<!-- !attention: need EMS/WMS and other CGI scripts, when available -->
+<!-- bin: only keep a limited set -->
+<copy todir="${d_meow.dir}/bin" filtering="true">
+	<fileset dir="${src.dir}/admin" includes="admin.pl, dump_mid.pl, rebuild_mid.pl, memerun.pl" />
+	<fileset dir="${src.dir}/doc-gen" includes="table_documentation.pl" />
+	<fileset dir="${src.dir}/maintenance" excludes="**/*.cgi, **/*.pm, **/README" />
+	<fileset dir="${src.dir}/reports" includes="editing.csh, reports.pl, xreports.pl" />
+	<fileset dir="${src.dir}/util" excludes="**/*.cgi, **/*.pm, **/README, meme_utils.pl" />
+	<fileset dir="${src.dir}/qa" includes="validate.pl" />
+</copy>
+<chmod dir="${d_meow.dir}/bin" perm="ugo+rx" includes="**/*" />
+<chmod dir="${d_meow.dir}/bin" perm="ug+w" includes="**/*" />
+<!-- lib -->
+<copy todir="${d_meow.dir}/lib" filtering="true">
+	<fileset dir="${src.dir}/admin" includes="**/*.pm" />
+	<fileset dir="${src.dir}/doc-gen" includes="**/*.pm" />
+	<fileset dir="${src.dir}/maintenance" includes="**/*.pm" />
+	<fileset dir="${src.dir}/production" includes="**/*.pm" />
+	<fileset dir="${src.dir}/qa" includes="**/*.pm" />
+	<fileset dir="${src.dir}/reports" includes="**/*.pm" />
+	<fileset dir="${src.dir}/sql" includes="**/*.pm" />
+	<fileset dir="${src.dir}/util" includes="**/*.pm" />
+	<fileset dir="${src.dir}/inversion/lib" includes="SrcReport.pm" />
+</copy>
+<chmod dir="${d_meow.dir}/lib" perm="ugo+r" includes="**/*" />
+<chmod dir="${d_meow.dir}/lib" perm="ug+w" includes="**/*" />
+<!-- etc -->
+<copy file="${src.dir}/config/meme/meme.client.prop_orig" todir="${d_meow.dir}/etc/" filtering="true" />
+<copy file="${src.dir}/config/meme/mrd.client.prop_orig" todir="${d_meow.dir}/etc/" filtering="true" />
+<copy file="${src.dir}/config/meme/build.xml" todir="${d_meow.dir}/etc/" filtering="true" />
+<copy file="${src.dir}/config/meme/crontab_orig" todir="${d_meow.dir}/etc" filtering="true" />
+<copy file="${src.dir}/config/meme/nightly_tasks.csh_orig" todir="${d_meow.dir}/etc" filtering="true" />
+<copy file="${src.dir}/config/meme/cronvalidate.csh_orig" todir="${d_meow.dir}/etc" filtering="true" />
+<!-- do not need these in web environment
+		<copy todir="${d_meme.dir}/etc/sql" filtering="true">
+			<fileset dir="${src.dir}/sql" includes="MEME*sql, gen_qa_data.sql, meme_*sql, stale_stats.sql, clean_regen_qa_data.sql"/>
+		</copy>
+		-->
+<!-- INSTALL/README -->
+<copy file="${src.dir}/config/meme/INSTALL_web.txt" tofile="${d_meow.dir}/INSTALL.txt" filtering="true" />
+<copy file="${src.dir}/config/meme/README_web.txt" tofile="${d_meow.dir}/README.txt" filtering="true" />
+<!-- zip meme -->
+<antcall target="fixLineFeed">
+	<param name="dir.value" value="${d_meow.dir}" />
+</antcall>
+<!--buildnumber file="build_meow.number"/-->
+<zip destfile="dist_meow${dist.suffix}.zip">
+	<zipfileset dir="${d_meow.dir}" includes="*.txt" />
+	<zipfileset dir="${d_meow.dir}/bin" prefix="bin/" filemode="775" />
+	<zipfileset dir="${d_meow.dir}/cgi-bin" prefix="cgi-bin/" filemode="775" />
+	<zipfileset dir="${d_meow.dir}/lib" prefix="lib/" />
+	<zipfileset dir="${d_meow.dir}/etc" prefix="etc/" />
+	<zipfileset dir="${d_meow.dir}/webapps-meme" prefix="webapps-meme/" includes="**/*" />
+	<zipfileset dir="${d_meow.dir}/webapps-meme-editors" prefix="webapps-meme-editors/" includes="**/*" />
+	<zipfileset file="${src.dir}/config/meme/myKeystore" prefix="etc/" />
+	<zipfileset dir="${d_meme.dir}/lib" prefix="webapps-meme/WEB-INF/lib" includes="*.jar" />
+	<zipfileset dir="${d_meme.dir}/lib" prefix="webapps-meme-editors/WEB-INF/lib" includes="*.jar" />
+	<zipfileset dir="${weblib.dir}" prefix="webapps-meme/WEB-INF/lib" includes="commons*.jar, struts*.jar, Struts-Layout.jar, antlr*.jar, oro*.jar" />
+	<zipfileset dir="${weblib.dir}" prefix="webapps-meme-editors/WEB-INF/lib" includes="commons*.jar, struts*.jar, Struts-Layout.jar, antlr*.jar, oro*.jar" />
+</zip>
+</target>
+
+<target name="meme_compile" description="Compile meme code">
+<!-- compile -->
+
+<!-- Copy files to build in order to perform filtering -->
+<javac destdir="${class.dir}" debug="true" srcdir="${src.dir}/java">
+	<classpath refid="classpath.compile" />
+	<include name="gov/nih/nlm/meme/**/*.java" />
+	<include name="gov/nih/nlm/swing/**/*.java" />
+	<include name="gov/nih/nlm/util/**/*.java" />
+</javac>
+</target>
+
+<target name="jekyll_compile" description="Compile jekyll code">
+<!-- compile -->
+
+<!-- Copy files to build in order to perform filtering -->
+<javac destdir="${class.dir}" debug="true" srcdir="${src.dir}/java">
+	<classpath refid="classpath.compile" />
+	<include name="gov/nih/nlm/umls/jekyll/**/*.java" />
+</javac>
+</target>
+
+<!-- Build jar files for server side -->
+<target name="meme_server_jar" description="Build meme jar files">
+<!-- jar -->
+<jar basedir="${class.dir}" destfile="${d_meme.dir}/lib/memeMeme.jar" includes="gov/nih/nlm/meme/*.class" />
+<jar basedir="${class.dir}" destfile="${d_meme.dir}/lib/memeAction.jar" includes="gov/nih/nlm/meme/action/*.class" />
+<jar basedir="${class.dir}" destfile="${d_meme.dir}/lib/memeClient.jar" includes="gov/nih/nlm/meme/client/*.class" />
+<jar basedir="${class.dir}" destfile="${d_meme.dir}/lib/memeCommon.jar" includes="gov/nih/nlm/meme/common/*.class" />
+<jar basedir="${class.dir}" destfile="${d_meme.dir}/lib/memeException.jar" includes="gov/nih/nlm/meme/exception/*.class" />
+<jar basedir="${class.dir}" destfile="${d_meme.dir}/lib/memeIntegrity.jar" includes="gov/nih/nlm/meme/integrity/*.class" />
+<jar basedir="${class.dir}" destfile="${d_meme.dir}/lib/memeQa.jar" includes="gov/nih/nlm/meme/qa/**/*.class" />
+<jar basedir="${class.dir}" destfile="${d_meme.dir}/lib/memeServer.jar" includes="gov/nih/nlm/meme/server/*.class" />
+<jar basedir="${class.dir}" destfile="${d_meme.dir}/lib/memeSql.jar" includes="gov/nih/nlm/meme/sql/*.class" />
+<jar basedir="${class.dir}" destfile="${d_meme.dir}/lib/memeXml.jar" includes="gov/nih/nlm/meme/xml/*.class" />
+<!-- other govs: swing and util -->
+<jar basedir="${class.dir}" destfile="${d_meme.dir}/lib/memeSwing.jar" includes="gov/nih/nlm/swing/*.class" />
+<jar basedir="${class.dir}" destfile="${d_meme.dir}/lib/memeUtil.jar" includes="gov/nih/nlm/util/*.class" />
+</target>
+
+<!-- Build jars for web environment -->
+<target name="meme_web_jar" description="Build meme jar files">
+<!-- jar -->
+<delete>
+	<fileset dir="${d_meme.dir}/lib" includes="*jar" />
+</delete>
+<jar basedir="${class.dir}" destfile="${d_meme.dir}/lib/memeMeme.jar" includes="gov/nih/nlm/meme/*.class" />
+<jar basedir="${class.dir}" destfile="${d_meme.dir}/lib/memeAction.jar" includes="gov/nih/nlm/meme/action/*.class" />
+<jar basedir="${class.dir}" destfile="${d_meme.dir}/lib/memeBeans.jar" includes="gov/nih/nlm/meme/beans/*.class" />
+<jar basedir="${class.dir}" destfile="${d_meme.dir}/lib/memeClient.jar" includes="gov/nih/nlm/meme/client/*.class" />
+<jar basedir="${class.dir}" destfile="${d_meme.dir}/lib/memeCommon.jar" includes="gov/nih/nlm/meme/common/*.class" />
+<jar basedir="${class.dir}" destfile="${d_meme.dir}/lib/memeException.jar" includes="gov/nih/nlm/meme/exception/*.class" />
+<jar basedir="${class.dir}" destfile="${d_meme.dir}/lib/memeIntegrity.jar" includes="gov/nih/nlm/meme/integrity/*.class" />
+<jar basedir="${class.dir}" destfile="${d_meme.dir}/lib/memeQaTest.jar" includes="gov/nih/nlm/meme/qa/**/*.class" />
+<jar basedir="${class.dir}" destfile="${d_meme.dir}/lib/memeServer.jar" includes="gov/nih/nlm/meme/server/*.class" />
+<jar basedir="${class.dir}" destfile="${d_meme.dir}/lib/memeSql.jar" includes="gov/nih/nlm/meme/sql/*.class" />
+<jar basedir="${class.dir}" destfile="${d_meme.dir}/lib/memeWeb.jar" includes="gov/nih/nlm/meme/web/*.class" />
+<jar basedir="${class.dir}" destfile="${d_meme.dir}/lib/memeXml.jar" includes="gov/nih/nlm/meme/xml/*.class" />
+<!-- other govs: swing and util -->
+<jar basedir="${class.dir}" destfile="${d_meme.dir}/lib/memeSwing.jar" includes="gov/nih/nlm/swing/*.class" />
+<jar basedir="${class.dir}" destfile="${d_meme.dir}/lib/memeUtil.jar" includes="gov/nih/nlm/util/*.class" />
+<!-- all the gov mrd jars -->
+<jar basedir="${class.dir}" destfile="${d_meme.dir}/lib/mrdBeans.jar" includes="gov/nih/nlm/mrd/beans/*.class" />
+<jar basedir="${class.dir}" destfile="${d_meme.dir}/lib/mrdClient.jar" includes="gov/nih/nlm/mrd/client/*.class" />
+<jar basedir="${class.dir}" destfile="${d_meme.dir}/lib/mrdCommon.jar" includes="gov/nih/nlm/mrd/common/*.class" />
+<jar basedir="${class.dir}" destfile="${d_meme.dir}/lib/mrdServer.jar" includes="gov/nih/nlm/mrd/server/ServerConstants*.class" />
+<jar basedir="${class.dir}" destfile="${d_meme.dir}/lib/mrdSql.jar" includes="gov/nih/nlm/mrd/sql/*.class" />
+<jar basedir="${class.dir}" destfile="${d_meme.dir}/lib/mrdWeb.jar" includes="gov/nih/nlm/mrd/web/*.class" />
+
+</target>
+
+<!-- prepare all the files for the webapps-meme -->
+<target name="meme_webapps" description="Build webapps directory">
+<!-- webapps-meme -->
+<copy todir="${d_meme.dir}/webapps-meme">
+	<fileset dir="${src.dir}/webapps-meme/web" />
+</copy>
+<copy todir="${d_meme.dir}/webapps-meme/WEB-INF/classes" filtering="true">
+	<fileset dir="${src.dir}/webapps-meme/src" excludes="gov/**" />
+</copy>
+
+<!-- copy the stylesheet -->
+<copy file="${src.dir}/webapps-meme/web/stylesheets.css" todir="${d_meme.dir}/webapps-meme" filtering="true" />
+<!-- the jar files are just zipped directly into the final product -->
+<copy todir="${d_meme.dir}/webapps-meme/WEB-INF" filtering="true">
+	<fileset dir="${src.dir}/webapps-meme/web/WEB-INF/tlds" includes="meme.tld, struts*tld" />
+</copy>
+<!-- copy the properties -->
+<copy file="${src.dir}/config/meme/meme.client.prop_orig" tofile="${d_meme.dir}/webapps-meme/WEB-INF/classes/meme.prop_orig" filtering="true" />
+<copy file="${src.dir}/config/meme/mrd.client.prop_orig" tofile="${d_meme.dir}/webapps-meme/WEB-INF/classes/mrd.prop_orig" filtering="true" />
+</target>
+
+<!-- prepare all the files for the webapps-meme-editors -->
+<target name="meme_webapps_editors" description="Build webapps editors directory">
+<!-- webapps-meme-editors -->
+<copy todir="${d_meme.dir}/webapps-meme-editors">
+	<fileset dir="${src.dir}/webapps-meme-editors/web" />
+</copy>
+<copy todir="${d_meme.dir}/webapps-meme-editors/WEB-INF/classes" filtering="true">
+	<fileset dir="${src.dir}/webapps-meme-editors/src" excludes="gov/**" />
+</copy>
+
+<!-- copy the stylesheet -->
+<copy file="${src.dir}/webapps-meme-editors/web/stylesheets.css" todir="${d_meme.dir}/webapps-meme-editors" filtering="true" />
+<!-- the jar files are just zipped directly into the final product -->
+<copy todir="${d_meme.dir}/webapps-meme-editors/WEB-INF" filtering="true">
+	<fileset dir="${src.dir}/webapps-meme-editors/web/WEB-INF/tlds" includes="meme.tld, struts*tld" />
+</copy>
+<!-- copy the properties -->
+<copy file="${src.dir}/config/meme/meme.client.prop_orig" tofile="${d_meme.dir}/webapps-meme-editors/WEB-INF/classes/meme.prop_orig" filtering="true" />
+<copy file="${src.dir}/config/meme/mrd.client.prop_orig" tofile="${d_meme.dir}/webapps-meme-editors/WEB-INF/classes/mrd.prop_orig" filtering="true" />
+</target>
+
+<!-- Make MRD -->
+<target name="make_mrd" description="Build MRD_HOME" depends="init">
+
+<property name="d_mrd.dir" value="dist/mrd" />
+<property name="d_meme.dir" value="dist/mrd" />
+<!-- Make distribution dirs -->
+<mkdir dir="${d_mrd.dir}" />
+<mkdir dir="${d_mrd.dir}/bin" />
+<mkdir dir="${d_mrd.dir}/lib" />
+<mkdir dir="${d_mrd.dir}/etc" />
+<mkdir dir="${d_mrd.dir}/log" />
+<!-- for meme tasks -->
+<property name="d_meme.dir" value="dist/mrd" />
+<antcall target="mrd_compile" />
+<!-- Copy the *.xsl files -->
+<copy todir="${class.dir}/gov/nih/nlm/mrd/server/handlers" filtering="true">
+	<fileset dir="${src.dir}/xsl" includes="*xsl" />
+</copy>
+
+<antcall target="mrd_server_jar" />
+<!-- bin -->
+<copy todir="${d_mrd.dir}/bin" filtering="true">
+    <fileset dir="${src.dir}/archive" includes="ref_integrity.csh, orf_integrity.csh" />
+    <fileset dir="${src.dir}/admin" excludes="**/*.cgi, **/*.pm, **/README, meme_server.sh" />
+	<fileset dir="${src.dir}/doc-gen" excludes="**/*.cgi, **/*.pm, **/README, table_documentation.pl" />
+	<fileset dir="${src.dir}/production" excludes="**/*.cgi, **/*.pm, **/README" />
+	<fileset dir="${src.dir}/reports" excludes="**/*.cgi, **/*.pm, **/README, *reports.pl, editing.csh" />
+	<fileset dir="${src.dir}/util" excludes="**/*.cgi, **/*.pm, **/README, meme_utils.pl" />
+	<fileset dir="${src.dir}/qa" excludes="**/*.cgi, **/*.pm, **/README, validate.pl" />
+</copy>
+<chmod dir="${d_mrd.dir}/bin" perm="ugo+rx" includes="**/*" />
+<chmod dir="${d_mrd.dir}/bin" perm="ug+w" includes="**/*" />
+<!-- lib -->
+<copy todir="${d_mrd.dir}/lib" filtering="true">
+	<fileset dir="${src.dir}/admin" includes="**/*.pm" />
+	<fileset dir="${src.dir}/doc-gen" includes="**/*.pm" />
+	<fileset dir="${src.dir}/dvd" includes="**/*.pm" />
+	<fileset dir="${src.dir}/maintenance" includes="**/*.pm" />
+	<fileset dir="${src.dir}/production" includes="**/*.pm" />
+	<fileset dir="${src.dir}/qa" includes="**/*.pm" />
+	<fileset dir="${src.dir}/reports" includes="**/*.pm" />
+	<fileset dir="${src.dir}/sql" includes="**/*.pm" />
+	<fileset dir="${src.dir}/util" includes="**/*.pm" />
+</copy>
+<chmod dir="${d_mrd.dir}/lib" perm="ugo+r" includes="**/*" />
+<chmod dir="${d_mrd.dir}/lib" perm="ug+w" includes="**/*" />
+<!-- etc -->
+<copy file="${src.dir}/config/meme/mrd.prop_orig" todir="${d_mrd.dir}/etc" filtering="true" />
+<copy todir="${d_mrd.dir}/etc/sql" filtering="true">
+	<fileset dir="${src.dir}/sql" includes="*sql" excludes="compute_meme_tables.sql" />
+</copy>
+<!-- INSTALL/README -->
+<copy file="${src.dir}/config/meme/INSTALL_mrd.txt" tofile="${d_mrd.dir}/INSTALL.txt" filtering="true" />
+<copy file="${src.dir}/config/meme/README_mrd.txt" tofile="${d_mrd.dir}/README.txt" filtering="true" />
+<!-- zip mrd -->
+<!-- Fixing the DOS Chars -->
+<antcall target="fixLineFeed">
+	<param name="dir.value" value="${d_mrd.dir}" />
+</antcall>
+<!-- buildnumber file="build_mrd.number"/-->
+<zip destfile="dist_mrd${dist.suffix}.zip">
+	<zipfileset dir="${d_mrd.dir}" includes="*.txt" />
+	<zipfileset dir="${d_mrd.dir}/bin" prefix="bin/" filemode="775" />
+	<zipfileset dir="${d_mrd.dir}/lib" prefix="lib/" />
+	<zipfileset dir="${d_mrd.dir}/etc" prefix="etc/" />
+	<!-- start with empty log dir -->
+	<zipfileset dir="${d_mrd.dir}/log" prefix="log/" />
+</zip>
+</target>
+
+<!-- Compile MRD -->
+<target name="mrd_compile" description="Compile meme/mrd code">
+<!-- compile -->
+<!-- Copy files to build in order to perform filtering -->
+<antcall target="meme_compile" />
+<javac destdir="${class.dir}" debug="true" srcdir="${src.dir}/java">
+	<classpath refid="classpath.compile" />
+	<include name="gov/nih/nlm/mrd/**/*.java" />
+</javac>
+</target>
+
+<!-- Compile Web -->
+<target name="web_compile" description="Compile web code">
+<!-- compile -->
+<!-- Copy files to build in order to perform filtering -->
+<antcall target="mrd_compile" />
+<javac destdir="${class.dir}" debug="true" srcdir="${src.dir}/webapps-meme/src">
+	<classpath refid="classpath.compile" />
+	<include name="gov/nih/nlm/**/*.java" />
+</javac>
+</target>
+
+<!-- Make MRD server jars -->
+<target name="mrd_server_jar" description="Build meme/mrd jar files">
+<!-- jar -->
+<jar basedir="${class.dir}" destfile="${d_meme.dir}/lib/memeMeme.jar" includes="gov/nih/nlm/meme/*.class" />
+<jar basedir="${class.dir}" destfile="${d_meme.dir}/lib/memeAction.jar" includes="gov/nih/nlm/meme/action/*.class" />
+<jar basedir="${class.dir}" destfile="${d_meme.dir}/lib/memeCommon.jar" includes="gov/nih/nlm/meme/common/*.class" />
+<jar basedir="${class.dir}" destfile="${d_meme.dir}/lib/memeException.jar" includes="gov/nih/nlm/meme/exception/*.class" />
+<jar basedir="${class.dir}" destfile="${d_meme.dir}/lib/memeIntegrity.jar" includes="gov/nih/nlm/meme/integrity/*.class" />
+<jar basedir="${class.dir}" destfile="${d_meme.dir}/lib/memeServer.jar" includes="gov/nih/nlm/meme/server/*.class" />
+<jar basedir="${class.dir}" destfile="${d_meme.dir}/lib/memeSql.jar" includes="gov/nih/nlm/meme/sql/*.class" />
+<jar basedir="${class.dir}" destfile="${d_meme.dir}/lib/memeXml.jar" includes="gov/nih/nlm/meme/xml/*.class" />
+<!-- other govs: swing and util -->
+<jar basedir="${class.dir}" destfile="${d_meme.dir}/lib/memeSwing.jar" includes="gov/nih/nlm/swing/*.class" />
+<jar basedir="${class.dir}" destfile="${d_meme.dir}/lib/memeUtil.jar" includes="gov/nih/nlm/util/*.class" />
+<!-- all the gov mrd jars -->
+<jar basedir="${class.dir}" destfile="${d_meme.dir}/lib/mrdClient.jar" includes="gov/nih/nlm/mrd/client/*.class" />
+<jar basedir="${class.dir}" destfile="${d_meme.dir}/lib/mrdCommon.jar" includes="gov/nih/nlm/mrd/common/*.class" />
+<jar basedir="${class.dir}" destfile="${d_meme.dir}/lib/mrdServer.jar" includes="gov/nih/nlm/mrd/server/**/*.class, gov/nih/nlm/mrd/server/**/*.xsl" />
+<jar basedir="${class.dir}" destfile="${d_meme.dir}/lib/mrdSql.jar" includes="gov/nih/nlm/mrd/sql/*.class" />
+</target>
+
+<!-- Make EMS -->
+<target name="make_ems" description="Build EMSMEOW website" depends="init">
+
+<property name="d_ems.dir" value="dist/ems" />
+
+<!-- Make distribution dirs -->
+<mkdir dir="${d_ems.dir}" />
+<mkdir dir="${d_ems.dir}/bin" />
+<mkdir dir="${d_ems.dir}/cgi-bin" />
+<mkdir dir="${d_ems.dir}/etc" />
+<mkdir dir="${d_ems.dir}/etc/sql" />
+<mkdir dir="${d_ems.dir}/lib" />
+<mkdir dir="${d_ems.dir}/js" />
+<mkdir dir="${d_ems.dir}/log" />
+<mkdir dir="${d_ems.dir}/generated" />
+
+<!-- create output directories -->
+<mkdir dir="${d_ems.dir}/generated/requests" />
+<mkdir dir="${d_ems.dir}/generated/reports" />
+<mkdir dir="${d_ems.dir}/generated/worklists" />
+
+<!-- cgi-bin -->
+<copy todir="${d_ems.dir}/cgi-bin" filtering="true">
+	<fileset dir="${src.dir}/ems" includes="ems.pl,wms.pl, concept-report-mid.pl, ems3-concept-report-mid.pl, oracle-sessions.pl, table-help.pl,table-utils.pl, stycooc.pl, showattributes.pl" />
+</copy>
+
+<!--copy file="${src.dir}/ems/ems.pl" tofile="${d_ems.dir}/cgi-bin/ems1.pl" filtering="true"/>
+        <copy file="${src.dir}/ems/ems.pl" tofile="${d_ems.dir}/cgi-bin/ems2.pl" filtering="true"/>
+        <copy file="${src.dir}/ems/ems.pl" tofile="${d_ems.dir}/cgi-bin/ems3.pl" filtering="true"/>
+        <copy file="${src.dir}/ems/wms.pl" tofile="${d_ems.dir}/cgi-bin/wms1.pl" filtering="true"/>
+        <copy file="${src.dir}/ems/wms.pl" tofile="${d_ems.dir}/cgi-bin/wms2.pl" filtering="true"/>
+        <copy file="${src.dir}/ems/wms.pl" tofile="${d_ems.dir}/cgi-bin/wms3.pl" filtering="true"/>
+   		<chmod dir="${d_ems.dir}/cgi-bin" perm="ugo+rx" includes="**/*"/>
+		<chmod dir="${d_ems.dir}/cgi-bin" perm="ug+w" includes="**/*"/-->
+
+<!-- js:  -->
+<copy todir="${d_ems.dir}/js" filtering="true">
+	<fileset dir="${src.dir}/ems" includes="*.js" />
+</copy>
+
+<!-- bin: only keep a limited set -->
+<copy todir="${d_ems.dir}/bin" filtering="true">
+	<fileset dir="${src.dir}/ems" includes="*.pl" excludes="ems.pl,wms.pl" />
+</copy>
+<chmod dir="${d_ems.dir}/bin" perm="ugo+rx" includes="**/*" />
+<chmod dir="${d_ems.dir}/bin" perm="ug+w" includes="**/*" />
+
+<!-- lib -->
+<copy todir="${d_ems.dir}/lib" filtering="true">
+	<fileset dir="${src.dir}/ems" includes="**/*.pm" />
+</copy>
+<chmod dir="${d_ems.dir}/lib" perm="ugo+r" includes="**/*" />
+<chmod dir="${d_ems.dir}/lib" perm="ug+w" includes="**/*" />
+
+<!-- etc -->
+<copy todir="${d_ems.dir}/etc" filtering="true">
+	<fileset dir="${src.dir}/config/ems" includes="*.config_orig" />
+</copy>
+<copy todir="${d_ems.dir}/etc/sql" filtering="true">
+	<fileset dir="${src.dir}/sql/ems" includes="*.sql" />
+</copy>
+
+<!-- INSTALL/README -->
+<copy file="${src.dir}/config/ems/INSTALL_ems.txt" tofile="${d_ems.dir}/INSTALL.txt" filtering="true" />
+<copy file="${src.dir}/config/ems/README_ems.txt" tofile="${d_ems.dir}/README.txt" filtering="true" />
+<!-- Fixing the DOS Chars -->
+<antcall target="fixLineFeed">
+	<param name="dir.value" value="${d_ems.dir}" />
+</antcall>
+<!-- zip ems -->
+<zip destfile="dist_ems${dist.suffix}.zip">
+	<zipfileset dir="${d_ems.dir}" includes="*.txt" />
+	<zipfileset dir="${d_ems.dir}/bin" prefix="bin/" filemode="775" />
+	<zipfileset dir="${d_ems.dir}/cgi-bin" prefix="cgi-bin/" filemode="775" />
+	<zipfileset dir="${d_ems.dir}/lib" prefix="lib/" />
+	<zipfileset dir="${d_ems.dir}/etc" prefix="etc/" includes="**/*" />
+	<zipfileset dir="${d_ems.dir}/log" prefix="log/" />
+	<zipfileset dir="${d_ems.dir}/js" prefix="www/js" />
+	<zipfileset dir="${www.dir}/images/ems" prefix="www/images/ems" includes="**/*" />
+
+
+	<zipfileset dir="${d_ems.dir}/generated" prefix="www/generated" includes="**/*" />
+</zip>
+</target>
+
+<!-- Make EMS -->
+<target name="make_ems_client" description="Build EMS client toolkit" depends="init">
+
+<property name="d_ems_c.dir" value="dist/ems_client" />
+
+<!-- Make distribution dirs -->
+<mkdir dir="${d_ems_c.dir}" />
+<mkdir dir="${d_ems_c.dir}/bin" />
+<mkdir dir="${d_ems_c.dir}/etc" />
+<mkdir dir="${d_ems_c.dir}/lib" />
+<mkdir dir="${d_ems_c.dir}/log" />
+
+<!-- bin: only keep a limited set -->
+<copy todir="${d_ems_c.dir}/bin" filtering="true">
+	<fileset dir="${src.dir}/ems" includes="batchpartition.pl,make-checklist.pl,batchems.pl,chemconcepts.pl,ems.pl,ems_home.pl,me_partition.pl,utils.pl" />
+</copy>
+<chmod dir="${d_ems_c.dir}/bin" perm="ugo+rx" includes="**/*" />
+<chmod dir="${d_ems_c.dir}/bin" perm="ug+w" includes="**/*" />
+
+<!-- lib -->
+<copy todir="${d_ems_c.dir}/lib" filtering="true">
+	<fileset dir="${src.dir}/ems" includes="**/*.pm" />
+</copy>
+<chmod dir="${d_ems_c.dir}/lib" perm="ugo+r" includes="**/*" />
+<chmod dir="${d_ems_c.dir}/lib" perm="ug+w" includes="**/*" />
+
+<!-- etc -->
+<copy todir="${d_ems_c.dir}/etc" filtering="true">
+	<fileset dir="${src.dir}/config/ems" includes="ems.config_orig" />
+</copy>
+
+<!-- INSTALL/README -->
+<copy file="${src.dir}/config/ems/INSTALL_ems_client.txt" tofile="${d_ems_c.dir}/INSTALL.txt" filtering="true" />
+<copy file="${src.dir}/config/ems/README_ems_client.txt" tofile="${d_ems_c.dir}/README.txt" filtering="true" />
+<!-- Fixing the DOS Chars -->
+<antcall target="fixLineFeed">
+	<param name="dir.value" value="${d_ems_c.dir}" />
+</antcall>
+<!-- zip ems -->
+<zip destfile="dist_ems_client${dist.suffix}.zip">
+	<zipfileset dir="${d_ems_c.dir}" includes="*.txt" />
+	<zipfileset dir="${d_ems_c.dir}/bin" prefix="bin/" filemode="775" />
+	<zipfileset dir="${d_ems_c.dir}/lib" prefix="lib/" />
+	<zipfileset dir="${d_ems_c.dir}/etc" prefix="etc/" includes="**/*" />
+	<zipfileset dir="${d_ems_c.dir}/log" prefix="log/" />
+</zip>
+</target>
+
+<!-- Make MIDSVCS -->
+<target name="make_midsvcs" description="Build MIDSVCS_HOME" depends="init">
+<!-- properties -->
+<property name="d_midsvcs.dir" value="dist/midsvcs" />
+
+<!-- Make distribution dirs -->
+<mkdir dir="${d_midsvcs.dir}" />
+<mkdir dir="${d_midsvcs.dir}/bin" />
+<mkdir dir="${d_midsvcs.dir}/etc" />
+<mkdir dir="${d_midsvcs.dir}/lib" />
+<!-- bin -->
+<copy todir="${d_midsvcs.dir}/bin" filtering="true">
+	<fileset dir="${src.dir}/midsvcs" excludes="**/*.cgi, **/*.pm, **/README" />
+</copy>
+<chmod dir="${d_midsvcs.dir}/bin" perm="ugo+rx" includes="**/*" />
+<chmod dir="${d_midsvcs.dir}/bin" perm="ug+w" includes="**/*" />
+<!-- lib -->
+<!-- etc -->
+<copy todir="${d_midsvcs.dir}/etc" filtering="true">
+	<fileset dir="${src.dir}/config/midsvcs" excludes="**/*.txt" />
+</copy>
+<!-- INSTALL/README -->
+<copy file="${src.dir}/config/midsvcs/INSTALL.txt" tofile="${d_midsvcs.dir}/INSTALL.txt" filtering="true" />
+<copy file="${src.dir}/config/midsvcs/README.txt" tofile="${d_midsvcs.dir}/README.txt" filtering="true" />
+<!-- zip midsvcs -->
+<!-- Fixing the DOS Chars -->
+<antcall target="fixLineFeed">
+	<param name="dir.value" value="${d_midsvcs.dir}" />
+</antcall>
+<!--buildnumber file="build_midsvcs.number"/-->
+<zip destfile="dist_midsvcs${dist.suffix}.zip">
+	<zipfileset dir="${d_midsvcs.dir}" includes="*.txt" />
+	<zipfileset dir="${d_midsvcs.dir}/bin" prefix="bin/" filemode="775" />
+	<zipfileset dir="${d_midsvcs.dir}/lib" prefix="lib/" />
+	<zipfileset dir="${d_midsvcs.dir}/etc" prefix="etc/" />
+</zip>
+</target>
+
+<!-- Make client-MIDSVCS only -->
+<target name="make_midsvcs_client" description="Build MIDSVCS_HOME, client only" depends="init">
+<!-- properties -->
+<property name="d_midsvcs_c.dir" value="dist/midsvcs_client" />
+
+<!-- Make distribution dirs -->
+<mkdir dir="${d_midsvcs_c.dir}" />
+<mkdir dir="${d_midsvcs_c.dir}/bin" />
+<mkdir dir="${d_midsvcs_c.dir}/etc" />
+<mkdir dir="${d_midsvcs_c.dir}/lib" />
+<!-- bin -->
+<copy todir="${d_midsvcs_c.dir}/bin" filtering="true">
+	<fileset dir="${src.dir}/midsvcs" excludes="**/*.cgi, **/*.pm, **/README, midsvcs-server.pl" />
+</copy>
+<chmod dir="${d_midsvcs_c.dir}/bin" perm="ugo+rx" includes="**/*" />
+<chmod dir="${d_midsvcs_c.dir}/bin" perm="ug+w" includes="**/*" />
+<!-- lib -->
+<!-- etc -->
+<!-- INSTALL/README -->
+<copy file="${src.dir}/config/midsvcs/INSTALL_client.txt" tofile="${d_midsvcs_c.dir}/INSTALL.txt" filtering="true" />
+<copy file="${src.dir}/config/midsvcs/README.txt" tofile="${d_midsvcs_c.dir}/README.txt" filtering="true" />
+<!-- Fixing the DOS Chars -->
+<antcall target="fixLineFeed">
+	<param name="dir.value" value="${d_midsvcs_c.dir}" />
+</antcall>
+<!-- zip midsvcs -->
+<zip destfile="dist_midsvcs_client${dist.suffix}.zip">
+	<zipfileset dir="${d_midsvcs_c.dir}" includes="*.txt" />
+	<zipfileset dir="${d_midsvcs_c.dir}/bin" prefix="bin/" filemode="775" />
+	<zipfileset dir="${d_midsvcs_c.dir}/lib" prefix="lib/" />
+	<zipfileset dir="${d_midsvcs_c.dir}/etc" prefix="etc/" />
+</zip>
+</target>
+
+<!-- Make MEME Target -->
+<target name="make_recipe" description="Build RECIPE_HOME" depends="init">
+<property name="d_recipe.dir" value="dist/recipe" />
+
+<!-- Make distribution dirs -->
+<mkdir dir="${d_recipe.dir}" />
+<mkdir dir="${d_recipe.dir}/bin" />
+<mkdir dir="${d_recipe.dir}/lib" />
+<mkdir dir="${d_recipe.dir}/etc" />
+<mkdir dir="${d_recipe.dir}/sample_data" />
+
+<!-- Copy files to build in order to perform filtering -->
+<javac destdir="${class.dir}" debug="true" srcdir="${src.dir}/java">
+	<classpath refid="classpath.compile" />
+	<include name="gov/nih/nlm/recipe/**/*.java" />
+	<include name="gov/nih/nlm/swing/**/*.java" />
+	<include name="gov/nih/nlm/util/**/*.java" />
+</javac>
+
+<jar basedir="${class.dir}" destfile="${d_recipe.dir}/lib/recipe.jar">
+	<include name="gov/nih/nlm/recipe/**/*.class" />
+	<include name="gov/nih/nlm/swing/**/*.class" />
+	<include name="gov/nih/nlm/util/**/*.class" />
+</jar>
+
+<!-- bin -->
+<copy todir="${d_recipe.dir}/bin" filtering="true">
+	<fileset dir="${src.dir}/recipe/" includes="recipe.pl, recipe.bat_orig" />
+</copy>
+<chmod dir="${d_recipe.dir}/bin" perm="ugo+rx" includes="**/*" />
+<chmod dir="${d_recipe.dir}/bin" perm="ug+w" includes="**/*" />
+
+<!-- etc -->
+<copy file="${src.dir}/config/recipe/recipe.ini_orig" todir="${d_recipe.dir}/etc" filtering="true" />
+<copy todir="${d_recipe.dir}/sample_data" filtering="true">
+	<fileset dir="${src.dir}/config/recipe/sample_data" />
+</copy>
+<copy file="${src.dir}/config/recipe/INSTALL.txt" todir="${d_recipe.dir}/" filtering="true" />
+<copy file="${src.dir}/config/recipe/README.txt" todir="${d_recipe.dir}/" filtering="true" />
+<!-- Fixing the DOS Chars -->
+<antcall target="fixLineFeed">
+	<param name="dir.value" value="${d_recipe.dir}" />
+</antcall>
+<!-- zip recipe -->
+<zip destfile="dist_recipe${dist.suffix}.zip">
+	<zipfileset dir="${d_recipe.dir}" includes="*.txt" />
+	<zipfileset dir="${d_recipe.dir}/bin" prefix="bin/" filemode="775" />
+	<zipfileset dir="${d_recipe.dir}/lib" prefix="lib/" />
+	<zipfileset dir="extlib" includes="crimson.jar,ojdbc14.jar,xalan.jar,xercesImpl.jar" prefix="lib/" />
+	<zipfileset dir="${d_recipe.dir}/etc" prefix="etc/" />
+	<zipfileset dir="${d_recipe.dir}/sample_data" prefix="sample_data/" />
+</zip>
+</target>
+
+<!-- Make SAFEBOX -->
+<target name="make_safebox" description="Build SAFEBOX_HOME" depends="init">
+<!-- properties -->
+<property name="d_safe.dir" value="dist/safe" />
+<!-- Make distribution dirs -->
+<mkdir dir="${d_safe.dir}" />
+<!-- bin -->
+<!-- lib -->
+<!-- etc -->
+<copy todir="${d_safe.dir}" filtering="true">
+	<fileset dir="${src.dir}/config/safe" excludes="**/*.txt" />
+</copy>
+<!-- INSTALL/README -->
+<copy file="${src.dir}/config/safe/INSTALL.txt" tofile="${d_safe.dir}/INSTALL.txt" filtering="true" />
+<copy file="${src.dir}/config/safe/README.txt" tofile="${d_safe.dir}/README.txt" filtering="true" />
+<!-- Fixing the DOS Chars -->
+<antcall target="fixLineFeed">
+	<param name="dir.value" value="${d_safe.dir}" />
+</antcall>
+<!-- zip safe -->
+<!--buildnumber file="build_safe.number"/ -->
+<zip destfile="dist_safebox${dist.suffix}.zip">
+	<zipfileset dir="${d_safe.dir}" includes="**/*" />
+</zip>
+</target>
+
+<!-- Make URIS -->
+<target name="make_uris" description="Build URIS_HOME" depends="init">
+<!-- properties -->
+<property name="d_uris.dir" value="dist/uris" />
+
+<!-- Make distribution dirs -->
+<mkdir dir="${d_uris.dir}" />
+<mkdir dir="${d_uris.dir}/bin" />
+<mkdir dir="${d_uris.dir}/ext" />
+<mkdir dir="${d_uris.dir}/lib" />
+<!-- bin -->
+<copy todir="${d_uris.dir}/bin" filtering="true">
+	<fileset dir="${src.dir}/uris" excludes="**/*.cgi, **/*.pm, **/README" />
+</copy>
+<chmod dir="${d_uris.dir}/bin" perm="ugo+rx" includes="**/*" />
+<chmod dir="${d_uris.dir}/bin" perm="ug+w" includes="**/*" />
+<!-- lib -->
+<copy todir="${d_uris.dir}/lib" filtering="true">
+	<fileset dir="${src.dir}/uris" includes="**/*.pm" />
+</copy>
+<chmod dir="${d_uris.dir}/lib" perm="ugo+r" includes="**/*" />
+<chmod dir="${d_uris.dir}/lib" perm="ug+w" includes="**/*" />
+<!-- etc -->
+<copy todir="${d_uris.dir}/etc" filtering="true">
+	<fileset dir="${src.dir}/config/uris" excludes="**/*.txt" />
+</copy>
+<!-- INSTALL/README & NamesList.txt-->
+<copy file="${src.dir}/config/uris/INSTALL.txt" tofile="${d_uris.dir}/INSTALL.txt" filtering="true" />
+<copy file="${src.dir}/config/uris/README.txt" tofile="${d_uris.dir}/README.txt" filtering="true" />
+<copy file="${src.dir}/config/uris/NamesList.txt" tofile="${d_uris.dir}/etc/NamesList.txt" filtering="false" />
+<!-- zip uris -->
+<!-- Fixing the DOS Chars -->
+<antcall target="fixLineFeed">
+	<param name="dir.value" value="${d_uris.dir}" />
+</antcall>
+<!-- buildnumber file="build_uris.number"/-->
+<zip destfile="dist_uris${dist.suffix}.zip">
+	<zipfileset dir="${d_uris.dir}" includes="*.txt" />
+	<zipfileset dir="${d_uris.dir}/bin" prefix="bin/" filemode="775" />
+	<zipfileset dir="${d_uris.dir}/lib" prefix="lib/" />
+	<zipfileset dir="${d_uris.dir}/etc" prefix="etc/" />
+</zip>
+</target>
+
+<!-- for the time being leave it alone. -->
+<!--
+	    target name="fetch" description="fetch the files from CVS" depends="prepare">
+	    <cvspass cvsroot="${cvsroot}" password="${repo.pass}" />
+	    <cvs cvsroot="${cvsroot}" command="update -P -d" failonerror="true" />
+	    </target>
+	  -->
+<target name="clean" description="">
+<delete>
+	<fileset dir="." includes="**/*~" />
+	<fileset dir="." includes="**/*.scc" />
+</delete>
+</target>
+<target name="cleanall" description="">
+<delete>
+	<fileset dir="." includes="**/*~" />
+	<fileset dir="." includes="**/*.scc" />
+</delete>
+<delete dir="${dist.dir}" />
+<delete dir="${build.dir}" />
+</target>
+<!-- create meme.zip with all the files -->
+<target name="makedist" description="Make distribution zip files">
+<property name="dist.suffix" value=".${cur.date}" />
+<antcall target="make_archive" />
+<antcall target="make_ems_client" />
+<antcall target="make_ems" />
+<antcall target="make_env" />
+<antcall target="make_extlib" />
+<antcall target="make_invert" />
+<antcall target="make_lvgif" />
+<antcall target="make_meme" />
+<ant dir="." target="make_meow_no_www" />
+<ant dir="." target="make_mrd" />
+<antcall target="make_midsvcs" />
+<antcall target="make_midsvcs_client" />
+<antcall target="make_safebox" />
+<antcall target="make_uris" />
+</target>
+
+<target name="site_prep_once" />
+<target name="install" />
+<target name="install_config" />
+<target name="inital_install" depends="install, install_config" />
+<target name="info">
+<echo message="class path is set to ${env.CLASSPATH}" />
+<echo message="compile class path is ${cmpclp}" />
+<echo message="env home is set to ${env.ENV_HOME}" />
+<echo message="env file is set to ${env.ENV_FILE}" />
+<echo message="java home is set to ${env.JAVA_HOME}" />
+</target>
+</project>

@@ -1,0 +1,83 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.51 [en] (X11; I; SunOS 5.6 sun4u) [Netscape]">
+</head>
+<body>
+
+<h1>
+Guidelines for Semantic Type Assignment</h1>
+<b>Semantic Types (STY)</b>:&nbsp; Semantic Types are broad categories
+to which a concept belongs (e.g., Acquired Immunodeficiency Syndrome is
+a "Disease or Syndrome".)&nbsp; The Semantic type(s) are the link between
+the Metathesaurus and the UMLS Semantic Network.&nbsp; Application programs
+may be able to use the Semantic type information to determine the general
+topics of interest in a particular user query. Semantic types can also
+be employed to access related information from the Semantic Network&nbsp;
+for use in interacting with a user to refine a query and to select appropriate
+information sources to search.
+<p>1.&nbsp; Assign a concept to a particular semantic type only if the
+concept is an "is_a" relationship to that type.&nbsp; Thus, it must be
+possible to say that the concept under consideration is an instance of
+the semantic type to which it is assigned.
+<p>2.&nbsp; It is important to read the definition and usage note for each
+semantic type.&nbsp; It is not possible to rely solely on the name of the
+semantic type, since there are often shades of meaning involved.&nbsp;
+The definition makes clear the intended meaning in the UMLS context.
+<p>3.&nbsp; Parsimony should be a guiding principle in assigining types.&nbsp;
+With the exception of the chemicals, which are generally typed by both
+structure and function, most concepts should be typed by a single semantic
+type.&nbsp; In fact, assigning more than one semantic type should represent,
+in some way, a graduation of meaning approaching that of multiple meanings.
+<p>a.&nbsp; Chemicals should only be assigned two types (structure and
+function) when it is reasonable.&nbsp; For example, you sould not assign
+the type "Functional Concept" to the concept ORGANIC CHEMICAL just so it
+will have more than one type.
+<p>4.&nbsp; Assign types according to the primary meaning of the concept.&nbsp;
+In assigning types, it is important to capture the essence of a concept,
+not necessarily all components of its meaning.&nbsp; Thus "acute myocardial
+infarction" is given the type 'Disease or Syndrome'.&nbsp; It is not assigned
+the semantic type 'Temporal Concept' even though there is a temporal aspect
+to its name.
+<p>5.&nbsp; Each semantic type in the UMLS Semantic Network exists in an
+"is_a" hierarchy.&nbsp; Do not assign both parent and child semantic types
+from an "is_a" hierarchy.&nbsp; Within the hierarchy, it may be assumed,
+with few exceptions, that the child will participate in all the meaningful
+realtionships that the parent participates in.
+<p>a.&nbsp; The child may be thought of as a member of the same semantic
+category as the parent, but with one or more additional semantic features.
+<p>b.&nbsp; If all children of the same parent in the Semantic Network
+apply, then the parent semantic type should be assigned.
+<p>c.&nbsp; If some, but not all, children of the same parent apply, then
+the individual children should be used.
+<p>6.&nbsp; All concepts MUST have at least one type.
+<br>&nbsp;
+<p>Respect the meaning of the concept in the source, not the categorization
+by that source.&nbsp; The directive to "respect the source" is aimed at
+not changing the meaning of the term in the source, not using categories
+within the source which may have the same name as semantic types.&nbsp;
+The semantic types assigned should not change the meaning of the concept.&nbsp;
+Thus, if ICD is thought to classify "acquired abnormalities of the index
+finger" as a disease (because ICD's name says it is a classification of
+diseases), it should nonetheless be typed as 'Acquired Abnormality", and
+not as 'Disease or Syndrome'.&nbsp; If it were typed as 'Disease or Syndrome',
+this would not be consonant with the definition of the UMLS Semantic Types.
+<p>
+<hr>
+<address>
+Contact:<a href="mailto:powell@nlm.nih.gov"> Tammy Powell</a></address>
+
+<address>
+Created: April 28, 1997</address>
+
+<address>
+Last Updated: December 29, 1999</address>
+
+<address>
+<a href="http://meow.nlm.nih.gov/index.html">Meta News Home</a></address>
+
+<br>&nbsp;
+<p>&nbsp;
+</body>
+</html>

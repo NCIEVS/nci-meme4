@@ -1,0 +1,75 @@
+ANGINA EXACERBATION ACUTE|C0741031|
+Acute nasopharyngitis or common cold or acute coryza or acute rhinitis or sniffles or snuffles|C2239278|
+Acute viral laryngitis unspecified|C0396034|
+Allergic contact dermatitis of external ear|C1643223|
+ALZHEIMER DISEASE allelic variant|C2684889|
+Biotin deficiency disease|C2937225|
+Anemia, Diamond-Blackfan|C1260899|
+Burns and Wounds|C0595940|
+outcomes orthopedics limb function recovery failed|C2015915|
+Cerebral Hemorrhage|C2937358|
+adjuvant chemotherapy prescribed or received for stage IIIA through IIIC colon cancer|C2367460|
+COLON NOS INFLAMMATION|C0742596|
+Upper Respiratory Infections|C0041912|
+Coronary Arteriosclerosis|C0010054|
+Eczema|C0013595|
+Dermatologic disorders|C0037274|
+Central Diabetes Insipidus|C0687720|
+Diabetic Foot|C0206172|
+diabetic hyperglycaemia|C0850855|
+ESOPHAGEAL REFLUX DYSPEPSIA|C0743583|
+Carcinoma of Endocrine Gland|C1704374|
+envenomation|C0848794|
+Megaloblastic anemia due to folate deficiency|C0151482|
+Swollen feet|C0574002|
+Fungal septicemia|C2960008|
+CVA; hemorrhagic|C1394286|
+Thyroid-stimulating hormone, deficiency of|C2973643|
+taking medication for infection|C2054152|
+influenza A|C2062441|
+Secondary Neoplasm|C2939419|
+Metastatic Neoplasm|C2939420|
+musculoskeletal inflammation|C1658600|
+Neisseria meningitidis A|C1441003|
+Neisseria meningitidis C|C1441008|
+Otitis media bacterial|C1698510|
+Oxaluria NEC|C0342872|
+Pruritis: [genital] or [vulvae]|C1542415|
+thorax/respiratory cancer|C0279170|
+secondary hyperparathyroidism due to renal causes|C2229334|
+Short Stature Adverse Event|C2919142|
+SHOX gene with short stature|C2237041|
+Skin & Wound Antiseptic|C1815321|
+squamous cell carcinoma of male genitalia|C2019441|
+Throat acute pharyngitis or sore NOS & viral or infection|C1971657|
+Ulcerative Colitis|C0009324|
+Upper respiratory tract infection & viral NOS|C2004384|
+Neuroblastoma|CL324382|
+Neuroblastoma|C0700095|
+Hodgkin Lymphoma|CL324512|
+Anastomotic ulcer|C1442968|
+pruritus NOS|C1534992|
+Large Body Habitus Artifact|CL414048|
+Vitamin D-resistant rickets|C236306|
+Catabolism|C0699900|
+Foot infection fungal NOS|C0744131|
+Stomach ache|C0221512|
+Gastric ulcer|C0038358|
+Gastrointestinal Diseases|C0017178|
+House dust allergy|C0339807|
+Neuropathic pain|C0423716|
+Ocular Hypertension|C0028840|
+hypertension UCI|C2882073|
+Other primary hyperaldosteronism|C2874194|
+Renal disease with edema NOS|C0866125|
+Allergic Conjunctivitis|C0009766|
+The science and art of healing|C0039796|
+Venous Thrombosis|C0042487|
+Act Code - Dental|C1561520|
+Diagnosis:Impression/interpretation of study:Point in time:^Patient:Narrative|C0944984|
+Diagnosis:Impression/interpretation of study:Point in time:^Patient:Nominal|C0945731|
+GLIOBLASTOMA allelic variant|C2700567|
+Mucopolysaccharidosis I|C0023786|
+PANCYTOPENIA AND OCCLUSIVE VASCULAR DISEASE|C1868652|
+Acute posthaemorrhagic anaemia|C0154298|
+Tenesmus present|C0423740|

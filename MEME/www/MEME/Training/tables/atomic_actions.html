@@ -1,0 +1,169 @@
+
+<html>
+<head>
+   <title>MEME Tables Documentation - atomic_actions</title>
+    <script language="javascript">
+	function openDescription (thing,dsc) {
+	    var html = "<html><head><title>Description: "+thing;
+	    html = html + "</title></head><body bgcolor=#ffffff>" + dsc + "<center><form><input type=button onClick='window.close(); return true' value='Close'></form></center></body></html>";
+	    var win = window.open("","","scrollbars,width=500,height=250,resizable");
+	    win.document.open();
+	    win.document.write(html);
+	    win.document.close();
+	}; // end openDescription
+    </script>
+</head>
+
+<body text="#000000" bgcolor="#FFFFFF" link="#3333FF" vlink="#999999" alink="#FF0000">
+
+<center>
+
+<h2>MEME Tables</h2></center>
+
+<hr width="100%">
+
+<!-- Nav bar -->
+  <p><center>[ <a href="#overview">overview</a> | <a href="#details">details</a> | <a href="#references">references</a> ]</center></p>
+
+<!-- Image -->
+<p><center><tt><b>atomic_actions</b></tt><br>
+   <img src="/images/table.gif" alt="Table Icon"></center></p>
+
+<!-- Content section -->
+
+<blockquote>
+
+  <a name="overview"></a><h3>Overview/Objective</h3>
+  This document contains a description of <tt>atomic_actions</tt> 
+     and its various fields.  It also (may) include information
+  about how this table is used in the various stages of MID processing.
+<br>&nbsp;
+<a name="details"></a><h3>Details</h3>
+
+
+    <p>
+	
+	<!-- atomic_actions -->
+
+    <a name="atomic_actions"></a>
+    <center>
+      <table border="0" width="90%">
+        <tr><td valign="top" width="20%"><font size="-1"><b>Table name:</b></font></td><td valign="top" width="80%"><b><tt>atomic_actions</tt></b></td></tr>
+        <tr><td valign="top"><font size="-1"><b>Table Type:</b></font></td><td valign="top"><font size="-1">
+          <a href="javascript:openDescription('action','<p>MID Used to log changes to system.</p>')">action</a></font></td></tr>
+        <tr><td valign="top"><font size="-1"><b>Description:</b></font></td><td valign="top"><font size="-1">Log of all row-level changes to core data in the <i>MID</i>.  In theory, the <i>action model</i> guarantees that core data is <i>only</i> manipulated by atomic actions.</font></td></tr>
+        <tr><td valign="top"><font size="-1"><b>Fields:</b></font></td><td valign="top">
+	    <table border="1" cellpadding="2" width="90%">
+
+	<tr><td width="20%" valign="top"><tt>molecule_id</tt></td>
+	    <td width="20%" valign="top"><font size="-1"><b>NUMBER(12)</b></font></td>
+ 	    <td width="60%" valign="top"><font size="-1">an id found in <a href="molecular_actions.html"><tt>molecular_actions.molecule_id</tt></a> that groups multiple rows together&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>atomic_action_id</tt></td>
+	    <td width="20%" valign="top"><font size="-1"><b>NUMBER(12)</b></font></td>
+ 	    <td width="60%" valign="top"><font size="-1">a unique identifier for each row, primary key&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>action</tt></td>
+	    <td width="20%" valign="top"><font size="-1"><b>VARCHAR2(2)</b></font></td>
+ 	    <td width="60%" valign="top"><font size="-1">a code indicating the action performed, must be in <a href="code_map.html"><tt>code_map</tt></a> where the <tt>type='atomic_action'</tt>&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>table_name</tt></td>
+	    <td width="20%" valign="top"><font size="-1"><b>VARCHAR2(50)</b></font></td>
+ 	    <td width="60%" valign="top"><font size="-1">must be in <tt>(SELECT code FROM code_map WHERE type='table_name')</tt>&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>row_id</tt></td>
+	    <td width="20%" valign="top"><font size="-1"><b>NUMBER(12)</b></font></td>
+ 	    <td width="60%" valign="top"><font size="-1">must be a meme id from one of the core tables (specified by <tt>table_name</tt>)&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>new_version_id</tt></td>
+	    <td width="20%" valign="top"><font size="-1">NUMBER(12)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">not used&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>old_version_id</tt></td>
+	    <td width="20%" valign="top"><font size="-1">NUMBER(12)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">not used&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>old_value</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(500)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">the previous value before an action represented as a string&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>new_value</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(500)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">the value after an action represented as a string&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>authority</tt></td>
+	    <td width="20%" valign="top"><font size="-1"><b>VARCHAR2(50)</b></font></td>
+ 	    <td width="60%" valign="top"><font size="-1">the authority responsible for the action&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>timestamp</tt></td>
+	    <td width="20%" valign="top"><font size="-1"><b>DATE</b></font></td>
+ 	    <td width="60%" valign="top"><font size="-1">indicates when this row was inserted or last modified&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>status</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(1)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">an <tt>R</tt>/<tt>N</tt> flag indicating whether or not this action is <i>approved</i>.  Currently, this always has a value of <tt>R</tt>&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>action_field</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(25)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">the name of the field of a core table that was changed by this action&nbsp;</font></td>
+	</tr>
+	    </table>
+        </td></tr>
+        <tr><td valign="top"><font size="-1"><b>Indexes:</b></font></td><td valign="top">
+
+	     <li><tt>atomic_actions_pk ON atomic_action_id</tt></li>
+
+	     <li><tt>x_aa_mid ON molecule_id</tt></li>
+
+	     <li><tt>x_aa_rid ON row_id</tt></li>
+
+        </td></tr>
+
+	<tr><td valign="top"><font size="-1"><b>Insertion&nbsp;Role:</b></font></td><td valign="top"><font size="-1">One row is added to this table for each core table row that is inserted.&nbsp;</font></td></tr>
+
+        <tr><td valign="top"><font size="-1"><b>Editing&nbsp;Role:</b></font></td><td valign="top"><font size="-1">Each row level change to a core table produced by a molecular action is logged in this table.&nbsp;</font></td></tr>
+
+      </table>
+    </center>
+    </p>
+
+<p>
+<a name="references"></a><h3>References/Links</h3>
+Use the following references for related information.
+<ol>
+  <li><a href="../tables_all.html" alt="All Tables Info">All MEME tables</a></li>
+</ol>
+</p>
+</blockquote>
+
+<p><center>[ <a href="#overview">overview</a> | <a href="#details">details</a> | <a href="#references">references</a> ]</center></p>
+
+<hr WIDTH="100%">
+<table BORDER=0 COLS=2 WIDTH="100%" NOSAVE >
+<tr NOSAVE>
+<td ALIGN=LEFT VALIGN=TOP NOSAVE>
+<address>
+<a href="/MEME/">MEME Home</a></address>
+</td>
+
+<td ALIGN=RIGHT VALIGN=TOP NOSAVE>
+<address>
+<font size=-1>Contact: <a href="mailto:bcarlsen@apelon.com">Brian A. Carlsen</a></font></address>
+
+<address>
+<font size=-1>Created: 7/27/2001</font></address>
+
+<address>
+<font size=-1>Last Updated: 03/07/2005</font></address>
+
+</td>
+</tr>
+</table>
+
+</body>
+<!-- These comments are used by the What's new Generator -->
+<!-- Changed On: 2005/03/07 -->
+<!-- Changed by: Brian Carlsen -->
+<!-- Change Note: MEME Schema documentation - atomic_actions  -->
+<!-- Fresh for: 1 month -->
+</html>

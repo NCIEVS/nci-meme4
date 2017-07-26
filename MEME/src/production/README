@@ -1,0 +1,28 @@
+
+README - 07/11/2005
+
+  A - Admin
+  D - Documentation
+  F - Feed back data to MID
+  P - Production Operation
+  Q - QA
+  U - Utility
+
+
+File				Description
+-----------------------------	----------------------------------------------
+get_baseline.pl		P	MEDLINE processing scripts
+medline_parser.pl
+process_medline_data.csh
+update_medline_data.pl
+
+initialize_mrd.csh*	P	Initializes MRD state from current MID data
+
+update_mrd.csh*		P	Prepares MRD states for current MID data
+
+make_config.csh		P	Called during build of "MetaMorphoSys" 
+				component to generate config files for
+				the current production run.
+
+release_maintenance.cgi P	Used to enact some of the pre-production
+				operations to get the MID into a clean state.

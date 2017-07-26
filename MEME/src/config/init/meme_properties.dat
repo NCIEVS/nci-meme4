@@ -1,0 +1,1453 @@
+|||expanded_form|REL|RU|Related, unspecified|
+|||expanded_form|REL|XR|Not related|
+|||expanded_form|STT|VC|Case variant of the preferred form|
+|||expanded_form|ATN|HPI|HCPCS Pricing Indicator Code - used to identify the appropriate methodology for developing unique pricing amounts under Part B.|
+|||expanded_form|ATN|HPN|HCPCS processing note number identifying the processing note contained in Appendix A of the HCPCS Manual. |
+|||expanded_form|ATN|HSN|HCPCS Statute Number identifying statute reference for coverage or noncoverage of procedure or service. |
+|||expanded_form|ATN|HTD|HCPCS Termination Date - last date for which a procedure or code may be used by Medicare Providers. |
+|||expanded_form|ATN|HTS|HCPCS Type of Service Code - carrier assigned HCFA Type of Service which describes the particular kind(s) of service represented by the procedure code.|
+|||expanded_form|ATN|HXR|HCPCS Cross reference code - an explicit reference crosswalking a deleted code or a code that is not valid for Medicare to a valid current code (or range of codes).|
+|||expanded_form|ATN|IAA|ICD10AM Abbreviated Descriptor|
+|||expanded_form|ATN|IAC|ICD10AM Australian Code - Contains a flag "1" for codes that have been exclusively developed in Australia.|
+|||expanded_form|ATN|IAD|ICD10AM Effective from - indicates the date that the code is effective from.|
+|||expanded_form|ATN|IAH|ICD10AM Age Edit, higher limit - minimum age is expressed as a three digit field.|
+|||expanded_form|ATN|IAL|ICD10AM Age Edit, lower limit - minimum age is expressed as a three digit field.|
+|||expanded_form|ATN|IAN|ICD10AM Annotation Note - a + (Dagger) denotes a code describing the etiology or underlying cause of the disease; an * (asterisk) denotes a code describing the manifestation of a disease|
+|||expanded_form|ATN|IAR|ICD10AM Relationship Note - code embedded in the term, may have a * or +.|
+|||expanded_form|ATN|IAS|ICD10AM Sex Edit flag to indicate whether the code is valid for a particular sex. Sex flags are 1 (male) or 2 (female).|
+|||expanded_form|ATN|IAT|ICD10AM Sex Edit Type - all sex flagged codes are followed by a "sex edit type" flag. The sex edit type flags are 1 (fatal) or 2 (warning). |
+|||expanded_form|ATN|IAY|ICD10AM Age Edit Type - all age flagged codes are followed by an age edit type flag. The age edit type flags are 1 (fatal) or 2 (warning). |
+|||expanded_form|ATN|ICA|ICD Additional Codes Note - an ICD-9-CM instruction to signal the coder that an additional code should be used if the information is available to provide a more complete picture of that diagnoses or procedure.|
+|||expanded_form|ATN|ICC|ICD Codes Also Note - an ICD-9-CM instruction to signal the coder to code additional information.|
+|||expanded_form|ATN|ICE|ICD Entry Term (e.g. Diarrhea:{dysenteric; epidemic}; Infectious diarrheal disease)|
+|||expanded_form|ATN|ICF|ICD Fifth-digit Code Note - instruction to coders indicating use of a fifth-digit code.|
+|||expanded_form|ATN|ICN|ICD Note - instruction providing additional coding information.|
+|||expanded_form|ATN|ICS|ICD Short Form - 25-character version of the code.|
+|||expanded_form|ATN|II|MeSH Indexing Information - for MeSH chemical terms (Term Type=NM), MeSH headings that may be relevant to articles that are also assigned the NM term.|
+|||expanded_form|ATN|INC|ICD10AM Neoplasm code (e.g. C34.- )|
+|||expanded_form|ATN|IPX|ICD10 code related to an ICPC code - a + indicates that the ICD10 code is broader than the ICPC code; a - indicates that the ICD10 code is narrower than the ICPC code. |
+|||expanded_form|ATN|IXR|ICPC2E to ICD10 Cross Reference (e.g. ICD10: Q60, Q61, Q62, Q63, Q64)|
+|||expanded_form|ATN|JXR|OMIM code that is related to Jablonski term.|
+|||expanded_form|ATN|LAC|ASTM Code - E1238-94 code for a test in a LOINC name.|
+|||expanded_form|ATN|LAL|LOINC Answerlist - list of answers for results that are reportable from a multiple choice list, e.g., the answers for the term DISPOSITION OF BLOOD PACK are GIVEN;PARTIALLY GIVEN;DISCARDED. |
+|||expanded_form|ATN|LCA|LOINC ACSSYM field - LOINC chemical name synonyms, alternative names and chemical formulae from the Chemical Abstract Society. |
+|||expanded_form|ATN|LCB|LOINC Chemical base name from the Chemical Abstract Society. |
+|||expanded_form|ATN|LCC|LOINC CDC Code - code from the Centers for Disease Control Complexity file that maps a laboratory test to the instruments used to perform the test. The code is at the analyte level, not at the test instrument level. |
+|||expanded_form|ATN|LCI|LOINC Molecular structure ID, usually a Chemical Abstract Society number. |
+|||expanded_form|ATN|LCL|LOINC Class - arbitrary classification of terms in LOINC designed to assist LOINC development and to group related observations together (e.g. ABXBACT = Antibiotic susceptibility) |
+|||expanded_form|ATN|LCN|LOINC Classtype - 1 = Laboratory class; 2 = Clinical class|
+|||expanded_form|ATN|LCR|LOINC Reason for Change - a brief explanation of the change made to a LOINC term. |
+|||expanded_form|ATN|LCS|LOINC Depreciated or superseded status - an indicator that a LOINC term is no longer to be used. The term that should now be used will appear in the LMP element. |
+|||expanded_form|ATN|LCT|LOINC Change Type Code - type of change made to a LOINC term. |
+|||expanded_form|ATN|LDE|LOINC DEEDS_CD - Data Elements for Emergency Department Systems Codes (CDC). This field contains the DEEDS code value which maps to the LOINC code in question. |
+|||expanded_form|ATN|LEA|LOINC Example Answers - for some tests and measurements, LOINC has supplied examples of valid answers. These values differ from those in the ANSWERLIST field because that details possible values for nominal scale terms. |
+|||expanded_form|ATN|LEC|LOINC Analyte Code - EUCLIDES code for the analyte which is the first subpart of the first part of a LOINC name. |
+|||expanded_form|ATN|LFO|LOINC Formula - regression equation details for many OB.US calculated terms. |
+|||expanded_form|ATN|LFR|French name for LOINC term supplied by Centre Suisse de Controle de Qualite. This field contains extended characters and will not transfer to 7-bit systems. |
+|||expanded_form|ATN|LGC|GPI Code, GPI Code Total - for drugs, this field contains a map to the Medispan GPI codes, a hierarchical system of classifying pharmaceutical products.  For a few products, a simple one-to-one mapping with a GIP code was not possible. In these cases, all applicable GPI codes are contained in this field, separated by semicolons. |
+|||expanded_form|ATN|ORIG_CODE|Original code associated with this string|
+|||expanded_form|ATN|ORIG_SOURCE|Original versioned source associated with this string|
+|||expanded_form|TTY|PTGB|British preferred term|
+|||expanded_form|TTY|SYGB|British synonym|
+|||expanded_form|TTY|XM|Cross mapping set|
+|||CHANGEVAL|MRCOLS|varchar(1000)|SNOMED CT CONCEPTSTATUS or DESCRIPTIONSTATUS value after the change took place|
+|||MAPSETCUI|MRCOLS|char(8)|CUI of the map set|
+|||MAPID|MRCOLS|varchar(50)|Metathesaurus asserted identifier for mapping|
+|||MAPRES|MRCOLS|varchar(4000)|Human readable restriction on when to apply mapping|
+|||MAPSID|MRCOLS|varchar(50)|Source asserted identifier for mapping|
+|||MAPSUBSETID|MRCOLS|char(8)|Map sub set identifier|
+|||MAPSETSAB|MRCOLS|varchar(40)|SAB of the map set|
+|||MRAUI|MRFILES|AUI1,CUI1,VER,REL,RELA,MAPREASON,AUI2,CUI2,MAPIN|AUI History|
+|||MRSMAP|MRFILES|MAPSETCUI,MAPSETSAB,MAPID,MAPSID,FROMEXPR,FROMTYPE,REL,RELA,TOEXPR,TOTYPE,CVF|Simple Mappings|
+|||expanded_form|ATN|AQ|SNOMED CT "allowable qualifier" attribute for representing certain relationships (those having a characteristic type of "Qualifier" and a refinability of "Mandatory") which indicate one of several allowable types of qualifiers, such as laterality or severity, that a concept may have|
+|||expanded_form|ATN|CHARACTERISTICTYPE|SNOMED CT indication of whether a  relationship specifies a defining characteristic of the source concept or a possible qualification of that Concept.|
+|||expanded_form|ATN|COMPONENTHISTORY|SNOMED CT history of a single instance of a change to a source data element in a particular version of SNOMED CT.|
+|||expanded_form|ATN|CONCEPTSTATUS|SNOMED CT status which indicates whether a concept is in active use and, if not, indicates the reason it is inactive.|
+|||expanded_form|ATN|CTV3ID|The Read Code for a SNOMED CT concept taken from the United Kingdom?s Clinical Terms Version 3 terminology.|
+|||expanded_form|ATN|DESCRIPTIONSTATUS|SNOMED CT description status which indicates whether a description (concept name) is in active use and, if not, the reason it is inactive.|
+|||expanded_form|ATN|DESCRIPTIONTYPE|SNOMED CT term type, indicating whether the term is the Preferred Term, Synonym or the Fully Specified Name for the associated concept.|
+|||expanded_form|ATN|FROMRSAB|Root source abbreviation for the "from" identifiers of a map set|
+|||expanded_form|ATN|FROMVSAB|Versioned source abbreviation for the "from" identifiers of a map set|
+|||expanded_form|ATN|INITIALCAPITALSTATUS|SNOMED CT capital status, indicating whether the capitalization of the first character of the SNOMED CT term is significant.|
+|||expanded_form|ATN|ISPRIMITIVE|SNOMED CT indicator of whether concept is primitive or fully defined by its defining characteristics.|
+|||expanded_form|ATN|LANGUAGECODE|SNOMED CT string identifying a language and, if appropriate, a dialect in which this description is valid.|
+|||expanded_form|ATN|LOINC_COMPONENT|LOINC component|
+|||expanded_form|ATN|LOINC_METHOD_TYP|LOINC method type|
+|||expanded_form|ATN|LOINC_PROPERTY|LOINC property|
+|||expanded_form|ATN|LOINC_SCALE_TYP|LOINC scale type|
+|||expanded_form|ATN|LOINC_SYSTEM|LOINC system|
+|||expanded_form|ATN|LOINC_TIME_ASPECT|LOINC time aspect|
+|||expanded_form|ATN|LSN|LOINC short name|
+|||expanded_form|ATN|MTH_MAPFROMCOMPLEXITY|Indicates the complexity of "from" expressions used in a map set|
+|||expanded_form|ATN|MTH_MAPFROMEXHAUSTIVE|Indicates whether or not the "from" source of a map set is completely mapped|
+|||expanded_form|ATN|MTH_MAPSETCOMPLEXITY|Indicates the overall complexity of a map set|
+|||expanded_form|ATN|MAPSETGRAMMAR|Grammar used to describe boolean expressions used in a map set|
+|||expanded_form|ATN|MAPSETID|Identifier for a map set|
+|||expanded_form|ATN|MAPSETNAME|Official name of a map set|
+|||expanded_form|ATN|MAPSETREALMID|Identifier of a "Realm" to which a source is mapped, within which this cross mapping table is applicable. Used in cases where Realm specific business rules or guidelines alter the acceptable mappings. Realm is the same as used in SNOMED CT subsets. It includes a four character ISO6523 identifier followed by an optional series of concatenated subdivision codes defined by the registered organization.|
+|||expanded_form|ATN|MAPSETRSAB|Root source abbreviation for a map set|
+|||expanded_form|ATN|MAPSETRULETYPE|Indicates the types of rules used in a map set and cross map targets to which a source is mapped.|
+|||expanded_form|ATN|MAPSETSCHEMEID|Standard identifier for the scheme to which a map set belongs. This may be an International Coding Scheme Identifier (ISO7826) or an Object Identifier (OID) used as specified by HL7.|
+|||expanded_form|ATN|MAPSETSCHEMENAME|Full name of the target scheme in a map set.|
+|||expanded_form|ATN|MAPSETSCHEMEVERSION|Version number of the target scheme (as published by the issuing organization) in a map set.|
+|||expanded_form|ATN|MAPSETSEPARATORCODE|XML entity code (for example, "&#7c;" to represent the vertical-bar character) for the character used as a separator between the individual codes in the target codes field in a map set.|
+|||expanded_form|ATN|MAPSETTYPE|Indicates the nature of a map set. Its value is map set specific. It can be used to indicate the inclusion of one to one, one to many and choices of maps.|
+|||expanded_form|ATN|MAPSETVSAB|Versioned source abbreviation for a map set|
+|||expanded_form|ATN|MTH_MAPTOCOMPLEXITY|Indicates the complexity of "to" expressions in a map set|
+|||expanded_form|ATN|MTH_MAPTOEXHAUSTIVE|Indicates whether or not the "to" source is completely mapped|
+|||expanded_form|ATN|PURPOSE|Indicates the purpose of an additional atom created expressly for the UMLS Metathesaurus by modifying a source atom (for example, Replaced SNOMED CT superscript/subscript indicators with XML tags).|
+|||expanded_form|ATN|REFINABILITY|Indicates whether it is possible or mandatory to refine the atom when this relationship is used as a template for clinical data entry.|
+|||expanded_form|ATN|REF|List of bibliographic citations related to a given nursing intervention or nursing outcome.|
+|||expanded_form|ATN|SNOMEDID|SNOMED RT identifier for a SNOMED CT concept|
+|||expanded_form|ATN|SUBSETCONTEXTID|SNOMED CT identifier of a subset|
+|||expanded_form|ATN|SUBSETLANGUAGECODE|SNOMED CT identifier of a language and, if appropriate, a dialect to which a subset applies.|
+|||expanded_form|ATN|SUBSETMEMBER|Indicates the subset(s) to which an atom belongs and its status (e.g., active, inactive) in the subset(s).|
+|||expanded_form|ATN|SUBSETORIGINALID|SNOMED CT identifier for the first version of the subset on which this subset is based.|
+|||expanded_form|ATN|SUBSETREALMID|"Realm" or context in which a SNOMED CT subset is used, e.g., nation, speciality, institution, etc. to which it applies. A four-character ISO6523 identifier followed by an optional series of concatenated subdivisions codes defined by the registered organization.|
+|||expanded_form|ATN|SUBSETTYPE|Single digit integer indicating the nature of a SNOMED CT subset and the type of SNOMED CT component that may be a member of the subset. The meaning of the non-zero values can be found in the SNOMED CT documentation; a value of 0 is not defined as a type.|
+|||expanded_form|ATN|SUBSETVERSION|SNOMED CT identifier for the version of a subset. An integer increased for each revised release.|
+|||expanded_form|STT|VCW|Case and word-order variant of the preferred form|
+|||expanded_form|STT|VO|Variant of the preferred form|
+|||expanded_form|STT|VW|Word-order variant of the preferred form|
+|||VALUE|MRCOLS|varchar(1000)|Value|
+|||expanded_form|TTY|PCN|Preferred Common Name|
+|||expanded_form|TTY|UPC|Unique preferred common name|
+|||expanded_form|ATN|AM|Ambiguous string indicator|
+|||expanded_form|ATN|AN|MeSH Annotation - an informative MeSH note written primarily for indexers or catalogers that may also be useful in explaining the use of a MeSH term to online searchers. |
+|||expanded_form|ATN|AQL|MeSH Allowable Qualifier - list of allowable qualifier abbreviations for MeSH main headings (e.g. AA, CL, CS, DF, DU, IM, I,P ME, PK)|
+|||expanded_form|ATN|ATC|Alternative Billing Codes Tree Code - actual alternative medicine billing alphabetic code string. Treenumber for context in MRCXT.  |
+|||expanded_form|ATN|AXR|Alternative Billing Codes mapped to NIC codes (e.g. 2311)|
+|||expanded_form|ATN|CCF|Canonical Clinical Problem Statement System (CCPSS) frequency - the number of times a CCPSS term appears in a patient record. |
+|||expanded_form|ATN|CCI|ICD-9-CM code(s) clusters in a Clinical Classifications Software (CCS) category - individual ICD-9-CM codes (or ranges of such codes) classified into CCS categories. |
+|||expanded_form|ATN|CFR|Code of Federal Regulation Number (e.g. 862.3220, 892.1610)|
+|||expanded_form|ATN|CPA|CPT Short Description - CPT abbreviated procedure description (e.g. ANESTH)|
+|||expanded_form|ATN|CPF|CPT Full Procedure - complete text of the CPT full procedure, in cases where the CPT2002 term in the "STR" field of MRCON has been trimmed from its original form.|
+|||expanded_form|ATN|CX|MeSH Consider Also Note - other word roots or prefixes that should be consulted for concepts related to this MeSH concept, e.g., the value for "Heart" is "consider also terms at cardi- and myocardi-". |
+|||expanded_form|ATN|DA|Metathesaurus Date of entry - YYYYMMDD, e.g., 19920830 - date of entry of the concept into the Metathesaurus. |
+|||expanded_form|ATN|DCSA|Controlled Substance Act designation code (e.g. 4)|
+|||expanded_form|ATN|DC|MeSH Descriptor class - type of MeSH term the concept name represents.|
+|||expanded_form|ATN|DDFA|Drug Doseform Abbreviation (e.g. SOLN)|
+|||expanded_form|ATN|DDF|Drug Doseform (e.g. chewable tablet)|
+|||expanded_form|ATN|DHJC|Multum HCPCS J-code Multum clinical drugs linked to HCPCS J-codes where applicable (e.g. J7507)|
+|||expanded_form|ATN|DID|Descriptor Identifier|
+|||expanded_form|ATN|DIV|NCBI Division/Phyla (e.g. DIV[NCBI]Viruses)|
+|||expanded_form|ATN|DPC|Multum Pregnancy Hazard Classification Code assigned to Multum clinical drugs. (e.g. X, D) |
+|||expanded_form|ATN|DQ|MeSH Date Qualifier Established YYYYMMDD - date the qualifier became available for indexing MEDLARS citations. |
+|||expanded_form|ATN|DRTA|Drug Route of Administration Abbreviation (e.g. INJ)|
+|||expanded_form|ATN|DRT|Drug Route of Administration (e.g. Injection (systemic) )|
+|||expanded_form|ATN|DST|Drug Strength (e.g. 0.01%, 0.02 MG, 0.02 MG/ML)|
+|||expanded_form|ATN|DS|MeSH Descriptor Sort Version - form needed for proper sequencing of the concept name, if the name could not be sequenced properly by the sort algorithms used in the MeSH publications (e.g. MC Antithrombin III DS Antithrombin 03)|
+|||expanded_form|ATN|DX|MeSH Date major descriptor established YYYYMMDD - first day of the Index Medicus publication month in which the descriptor (in any form) was available for searching as a major descriptor. |
+|||expanded_form|ATN|EC|MeSH Entry combination - an invalid MeSH main heading/subheading combination that is a cross reference to a single MeSH main heading or a main heading/subheading combination that should be used in its place. |
+|||expanded_form|ATN|EV|MeSH Entry term abbreviation - a short form for a MeSH entry term or cross reference used primarily in MEDLINE record creation and maintenance. |
+|||expanded_form|ATN|EZ|Enzyme Commission Number - International Union of Biochemists Enzyme Commission number for an enzyme concept.|
+|||expanded_form|ATN|FX|MeSH MH Mapping - maps a MeSH MH to a 'See Related' MH. |
+|||expanded_form|ATN|GAN|Genbank Accession Number|
+|||expanded_form|ATN|GXR|GO Cross Reference to external databases (e.g. MetaCyc:TRNA-CHARGING-PWY)|
+|||expanded_form|ATN|HAB|HCPCS abbreviation (short form)|
+|||expanded_form|ATN|HAC|HCPCS action code - code denoting the change made to a procedure or modifier code within the HCPCS system.|
+|||expanded_form|ATN|HAD|HCPCS Action Effective Date - effective date of action to a procedure or modifier code.|
+|||expanded_form|ATN|HAQ|HCPCS Anesthesia Base Unit Quantity - base unit represents the level of intensity for anesthesia procedure services that reflects all activities except time.|
+|||expanded_form|ATN|HBT|HCPCS Berenson-Eggers Type of Service Code - BETOS for the procedure code based on generally agreed upon clinically meaningful groupings of procedures and services.|
+|||expanded_form|ATN|HCC|HCPCS Coverage Code - code denoting Medicare coverage status.  There are two subelements separated by "=".|
+|||expanded_form|ATN|HCD|HCPCS Code Added Date - year the HCPCS code was added to the HCFA Common Procedure Coding System. |
+|||expanded_form|ATN|HIR|HCPCS Coverage Issues Manual Reference Section Number - number identifying the Reference Section of the Coverage Issues Manual. |
+|||expanded_form|ATN|HLC|HCPCS Lab Certification Code - code used to classify laboratory procedures according to the specialty certification categories listed by CMS(formerly HCFA).|
+|||expanded_form|ATN|HMP|HCPCS Multiple Pricing Indicator Code - code used to identify instances where a procedure could be priced.|
+|||expanded_form|ATN|HMR|HCPCS Medicare Carriers Manual reference section number - number identifying a section of the Medicare Carriers Manual |
+|||expanded_form|ATN|HM|MeSH Heading Mapped To - heading mapped to attribute in C-MeSH containing repeating (MH or MH/SH) elements (e.g. HM = PYRROLIDINONES, HM = *TARTRATES, HM = ESTRONE/* analogs & derivatives)|
+|||expanded_form|ATN|HN|History Note - for MeSH history notes, the year when the current form of the MeSH term was established as a major and/or minor descriptor.|
+|||expanded_form|ATN|HPD|HCPCS ACD payment group effective date -  date the procedure is assigned to the ASC payment group.|
+|||expanded_form|ATN|HPG|HCPCS ASC payment group code which represents the dollar amount of the facility charge payable by Medicare for the procedure.|
+|||MRCOC|MRFILES|CUI1,AUI1,CUI2,AUI2,SAB,COT,COF,COA,CVF|Co-occurring Concepts|
+|||MRCOLS|MRFILES|COL,DES,REF,MIN,AV,MAX,FIL,DTY|Attribute Relation|
+|||MRCUI|MRFILES|CUI1,VER,REL,RELA,MAPREASON,CUI2,MAPIN|CUI History|
+|||MRCXT|MRFILES|CUI,SUI,AUI,SAB,CODE,CXN,CXL,RANK,CXS,CUI2,AUI2,HCD,RELA,XC,CVF|Concept Contexts|
+|||MRDEF|MRFILES|CUI,AUI,ATUI,SATUI,SAB,DEF,SUPPRESS,CVF|Definitions|
+|||MRFILES|MRFILES|FIL,DES,FMT,CLS,RWS,BTS|Relation Relation|
+|||MRRANK|MRFILES|RANK,SAB,TTY,SUPPRESS|Concept Name Ranking|
+|||MRREL|MRFILES|CUI1,AUI1,STYPE1,REL,CUI2,AUI2,STYPE2,RELA,RUI,SRUI,SAB,SL,RG,DIR,SUPPRESS,CVF|Related Concepts|
+|||MRSAB|MRFILES|VCUI,RCUI,VSAB,RSAB,SON,SF,SVER,VSTART,VEND,IMETA,RMETA,SLC,SCC,SRL,TFR,CFR,CXTY,TTYL,ATNL,LAT,CENC,CURVER,SABIN,SSN,SCIT|Source Metadata|
+|||MRSAT|MRFILES|CUI,LUI,SUI,METAUI,STYPE,CODE,ATUI,SATUI,ATN,SAB,ATV,SUPPRESS,CVF|Simple Concept, Term and String Attributes|
+|||MRSTY|MRFILES|CUI,TUI,STN,STY,ATUI,CVF|Semantic Types|
+|||MRXNS_ENG|MRFILES|LAT,NSTR,CUI,LUI,SUI|Normalized String Index|
+|||MRXNW_ENG|MRFILES|LAT,NWD,CUI,LUI,SUI|Normalized Word Index|
+|||MRXW_BAQ|MRFILES|LAT,WD,CUI,LUI,SUI|Basque Word Index|
+|||MRXW_DAN|MRFILES|LAT,WD,CUI,LUI,SUI|Danish Word Index|
+|||MRXW_DUT|MRFILES|LAT,WD,CUI,LUI,SUI|Dutch Word Index|
+|||MRXW_ENG|MRFILES|LAT,WD,CUI,LUI,SUI|English Word Index|
+|||MRXW_FIN|MRFILES|LAT,WD,CUI,LUI,SUI|Finnish Word Index|
+|||MRXW_FRE|MRFILES|LAT,WD,CUI,LUI,SUI|French Word Index|
+|||MRXW_GER|MRFILES|LAT,WD,CUI,LUI,SUI|German Word Index|
+|||MRXW_HEB|MRFILES|LAT,WD,CUI,LUI,SUI|Hebrew Word Index|
+|||MRXW_HUN|MRFILES|LAT,WD,CUI,LUI,SUI|Hungarian Word Index|
+|||MRXW_ITA|MRFILES|LAT,WD,CUI,LUI,SUI|Italian Word Index|
+|||MRXW_NOR|MRFILES|LAT,WD,CUI,LUI,SUI|Norwegian Word Index|
+|||MRXW_POR|MRFILES|LAT,WD,CUI,LUI,SUI|Portuguese Word Index|
+|||MRXW_RUS|MRFILES|LAT,WD,CUI,LUI,SUI|Russian Word Index|
+|||MRXW_SPA|MRFILES|LAT,WD,CUI,LUI,SUI|Spanish Word Index|
+|||MRXW_SWE|MRFILES|LAT,WD,CUI,LUI,SUI|Swedish Word Index|
+|||C0078863|MRSAT|19900930|DA values for CUIs <= key|
+|||C0085070|MRSAT|19910815|DA values for CUIs <= key|
+|||C0152041|MRSAT|19920830|DA values for CUIs <= key|
+|||C0175565|MRSAT|19930416|DA values for CUIs <= key|
+|||C0220777|MRSAT|19940412|DA values for CUIs <= key|
+|||C0259730|MRSAT|19950417|DA values for CUIs <= key|
+|||C0300921|MRSAT|19960101|DA values for CUIs <= key|
+|||C0391801|MRSAT|19970101|DA values for CUIs <= key|
+|||C0541396|MRSAT|19980101|DA values for CUIs <= key|
+|||C0700344|MRSAT|19990101|DA values for CUIs <= key|
+|||C0813178|MRSAT|20000101|DA values for CUIs <= key|
+|||C0851278|MRSAT|20000501|DA values for CUIs <= key|
+|||C0877778|MRSAT|20001001|DA values for CUIs <= key|
+|||C0919414|MRSAT|20010101|DA values for CUIs <= key|
+|||C0920296|MRSAT|20010401|DA values for CUIs <= key|
+|||C0936016|MRSAT|20011001|DA values for CUIs <= key|
+|||C0995127|MRSAT|20020101|DA values for CUIs <= key|
+|||ATNL|MRCOLS|varchar(1000)|Attribute name list for a source|
+|||ATN|MRCOLS|varchar(50)|Attribute name|
+|||ATV|MRCOLS|varchar(4000)|Attribute value|
+|||ATX|MRCOLS|varchar(300)|Associated expression|
+|||AV|MRCOLS|numeric(5,2)|Average Length, Characters|
+|||BTS|MRCOLS|integer|Size in Bytes|
+|||CENC|MRCOLS|varchar(20)|Character encoding of a source as specified by IANA|
+|||CFR|MRCOLS|integer|CUI frequency for a source|
+|||CLS|MRCOLS|integer|Number of columns|
+|||COA|MRCOLS|varchar(300)|Attributes of co-occurrence|
+|||COF|MRCOLS|integer|Frequency of co-occurrence|
+|||COL|MRCOLS|varchar(20)|Column or data element name|
+|||COT|MRCOLS|varchar(3)|Type of co-occurrence|
+|||CREL|MRCOLS|varchar(4)|Relationship to retired CUI (CUI1) to current CUI (CUI2)|
+|||CUI1|MRCOLS|char(8)|Unique identifier for first concept|
+|||CUI2|MRCOLS|char(8)|Unique identifier for second concept|
+|||CUI|MRCOLS|char(8)|Unique identifier for concept|
+|||CXL|MRCOLS|char(3)|Context member label, i.e., ANC for ancestor of this atom, CCP for the atom itself, SIB for sibling of this atom, CHD for child of this atom|
+|||CXN|MRCOLS|integer|The context number if the atom has multiple contexts|
+|||CXS|MRCOLS|varchar(3000)|String for context member|
+|||CXTY|MRCOLS|varchar(50)|Context type for a source (as per section 2.3.2)|
+|||DEF|MRCOLS|varchar(6000)|Definition|
+|||DES|MRCOLS|varchar(200)|Descriptive Name|
+|||DTY|MRCOLS|varchar(20)|SQL-92 data type for this column|
+|||FIL|MRCOLS|varchar(50)|Physical FILENAME|
+|||FMT|MRCOLS|varchar(300)|Comma separated list of COL|
+|||FR|MRCOLS|integer|Frequency count of number of occurrences of concept|
+|||HCD|MRCOLS|varchar(50)|Source asserted hierarchical number or code of context member (if it exists)|
+|||ISN|MRCOLS|varchar(20)|Name of information source or database|
+|||IMETA|MRCOLS|varchar(10)|Version of the Metathesaurus that a source was added|
+|||LAT|MRCOLS|char(3)|Language of Term(s)|
+|||LRL|MRCOLS|integer|Least Restriction Level|
+|||LUI|MRCOLS|char(8)|Unique identifier for term|
+|||MAX|MRCOLS|integer|Maximum Length|
+|||VEND|MRCOLS|char(10)|Valid end date for a source|
+|||MG|MRCOLS|varchar(1)|Machine generated and unverified indicator|
+|||MIN|MRCOLS|integer|Minimum Length|
+|||VSTART|MRCOLS|char(10)|Valid start date for a source|
+|||NSTR|MRCOLS|varchar(3000)|Normalized string|
+|||NWD|MRCOLS|varchar(100)|Normalized word|
+|||RANK|MRCOLS|integer|Termgroup ranking|
+|||REF|MRCOLS|varchar(20)|Documentation Section Number|
+|||RELA|MRCOLS|varchar(100)|Relationship attribute|
+|||REL|MRCOLS|varchar(4)|Relationship|
+|||RNK|MRCOLS|integer|Rank|
+|||RMETA|MRCOLS|varchar(10)|Version of the Metathesaurus where a version is removed|
+|||RWS|MRCOLS|integer|Number of rows|
+|||SAB|MRCOLS|varchar(40)|Source abbreviation|
+|||SCC|MRCOLS|varchar(1000)|Content contact info for a source|
+|||SF|MRCOLS|varchar(40)|Source Family|
+|||SLC|MRCOLS|varchar(1000)|License contact info for a source|
+|||SL|MRCOLS|varchar(40)|Source of relationship labels|
+|||SNA|MRCOLS|varchar(3000)|Actual name present in the information source, if not present in the Metathesaurus when the locator information was added|
+|||SOC|MRCOLS|varchar(20)|Source of co-occurrence information|
+|||SON|MRCOLS|varchar(3000)|Source Official Name|
+|||SOUI|MRCOLS|varchar(10)|Unique identifier of record|
+|||SRL|MRCOLS|integer|Source Restriction Level|
+|||STR|MRCOLS|varchar(3000)|String|
+|||STT|MRCOLS|varchar(3)|String type|
+|||STY|MRCOLS|varchar(50)|Semantic type|
+|||SUI|MRCOLS|char(8)|Unique identifier for string|
+|||SUPRES|MRCOLS|char(1)|Suppressible flag|
+|||SVER|MRCOLS|varchar(20)|Release date or version number of a source|
+|||TFR|MRCOLS|integer|Term frequency for a source|
+|||TS|MRCOLS|char(1)|Term status|
+|||TTYL|MRCOLS|varchar(50)|Term type list for a source|
+|||TTY|MRCOLS|varchar(20)|Term type in source|
+|||TUI|MRCOLS|char(4)|Unique identifier of Semantic type|
+|||UN|MRCOLS|varchar(10)|Meaning of frequency|
+|||VER|MRCOLS|varchar(10)|Last release version in which CUI1 was valid|
+|||WD|MRCOLS|varchar(100)|Word in lower-case|
+|||XC|MRCOLS|varchar(1)|Has Child|
+|||C1110637|MRSAT|20020501|DA Values for CUIs <= key|
+|||CODE|MRCOLS|varchar(50)|Unique Identifier or code for string in source|
+|||C1122992|MRSAT|20020801|DA Values for CUIs <= key|
+|||CURVER|MRCOLS|char(1)|Current Version flag|
+|||expanded_form|TTY|CN|LOINC official component name|
+|||expanded_form|TTY|CO|ICPC component names (these are hierarchical terms, as opposed to the LOINC component names which are analytes)|
+|||expanded_form|TTY|CP|ICPC component process (in original form)|
+|||expanded_form|TTY|CS|Short component process in ICPC, i.e. include some abbreviations|
+|||expanded_form|TTY|CX|Component process in ICPC with abbreviations expanded|
+|||expanded_form|TTY|DE|Descriptor|
+|||expanded_form|TTY|DFA|Dose Form Abbreviation|
+|||expanded_form|TTY|DF|Dose Form|
+|||expanded_form|TTY|DI|Disease name|
+|||expanded_form|TTY|DO|Domain|
+|||expanded_form|TTY|DS|Short form of descriptor|
+|||expanded_form|TTY|DT|Definitional term, present in the Metathesaurus because of its connection to a Dorland's definition or to a definition created especially for the Metathesaurus|
+|||expanded_form|TTY|DX|Diagnosis|
+|||expanded_form|TTY|EN|MeSH nonprint entry "term"|
+|||expanded_form|TTY|EP|Entry "term"|
+|||expanded_form|TTY|EQ|Equivalent name|
+|||expanded_form|TTY|ES|Short form of entry term|
+|||expanded_form|TTY|ET|Entry "term"|
+|||expanded_form|TTY|EX|Expanded form of entry term|
+|||expanded_form|TTY|FI|Finding name|
+|||expanded_form|TTY|FN|Full form of descriptor|
+|||expanded_form|TTY|GN|Generic drug name|
+|||expanded_form|TTY|GO|Goal|
+|||expanded_form|TTY|GT|Glossary "term"|
+|||expanded_form|TTY|HC|Hierarchical class|
+|||expanded_form|TTY|HG|High Level Group Term|
+|||expanded_form|TTY|HS|Short hierarchical term (needed expansion) in ICD 10|
+|||expanded_form|TTY|HT|Hierarchical term|
+|||expanded_form|TTY|HX|Expanded version of short hierarchical term|
+|||expanded_form|TTY|ID|Nursing indicator|
+|||expanded_form|TTY|IN|Name for an ingredient|
+|||expanded_form|TTY|IS|Obsolete synthesized term in the Read Thesaurus|
+|||expanded_form|TTY|IT|Index "term", i.e., derived from the index to any non-MeSH source vocabulary|
+|||expanded_form|TTY|IV|Intervention|
+|||expanded_form|TTY|IX|Expanded forms of indicators (embedded abbreviations expanded)|
+|||expanded_form|TTY|LN|LOINC official fully specified name|
+|||expanded_form|TTY|LO|Obsolete official fully specified name|
+|||expanded_form|TTY|LS|Expanded system/sample type (The expanded version was created for the Metathesaurus and includes the full name of some abbreviations.)|
+|||expanded_form|TTY|LT|Lower Level Term|
+|||expanded_form|TTY|LX|Official fully specified name with expanded abbreviations|
+|||expanded_form|TTY|MD|CCS multi-level diagnosis categories|
+|||expanded_form|TTY|MH|Main heading|
+|||expanded_form|TTY|MM|Metathesaurus string created to distinguish different meanings of the same lexical string|
+|||expanded_form|TTY|MP|Preferred names of modifiers|
+|||expanded_form|TTY|MS|Multum names of branded and generic supplies or supplements|
+|||expanded_form|TTY|MT|An alternate form of a concept name from one of the source vocabularies created for the Metathesaurus|
+|||expanded_form|TTY|MV|Multi-level procedure category|
+|||expanded_form|TTY|N1|Chemical Abstracts Service Type 1 name of a chemical|
+|||expanded_form|TTY|NM|Supplementary chemical "term", a name of a substance|
+|||expanded_form|TTY|NP|Non-preferred term|
+|||expanded_form|TTY|NS|Short form of non-preferred term|
+|||expanded_form|TTY|NX|Expanded form of non-preferred term|
+|||expanded_form|TTY|OA|Obsolete abbreviation|
+|||expanded_form|TTY|OBD|Obsolete branded drug|
+|||expanded_form|TTY|OCD|Obsolete clinical drug|
+|||expanded_form|TTY|OC|Nursing outcomes|
+|||expanded_form|TTY|OL|Non-current Lower Level Term|
+|||expanded_form|TTY|OM|Obsolete modifiers in HCPCS|
+|||expanded_form|TTY|OP|Obsolete preferred term|
+|||expanded_form|TTY|OR|Orders|
+|||expanded_form|TTY|OSN|Official short name|
+|||tty_class|TTY|EP|entry_term|
+|||tty_class|TTY|EQ|synonym|
+|||expanded_form|TTY|PM|Machine permutation|
+|||expanded_form|TTY|PN|Metathesaurus preferred name|
+|||expanded_form|TTY|PQ|Qualifier for a problem|
+|||expanded_form|TTY|PR|Name of a problem|
+|||expanded_form|TTY|PS|Short forms that needed full specification|
+|||expanded_form|TTY|PT|Designated preferred name|
+|||expanded_form|TTY|PX|Expanded preferred terms (pair with PS)|
+|||expanded_form|TTY|RAB|Root abbreviation|
+|||expanded_form|TTY|RHT|Root hierarchical term|
+|||expanded_form|TTY|RPT|Root preferred term|
+|||expanded_form|TTY|RSY|Root synonym|
+|||tty_class|TTY|ES|abbreviation|
+|||expanded_form|TTY|RT|Designated related "term"|
+|||expanded_form|TTY|SA|Short forms of activities|
+|||expanded_form|TTY|SBDF|Semantic branded drug and form|
+|||expanded_form|TTY|SBD|Semantic branded drug|
+|||expanded_form|TTY|SCDC|Semantic Drug Component|
+|||expanded_form|TTY|SCDF|Semantic clinical drug and form|
+|||expanded_form|TTY|SCD|Semantic Clinical Drug|
+|||expanded_form|TTY|SCN|Scientific name|
+|||tty_class|TTY|ES|entry_term|
+|||expanded_form|TTY|SD|CCS single-level diagnosis categories|
+|||expanded_form|TTY|SF|Synonym made by replacing ";" with no spaces around it with ", " in ICPCP2|
+|||expanded_form|TTY|SI|Name of a sign or symptom of a problem|
+|||expanded_form|TTY|SN|Official component synonym in LOINC|
+|||expanded_form|TTY|SP|CCS single-level procedure categories|
+|||expanded_form|TTY|SSN|Source short name, used in the UMLS Knowledge Source Server|
+|||tty_class|TTY|ET|entry_term|
+|||expanded_form|TTY|ST|Step|
+|||expanded_form|TTY|SX|Mixed-case component synonym with expanded abbreviations|
+|||expanded_form|TTY|SY|Designated synonym|
+|||expanded_form|TTY|TA|Task|
+|||expanded_form|TTY|TC|Term class|
+|||expanded_form|TTY|TG|Name of the target of an intervention|
+|||expanded_form|TTY|TQ|Topical qualifier|
+|||expanded_form|TTY|TX|CCPSS synthesized problems for TC termgroup|
+|||expanded_form|TTY|UCN|Unique common name|
+|||expanded_form|TTY|USN|Unique scientific name|
+|||expanded_form|TTY|USY|Unique synonym|
+|||expanded_form|TTY|VAB|Versioned abbreviation|
+|||expanded_form|TTY|VPT|Versioned preferred term|
+|||expanded_form|TTY|VSY|Versioned synonym|
+|||tty_class|TTY|EX|entry_term|
+|||expanded_form|TTY|XD|Expanded descriptor in AOD|
+|||expanded_form|TTY|XQ|Alternate name for a qualifier|
+|||expanded_form|TTY|XX|Expanded string|
+|||expanded_form|TOTYPE||No type, used for XR mappings.|
+|||tty_class|TTY|EX|expanded|
+|||tty_class|TTY|FI|preferred|
+|||tty_class|TTY|FN|preferred|
+|||tty_class|TTY|GN|preferred|
+|||tty_class|TTY|GO|preferred|
+|||tty_class|TTY|GT|entry_term|
+|||tty_class|TTY|HC|hierarchical|
+|||tty_class|TTY|HG|hierarchical|
+|||tty_class|TTY|HS|abbreviation|
+|||tty_class|TTY|HS|hierarchical|
+|||tty_class|TTY|HT|hierarchical|
+|||tty_class|TTY|HX|expanded|
+|||tty_class|TTY|HX|hierarchical|
+|||tty_class|TTY|ID|abbreviation|
+|||tty_class|TTY|ID|preferred|
+|||tty_class|TTY|IN|preferred|
+|||tty_class|TTY|IS|obsolete|
+|||tty_class|TTY|IS|synonym|
+|||tty_class|TTY|IT|entry_term|
+|||tty_class|TTY|IV|preferred|
+|||tty_class|TTY|IX|expanded|
+|||tty_class|TTY|IX|preferred|
+|||tty_class|TTY|LN|preferred|
+|||tty_class|TTY|LO|obsolete|
+|||tty_class|TTY|LS|expanded|
+|||tty_class|TTY|LT|entry_term|
+|||tty_class|TTY|LX|expanded|
+|||tty_class|TTY|LX|preferred|
+|||tty_class|TTY|MD|preferred|
+|||tty_class|TTY|MH|preferred|
+|||tty_class|TTY|MM|other|
+|||tty_class|TTY|MP|attribute|
+|||tty_class|TTY|MS|preferred|
+|||SABIN|MRCOLS|char(1)|Source in current subset|
+|||MAPIN|MRCOLS|char(1)|Mapping in current subset|
+|||VCUI|MRCOLS|char(8)|Unique identifier for versioned SRC concept|
+|||RCUI|MRCOLS|char(8)|Unique identifier for root SRC concept|
+|||VSAB|MRCOLS|varchar(40)|Versioned source abbreviation|
+|||RSAB|MRCOLS|varchar(40)|Root source abbreviation|
+|||C1145638|MRSAT|20030101|DA values for CUIs <= key|
+|||C1140719|MRSAT|20021101|DA Values for CUIs <= key|
+|||ISPREF|MRCOLS|char(1)|Indicates whether AUI is preferred|
+|||AUI|MRCOLS|char(8)|Unique identifier for atom|
+|||SCUI|MRCOLS|varchar(50)|Source asserted concept identifier|
+|||SAUI|MRCOLS|varchar(50)|Source asserted atom identifier|
+|||SDUI|MRCOLS|varchar(50)|Source asserted descriptor identifier|
+|||CVF|MRCOLS|varchar(50)|Content view flag|
+|||SUPPRESS|MRCOLS|char(1)|Suppressible flag|
+|||MRCONSO|MRFILES|CUI,LAT,TS,LUI,STT,SUI,ISPREF,AUI,SAUI,SCUI,SDUI,SAB,TTY,CODE,STR,SRL,SUPPRESS,CVF|Concept names and sources|
+|||ATUI|MRCOLS|varchar(10)|Unique identifier for attribute|
+|||STN|MRCOLS|varchar(100)|Semantic type tree number|
+|||SATUI|MRCOLS|varchar(50)|Source asserted attribute identifier|
+|||AUI1|MRCOLS|char(8)|Unique identifier for first atom|
+|||AUI2|MRCOLS|char(8)|Unique identifier for second atom|
+|||SOURCEUI|MRCOLS|varchar(50)|Source asserted unique identifier|
+|||SRUI|MRCOLS|varchar(50)|Source attributed relationship identifier|
+|||RUI|MRCOLS|varchar(10)|Unique identifier for relationship|
+|||RG|MRCOLS|varchar(10)|Relationship group|
+|||DIR|MRCOLS|varchar(1)|Source asserted directionality flag|
+|||SSN|MRCOLS|varchar(3000)|Source short name|
+|||SCIT|MRCOLS|varchar(4000)|Source citation|
+|||PAUI|MRCOLS|char(8)|Unique identifier for parent atom|
+|||PTR|MRCOLS|varchar(1000)|Path to root|
+|||CHANGEKEY|MRCOLS|varchar(1000)|CONCEPTSTATUS (if history relates to a SNOMED CT concept) or DESCRIPTIONSTATUS (if history relates to a SNOMED CT atom or "description")|
+|||FROMID|MRCOLS|varchar(50)|Metathesaurus identifier for mapped from|
+|||MAPRULE|MRCOLS|varchar(4000)|Machine processable rule for when to apply mapping|
+|||MAPREASON|MRCOLS|varchar(4000)|Reason for mapping|
+|||expanded_form|ATN|PA|Pharmacologic Action of MeSH main headings (MH) for drugs and supplementary concept names (NM). The information in this element is also represented by an "isa" relationship between the MH or NM concept and the MeSH concept name for the class of drugs with a particular pharmacologic action. |
+|||expanded_form|ATN|PCD|PDQ Closest Related Clinical Diagnoses - closest related clinical diagnosis is provided for disease terms to permit the identification of the closest diagnosis for which an entire treatment statement can be found in PDQ. |
+|||expanded_form|ATN|PCL|Pharmacy Practice Activity Classification (PPAC)  Category - all terms are assigned to one of five categories, which connote their hierarchy. |
+|||expanded_form|ATN|PDA|PDQ Short Name or Abbreviation |
+|||expanded_form|ATN|PDC|SPN Product Device Class (level of CDRH regulation: class 1, 2, or 3). |
+|||expanded_form|ATN|PI|MeSH heading or heading/subheading combination(s) followed by a date range in parentheses (YYYY). |
+|||expanded_form|ATN|PLR|Pharmacy Practice Activity Classification (PPAC) Last Revision Date (Format: M/DD/YY time)|
+|||expanded_form|ATN|PM|Public MeSH note - combines key information from the HN and PI elements in a format that is printed in the MeSH publications. |
+|||expanded_form|ATN|PRC|Product Third Party Review Code from SPN. |
+|||expanded_form|ATN|PRN|VA print/label name|
+|||expanded_form|ATN|PTR|SPN Product Tier (level of CDRH triage: 1, 2, 3, or E{xempt}). |
+|||expanded_form|ATN|PXC|PDQ Protocol Exclusion Criteria - terms with type "exclusion criteria," which may be indexed on protocol records to identify conditions that exclude a patient from eligibility. |
+|||expanded_form|ATN|PYR|PsychInfo year designation|
+|||expanded_form|ATN|QA|MeSH Topical Qualifier Abbreviation - for MeSH subheadings (Term Type=TQ), an abbreviation that may be used in place of the full text of the abbreviation in searching on NLM's system and possibly on other systems offering NLM data. |
+|||expanded_form|ATN|QE|MeSH Qualifier Entry Version - short form for a MeSH qualifier. |
+|||expanded_form|ATN|QS|MeSH Qualifier Sort Version - form of the subheading needed for proper alphabetic sequencing when the subheading cannot be sequenced properly by the sort algorithms used in the MeSH publications. |
+|||expanded_form|ATN|RANK|NCBI Rank (e.g. RANK[NCBI]species)|
+|||expanded_form|ATN|RID|Read Codes Term_id - identifier assigned to a Read term, used in referring to the term in the Read file structure, and may be used in clinical information systems. |
+|||expanded_form|ATN|RN|Registry Number - series of numbers and hyphens (any leading zeros in an RN are dropped) or a series of numbers and periods, preceded by EC |
+|||expanded_form|ATN|RR|The Chemical Abstracts Registry numbers for salts, optical isomers, or isotope-labeled versions of the concept followed by the relationship of this RR to the RN (in parentheses.) Applies to chemicals only. These numbers can be used as links to information in a number of chemical and toxicological databases. |
+|||expanded_form|ATN|RXO|Drug Description from NDF - R for Rx and O for OTC |
+|||expanded_form|ATN|SB|SNOMED International subset indicator - valid values: * =can code using two T codes or G code for laterality B Bethesda system (Morphology); IC= ICDO (Oncology) related; N=Nursing; N* =Nursing, provisional; U=Ultrastructure (Morphology); V= Veterinary= V* =Veterinary AND can code using two T codes or G code for laterality (Topography) |
+|||expanded_form|ATN|SHF|SNOMED Hospital Formulary Code - the American Hospital Formulary Code for a chemical contained in SNOMED International (e.g. 84:24:12) |
+|||expanded_form|ATN|SIC|SNOMED ICD9CM Reference - the ICD9CM code or codes listed as relevant to the meaning of the concept in SNOMED International.|
+|||expanded_form|ATN|SID|Secondary GO ID (e.g. GO:0020034)|
+|||expanded_form|ATN|SMX|SNOMED Multiaxial coding - an alphanumeric string that includes hyphens, parentheses, and sometimes ellipses. |
+|||MRMAP|MRFILES|MAPSETCUI,MAPSETSAB,MAPSUBSETID,MAPRANK,MAPID,MAPSID,FROMID,FROMSID,FROMEXPR,FROMTYPE,FROMRULE,FROMRES,REL,RELA,TOID,TOSID,TOEXPR,TOTYPE,TORULE,TORES,MAPRULE,MAPRES,MAPTYPE,MAPATN,MAPATV,CVF|Mappings|
+|||MRHIST|MRFILES|CUI,SOURCEUI,SAB,SVER,CHANGETYPE,CHANGEKEY,CHANGEVAL,REASON,CVF|Source-asserted history|
+|||MRHIER|MRFILES|CUI,AUI,CXN,PAUI,SAB,RELA,PTR,HCD,CVF|Computable hierarchies|
+|||MRDOC|MRFILES|DOCKEY,VALUE,TYPE,EXPL|Typed key value metadata map|
+|||C1260724|MRSAT|20031101|DA value for CUIs <= key (2003AC)|
+|||TYPE|MRCOLS|varchar(50)|Type of information|
+|||DOCKEY|MRCOLS|varchar(50)|Key to be documented|
+|||REASON|MRCOLS|varchar(1000)|Explanation of change, if present|
+|||C1176455|MRSAT|20030701|DA value for CUIs <= key (2003AB)|
+|||MAPRANK|MRCOLS|integer|Ordering of mapping entries within a subset id|
+|||MAPTYPE|MRCOLS|varchar(50)|Type of mapping|
+|||FROMEXPR|MRCOLS|varchar(4000)|The expression that a mapping is mapped from.|
+|||FROMTYPE|MRCOLS|varchar(50)|The type of expression that a mapping is mapped from.|
+|||FROMRULE|MRCOLS|varchar(4000)|Rule for applying mapped from.|
+|||FROMRES|MRCOLS|varchar(4000)|Mapped from restriction.|
+|||TOEXPR|MRCOLS|varchar(4000)|The expression that a mapping is mapped to.|
+|||TOTYPE|MRCOLS|varchar(50)|The type of expression that a mapping is mapped to.|
+|||TORULE|MRCOLS|varchar(4000)|Rule for applying mapped to.|
+|||TORES|MRCOLS|varchar(4000)|Mapped to restriction.|
+|||MAPATN|MRCOLS|varchar(20)|Mapping attribute name (or future use).|
+|||MAPATV|MRCOLS|varchar(4000)|Mapping attribute value (for future use).|
+|||expanded_form|ATN|LNE|LOINC CODE_TABLE|
+|||expanded_form|ATN|LPL|LOINC Panel Elements|
+|||expanded_form|ATN|LQS|Survey Question Source|
+|||expanded_form|ATN|LQT|Survey Question Text|
+|||expanded_form|ATN|LSP|LOINC Species code|
+|||expanded_form|ATN|MED1913|Medline citation counts from articles dated 1913.|
+|||expanded_form|ATN|MED1916|Medline citation counts from articles dated 1916.|
+|||expanded_form|ATN|MED1925|Medline citation counts from articles dated 1925.|
+|||expanded_form|ATN|MED1926|Medline citation counts from articles dated 1926.|
+|||expanded_form|ATN|MED1928|Medline citation counts from articles dated 1928.|
+|||expanded_form|ATN|MED1932|Medline citation counts from articles dated 1932.|
+|||expanded_form|ATN|MED1934|Medline citation counts from articles dated 1934.|
+|||expanded_form|ATN|MED1935|Medline citation counts from articles dated 1935.|
+|||expanded_form|ATN|MED1936|Medline citation counts from articles dated 1936.|
+|||expanded_form|ATN|MED1938|Medline citation counts from articles dated 1938.|
+|||expanded_form|ATN|MED1939|Medline citation counts from articles dated 1939.|
+|||expanded_form|ATN|MED1940|Medline citation counts from articles dated 1940.|
+|||expanded_form|ATN|MED1941|Medline citation counts from articles dated 1941.|
+|||expanded_form|ATN|MED1942|Medline citation counts from articles dated 1942.|
+|||expanded_form|ATN|MED1943|Medline citation counts from articles dated 1943.|
+|||expanded_form|ATN|MED1944|Medline citation counts from articles dated 1944.|
+|||expanded_form|ATN|MED1946|Medline citation counts from articles dated 1946.|
+|||expanded_form|ATN|MED1949|Medline citation counts from articles dated 1949.|
+|||expanded_form|ATN|MED1950|Medline citation counts from articles dated 1950.|
+|||expanded_form|ATN|MED1951|Medline citation counts from articles dated 1951.|
+|||expanded_form|ATN|MED1952|Medline citation counts from articles dated 1952.|
+|||expanded_form|ATN|MED1953|Medline citation counts from articles dated 1953.|
+|||expanded_form|ATN|MED1954|Medline citation counts from articles dated 1954.|
+|||expanded_form|ATN|MED1955|Medline citation counts from articles dated 1955.|
+|||expanded_form|ATN|MED1956|Medline citation counts from articles dated 1956.|
+|||expanded_form|ATN|MED1957|Medline citation counts from articles dated 1957.|
+|||expanded_form|ATN|MED1958|Medline citation counts from articles dated 1958.|
+|||expanded_form|ATN|MED1959|Medline citation counts from articles dated 1959.|
+|||expanded_form|ATN|MED1960|Medline citation counts from articles dated 1960.|
+|||expanded_form|ATN|MED1961|Medline citation counts from articles dated 1961.|
+|||expanded_form|ATN|MED1962|Medline citation counts from articles dated 1962.|
+|||expanded_form|ATN|MED1963|Medline citation counts from articles dated 1963.|
+|||expanded_form|ATN|MED1964|Medline citation counts from articles dated 1964.|
+|||expanded_form|ATN|MED1965|Medline citation counts from articles dated 1965.|
+|||expanded_form|ATN|MED1966|Medline citation counts from articles dated 1966.|
+|||expanded_form|ATN|MED1967|Medline citation counts from articles dated 1967.|
+|||expanded_form|ATN|MED1968|Medline citation counts from articles dated 1968.|
+|||expanded_form|ATN|MED1969|Medline citation counts from articles dated 1969.|
+|||expanded_form|ATN|MED1970|Medline citation counts from articles dated 1970.|
+|||expanded_form|ATN|MED1971|Medline citation counts from articles dated 1971.|
+|||expanded_form|ATN|MED1972|Medline citation counts from articles dated 1972.|
+|||expanded_form|ATN|MED1973|Medline citation counts from articles dated 1973.|
+|||expanded_form|ATN|MED1974|Medline citation counts from articles dated 1974.|
+|||expanded_form|ATN|MED1975|Medline citation counts from articles dated 1975.|
+|||expanded_form|ATN|MED1976|Medline citation counts from articles dated 1976.|
+|||expanded_form|ATN|MED1977|Medline citation counts from articles dated 1977.|
+|||expanded_form|ATN|MED1978|Medline citation counts from articles dated 1978.|
+|||expanded_form|ATN|MED1979|Medline citation counts from articles dated 1979.|
+|||expanded_form|ATN|MED1980|Medline citation counts from articles dated 1980.|
+|||expanded_form|ATN|MED1981|Medline citation counts from articles dated 1981.|
+|||expanded_form|ATN|MED1982|Medline citation counts from articles dated 1982.|
+|||expanded_form|ATN|MED1983|Medline citation counts from articles dated 1983.|
+|||expanded_form|ATN|NH|NonHuman Flag - single character: Y. An indication that the concept does not apply to human beings, used only when the concept's Semantic type(s) could imply the contrary. For example, the concept BEAK and CLAW are assigned the Semantic type" Body Part, Organ, or Organ Component", but do not apply to human beings.|
+|||expanded_form|ATN|NSR|Neuronames Species Restriction - indication that a Neuronames concept applies only to humans or only to macaques. Most Neuronames concepts apply to both and have no species restriction. |
+|||expanded_form|ATN|NST|Normalized strength and units for drugs with one active ingredient (e.g. 769 MG)|
+|||expanded_form|ATN|OL|MeSH Online Note - information helpful to online searchers of MEDLINE, especially when the history of a term or cross-reference has implications for online searching. This is a potential source of useful information for rules for search interface programs. |
+|||expanded_form|ATN|MED1984|Medline citation counts from articles dated 1984.|
+|||expanded_form|ATN|MED1985|Medline citation counts from articles dated 1985.|
+|||expanded_form|ATN|MED1986|Medline citation counts from articles dated 1986.|
+|||expanded_form|ATN|MED1987|Medline citation counts from articles dated 1987.|
+|||expanded_form|ATN|MED1988|Medline citation counts from articles dated 1988.|
+|||expanded_form|ATN|MED1989|Medline citation counts from articles dated 1989.|
+|||expanded_form|ATN|MED1990|Medline citation counts from articles dated 1990.|
+|||expanded_form|ATN|MED1991|Medline citation counts from articles dated 1991.|
+|||expanded_form|ATN|MED1992|Medline citation counts from articles dated 1992.|
+|||expanded_form|ATN|MED1993|Medline citation counts from articles dated 1993.|
+|||expanded_form|ATN|MED1994|Medline citation counts from articles dated 1994.|
+|||expanded_form|ATN|MED1995|Medline citation counts from articles dated 1995.|
+|||expanded_form|ATN|MED1996|Medline citation counts from articles dated 1996.|
+|||expanded_form|ATN|MED1997|Medline citation counts from articles dated 1997.|
+|||expanded_form|ATN|MED1998|Medline citation counts from articles dated 1998.|
+|||expanded_form|ATN|MED1999|Medline citation counts from articles dated 1999.|
+|||expanded_form|ATN|MED2000|Medline citation counts from articles dated 2000.|
+|||expanded_form|ATN|MED2001|Medline citation counts from articles dated 2001.|
+|||expanded_form|ATN|MED2002|Medline citation counts from articles dated 2002.|
+|||expanded_form|ATN|MED2003|Medline citation counts from articles dated 2003.|
+|||expanded_form|ATN|LGR|German Name for LOINC Term - supplied by Centre Suisse de Controle de Qualite; contains extended characters and will not transfer correctly to 7-bit systems |
+|||expanded_form|ATN|LIC|IUPAC Code code for the component, kind of property, and system in a LOINC name. Note that most IUPAC codes assume that the component is measured in substance concentration, e.g., moles. The IUPAC code for substance concentration is applied to mass concentration in LOINC, because IUPAC has no code for the mass concentration variant, which is more commonly used in the U.S. |
+|||expanded_form|ATN|LIR|Italian Name for LOINC Term - supplied by Centre Suisse de Controle de Qualite; contains extended characters and will not transfer correctly to 7-bit systems |
+|||expanded_form|ATN|LIU|IUPAC Analyte code - contains the chemical abstract service number or the enzyme nomenclature number for the chemical components for chemicals and/or enzymes.  These were also contributed by IUPAC. |
+|||expanded_form|ATN|LLR|LOINC Date Last Changed YYYYMMDD - date the LOINC term was last changed. |
+|||expanded_form|ATN|LMC|LOINC Metpath Code representing the LOINC name at MetPath laboratories. |
+|||expanded_form|ATN|LMM|Molecular weights - contains the molecular weights of many chemical moieties when they are provided.|
+|||expanded_form|ATN|LMP|LOINC Map to Code of the term that has superseded a term with a LCS value of DEL. |
+|||expanded_form|ATN|LMT|LOINC MULTUM_CD - maps to Multum Inc. database of codes for drugs. |
+|||expanded_form|ATN|LNC|LOINC NAACCR_ID - LOINC terms mapped to North American Association of Central Cancer Registries Identification |
+|||expanded_form|ATN|LRF|Reference - contains references to medical literature, product announcements, or other written sources of information on the test or measurement described by the LOINC record. |
+|||expanded_form|ATN|LRN|LOINC related name - Previously was released as a RN string from LOINC; converted from a term type in 2002AD (e.g. AMIKIN)|
+|||expanded_form|ATN|LSC|Code for a SNOMED International laboratory procedure name that is related to (usually broader than) the LOINC term. |
+|||expanded_form|ATN|LSR|Root of a set of LOINC codes - currently used for claims attachments. Yes in this field signifies that this record is the root of a set of LOINC codes. |
+|||expanded_form|ATN|LT|Indicates if a chemicals or medical device is a tradename (present in older versions of the Metathesaurus and was discontinued, then brought back starting in 2002AD)|
+|||expanded_form|ATN|LUN|LOINC Typical Units - typical units in which the observation is recorded. |
+|||expanded_form|ATN|LUR|Units required when used as OBX segment - a Y/N field that indicates that units are required when this LOINC is included as an OBX segment in a HIPAA attachment |
+|||expanded_form|ATN|MDA|MeSH date of entry YYYYMMDD - date the term was added to the MeSH file, which is prior to the date the term became available for indexing and searching MEDLARS citations. Terms that have been part of MeSH for many years may have no value in this element. |
+|||expanded_form|ATN|MEA|In NOC, the "measurement scale" used for a particular outcome.|
+|||expanded_form|ATN|MISO|MedDRA Serial Code International SOC Sort Order Digit (01-26)|
+|||expanded_form|ATN|MMR|MeSH revision date YYYYMMDD - date of the last major revision to the term's MeSH record. |
+|||expanded_form|ATN|MN|MeSH hierarchical number for the concept in the MeSH tree structures. This number also appears in the HCD subelement of the REL and CXT elements. |
+|||expanded_form|ATN|MPS|MedDRA primary SOC (PTs may have multiple treepositions, but each has a primary soc)|
+|||expanded_form|ATN|MR|Major revision date YYYYMMDD - date the Metathesaurus entry for the concept underwent any revision in content. |
+|||expanded_form|ATN|MSA|MedDra abbreviation (either SOC or Special Search Category)|
+|||expanded_form|ATN|MSC|Minimal Standard (Terminology) Class|
+|||expanded_form|ATN|MSP|SPN Medical Specialty Panel (responsible for reviewing the product). |
+|||expanded_form|ATN|MUI|MeSH Unique Concept Identifier (MUI) assigned by NLM. Each concept in MeSH is given a MUI. (e.g. M0001333)|
+|||expanded_form|ATN|MXR|MedDRA cross reference to WHOART, COSTART, or ICD9-CM (e.g.:  MXR|
+|||expanded_form|ATN|NAF|NIC atoms - complete text of the NIC full intervention, in cases where the NIC99 term in the "STR" field of MRCON has been trimmed from its original form (due to length or to extraneous information at the end of the text). |
+|||expanded_form|ATN|NAT|Neuronames Anatomy Type - indication of the type of anatomy represented by a Neuronames concept name. |
+|||expanded_form|ATN|NA|Neuronames Abbreviation - short abbreviation for a concept name in the Neuronames thesaurus. |
+|||expanded_form|ATN|NDC|National Drug Code corresponding to a clinical drug (e.g. 66109-ABD-00)|
+|||expanded_form|ATN|NFI|National formulary indicator - "YES" or "NO" indicating whether a drug is in the VA's National Formulary|
+|||expanded_form|RELA|associated_genetic_condition|Associated genetic condition|
+|||expanded_form|RELA|contraindicated_with|Contraindicated with|
+|||expanded_form|RELA|drug_contraindicated_for|Drug contraindicated for|
+|||expanded_form|RELA|has_contraindicated_drug|Has contraindicated drug|
+|||expanded_form|RELA|has_contraindication|Has contraindication|
+|||expanded_form|RELA|has_mechanism_of_action|Has mechanism of action|
+|||expanded_form|RELA|has_pharmacokinetics|Has pharmacokinetics|
+|||expanded_form|RELA|has_physiologic_effect|Has physiologic effect|
+|||expanded_form|RELA|induced_by|Induced by|
+|||expanded_form|RELA|induces|Induces|
+|||expanded_form|RELA|may_be_diagnosed_by|May be diagnosed by|
+|||expanded_form|RELA|may_be_prevented_by|May be prevented by|
+|||expanded_form|RELA|may_be_treated_by|May be treated by|
+|||expanded_form|RELA|may_diagnose|May diagnose|
+|||expanded_form|RELA|may_prevent|May prevent|
+|||expanded_form|RELA|may_treat|May treat|
+|||expanded_form|ATN|HUXR|HUGO cross reference|
+|||expanded_form|RELA|metabolic_site_of|Metabolic site of|
+|||expanded_form|RELA|metabolized_by|Metabolized by|
+|||expanded_form|RELA|metabolizes|Metabolizes|
+|||expanded_form|RELA|pharmacokinetics_of|Pharmakokinetics of|
+|||expanded_form|RELA|physiologic_effect_of|Physiologic effect of|
+|||expanded_form|RELA|see_also|See also|
+|||expanded_form|RELA|see_also_from|See also from|
+|||expanded_form|RELA|site_of_metabolism|Site of metabolism|
+|||expanded_form|RELA|mechanism_of_action_of|Mechanism of action of|
+|||C1384479|MRSAT|20040720|DA value for CUIs <= key (2004AB)|
+|||expanded_form|TTY|CDA|Clinical drug name in abbreviated format|
+|||expanded_form|TTY|CDC|Clinical drug name in concatenated format (NDDF), Clinical drug name (NDFRT)|
+|||expanded_form|TTY|CDD|Clinical drug name in delimited format|
+|||expanded_form|TTY|CU|Common usage|
+|||expanded_form|TTY|FBD|Foreign brand name|
+|||expanded_form|TTY|HD|Hierarchical descriptor|
+|||expanded_form|TTY|INP|Ingredient preparation|
+|||expanded_form|TTY|LV|Lexical variant|
+|||expanded_form|TTY|MOA|Mechanism of action|
+|||expanded_form|TTY|OPS|Obsolete preferred term|
+|||expanded_form|TTY|OPX|Obsolete preferred term, expanded|
+|||expanded_form|TTY|PE|Physiologic effect|
+|||expanded_form|TTY|PK|Pharmacokinetics|
+|||expanded_form|TTY|PSC|Protocol selection criteria|
+|||expanded_form|ATN|ASSOCFINDING|Disease may have finding|
+|||expanded_form|ATN|ASSOCIATEDDISEASE|Disease may have associated diseases|
+|||expanded_form|ATN|ASSOCMOLECTRAIT|Disease may have molecular abnormality|
+|||expanded_form|ATN|ASSOCTISSUEORIGIN|Disease may have normal tissue origin|
+|||expanded_form|ATN|CONSIDER|Codes to consider before definitive diagnosis|
+|||expanded_form|ATN|CRIT_INTERACT_WITH|Critical interaction with|
+|||expanded_form|ATN|DATE_FIRST_PUBLISHED|Date first published|
+|||expanded_form|ATN|DATE_LAST_MODIFIED|Date last modified|
+|||expanded_form|ATN|DISPLAY_NAME|Display name|
+|||expanded_form|ATN|EXCLUDE_DI_CHECK|Exclude drug interaction check|
+|||expanded_form|ATN|GENBANKACCESSION|GenBank accession number|
+|||expanded_form|ATN|GENEENCODESPRODUCT|Gene encodes product|
+|||expanded_form|ATN|GOANNOTATION|GO annotation|
+|||expanded_form|ATN|HASASSOCIATEDSITE|Disease has associated anatomic site|
+|||expanded_form|ATN|HASBIOCHEMFUNCTION|Disease has biochemical function|
+|||expanded_form|ATN|HASCELLORIGIN|Disease has normal cell origin|
+|||expanded_form|ATN|HASCYTOGENETICS|Disease has cytogenetic abnormality|
+|||expanded_form|ATN|HASFINDING|Disease has finding|
+|||expanded_form|ATN|HASMOLECTRAIT|Disease has molecular abnormality|
+|||expanded_form|ATN|HASPRIMARYSITE|Disease has primary anatomic site|
+|||expanded_form|ATN|HASTISSUEORIGIN|Disease has normal tissue origin|
+|||expanded_form|ATN|IDNR|Original ID number for source file|
+|||expanded_form|ATN|INCLUDED_MESH_UIS|Used for MoA concepts where multiple MeSH descriptors were merged into one NDF-RT concept|
+|||expanded_form|ATN|LAST_REVIEWED|Last reviewed|
+|||expanded_form|ATN|LEVEL|Specifies the type of DRUG_KIND concepts.  Values are "VA Class," "Ingredient," "Ingredient Strength," "Orderable Product".|
+|||expanded_form|ATN|LOCUSID|Locus ID|
+|||expanded_form|ATN|LOR|LOINC ORDER_OBS field.  Defines term as order only, observation only, or both.   Values are:  BOTH OBSERVATION ORDER.  A fourth category, Subset, is used for terms that are subsets of a panel but do not represent a package that is known to be orderable.|
+|||expanded_form|ATN|MENU_PARENT|Link information to Term Menu parent.  This may not always be the same as the TermParent.  Element will not exist for top level menus, e.g. cancer.|
+|||expanded_form|ATN|MENU_TYPE|Values are Clinical Trials--Cancer Type, Clinical Trials--Drug,  or Cancer Information.|
+|||expanded_form|ATN|MESH_UI|MeSH UI|
+|||expanded_form|ATN|NCIMETACUI|NCI Meta CUI|
+|||expanded_form|ATN|NDF_GCN_SEQ_NUMBER|NDF Generic Code Number (GCN) Sequence Number|
+|||expanded_form|ATN|NDF_STRENGTH|NDF strength|
+|||expanded_form|ATN|NDF_TRANSMIT_TO_CMOP|NDF Transmit to Consolidated Mail Outpatient Pharmacy (CMOP)|
+|||expanded_form|ATN|NDF_UNITS|NDF units|
+|||expanded_form|ATN|NF_NAME|National Formulary Name|
+|||expanded_form|ATN|HUAS|HUGO approved symbol|
+|||expanded_form|RELA|associated_disease|Associated disease|
+|||expanded_form|ATN|OMIMNUMBER|OMIM number|
+|||expanded_form|ATN|PARTOF|Part of|
+|||expanded_form|ATN|PID|Legacy PDQ ID|
+|||expanded_form|ATN|REMARKS|Specific coding instructions|
+|||expanded_form|ATN|RXNORM_SCD|RxNorm SCD|
+|||expanded_form|ATN|RXNORM_SCDC|RxNorm SCDC|
+|||expanded_form|ATN|SIGNIF_INTERACT_WITH|Significant interaction with|
+|||expanded_form|ATN|SNGL_OR_MULT_SRC_PRD|Single or multi-source product|
+|||expanded_form|ATN|UNII_CODE|FDA Unique Ingredient Identifier (UNII) Code|
+|||expanded_form|ATN|VA_CLASS_NAME|VA class name|
+|||expanded_form|ATN|VA_DISPENSE_UNIT|VA dispense unit|
+|||expanded_form|ATN|VA_GENERIC_NAME|VA generic name|
+|||tty_class|TTY|CDA|abbreviation|
+|||tty_class|TTY|CDC|preferred|
+|||tty_class|TTY|CDD|synonym|
+|||tty_class|TTY|CU|synonym|
+|||tty_class|TTY|FBD|synonym|
+|||tty_class|TTY|HD|hierarchical|
+|||tty_class|TTY|INP|preferred|
+|||tty_class|TTY|LV|synonym|
+|||tty_class|TTY|MOA|preferred|
+|||tty_class|TTY|OPS|obsolete|
+|||tty_class|TTY|OPX|obsolete|
+|||tty_class|TTY|OPX|expanded|
+|||tty_class|TTY|PE|preferred|
+|||tty_class|TTY|PK|preferred|
+|||tty_class|TTY|PSC|preferred|
+|||expanded_form|ATN|HUDA|HUGO date approved|
+|||expanded_form|ATN|HUDC|HUGO date changed|
+|||expanded_form|ATN|HUDM|HUGO date modified|
+|||expanded_form|ATN|HUAL|HUGO aliases|
+|||expanded_form|RELA|has_permuted_term|Has permuted term|
+|||expanded_form|RELA|permuted_term_of|Permuted term of|
+|||expanded_form|ATN|ASSOCCYTOGENETICS|Disease may have cytogenetics|
+|||expanded_form|ATN|DEFCHARACTERISTICS|Defining characteristics|
+|||expanded_form|ATN|HASABNORMALCELL|Disease has abnormal cells|
+|||expanded_form|ATN|HASCHEMCLASS|Disease has chemical class|
+|||expanded_form|ATN|HASMETASTATICSITE|Disease has metastatic site|
+|||expanded_form|ATN|RISKFACTORS|Risk factors|
+|||expanded_form|ATN|RELATEDFACTORS|Related factors|
+|||C1321853|MRSAT|20040415|DA value for CUIs <= key (2004AA)|
+|||MRXW_CZE|MRFILES|LAT,WD,CUI,LUI,SUI|Czech Word Index|
+|||MRXW_JPN|MRFILES|LAT,WD,CUI,LUI,SUI|Japanese Word Index|
+|||expanded_form|RELA|structural_domain_or_motif_of|Structural domain or motif of|
+|||expanded_form|RELA|subject_of_information_of|Subject of information of|
+|||expanded_form|MAPATN||Empty attribute name|
+|||expanded_form|ATN|MED2004|Medline citation counts from articles dated 2004.|
+|||expanded_form|RELA|british_form_of|British form of|
+|||expanded_form|RELA|has_british_form|Has British form|
+|||expanded_form|ATN|SOS|Scope Statement Two subelements: 1. Abbreviation of the source of the statement; 2. Variable length string with alpha character, punctuation, and in some cases diacritics |
+|||expanded_form|ATN|SRC|MeSH Literature source of chemical name - a citation to an article in a journal indexed for MEDLINE in which the chemical has been identified. (Note: Not to be confused with source abbreviation of SRC)|
+|||expanded_form|ATN|ST|Concept Attributes Status - valid values: R Reviewed, U Unreviewed |
+|||expanded_form|ATN|SWP|Swiss Protein Number|
+|||expanded_form|ATN|TH|MeSH Thesaurus ID - identifies thesauri other than MeSH in which the MeSH heading or cross-reference is included. |
+|||expanded_form|ATN|TRN|Trade Name of Product|
+|||expanded_form|ATN|TYPE|Multum Medical Supply Category (e.g. natural supplements)|
+|||expanded_form|ATN|UWT|A semantic type provided from terms from the University of Washington Digital Anatomist |
+|||expanded_form|ATN|VAC|VA Class - the code of an NDF/HT drug class name (e.g. COD LIVER OIL (CHERRY FLAVOR) )|
+|||expanded_form|ATN|VID|Health Level Seven Vocabulary ID - the numeric HL7 ID for an HL7/PT string (e.g. 1907)|
+|||expanded_form|ATN|VMO|VA CMOP (central mail - order pharmacy) ID|
+|||expanded_form|RELA|temporally_followed_by|Temporally followed by|
+|||expanded_form|RELA|temporally_follows|Temporally follows|
+|||expanded_form|RELA|time_aspect_of|Time aspect of|
+|||expanded_form|RELA|tissue_location_of|Tissue location of|
+|||expanded_form|RELA|was_a|Was a|
+|||expanded_form|RELA|xml_form_of|XML form of|
+|||expanded_form|RELA||Empty relationship attribute|
+|||expanded_form|REL|AQ|Allowed qualifier|
+|||expanded_form|COA|AO|in adolescence|
+|||expanded_form|COA|AU|in adulthood|
+|||tty_class|TTY|AA|abbreviation|
+|||tty_class|TTY|AA|attribute|
+|||tty_class|TTY|AB|abbreviation|
+|||tty_class|TTY|AC|preferred|
+|||tty_class|TTY|AD|attribute|
+|||tty_class|TTY|AS|attribute|
+|||tty_class|TTY|AS|synonym|
+|||tty_class|TTY|AT|attribute|
+|||tty_class|TTY|BD|preferred|
+|||tty_class|TTY|BN|preferred|
+|||tty_class|TTY|CC|preferred|
+|||tty_class|TTY|CD|preferred|
+|||tty_class|TTY|CE|entry_term|
+|||tty_class|TTY|CL|hierarchical|
+|||tty_class|TTY|CMN|preferred|
+|||tty_class|TTY|CN|preferred|
+|||tty_class|TTY|CO|hierarchical|
+|||tty_class|TTY|CP|preferred|
+|||tty_class|TTY|CS|abbreviation|
+|||tty_class|TTY|CX|expanded|
+|||tty_class|TTY|CX|preferred|
+|||tty_class|TTY|DE|preferred|
+|||tty_class|TTY|DFA|abbreviation|
+|||tty_class|TTY|DF|preferred|
+|||tty_class|TTY|DI|preferred|
+|||expanded_form|COA|GD|growth & development|
+|||expanded_form|COA|GE|genetics|
+|||expanded_form|COA|HI|history|
+|||expanded_form|COA|IC|in infancy & childhood|
+|||expanded_form|COA|IM|immunology|
+|||expanded_form|COA|IN|injuries|
+|||expanded_form|COA|IP|isolation & purification|
+|||expanded_form|COA|IR|innervation|
+|||expanded_form|COA|IS|instrumentation|
+|||expanded_form|COA|LJ|legislation & jurisprudence|
+|||expanded_form|COA|MA|manpower|
+|||expanded_form|COA|ME|metabolism|
+|||expanded_form|COA|MI|microbiology|
+|||expanded_form|COA|MO|mortality|
+|||expanded_form|COA|MT|methods|
+|||expanded_form|COA|MY|in middle age|
+|||expanded_form|COA|NU|nursing|
+|||expanded_form|COA|OA|in old age|
+|||expanded_form|COA|OG|organization & administration|
+|||expanded_form|COA|PA|pathology|
+|||expanded_form|COA|PC|prevention & control|
+|||expanded_form|COA|PD|pharmacology|
+|||expanded_form|COA|PH|physiology|
+|||expanded_form|COA|PK|pharmacokinetics|
+|||expanded_form|COA|PO|poisoning|
+|||expanded_form|COA|PP|physiopathology|
+|||expanded_form|COA|PR|in pregnancy|
+|||expanded_form|COA|PS|parasitology|
+|||expanded_form|COA|PX|psychology|
+|||expanded_form|COA|PY|pathogenicity|
+|||expanded_form|COA|RA|radiography|
+|||expanded_form|COA|RE|radiation effects|
+|||expanded_form|COA|RH|rehabilitation|
+|||expanded_form|COA|RI|radionuclide imaging|
+|||expanded_form|COA|RT|radiotherapy|
+|||expanded_form|COA|SC|secondary|
+|||expanded_form|COA|SD|supply & distribution|
+|||expanded_form|COA|SE|secretion|
+|||expanded_form|COA|SN|statistics & numerical data|
+|||expanded_form|COA|ST|standards|
+|||expanded_form|COA|SU|surgery|
+|||expanded_form|COA|TD|trends|
+|||expanded_form|COA|TH|therapy|
+|||expanded_form|COA|TM|transmission|
+|||expanded_form|COA|TO|toxicity|
+|||expanded_form|COA|TR|transplantation|
+|||expanded_form|COA|TU|therapeutic use|
+|||expanded_form|COA|UL|ultrastructure|
+|||expanded_form|COA|UR|urine|
+|||expanded_form|COA|US|ultrasonography|
+|||expanded_form|COA|UT|utilization|
+|||expanded_form|COA|VE|veterinary|
+|||expanded_form|COA|VI|virology|
+|||expanded_form|COT|KN|negative association in Knowledge Base, e.g., a finding that is inconsistent with a disease.|
+|||expanded_form|COT|KP|positive association in Knowledge Base|
+|||expanded_form|COT|LQB|second concept is qualified by the first (a MeSH topical qualifier) in citations to the published literature|
+|||expanded_form|COT|LQ|second concept occurs as a MeSH topical qualifier of the first in citations to the published literature. Where CUI2 is not present, the count of citations of CUI1 with no MeSH qualifiers is reported.|
+|||expanded_form|COT|L|Co-occurrence of primary or main subject headings in citations to the published literature|
+|||expanded_form|COT|MP|Co-occurrence of modifier and problem within a patient record|
+|||expanded_form|COT|PP|Co-occurrence of two problems within a patient record|
+|||expanded_form|LAT|BAQ|Basque|
+|||expanded_form|LAT|DAN|Danish|
+|||expanded_form|LAT|DUT|Dutch|
+|||expanded_form|LAT|ENG|English|
+|||expanded_form|LAT|FIN|Finnish|
+|||expanded_form|LAT|FRE|French|
+|||expanded_form|LAT|GER|German|
+|||expanded_form|LAT|HEB|Hebrew|
+|||expanded_form|LAT|HUN|Hungarian|
+|||expanded_form|LAT|ITA|Italian|
+|||expanded_form|LAT|NOR|Norwegian|
+|||expanded_form|LAT|POR|Portuguese|
+|||expanded_form|LAT|RUS|Russian|
+|||expanded_form|LAT|SPA|Spanish|
+|||expanded_form|LAT|SWE|Swedish|
+|||expanded_form|RELA|actual_outcome_of|Actual outcome of|
+|||expanded_form|RELA|adjectival_form_of|Adjectival form of|
+|||expanded_form|RELA|affected_by|Affected by|
+|||expanded_form|RELA|affects|Affects|
+|||expanded_form|RELA|analyzed_by|Analyzed by|
+|||expanded_form|RELA|analyzes|Analyzes|
+|||expanded_form|RELA|associated_with|Associated with|
+|||expanded_form|RELA|branch_of|Branch of|
+|||expanded_form|ATN|FR|MeSH Frequency|
+|||tty_class|TTY|DO|hierarchical|
+|||tty_class|TTY|DS|abbreviation|
+|||tty_class|TTY|DT|other|
+|||tty_class|TTY|DX|preferred|
+|||tty_class|TTY|EN|entry_term|
+|||expanded_form|RELA|classified_as|Classified as|
+|||expanded_form|RELA|classifies|Classifies|
+|||expanded_form|RELA|clinically_associated_with|Clinically associated with|
+|||expanded_form|RELA|clinically_similar|Clinically similar|
+|||expanded_form|RELA|closest_related_pdq_diagnosis|Closest related PDQ diagnosis|
+|||expanded_form|RELA|co-occurs_with|Co-ocurrs with|
+|||expanded_form|RELA|conceptual_part_of|Conceptual part of|
+|||expanded_form|RELA|consists_of|Consists of|
+|||expanded_form|RELA|constitutes|Constitutes|
+|||expanded_form|RELA|contained_in|Contained in|
+|||expanded_form|RELA|contains|Contains|
+|||expanded_form|RELA|ddx|dxx|
+|||expanded_form|RELA|default_mapped_from|Default mapped from|
+|||expanded_form|RELA|default_mapped_to|Default mapped to|
+|||expanded_form|RELA|degree_of|Degree of|
+|||expanded_form|RELA|diagnosed_by|Diagnosed by|
+|||expanded_form|RELA|diagnoses|Diagnoses|
+|||expanded_form|RELA|dose_form_of|Dose form of|
+|||expanded_form|RELA|encoded_by_gene|Encoded by gene|
+|||expanded_form|RELA|encodes_gene_product|Encodes gene product|
+|||expanded_form|RELA|evaluation_of|Evaluation of|
+|||expanded_form|RELA|exhibited_by|Exhibited by|
+|||expanded_form|RELA|exhibits|Exhibits|
+|||expanded_form|RELA|expected_outcome_of|Expected outcome of|
+|||expanded_form|RELA|form_of|Form of|
+|||expanded_form|RELA|has_actual_outcome|Has actual outcome|
+|||expanded_form|RELA|has_branch|Has branch|
+|||expanded_form|RELA|has_closest_related_pdq_diagnosis|Has closest related PDQ diagnosis|
+|||expanded_form|RELA|has_conceptual_part|Has conceptual part|
+|||expanded_form|RELA|has_degree|Has degree|
+|||expanded_form|RELA|has_dose_form|Has dose form|
+|||expanded_form|RELA|has_evaluation|Has evaluation|
+|||expanded_form|RELA|has_expected_outcome|Has expected outcome|
+|||expanded_form|RELA|has_form|Has form|
+|||expanded_form|RELA|has_ingredient|Has ingredient|
+|||expanded_form|RELA|has_location|Has location|
+|||expanded_form|RELA|has_manifestation|Has manifestation|
+|||expanded_form|RELA|has_member|Has member|
+|||expanded_form|RELA|has_method|Has method|
+|||expanded_form|RELA|has_part|Has part|
+|||expanded_form|RELA|has_process|Has process|
+|||expanded_form|RELA|has_result|Has result|
+|||expanded_form|RELA|has_tradename|Has tradename|
+|||expanded_form|RELA|has_translation|Has translation|
+|||expanded_form|RELA|has_tributary|Has tributary|
+|||expanded_form|RELA|has_version|Has version|
+|||expanded_form|RELA|icd_asterisk|ICD asterisk|
+|||expanded_form|RELA|icd_dagger|ICD dagger|
+|||expanded_form|RELA|indicated_by|Indicated by|
+|||expanded_form|RELA|indicates|Indicates|
+|||expanded_form|RELA|ingredient_of|Ingredient of|
+|||expanded_form|RELA|inverse_isa|Inverse is a|
+|||expanded_form|RELA|location_of|Location of|
+|||expanded_form|RELA|manifestation_of|Manifestation of|
+|||expanded_form|RELA|mapped_from|Mapped from|
+|||expanded_form|RELA|mapped_to|Mapped to|
+|||expanded_form|RELA|measured_by|Measured by|
+|||expanded_form|RELA|measures|Measures|
+|||expanded_form|RELA|member_of_cluster|Member of cluster|
+|||expanded_form|RELA|method_of|Method of|
+|||expanded_form|RELA|modified_by|Modified by|
+|||expanded_form|RELA|modifies|Modifies|
+|||expanded_form|RELA|multiply_mapped_from|Multiply mapped from|
+|||expanded_form|RELA|multiply_mapped_to|Multiply mapped to|
+|||expanded_form|RELA|noun_form_of|Noun form of|
+|||expanded_form|RELA|other_mapped_from|Other mapped from|
+|||expanded_form|RELA|other_mapped_to|Other mapped to|
+|||expanded_form|RELA|part_of|Part of|
+|||expanded_form|RELA|primary_mapped_from|Primary mapped from|
+|||expanded_form|RELA|primary_mapped_to|Primary mapped to|
+|||expanded_form|RELA|process_of|Process of|
+|||expanded_form|RELA|result_of|Result of|
+|||expanded_form|RELA|sampled_by|Sampled by|
+|||expanded_form|RELA|samples|Samples|
+|||expanded_form|RELA|sib_in_branch_of|Sibling in branch of|
+|||expanded_form|RELA|sib_in_isa|Sibling in is a|
+|||expanded_form|RELA|sib_in_part_of|Sibling in part of|
+|||expanded_form|RELA|sib_in_tributary_of|Sibling in tributary of|
+|||expanded_form|RELA|similar|Similar|
+|||expanded_form|RELA|ssc|scc|
+|||expanded_form|RELA|tradename_of|Tradename of|
+|||expanded_form|RELA|translation_of|Translation of|
+|||expanded_form|RELA|treated_by|Treated by|
+|||expanded_form|RELA|treats|Treats|
+|||expanded_form|RELA|tributary_of|Tributary of|
+|||expanded_form|RELA|uniquely_mapped_from|Uniquely mapped from|
+|||expanded_form|RELA|uniquely_mapped_to|Uniquely mapped to|
+|||expanded_form|RELA|used_by|Used by|
+|||expanded_form|RELA|uses|Uses|
+|||expanded_form|RELA|version_of|Version of|
+|||expanded_form|REL|CHD|has child relationship in a Metathesaurus source vocabulary |
+|||expanded_form|REL|PAR|has parent relationship in a Metathesaurus source vocabulary |
+|||expanded_form|REL|QB|can be qualified by.|
+|||expanded_form|REL|RB|has a broader relationship|
+|||expanded_form|REL|RL|the relationship is similar or "alike". the two concepts are similar or "alike". In the current edition of the Metathesaurus, most relationships with this attribute are mappings provided by a source, named in SAB and SL; hence concepts linked by this relationship may be synonymous, i.e. self-referential: CUI1 = CUI2. In previous releases, some MeSH Supplementary Concept relationships were represented in this way.|
+|||expanded_form|REL|RN|has a narrower relationship|
+|||expanded_form|REL|RO|has relationship other than synonymous, narrower, or broader|
+|||expanded_form|REL|RQ|related and possibly synonymous.|
+|||expanded_form|REL|SIB|has sibling relationship in a Metathesaurus source vocabulary.|
+|||expanded_form|REL|SY|source asserted synonymy.|
+|||expanded_form|STT|C|Varies from the preferred term only in upper-lower case |
+|||expanded_form|STT|O|Other variant of the preferred form|
+|||expanded_form|STT|PF|Preferred form of term |
+|||expanded_form|STT|P|Plural of the preferred form |
+|||expanded_form|STT|S|Singular of the preferred form |
+|||expanded_form|STT|V|Followed by one or more of the following types of variation, in this order: |
+|||expanded_form|STT|W|Contains same words as the preferred form, disregarding order and punctuation |
+|||expanded_form|TS|P|Preferred LUI of the CUI|
+|||expanded_form|TS|S|Non-Preferred LUI of the CUI|
+|||expanded_form|TS|s|Non-Preferred LUI of the CUI, suppressible|
+|||expanded_form|TTY|AA|Attribute type abbreviation|
+|||expanded_form|TTY|AB|Abbreviation in any source vocabulary|
+|||expanded_form|TTY|AC|Activities|
+|||expanded_form|TTY|AD|Adjective|
+|||expanded_form|TTY|AS|Attribute type synonym|
+|||expanded_form|TTY|AT|Attribute type|
+|||expanded_form|TTY|BD|Fully-specified drug brand name that can be prescribed|
+|||expanded_form|TTY|BN|Fully-specified drug brand name that can not be prescribed|
+|||expanded_form|TTY|CC|Trimmed ICPC component process|
+|||expanded_form|TTY|CD|Clinical Drug|
+|||expanded_form|TTY|CE|Entry "term" to a Supplementary Concept "term"|
+|||expanded_form|TTY|CL|Class|
+|||expanded_form|TTY|CMN|Common name|
+|||expanded_form|ATN|NC_NAME|NCI concept name|
+|||expanded_form|ATN|TERMUI|Term unique identifier|
+|||expanded_form|ATN|UMLSCUI|UMLS CUI|
+|||expanded_form|ATN|ASSOCABNORMALCELL|NCI role Disease_May_Have_Abnormal_Cell|
+|||expanded_form|TTY|LPN|LOINC parts name|
+|||tty_class|TTY|LPN|preferred|
+|||expanded_form|TTY|LPDN|LOINC parts display name|
+|||expanded_form|TTY|OF|Obsolete fully specified name|
+|||tty_class|TTY|OF|obsolete|
+|||tty_class|TTY|LPDN|preferred|
+|||tty_class|TTY|OB|obsolete|
+|||expanded_form|TTY|OB|Obsolete term|
+|||expanded_form|RELA|cause_of|Cause of|
+|||expanded_form|RELA|associated_procedure_of|Associated procedure of|
+|||expanded_form|RELA|direct_procedure_site_of|Direct procedure site of|
+|||expanded_form|RELA|due_to|Due to|
+|||expanded_form|RELA|finding_context_of|Finding context of|
+|||expanded_form|RELA|has_associated_procedure|Has associated procedure|
+|||expanded_form|RELA|has_direct_procedure_site|Has direct procedure site|
+|||expanded_form|RELA|has_finding_context|Has finding context|
+|||expanded_form|RELA|has_indirect_procedure_site|Has indirect procedure site|
+|||expanded_form|RELA|has_procedure_context|Has procedure context|
+|||expanded_form|RELA|has_procedure_device|Has procedure device|
+|||expanded_form|RELA|has_procedure_morphology|Has procedure morphology|
+|||expanded_form|RELA|has_subject_relationship_context|Has subject relationship context|
+|||expanded_form|RELA|has_temporal_context|Has temporal context|
+|||expanded_form|RELA|indirect_procedure_site_of|Indirect procedure site of|
+|||expanded_form|RELA|occurs_before|Occurs before|
+|||expanded_form|RELA|occurs_after|Occurs after|
+|||expanded_form|RELA|procedure_context_of|Procedure context of|
+|||expanded_form|RELA|procedure_device_of|Procedure device of|
+|||expanded_form|RELA|procedure_morphology_of|Procedure morphology of|
+|||expanded_form|RELA|subject_relationship_context_of|Subject relationship context of|
+|||expanded_form|RELA|temporal_context_of|Temporal context of|
+|||expanded_form|ATN|DATE_CREATED|Date created|
+|||expanded_form|ATN|URL|URL for corresponding health topic on MedlinePlus|
+|||expanded_form|ATN|GROUPURL|URL for corresponding health topic groups on MedlinePlus|
+|||C1456876|MRSAT|20041115|DA value for CUIs <= key (2004AC)|
+|||expanded_form|ATN|AM|Ambiguous string indicator|
+|||expanded_form|ATN|RXCUI|RxNorm concept identifier for the atom this is connected to|
+|||expanded_form|RELA|adjustment_of|Adjustment of|
+|||expanded_form|ATN|RXAUI|RxNorm atom identifier for the atom it is connected to|
+|||expanded_form|RELA|challenge_of|Challenge of|
+|||expanded_form|RELA|divisor_of|Divisor of|
+|||expanded_form|RELA|has_adjustment|Has adjustment|
+|||expanded_form|RELA|has_challenge|Has challenge|
+|||expanded_form|RELA|has_divisor|Has divisor|
+|||expanded_form|RELA|has_scale|Has scale|
+|||expanded_form|RELA|has_suffix|Has suffix|
+|||expanded_form|RELA|has_supersystem|Has supersystem|
+|||expanded_form|RELA|has_system|Has system|
+|||expanded_form|RELA|scale_of|Scale of|
+|||expanded_form|RELA|suffix_of|Suffix of|
+|||expanded_form|RELA|supersystem_of|Supersystem of|
+|||expanded_form|RELA|system_of|System of|
+|||C1510408|MRSAT|20050118|DA value for CUIs <= key (2005AA)|
+|||expanded_form|RELA|use|Use|
+|||expanded_form|RELA|used_for|Used for|
+|||expanded_form|STYPE1|CODE|Unique Identifier or code for string in source|
+|||expanded_form|STYPE1|AUI|Atom identifier|
+|||expanded_form|STYPE2|CUI|Concept unique identifier|
+|||expanded_form|STYPE2|SCUI|Source asserted concept unique identifier|
+|||expanded_form|STYPE2|SDUI|Source asserted descriptor identifier|
+|||expanded_form|STYPE2|SAUI|Source asserted atom unique identifier|
+|||expanded_form|STYPE2|CODE|Unique Identifier or code for string in source|
+|||expanded_form|STYPE2|AUI|Atom identifier|
+|||CHANGETYPE|MRCOLS|varchar(1000)|Source asserted code for type of change|
+|||expanded_form|REL|DEL|Deleted concept|
+|||expanded_form|REL|SUBX|Concept removed from current subset|
+|||CHANGE/DELETEDCUI|MRFILES|PCUI,PSTR|Deleted concepts|
+|||CHANGE/DELETEDLUI|MRFILES|PLUI,PSTR|Deleted terms|
+|||CHANGE/DELETEDSUI|MRFILES|PSUI,LAT,PSTR|Deleted strings|
+|||CHANGE/MERGEDCUI|MRFILES|PCUI,CUI|Merged concepts|
+|||CHANGE/MERGEDLUI|MRFILES|PLUI,LUI|Merged terms|
+|||PCUI|MRCOLS|char(8)|Concept unique identifier in the previous Metathesaurus|
+|||PLUI|MRCOLS|char(8)|Lexical unique identifier in the previous Metathesaurus|
+|||PSUI|MRCOLS|char(8)|String unique identifier in the previous Metathesaurus|
+|||PSTR|MRCOLS|varchar(3000)|Preferred name in the previous Metathesaurus|
+|||CUIS|MRCOLS|varchar(1000)|Concept unique identifier list, comma separated|
+|||expanded_form|RELA|has_causative_agent|Has causative agent|
+|||expanded_form|RELA|has_cellular_location|Has cellular location|
+|||expanded_form|RELA|has_chemical_classification|Has chemical classification|
+|||expanded_form|RELA|has_component|Has component|
+|||expanded_form|RELA|has_course|Has course|
+|||expanded_form|RELA|has_definitional_manifestation|Has definitional manifestation|
+|||expanded_form|RELA|has_direct_device|Has direct device|
+|||expanded_form|RELA|has_direct_morphology|Has direct morphology|
+|||expanded_form|RELA|has_direct_substance|Has direct substance|
+|||expanded_form|RELA|has_episodicity|Has episodicity|
+|||expanded_form|RELA|has_expanded_form|Has expanded form|
+|||expanded_form|RELA|has_finding_site|Has finding_site|
+|||expanded_form|RELA|has_focus|Has focus|
+|||expanded_form|RELA|has_indirect_device|Has indirect device|
+|||expanded_form|RELA|has_indirect_morphology|Has indirect morphology|
+|||expanded_form|RELA|has_intent|Has intent|
+|||expanded_form|RELA|has_interpretation|Has interpretation|
+|||expanded_form|RELA|has_laterality|Has laterality|
+|||expanded_form|RELA|has_malfunction_type|Has malfunction type|
+|||expanded_form|RELA|has_measurement_method|Has measurement method|
+|||expanded_form|RELA|has_occurrence|Has occurrence|
+|||expanded_form|RELA|has_onset|Has onset|
+|||expanded_form|RELA|has_pathological_process|Has pathological process|
+|||expanded_form|RELA|has_plain_text_form|Has plain text form|
+|||expanded_form|RELA|has_precise_ingredient|Has precise ingredient|
+|||expanded_form|RELA|has_priority|Has priority|
+|||expanded_form|RELA|has_procedure_site|Has procedure site|
+|||expanded_form|RELA|has_property|Has property|
+|||expanded_form|RELA|has_recipient_category|Has recipient category|
+|||expanded_form|RELA|has_revision_status|Has revision status|
+|||expanded_form|RELA|has_scale_type|Has scale type|
+|||expanded_form|RELA|has_severity|Has severity|
+|||expanded_form|RELA|has_specimen_procedure|Has specimen procedure|
+|||expanded_form|RELA|has_specimen_source_identity|Has specimen source identity|
+|||expanded_form|RELA|has_specimen_source_morphology|Has specimen source morphology|
+|||expanded_form|RELA|has_specimen_source_topography|Has specimen source topography|
+|||expanded_form|RELA|has_specimen_substance|Has specimen substance|
+|||expanded_form|RELA|has_specimen|Has specimen|
+|||expanded_form|RELA|has_structural_domain_or_motif|Has structural domain or motif|
+|||expanded_form|RELA|has_subject_of_information|Has subject of information|
+|||expanded_form|RELA|has_time_aspect|Has time aspect|
+|||expanded_form|RELA|has_xml_form|Has XML form|
+|||expanded_form|RELA|in_chromosomal_location|In chromosomal location|
+|||expanded_form|RELA|indirect_device_of|Indirect device of|
+|||expanded_form|RELA|indirect_morphology_of|Indirect morphology of|
+|||expanded_form|RELA|intent_of|Intent of|
+|||expanded_form|RELA|interpretation_of|Interpretation of|
+|||expanded_form|RELA|interprets|Interprets|
+|||expanded_form|RELA|inverse_is_a_biomarker_type|Inverse is a biomarker type|
+|||expanded_form|RELA|inverse_may_be_a|Inverse may be a|
+|||expanded_form|RELA|inverse_was_a|Inverse was a|
+|||expanded_form|RELA|is_a_biomarker_type|Is a biomarker type|
+|||expanded_form|RELA|is_interpreted_by|Is interpreted by|
+|||expanded_form|RELA|isa|Is a|
+|||expanded_form|RELA|laterality_of|Laterality of|
+|||expanded_form|RELA|malfunction_associated_with_disease|Malfunction associated with disease|
+|||expanded_form|RELA|malfunction_of|Malfunction of|
+|||expanded_form|RELA|marked_by|Marked by|
+|||expanded_form|RELA|may_be_a|May be a|
+|||expanded_form|RELA|measurement_method_of|Measurement method of|
+|||expanded_form|RELA|moved_from|Moved from|
+|||expanded_form|RELA|moved_to|Moved to|
+|||expanded_form|RELA|occurs_in|Occurs in|
+|||expanded_form|RELA|onset_of|Onset of|
+|||expanded_form|RELA|organism_contains|Organism contains|
+|||expanded_form|RELA|organism_source|Organism source|
+|||expanded_form|RELA|pathological_process_of|Pathological process of|
+|||expanded_form|RELA|plain_text_form_of|Plain text form of|
+|||expanded_form|RELA|plays_role_in_biological_process|Plays role in biological process|
+|||expanded_form|RELA|precise_ingredient_of|Precise ingredient of|
+|||expanded_form|RELA|priority_of|Priority of|
+|||expanded_form|RELA|procedure_site_of|Procedure site of|
+|||expanded_form|RELA|property_of|Property of|
+|||expanded_form|RELA|recipient_category_of|Recipient category of|
+|||expanded_form|RELA|replaced_by|Replaced by|
+|||expanded_form|RELA|replaces|Replaces|
+|||expanded_form|RELA|revision_status_of|Revision status of|
+|||expanded_form|RELA|same_as|Same as|
+|||expanded_form|RELA|scale_type_of|Scale type of|
+|||expanded_form|RELA|severity_of|Severity of|
+|||expanded_form|RELA|source_of_protein|Source of protein|
+|||expanded_form|RELA|specimen_of|Specimen of|
+|||expanded_form|RELA|specimen_procedure_of|Specimen procedure of|
+|||expanded_form|RELA|specimen_source_identity_of|Specimen source identity of|
+|||expanded_form|RELA|specimen_source_morphology_of|Specimen source morphology of|
+|||expanded_form|RELA|specimen_source_topography_of|specimen source topography of|
+|||expanded_form|RELA|specimen_substance_of|Specimen substance of|
+|||EXPL|MRCOLS|varchar(1000)|Detailed explanation|
+|||FROMSID|MRCOLS|varchar(50)|Source asserted identifier for mapped from|
+|||TOID|MRCOLS|varchar(50)|Metathesaurus identifier for mapped to|
+|||TOSID|MRCOLS|varchar(50)|Source asserted identifier for mapped to|
+|||tty_class|TTY|MT|preferred|
+|||tty_class|TTY|MV|preferred|
+|||tty_class|TTY|N1|synonym|
+|||tty_class|TTY|NM|preferred|
+|||tty_class|TTY|NP|synonym|
+|||tty_class|TTY|NS|abbreviation|
+|||tty_class|TTY|NS|synonym|
+|||tty_class|TTY|NX|expanded|
+|||tty_class|TTY|NX|synonym|
+|||tty_class|TTY|OA|abbreviation|
+|||tty_class|TTY|OA|obsolete|
+|||tty_class|TTY|OC|preferred|
+|||tty_class|TTY|OL|entry_term|
+|||tty_class|TTY|OL|obsolete|
+|||tty_class|TTY|OM|attribute|
+|||tty_class|TTY|OM|obsolete|
+|||tty_class|TTY|OP|obsolete|
+|||tty_class|TTY|OR|preferred|
+|||tty_class|TTY|OSN|abbreviation|
+|||tty_class|TTY|OSN|preferred|
+|||expanded_form|TTY|OS|System-organ class in the WHO Adverse Reaction Terminology|
+|||tty_class|TTY|OS|hierarchical|
+|||tty_class|TTY|PCN|preferred|
+|||expanded_form|TTY|PC|Preferred "trimmed term" in ICPC|
+|||tty_class|TTY|PC|preferred|
+|||tty_class|TTY|PM|synonym|
+|||tty_class|TTY|PN|preferred|
+|||tty_class|TTY|PQ|attribute|
+|||tty_class|TTY|PR|preferred|
+|||tty_class|TTY|PS|abbreviation|
+|||tty_class|TTY|PT|preferred|
+|||tty_class|TTY|PX|expanded|
+|||tty_class|TTY|PX|preferred|
+|||tty_class|TTY|RAB|abbreviation|
+|||tty_class|TTY|RHT|hierarchical|
+|||tty_class|TTY|RPT|preferred|
+|||tty_class|TTY|RSY|synonym|
+|||expanded_form|TTY|RS|Extracted related names in SNOMED2|
+|||tty_class|TTY|RS|other|
+|||tty_class|TTY|RT|other|
+|||tty_class|TTY|SA|preferred|
+|||tty_class|TTY|SBD|preferred|
+|||expanded_form|TTY|SB|Named subset of a source|
+|||tty_class|TTY|SCDC|preferred|
+|||tty_class|TTY|SCD|preferred|
+|||tty_class|TTY|SCN|preferred|
+|||expanded_form|TTY|SC|Special Category term|
+|||tty_class|TTY|SC|other|
+|||tty_class|TTY|SD|preferred|
+|||tty_class|TTY|SF|synonym|
+|||tty_class|TTY|SI|preferred|
+|||tty_class|TTY|SN|synonym|
+|||tty_class|TTY|SP|preferred|
+|||tty_class|TTY|SSN|abbreviation|
+|||expanded_form|TTY|SS|Synonymous "short" forms|
+|||tty_class|TTY|SS|abbreviation|
+|||tty_class|TTY|SS|synonym|
+|||tty_class|TTY|ST|preferred|
+|||tty_class|TTY|SX|expanded|
+|||tty_class|TTY|SX|synonym|
+|||tty_class|TTY|SY|synonym|
+|||tty_class|TTY|TA|preferred|
+|||tty_class|TTY|TC|hierarchical|
+|||tty_class|TTY|TG|preferred|
+|||tty_class|TTY|TQ|attribute|
+|||tty_class|TTY|TX|hierarchical|
+|||tty_class|TTY|UCN|preferred|
+|||tty_class|TTY|UPC|preferred|
+|||tty_class|TTY|USN|preferred|
+|||tty_class|TTY|USY|synonym|
+|||tty_class|TTY|VAB|abbreviation|
+|||tty_class|TTY|VPT|preferred|
+|||tty_class|TTY|VSY|synonym|
+|||expanded_form|TTY|VS|Value Set|
+|||expanded_form|ATN|MAPSETXRTARGETID|Map set target identifier used bfor XR mappings.|
+|||tty_class|TTY|VS|preferred|
+|||tty_class|TTY|XD|expanded|
+|||tty_class|TTY|XD|preferred|
+|||tty_class|TTY|XQ|attribute|
+|||tty_class|TTY|XQ|synonym|
+|||tty_class|TTY|XX|expanded|
+|||tty_class|TTY|XX|preferred|
+|||METAUI|MRCOLS|varchar(50)|Metathesaurus asserted unique identifier|
+|||expanded_form|ATN|TARGETSCHEMEID|Identifier for the target scheme in the map set. This may be an International Coding Scheme Identifier (ISO7826) or an Object Identifier (OID) used as specified by HL7.|
+|||expanded_form|ATN|TORSAB|Root source abbreviation for the "to" identifiers of a map set|
+|||expanded_form|ATN|TOVSAB|Versioned source abbreviation for the "to" identifiers of a map set|
+|||expanded_form|ATN|MTH_UMLSMAPSETSEPARATOR|The character used in the UMLS Metathesaurus as a separator between the individual codes in the target codes field of the cross map targets to which a source is mapped.|
+|||expanded_form|ATN|UMLSRELA|UMLS relationship attribute|
+|||expanded_form|ATN|UMLSREL|The UMLS Metathesaurus REL relationship (SY, CHD, NT, BT, RT) assigned to SNOMED CT relationship identifiers.|
+|||expanded_form|COA|<>|No MeSH subheading (qualifier)|
+|||expanded_form|COA|AA|analogs & derivatives|
+|||expanded_form|COA|AB|abnormalities|
+|||expanded_form|COA|AD|administration & dosage|
+|||expanded_form|COA|AE|adverse effects|
+|||expanded_form|COA|AG|agonists|
+|||expanded_form|COA|AH|anatomy & histology|
+|||expanded_form|COA|AI|antagonists & inhibitors|
+|||expanded_form|COA|AN|analysis|
+|||expanded_form|COA|BI|biosynthesis|
+|||expanded_form|COA|BL|blood|
+|||expanded_form|COA|BS|blood supply|
+|||expanded_form|COA|CF|cerebrospinal fluid|
+|||expanded_form|COA|CH|chemistry|
+|||expanded_form|COA|CI|chemically induced|
+|||expanded_form|COA|CL|classification|
+|||expanded_form|COA|CN|congenital|
+|||expanded_form|COA|CO|complications|
+|||expanded_form|COA|CS|chemical synthesis|
+|||expanded_form|COA|CT|contraindications|
+|||expanded_form|COA|CY|cytology|
+|||expanded_form|COA|DE|drug effects|
+|||expanded_form|COA|DF|deficiency|
+|||expanded_form|COA|DH|diet therapy|
+|||expanded_form|COA|DI|diagnosis|
+|||expanded_form|COA|DT|drug therapy|
+|||expanded_form|COA|DU|diagnostic use|
+|||expanded_form|COA|EC|economics|
+|||expanded_form|COA|ED|education|
+|||expanded_form|COA|EH|ethnology|
+|||expanded_form|COA|EM|embryology|
+|||expanded_form|COA|EN|enzymology|
+|||expanded_form|COA|EP|epidemiology|
+|||expanded_form|COA|ES|ethics|
+|||expanded_form|COA|ET|etiology|
+|||expanded_form|LAT|CZE|Czech|
+|||expanded_form|LAT|JPN|Japanese|
+|||expanded_form|RELA|access_instrument_of|Access instrument of|
+|||expanded_form|RELA|access_of|Access of|
+|||expanded_form|RELA|active_ingredient_of|Active ingredient of|
+|||expanded_form|RELA|approach_of|Approach of|
+|||expanded_form|RELA|associated_etiologic_finding_of|Associated etiologic finding of|
+|||expanded_form|RELA|associated_finding_of|Associated finding of|
+|||expanded_form|RELA|associated_morphology_of|Associated morphology of|
+|||expanded_form|RELA|biochemical_function_of|Biochemical function of|
+|||expanded_form|RELA|biomarker_of|Biomarker of|
+|||expanded_form|RELA|causative_agent_of|Causative agent of|
+|||expanded_form|RELA|cellular_location_of|Cellular location of|
+|||expanded_form|RELA|chemical_classification_of|Chemical classification of|
+|||expanded_form|RELA|chromosomal_location_of|Chromosomal location of|
+|||expanded_form|RELA|component_of|Component of|
+|||expanded_form|RELA|course_of|Course of|
+|||expanded_form|RELA|definitional_manifestation_of|Definitional manifestation of|
+|||expanded_form|RELA|direct_device_of|Direct device of|
+|||expanded_form|RELA|direct_morphology_of|Direct morphology of|
+|||expanded_form|RELA|direct_substance_of|Direct substance of|
+|||expanded_form|RELA|disease_associated_with_protein|Disease associated with protein|
+|||expanded_form|RELA|episodicity_of|Episodicity of|
+|||expanded_form|RELA|expanded_form_of|Expanded form of|
+|||expanded_form|RELA|expressed_in_tissue|Expressed in tissue|
+|||expanded_form|RELA|finding_site_of|Finding site of|
+|||expanded_form|RELA|focus_of|Focus of|
+|||expanded_form|RELA|found_in_organism|Found in organism|
+|||expanded_form|RELA|function_of_gene|Function of gene|
+|||expanded_form|RELA|function_of_protein|Function of protein|
+|||expanded_form|RELA|gene_has_function|Gene has function|
+|||STYPE1|MRCOLS|varchar(50)|The name of the column in MRCONSO.RRF that contains the first identifier to which the relationship is attached|
+|||STYPE2|MRCOLS|varchar(50)|The name of the column in MRCONSO.RRF that contains the second identifier to which the relationship is attached|
+|||expanded_form|STYPE|CUI|Concept unique identifier|
+|||expanded_form|FROMTYPE|CUI|Concept unique identifier|
+|||expanded_form|FROMTYPE|SCUI|Source asserted concept unique identifier|
+|||expanded_form|FROMTYPE|SDUI|Source asserted descriptor identifier|
+|||expanded_form|FROMTYPE|SAUI|Source asserted atom unique identifier|
+|||expanded_form|FROMTYPE|CODE|Unique Identifier or code for string in source|
+|||expanded_form|FROMTYPE|BOOLEAN_EXPRESSION|Boolean expression of strings or identifiers|
+|||expanded_form|FROMTYPE|AUI|Atom identifier|
+|||expanded_form|TOTYPE|CUI|Concept unique identifier|
+|||expanded_form|TOTYPE|SCUI|Source asserted concept unique identifier|
+|||expanded_form|TOTYPE|SDUI|Source asserted descriptor identifier|
+|||expanded_form|TOTYPE|SAUI|Source asserted atom unique identifier|
+|||expanded_form|TOTYPE|CODE|Unique Identifier or code for string in source|
+|||expanded_form|TOTYPE|BOOLEAN_EXPRESSION|Boolean expression of strings or identifiers|
+|||expanded_form|TOTYPE|AUI|Atom identifier|
+|||expanded_form|STYPE|SCUI|Source asserted concept unique identifier|
+|||expanded_form|STYPE|SDUI|Source asserted descriptor identifier|
+|||expanded_form|STYPE|SAUI|Source asserted atom unique identifier|
+|||expanded_form|STYPE|CODE|Unique Identifier or code for string in source|
+|||expanded_form|STYPE|AUI|Atom identifier|
+|||expanded_form|RELA|has_access_instrument|Has access instrument|
+|||expanded_form|RELA|has_access|Has access|
+|||expanded_form|RELA|has_active_ingredient|Has active ingredient|
+|||expanded_form|RELA|has_approach|Has approach|
+|||expanded_form|RELA|has_associated_etiologic_finding|Has associated etiologic finding|
+|||expanded_form|RELA|has_associated_finding|Has associated finding|
+|||expanded_form|RELA|has_associated_morphology|Has associated morphology|
+|||expanded_form|RELA|has_biochemical_function|Has biochemical function|
+|||STYPE|MRCOLS|varchar(50)|The name of the column in MRCONSO.RRF or MRREL.RRF that contains the identifier to which the attribute is attached|
+|||expanded_form|STYPE|SRUI|Source asserted relationship identifier|
+|||expanded_form|STYPE1|CUI|Concept unique identifier|
+|||expanded_form|STYPE1|SCUI|Source asserted concept unique identifier|
+|||expanded_form|STYPE1|SDUI|Source asserted descriptor identifier|
+|||expanded_form|STYPE1|SAUI|Source asserted atom unique identifier|
+|||expanded_form|ATN|MED1901|Medline citation counts from articles dated 1901.|
+|||expanded_form|ATN|MED1902|Medline citation counts from articles dated 1902.|
+|||expanded_form|ATN|MED1903|Medline citation counts from articles dated 1903.|
+|||expanded_form|ATN|MED1904|Medline citation counts from articles dated 1904.|
+|||expanded_form|ATN|MED1905|Medline citation counts from articles dated 1905.|
+|||expanded_form|ATN|MED1906|Medline citation counts from articles dated 1906.|
+|||expanded_form|ATN|MED1907|Medline citation counts from articles dated 1907.|
+|||expanded_form|ATN|MED1908|Medline citation counts from articles dated 1908.|
+|||expanded_form|ATN|MED1909|Medline citation counts from articles dated 1909.|
+|||expanded_form|ATN|MED1910|Medline citation counts from articles dated 1910.|
+|||expanded_form|ATN|MED1911|Medline citation counts from articles dated 1911.|
+|||expanded_form|ATN|MED1912|Medline citation counts from articles dated 1912.|
+|||expanded_form|ATN|MED1914|Medline citation counts from articles dated 1914.|
+|||expanded_form|ATN|MED1915|Medline citation counts from articles dated 1915.|
+|||expanded_form|ATN|MED1917|Medline citation counts from articles dated 1917.|
+|||expanded_form|ATN|MED1918|Medline citation counts from articles dated 1918.|
+|||expanded_form|ATN|MED1919|Medline citation counts from articles dated 1919.|
+|||expanded_form|ATN|MED1920|Medline citation counts from articles dated 1920.|
+|||expanded_form|ATN|MED1921|Medline citation counts from articles dated 1921.|
+|||expanded_form|ATN|MED1922|Medline citation counts from articles dated 1922.|
+|||expanded_form|ATN|MED1923|Medline citation counts from articles dated 1923.|
+|||expanded_form|ATN|MED1924|Medline citation counts from articles dated 1924.|
+|||expanded_form|ATN|MED1927|Medline citation counts from articles dated 1927.|
+|||expanded_form|ATN|MED1929|Medline citation counts from articles dated 1929.|
+|||expanded_form|ATN|MED1930|Medline citation counts from articles dated 1930.|
+|||expanded_form|ATN|MED1931|Medline citation counts from articles dated 1931.|
+|||expanded_form|ATN|MED1933|Medline citation counts from articles dated 1933.|
+|||expanded_form|ATN|MED1937|Medline citation counts from articles dated 1937.|
+|||expanded_form|ATN|MED1945|Medline citation counts from articles dated 1945.|
+|||expanded_form|ATN|MED1947|Medline citation counts from articles dated 1947.|
+|||expanded_form|ATN|MED1948|Medline citation counts from articles dated 1948.|
+|||AMBIGLUI|MRFILES|LUI,CUI|Ambiguous term identifiers|
+|||AMBIGSUI|MRFILES|SUI,CUI|Ambiguous string identifiers|
+|||expanded_form|TTY|BSS|Broad synonym, short|
+|||expanded_form|TTY|BSX|Broad synonym, expanded|
+|||expanded_form|TTY|BSY|Broad synonym|
+|||expanded_form|TTY|ESS|Exact synonym, short|
+|||expanded_form|TTY|ESX|Exact synonym, expanded|
+|||expanded_form|TTY|ESY|Exact synonym|
+|||expanded_form|TTY|NSS|Narrow synonym, short|
+|||expanded_form|TTY|NSX|Narrow synonym, expanded|
+|||expanded_form|TTY|NSY|Narrow synonym|
+|||expanded_form|TTY|OBS|Obsolete broad synonym|
+|||expanded_form|TTY|ONS|Obsolete narrow synonym|
+|||expanded_form|TTY|OES|Obsolete exact synonym|
+|||expanded_form|TTY|RLSS|Related synonym, short|
+|||expanded_form|TTY|RLSX|Related synonym, expanded|
+|||expanded_form|TTY|RLSY|Related synonym|
+|||tty_class|TTY|BSS|synonym|
+|||tty_class|TTY|BSX|synonym|
+|||tty_class|TTY|BSX|expanded|
+|||tty_class|TTY|BSY|synonym|
+|||tty_class|TTY|ESS|synonym|
+|||tty_class|TTY|ESX|synonym|
+|||tty_class|TTY|ESY|synonym|
+|||tty_class|TTY|ESX|expanded|
+|||tty_class|TTY|NSS|synonym|
+|||tty_class|TTY|NSX|synonym|
+|||tty_class|TTY|NSY|synonym|
+|||tty_class|TTY|NSX|expanded|
+|||tty_class|TTY|OBS|synonym|
+|||tty_class|TTY|ONS|synonym|
+|||tty_class|TTY|OES|synonym|
+|||tty_class|TTY|OES|obsolete|
+|||tty_class|TTY|OBS|obsolete|
+|||tty_class|TTY|ONS|obsolete|
+|||tty_class|TTY|RLSS|synonym|
+|||tty_class|TTY|RLSX|synonym|
+|||tty_class|TTY|RLSY|synonym|
+|||tty_class|TTY|RLSX|expanded|
+|||expanded_form|TTY|CCI|ISO 3166 two letter country code|
+|||expanded_form|TTY|CCN|Chemical code name|
+|||expanded_form|TTY|CCS|FIPS 10-4 country code|
+|||expanded_form|TTY|CCU|ISO 3166 three character country code|
+|||expanded_form|TTY|FDB|Foreign drug brand|
+|||tty|TTY|FDB|Foreign drug brand|
+|||tty_class|TTY|FDB|synonym|
+|||tty_class|TTY|CCU|synonym|
+|||tty_class|TTY|CCS|synonym|
+|||tty_class|TTY|CCN|synonym|
+|||tty_class|TTY|CCI|synonym|
+|||expanded_form|SUPPRESS|N|Not suppressible|
+|||expanded_form|SUPPRESS|Y|Suppressible due to SAB,TTY|
+|||expanded_form|SUPPRESS|E|Suppressible due to editor decision|
+|||expanded_form|SUPPRESS|O|Obsolete, SAB,TTY may be independently suppressible|

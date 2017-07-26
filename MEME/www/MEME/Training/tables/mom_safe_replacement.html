@@ -1,0 +1,137 @@
+
+<html>
+<head>
+   <title>MEME Tables Documentation - mom_safe_replacement</title>
+    <script language="javascript">
+	function openDescription (thing,dsc) {
+	    var html = "<html><head><title>Description: "+thing;
+	    html = html + "</title></head><body bgcolor=#ffffff>" + dsc + "<center><form><input type=button onClick='window.close(); return true' value='Close'></form></center></body></html>";
+	    var win = window.open("","","scrollbars,width=500,height=250,resizable");
+	    win.document.open();
+	    win.document.write(html);
+	    win.document.close();
+	}; // end openDescription
+    </script>
+</head>
+
+<body text="#000000" bgcolor="#FFFFFF" link="#3333FF" vlink="#999999" alink="#FF0000">
+
+<center>
+
+<h2>MEME Tables</h2></center>
+
+<hr width="100%">
+
+<!-- Nav bar -->
+  <p><center>[ <a href="#overview">overview</a> | <a href="#details">details</a> | <a href="#references">references</a> ]</center></p>
+
+<!-- Image -->
+<p><center><tt><b>mom_safe_replacement</b></tt><br>
+   <img src="/images/table.gif" alt="Table Icon"></center></p>
+
+<!-- Content section -->
+
+<blockquote>
+
+  <a name="overview"></a><h3>Overview/Objective</h3>
+  This document contains a description of <tt>mom_safe_replacement</tt> 
+     and its various fields.  It also (may) include information
+  about how this table is used in the various stages of MID processing.
+<br>&nbsp;
+<a name="details"></a><h3>Details</h3>
+
+
+    <p>
+	
+	<!-- mom_safe_replacement -->
+
+    <a name="mom_safe_replacement"></a>
+    <center>
+      <table border="0" width="90%">
+        <tr><td valign="top" width="20%"><font size="-1"><b>Table name:</b></font></td><td valign="top" width="80%"><b><tt>mom_safe_replacement</tt></b></td></tr>
+        <tr><td valign="top"><font size="-1"><b>Table Type:</b></font></td><td valign="top"><font size="-1">
+          <a href="javascript:openDescription('auxiliary','<p>MID Used for other processes or just general system maintenance.</p>')">auxiliary</a></font></td></tr>
+        <tr><td valign="top"><font size="-1"><b>Description:</b></font></td><td valign="top"><font size="-1">A ranked mapping of atoms from obsolete sources to updated sources.  This data is produced by the safe replacement process and can be used to identify the atom from an updated version of a source that "best" replaces a given atom from the obsolete version.</font></td></tr>
+        <tr><td valign="top"><font size="-1"><b>Fields:</b></font></td><td valign="top">
+	    <table border="1" cellpadding="2" width="90%">
+
+	<tr><td width="20%" valign="top"><tt>old_atom_id</tt></td>
+	    <td width="20%" valign="top"><font size="-1"><b>NUMBER(12)</b></font></td>
+ 	    <td width="60%" valign="top"><font size="-1">an atom_id from an obsolete source that is being replaced, should be in <a href="classes.html"><tt>classes.atom_id</tt></a>&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>new_atom_id</tt></td>
+	    <td width="20%" valign="top"><font size="-1"><b>NUMBER(12)</b></font></td>
+ 	    <td width="60%" valign="top"><font size="-1">an atom_id from an update source that is being replacing an atom from an obsolete source, should be in <a href="classes.html"><tt>classes.atom_id</tt></a>&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>last_release_cui</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(10)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">the cui of this atom/term in the last (major) release&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>rank</tt></td>
+	    <td width="20%" valign="top"><font size="-1"><b>VARCHAR2(50)</b></font></td>
+ 	    <td width="60%" valign="top"><font size="-1">the rank of this row, higher values are <i>better</i> ranks&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>source</tt></td>
+	    <td width="20%" valign="top"><font size="-1"><b>VARCHAR2(20)</b></font></td>
+ 	    <td width="60%" valign="top"><font size="-1">must be in <a href="source_rank.html"><tt>source_rank.source</tt></a>&nbsp;</font></td>
+	</tr>
+	    </table>
+        </td></tr>
+        <tr><td valign="top"><font size="-1"><b>Indexes:</b></font></td><td valign="top">
+
+	     <li><tt>x_msr_1 ON new_atom_id</tt></li>
+
+	     <li><tt>x_msr_2 ON old_atom_id</tt></li>
+
+	     <li><tt>x_msr_3 ON source</tt></li>
+
+        </td></tr>
+
+	<tr><td valign="top"><font size="-1"><b>Insertion&nbsp;Role:</b></font></td><td valign="top"><font size="-1">During the insertion of an update source, this table is populated by one or more calls to <a href="/MEME/Documentation/plsql_msp.html#safe_replacement"><tt>MEME_SOURCE_PROCESSING.safe_replacement</tt></a>.  These calls rank each potential replacement fact based on the similarity of the atoms involved.  This allows processes later to determine the <i>best</i> safe replacement fact by finding the <tt>max(rank)</tt> for a given <tt>old_atom_id</tt> and <tt>new_atom_id</tt>.&nbsp;</font></td></tr>
+
+	<tr><td valign="top"><font size="-1"><b>Production&nbsp;Role:</b></font></td><td valign="top"><font size="-1">This table is also used by the cui assignment algorithm (<a href="/MEME/Documentation/plsql_mo.html#assign_cuis"><tt>MEME_OPERATIONS.assign_cuis</tt></a>) to inherit <tt>last_release_cui</tt> values from an obsolete atom to its replacement.  Additionally, it is used in the computation of <tt>MRCUI</tt>, <tt>MERGED.CUI</tt> and <tt>DELETED.CUI</tt>.&nbsp;</font></td></tr>
+
+      </table>
+    </center>
+    </p>
+
+<p>
+<a name="references"></a><h3>References/Links</h3>
+Use the following references for related information.
+<ol>
+  <li><a href="../tables_all.html" alt="All Tables Info">All MEME tables</a></li>
+</ol>
+</p>
+</blockquote>
+
+<p><center>[ <a href="#overview">overview</a> | <a href="#details">details</a> | <a href="#references">references</a> ]</center></p>
+
+<hr WIDTH="100%">
+<table BORDER=0 COLS=2 WIDTH="100%" NOSAVE >
+<tr NOSAVE>
+<td ALIGN=LEFT VALIGN=TOP NOSAVE>
+<address>
+<a href="/MEME/">MEME Home</a></address>
+</td>
+
+<td ALIGN=RIGHT VALIGN=TOP NOSAVE>
+<address>
+<font size=-1>Contact: <a href="mailto:bcarlsen@apelon.com">Brian A. Carlsen</a></font></address>
+
+<address>
+<font size=-1>Created: 7/27/2001</font></address>
+
+<address>
+<font size=-1>Last Updated: 03/07/2005</font></address>
+
+</td>
+</tr>
+</table>
+
+</body>
+<!-- These comments are used by the What's new Generator -->
+<!-- Changed On: 2005/03/07 -->
+<!-- Changed by: Brian Carlsen -->
+<!-- Change Note: MEME Schema documentation - mom_safe_replacement  -->
+<!-- Fresh for: 1 month -->
+</html>

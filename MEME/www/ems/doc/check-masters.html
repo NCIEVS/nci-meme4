@@ -1,0 +1,129 @@
+<HTML>
+<HEAD>
+<TITLE>Check master CDs</TITLE>
+</HEAD>
+
+<BODY>
+<h5><P ALIGN=right>suresh@nlm.nih.gov 12/2002 </h5>
+
+<H1>Checking the master CDs</H1>
+
+This should be the last check on the content of the CD once it comes
+back from the CD mastering shop.  This ensures that what is in the
+CD is in fact identical to what went in when the CD-R's were made
+at NLM.  This is not a semantic check of the content, obviously.
+See also: <A HREF="compare-meta.html">compare-meta.pl</A>.
+
+<p>
+
+Typically, there are 4 CD's: 2 ZIP's and 2 TAR's each containing
+content named with a specific convention.  For example, the 2002AD_2.ZIP
+file goes into a CD with the label 2002AD_2_ZIP.  The label and the content
+should match.
+
+<P>
+Also, there is a file with the extension "MD5" (or "md5") that contains
+the MD5 checksums of all the files that go into the distribution at the
+time the release is made.  If you can check that the actual MD5's
+of the files on the CD are the same, then you can rest easy that
+no bit got left behind in the mad rush to make the release.
+
+<P>
+
+Here's a tool that automates this: /site/umls/release/check-cd-md5s.pl.
+You pop in each CD (one at a time) into the CD-ROM drive on a Sun
+or a Mac (OS-X) machine.  Then run this script with the -v option specifying the
+release name, e.g., -v 2003AA.  It should produce some output on the
+screen.  Look for the word "error" indicating problems.
+
+<P>
+For example:
+
+<PRE>
+
+/site/umls/release/check-cd-md5s.pl -v 2003AA
+
+</PRE>
+
+For Mac's, use the -c option to specify the CD-ROM mount point and
+pass the script as an argument to perl as in:
+
+<PRE>
+
+perl check-cd-md5s.pl -v 2003AA -c /Volumes
+
+</PRE>
+
+Some things to keep in mind:
+
+<UL>
+<P><LI>When you put in a CD, it takes a few minutes for the
+automounter to mount the device.  So give it a few seconds
+before running the script.
+<P><LI>The Solaris CD device driver does not know about long
+file names so it truncates everything to a dumb 8.3 format
+like DOS (e.g., readme~1.txt).  It is in fact even dumber than
+that.  It lowercases the file name too.  So it is hard to know
+that "copyri~1.txt" is in fact the same as "Copyright_Notice.txt".
+<P>
+So the script matches MD5's and reports the matching file names
+(the real and the munged).  Mismatches or missing files are reported
+as errors.
+<P>
+On Mac's file names are correct.
+<P><LI>
+Currently, this has to be run on a Sun with a CD-ROM drive and
+access to our software in /site.  Any of the machines on the 9th
+floor can be used for this.
+The program should ideally be written in Java so this can be done on
+a Billy machine as well. <P>Volunteers?
+</UL>
+
+<H1>Sample output</H1>
+
+<PRE>
+
+Checking CD with label: 2002ac_2_tar
+OK: Compressed file: 2002ac_2.tgz matches the CD label: 2002ac_2_tar
+
+OK: MD5: 75f001c3c18a43e7c35b5bf152deb1e6 matches for:
+         2002AC_2.TGZ (in MD5 file)
+         2002ac_2.tgz
+
+OK: MD5: 8bd5ff47980eaaeeb1bd5213503d1fb7 matches for:
+         2002AC_Addendum.html (in MD5 file)
+         2002ac~1.htm
+
+OK: MD5: f29af36476e8345f76b2448c277fc096 matches for:
+         2002AC_Addendum.pdf (in MD5 file)
+         2002ac~1.pdf
+
+OK: MD5: aa4dee1a0d81d5b803007f3feaaddfbc matches for:
+         2002AC_Addendum.txt (in MD5 file)
+         2002ac~1.txt
+
+OK: MD5: 1eb06569f9adeae05d0562fc97c24f3a matches for:
+         Copyright_Notice.html (in MD5 file)
+         copyri~1.htm
+
+OK: MD5: e4a0f148f2625c7f46658ab65ef0e955 matches for:
+         Copyright_Notice.txt (in MD5 file)
+         copyri~1.txt
+
+OK: MD5: 7d2c936e49a9fa1859e41f506e6101a5 matches for:
+         README.txt (in MD5 file)
+         readme.txt
+
+OK: MD5: 51f0f4fcb77cbcff17b7f3f35a303cbc matches for:
+         README_MMS.txt (in MD5 file)
+         readme~1.txt
+
+OK: MD5: 5f194d7dbe9c215a362057987763809f matches for:
+         release.dat (in MD5 file)
+         release.dat
+
+</PRE>
+
+</BODY>
+</HTML>
+

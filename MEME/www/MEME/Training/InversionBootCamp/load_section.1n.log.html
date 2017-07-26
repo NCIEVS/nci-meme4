@@ -1,0 +1,63 @@
+<html><body><pre>
+-------------------------------------------------
+Starting /d5/MEME4/bin/load_section.csh ... Wed Feb  8 18:29:38 EST 2006
+-------------------------------------------------
+authority:    GO2006_01_20
+old_source:   GO2005_12_20
+new_source:   GO2006_01_20
+stripped_source: NA
+db:           noa_mid2006
+work_id:      2703663
+
+    Truncate source tables and prep indexes... Wed Feb  8 18:29:38 EST 2006
+    Loading atoms ... Wed Feb  8 18:44:38 EST 2006
+    Converting atoms to strings ... Wed Feb  8 18:44:47 EST 2006
+    Loading strings ... Wed Feb  8 18:50:18 EST 2006
+    Processing long attributes ... Wed Feb  8 18:50:24 EST 2006
+    Loading long attributes ... Wed Feb  8 18:50:44 EST 2006
+    Loading attributes ... Wed Feb  8 18:50:59 EST 2006
+    Loading contexts ... Wed Feb  8 18:51:06 EST 2006
+    Loading relationships ... Wed Feb  8 18:51:27 EST 2006
+    Loading termgroup metadata ... Wed Feb  8 18:51:29 EST 2006
+    Loading source metadata ... Wed Feb  8 18:51:30 EST 2006
+    Load MRDOC.RRF ... Wed Feb  8 18:51:32 EST 2006
+------------------------------------------------------------
+Starting dump_mid.pl ... Wed Feb  8 18:51:33 2006
+------------------------------------------------------------
+MID:   noa_mid2006
+
+dir:   .
+
+    Dumped MTH.T1
+------------------------------------------------------------
+Finished dump_mid.pl ... Wed Feb  8 18:51:33 2006
+------------------------------------------------------------
+
+SQL*Loader: Release 9.2.0.6.0 - Production on Wed Feb 8 18:51:33 2006
+
+Copyright (c) 1982, 2002, Oracle Corporation.  All rights reserved.
+
+
+Load completed - logical record count 60.
+    Load MRDOC.RRF data into inverse_rel_attributes ... Wed Feb  8 18:51:34 EST 2006
+    Load MRDOC.RRF data into meme_properties ... Wed Feb  8 18:51:35 EST 2006
+    Inserting source/termgroup ranks ... Wed Feb  8 18:51:35 EST 2006
+[08-feb-2006 18:51:36] Begin insert termgroups.
+[08-feb-2006 19:17:45] Rows updated: 3133697
+[08-feb-2006 19:17:45] Elapsed time:
+[08-feb-2006 19:19:03] End insert termgroups.
+[08-feb-2006 19:19:03] Begin insert sources.
+[08-feb-2006 19:19:06] Update source_version.
+[08-feb-2006 19:19:11] INSERT_RANKS successfully completed.
+<a name="bold"><span style="color: blue"><b>    Assign SUI, LUI, ISUI ... Wed Feb  8 19:19:11 EST 2006
+[08-feb-2006 19:19:30] Starting assign_string_uis
+[08-feb-2006 19:30:04] 12567 suis assigned.
+[08-feb-2006 19:30:06] 12497 isuis assigned.
+[08-feb-2006 19:30:08] 11897 luis assigned.
+[08-feb-2006 19:30:40] ASSIGN_STRING_UIS successfully completed.</b></span></a>
+    Assign MEME ids ... Wed Feb  8 19:30:40 EST 2006
+[08-feb-2006 19:34:52] ASSIGN_MEME_IDS successfully completed.
+    Inserting source ids ... Wed Feb  8 19:34:52 EST 2006
+[08-feb-2006 19:35:02] INSERT_SOURCE_IDS successfully completed.
+    Generate Monster QA Counts ...Wed Feb  8 19:35:02 EST 2006
+</body></html>

@@ -1,0 +1,72 @@
+INSTALL
+-------
+1. Choose $MIDSVCS_HOME
+2. Unzip dist_midsvcs*.zip into $MIDSVCS_HOME
+3. If you intend to run the server on this machine, configure 
+   MID Services File (etc/mid-services-data).
+   a. Copy etc/mid-services-data_orig to etc/mid-services-data
+   b. Configure etc/mid-services-data
+
+4. Configure $SAFEBOX_HOME/etc/oracle.passwd file
+5. If you intend to run the server on this machine, first
+   copy bin/midsvcs-server.pl_orig to bin/midsvcs-server.pl
+   Then edit:
+   a. /etc/services (Add these lines):
+
+#
+# Local Metathesaurus Services
+#
+midsvcs             5125/tcp        # MID services
+
+   b.(inetd) /etc/inetd.conf (Add these lines):
+
+#
+# Local Metathesaurus Services
+#
+midsvcs stream tcp nowait nobody /usr/bin/env env \
+       ENV_FILE=<PATH TO ENV_HOME>/etc/env.prop \
+       ENV_HOME=<PATH TO ENV_HOME> \
+       <path to MIDSVCS_HOME>/bin/midsvcs-server.pl
+
+   b.(xinetd) /etc/xinetd.conf (or /etc/xinetd.d/midsvcs)
+#
+# description: key/value lookup service
+#
+service midsvcs
+{
+        socket_type     = stream
+        user            = meme
+        server          = /usr/bin/env
+        server_args     = ENV_FILE=/usr/d5/ENV/etc/env.prop ENV_HOME=/usr/d5/ENV /usr/d5/MIDSVCS/bin/midsvcs-server.pl
+        wait            = no
+        protocol        = tcp
+        port            = 5125
+}
+
+   c. Another alternative to the step above would be to hard-code ENV_HOME 
+      and ENV_FILE directly in midsvcs-server.pl. 
+      Then do this in /etc/inetd.conf instead:
+
+#
+# Local Metathesaurus Services
+#
+midsvcs stream tcp nowait nobody \
+     <path to MIDSVCS_HOME>/bin/midsvcs-server-hardcoded.pl \
+      midsvcs-server-hardcoded.pl
+
+   d. Reboot machine or "kill -HUP" on the inetd process (as root)
+
+6. Edit $ENV_FILE and set MIDSVCS_HOME property to $MIDSVCS_HOME path
+7. Edit $ENV_FILE and set MIDSVCS_HOST and MIDSVCS_PORT properties 
+   to the host and port where the MID Services server is running 
+   (necessary for installations that do not run a server)
+   
+Dependencies
+-----------------------
+Subsystem Dependencies
+  $ENV_HOME
+  $SAFEBOX_HOME
+  
+UPDATE
+------
+Same as install

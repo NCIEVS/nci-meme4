@@ -1,0 +1,31 @@
+
+README - 07/11/2005
+
+  A - Admin
+
+File				Description
+-----------------------------	----------------------------------------------
+admin.pl		A	Supports various administrative functions
+				$MEME_HOME/www/MEME/Documentation/admin.html
+
+dump_mid.pl		A	Used to dump database to text files
+				(also creates sqlldr control files)
+
+meme_server.sh		A	Used to start MEME server.
+
+memerun.pl		A	Used to run MEME client applications
+
+mrd_server.sh		A	Starts a MRD server
+
+rebuild_mid.pl		A	Used to rebuild all tables in MID in parallel
+
+reindex_mid.pl		A	Used to reindex all tables in MID in parallel
+
+shutdown.pl		A	Can be used to shut down server
+
+sos.cgi			A       Used to report/respond to emergency emails
+
+start.pl		A	Used to start the server
+
+
+

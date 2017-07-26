@@ -1,0 +1,29 @@
+# @(#)states.prop	1.0 03/05/23
+#
+# Map states to JSP files
+
+ReleaseManager=/ReleaseManager.jsp
+ReleaseManagerView=/ReleaseManagerView.jsp
+NewReleaseForm=/NewReleaseForm.jsp
+EditReleaseForm=/EditReleaseForm.jsp
+ReleaseSummary=/ReleaseSummary.jsp
+ReleaseSummaryView=/ReleaseSummaryView.jsp
+ManageRelease=/ManageRelease.jsp
+TargetSummary=/TargetSummary.jsp
+TargetSummaryView=/TargetSummaryView.jsp
+TargetDetails=/TargetDetails.jsp
+ManageTargets=/ManageTargets.jsp
+ManageQAReason=/ManageQAReason.jsp
+GetTargetStatus=/GetTargetStatus.jsp
+IFrameErrorHandler=/IFrameErrorHandler.jsp
+QAReasonForm=/QAReasonForm.jsp
+CuiReport=/CuiReport.jsp
+ManageCuiReport=/ManageCuiReport.jsp
+CuiReportDetails=/CuiReportDetails.jsp
+CuiReportSummary=/CuiReportSummary.jsp
+ProcessMedline=/ProcessMedline.jsp
+MedlineDetails=/MedlineDetails.jsp
+ManageMedline=/ManageMedline.jsp
+EditMedlineProperty=/EditMedlineProperty.jsp
+EditMedlinePropertyComplete=/EditMedlinePropertyComplete.jsp
+ListMedlineProperty=/ListMedlineProperty.jsp

@@ -1,0 +1,19 @@
+INSTALL
+-------
+1. Choose $SAFEBOX_HOME
+2. Unzip dist_safebox*.zip into $SAFEBOX_HOME
+3. Configure password files:
+   a. Copy meow.passwd_orig to meow.passwd and edit as needed
+   b. Copy meow.group_orig to meow.group and edit as needed
+   c. Copy oracle.passwd_orig to oracle.passwd and edit as needed
+
+4. Edit $ENV_FILE and set SAFEBOX_HOME property to $SAFEBOX_HOME path
+
+Dependencies
+-----------------------
+System Dependencies
+  $ENV_HOME
+  
+UPDATE
+------
+Same as install

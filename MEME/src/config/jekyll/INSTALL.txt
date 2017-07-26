@@ -1,0 +1,30 @@
+INSTALL
+-------
+1. Unzip dist_jekyll*zip into /jaws under the MEOW document root. 
+2. Prepare a config.jar that contains bundles/meme.prop (with properly formatted meme.prop file) 
+   a. mkdir bundles 
+   b. Copy jaws/jekyll/etc/meme.prop_orig to bundles/meme.prop 
+   c. Edit bundles/meme.prop 
+   d. jar cvf config.jar bundles
+   e. Copy config.jar to jaws/lib
+3. Run the makejnlp.csh script to build a new .jnlp file and resign the .jar files.
+4. If desired, further edit the .jnlp to configure these settings
+   a.  db.name (default starting database)
+   b. meme.server.host (default meme server host)
+   c. meme.server.port (default meme server port)
+   d. meme.prop.loc (default properties file URI)
+   e. default.rela.source (default SAB to use for creating C level rels with RELAs)
+   f. release.date (release date - for tracking)
+   g. meow.url (URL for "MEOW" - for links)s
+   h. eme.client.languages.include (languages to include, e.g. "ENG,SPA")
+
+Dependencies
+-----------------------
+MEME Dependencies
+  $ENV_HOME
+  $MIDSVCS_HOME
+  $LVG_HOME
+
+UPDATE
+------
+Same as install

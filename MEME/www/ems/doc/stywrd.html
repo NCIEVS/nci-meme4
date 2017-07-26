@@ -1,0 +1,195 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.51 [en] (X11; I; SunOS 5.6 sun4u) [Netscape]">
+   <title>Generic Query for STY and Word Combinations</title>
+</head>
+<body>
+
+<div align=right>suresh@nlm.nih.gov 8/2001</div>
+
+<h1>
+Generic Query for STY and Word Combinations</h1>
+Here is a general query for finding concepts that match boolean combinations
+of Semantic Types (STY), unmodified and normalized words and strings and
+atom sources. Best of all, the query can be used in the QA and AH bin scheme
+to create bins of questionable concepts. See <a href="#examples">here</a>
+for examples on usage and
+<a href="#usage">here</a> for some useful debugging
+options.
+<p>The script is in both:
+<pre>
+<font size=-1>/site/umls/oracle/ems/AH/stywrd.pl
+/site/umls/oracle/ems/QA/stywrd.pl</font>
+
+</pre>
+It can be run from the command line and it produces a list of concepts
+which can be fed to make_checklist.pl to make a checklist. Or it can be
+used in the QA and AH bin configuration file as a generator script to generate
+the contents for the bin (make sure you test the script with the -g option
+before this is done). The command line options it takes are:
+<pre>
+-d &lt;database>
+-e &lt;expression to evaluate>
+-c configuration file containing the expression
+-x (show only the count of matching concepts)
+-g (debug)
+
+</pre>
+The key component is the -e option that contains an expression to search
+for. This can optionally be specified in a file the path to which is specified
+in the -c option. If given in the file, comment lines (leading '#') and
+whitespace is ignored. The -x flag says "just give me the count of the
+matches" and is useful for debugging. The -g shows the SQL that will be
+generated and run.
+<h2>
+Expression Syntax</h2>
+The expression to evaluate is given using terms grouped by the boolean
+operators &amp; (for AND) and | (for OR). The terms themselves are in the
+slot=value or slot!=value syntax. The slot=value is existentially quantified,
+i.e., it looks for ANY matching row in the appropriate table (e.g., the
+attributes table for the STY, the classes table for the source, etc.).
+The slot!=value is universally quantified, i.e., NO rows in the table has
+a match.
+<p>Parenthesis may be used to change the precedence of evaluation. Currently
+recognized slots are:
+<P>
+<dl>
+<dt>
+<b>sty=&lt;STY> or sty!=&lt;STY></b></dt>
+
+<dd>
+search for the semantic type (e.g., sty=Disease or Syndrome). The word
+CHEM or NONCHEM may be used for the value in which case concepts with any
+chemical (or no chemical) semantic types are considered matches.&nbsp;
+If you want sty=null, you can use sty w/out any value to mean no releasable
+STY. 'sty!= will mean "has a releasable STY".&nbsp; E.g., 'sty= &amp; normword=antibody'.
+<P>
+If you use a trailing '*' as in <B>Vertebrate*</B>, it will use that STY
+and all its descendants in the UMLS Semantic Network for the query.
+In this case, it will end up with the list: Amphibian, Bird,
+Fish, Human, Mammal, Reptile, Vertebrate.
+</dd>
+
+<P>
+<dt>
+<b>word=&lt;WORD> or word!=&lt;WORD></b></dt>
+
+<dd>
+Search for the given word in the word index table. For example, word=acid.
+Note that only a single word is expected. If you want to use more words,
+use the boolean operator, e.g., (word=dog | word=cat).</dd>
+
+<P>
+<dt>
+<b>normword=&lt;WORD> or normword!=&lt;WORD></b></dt>
+
+<dd>
+Search for the given word normalized in the normalized word table. This
+is probably more useful than word= as it will ignore case, punctuation,
+etc.</dd>
+
+<P>
+<dt>
+<b>str=&lt;STRING> or str!=&lt;STRING></b></dt>
+
+<dd>
+Search for the given string in the atoms table.</dd>
+
+<P>
+<dt>
+<b>normstr=&lt;STRING> or normstr!=&lt;STRING></b></dt>
+
+<dd>
+Search for the given string in the normstr table.</dd>
+
+<P>
+<dt>
+<b>src=&lt;SAB> or src!=&lt;SAB></b></dt>
+
+<dd>
+Matching concepts must contain one atom from this source (or none of the
+atoms must be from this source if != is used).</dd>
+
+<P>
+<dt>
+<b>srcfamily=&lt;SRC> or srcfamily!=&lt;SRC></b></dt>
+
+<dd>
+Like "src" except this describes the family of the source (without the
+version info, i.e., UWDA vis-a-vis UWDA155). Example srcfamily=UWDA.</dd>
+
+<P>
+<dt>
+<b>tty=&lt;TTY> or tty!=&lt;TTY></b></dt>
+
+<dd>
+Matching concepts must contain one atom with this term type (i.e., the trailing "TTY"
+portion of the termgroup field), or none of the atoms must have this TTY if != is used).</dd>
+
+</dl>
+
+<h2>
+<a NAME="examples"></a>Examples</h2>
+
+<ol>
+<li>
+Plants (and descendant types, if any) with the word "homeopathic" in their names:</li>
+
+<pre><font size=-1>sty=Plant* &amp; normword=homeopathic</font></pre>
+
+<li>
+All concepts with the STY "Therapeutic or Preventive Procedure", but no
+STY "Diagnostic Procedure" and atoms with the word "diagnostic".</li>
+
+<pre><font size=-1>sty=Therapeutic or Preventive Procedure &amp; sty!=Diagnostic Procedure and normword=diagnostic</font></pre>
+
+<li>
+Concepts with a chemical STY from UWDA or CPT.</li>
+
+<pre><font size=-1>sty=CHEM &amp; (srcfamily=UWDA | srcfamily=CPT)</font></pre>
+</ol>
+
+<h2>
+<a NAME="usage"></a>Usage Notes</h2>
+For sanity checks on the syntax and the nature of the SQL generated, as
+well as to get counts of mathching concepts from the database, use the
+command with the -g and -x options. as shown below:
+<ol>
+<li>
+Show the SQL and verify the syntax of the query (-e option).</li>
+
+<pre><font size=-1>/site/umls/oracle/ems/AH/stywrd.pl -e 'sty=Alga &amp; normword=alga' -g</font></pre>
+
+<li>
+How many matching concepts are there? Is this worth turning into an AH
+bin?</li>
+
+<pre><font size=-1>/site/umls/oracle/ems/AH/stywrd.pl -e 'sty=Alga &amp; normword=alga' -x</font></pre>
+
+<li>
+Want to make a checklist? (See <a href="/wms/doc/">here</a> for more information
+about checklists.</li>
+
+<pre><font size=-1>/site/umls/oracle/ems/AH/stywrd.pl -e 'sty=Alga &amp; normword=alga' |
+/site/umls/oracle/wms/scripts/make-checklist.pl</font></pre>
+</ol>
+
+<h2>
+AH/ME Bins</h2>
+Remember that when using this script in the QA or AH bin configuration,
+you do not need the full path to do it. For example you can just say:
+<br>&nbsp;
+<pre>&nbsp;&nbsp;&nbsp; <font size=-1>badsty|Some Bad STYs|stywrd.pl -e 'sty=bad'|M|A</font></pre>
+
+<h2>
+Future</h2>
+Please send me your suggestions.
+<ul>
+<li>
+Management of other attributes, e.g., concept status?</li>
+</ul>
+
+</body>
+</html>

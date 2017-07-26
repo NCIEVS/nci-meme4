@@ -1,0 +1,561 @@
+<HTML>
+
+<!-- $Id: wms-help.html,v 1.1.1.1 2006-05-25 16:14:12 aweinrich Exp $ -->
+
+<HEAD>
+<TITLE>Worklist Management System (WMS)</TITLE>
+</HEAD>
+
+<BODY>
+<H1>Worklist Management System (WMS)</H1>
+
+The WMS is a Web-based system to track and manage the editing process for the UMLS
+Metathesaurus.  The editors (or their managers) and NLM personnel have different levels
+of access in the system.  The unit of tracking in the WMS is a <EM>worklist</EM> - a set
+of concepts (usually between 200 and 300) that share a editing characteristic such as,
+for example, missing semantic types.  Concepts are ordered within a worklist by some criteria,
+typically by source hierarchy.
+
+<H1><A NAME="actions">WMS Actions</A></H1>
+
+The WMS implements several "actions" which have the effect of accessing or modifying the
+data in the <A HREF="#worklist_info">worklist_info</A> table in known, predictable ways.
+The following actions are currently implemented:
+
+<P>
+
+<TABLE CELLSPACING=1 CELLPADDING=5 BORDER=1>
+
+<TR>
+  <TH>Action</TH>
+  <TH>Description</TH>
+</TR>
+<TR>
+  <TD>query</TD>
+  <TD><A NAME="action-query">This</A> is the query interface to the WMS.
+	  It presents a form that contains criteria for
+	  each <A HREF="#worklist_info">table attribute</A> for restricting the set of matching
+	  worklists.
+  </TD>
+</TR>
+<TR>
+  <TD>select</TD>
+  <TD><A NAME="action-select">This</A> action is called by the
+	  <A HREF="#action-query">query</A> action subsequent to the
+	  specification of the selection
+	  criteria.  It results in a form containing a table with the matching records from
+	  the <A HREF="#worklist_info">worklist_info</A> table.
+	  Based on the <A HREF="#authentication">authenticated</A> user,
+	  the form may have different editable fields.
+  </TD>
+</TR>
+<TR>
+  <TD>update</TD>
+  <TD><A NAME="action-update">This</A> is called after the
+	  <A HREF="#action-select">select</A> action to update the table
+	  with the changes requested.
+  </TD>
+</TR>
+<TR>
+  <TD>view</TD>
+  <TD><A NAME="action-view">This</A> action is a read only view of a
+	  worklist in all its glory.  The resulting HTML table
+	  has as many rows as there are concepts and has columns for the concept identifier, the
+	  term identifier for the constituent terms and the different authorities.  Each UI is
+	  anchored to a concept report script that generates the same information that the editors
+	  use to edit a concept on paper.  Use this to view or browse worklists.
+  </TD>
+</TR>
+<TR>
+  <TD>stampselect</TD>
+  <TD><A NAME="action-stampselect">This</A> action identifies all worklists
+	  (names and editors) whose
+	  <A HREF="#attr-stamp_status">stamp_status</A> attribute
+	  in the worklist_info table is set to 'Ready to Stamp'.  The user is presented
+	  with the option of stamping one or more of these worklists via the
+	  <A HREF="#action-stamp">stamp</A> action.
+	  Note that if any of the worklists does not have an <A HREF="#attr-editor">editor</A>
+	  assigned, this will not
+	  proceed to the stamp action.  The user also has the option of delaying stamping
+	  till later at night.
+  </TD>
+</TR>
+<TR>
+  <TD>stamp</TD>
+  <TD><A NAME="action-stamp">This</A> is the action that does the stamping
+	  of worklists.  All worklists to be stamped
+	  must have their <A HREF="#attr-editor">editor</A> field set.
+	  The stamping sets the authority and editor
+	  as well as timestamp attributes for each concept in the worklist.  The editor's
+	  initials are prefixed by the characters "S-".
+	  The <A HREF="#attr-stamp_status">stamp_status</A>
+	  attribute in worklist_info is updated to "Stamped" by the stamping subprocess.
+  </TD>
+</TR>
+<TR>
+  <TD>prestampselect</TD>
+  <TD><A NAME="action-prestampselect">Retrieves</A> all worklists whose
+	  <A HREF="#attr-stamp_status">status</A> is 'Ready to Prestamp'.
+	  The user has the option
+	  of prestamping any combination of these worklists.  It proceeds to the
+	  <A HREF="#action-prestamp">prestamp</A>
+	  action, optionally for later in the night.
+  </TD>
+</TR>
+<TR>
+  <TD>prestamp</TD>
+  <TD><A NAME="action-prestamp">This</A> action prestamps worklists.
+	  The editor's initials are prefixed by "P-".
+	  Worklists without an editor are assigned the initials:  P-PEN (for pending).
+	  The <A HREF="#attr-stamp_status">stamp_status</A>
+	  attribute in worklist_info is updated to "Stamped" by the prestamping subprocess.
+  </TD>
+</TR>
+<TR>
+  <TD>refresh</TD>
+  <TD><A NAME="action-refresh">This</A> action refreshes the
+	  <A HREF="#worklist_info">worklist_info</A> table with new
+	  worklists that may have been created.  For such new records,
+	  the <A HREF="#attr-name">name</A>,
+	  <A HREF="#attr-create_date">create_date</A>
+	  and <A HREF="#attr-num_concepts">num_concepts</A> are set while
+	  the other attributes default to null.
+  </TD>
+</TR>
+<TR>
+  <TD>clean</TD>
+  <TD><A NAME="action-clean">This</A> is a purely administrative action
+	  that removes stale state files (over 5 days old).
+	  This usually results from the user initiating an action but not proceeding to completion.
+  </TD>
+</TR>
+<TR>
+  <TD>delete</TD>
+  <TD><A NAME="action-delete">Another</A> administrative action that
+	  removes records from the
+	  <A HREF="#worklist_info">worklist_info</A> table for
+	  worklists that no longer need to be tracked or were erroneously entered.
+  </TD>
+</TR>
+</TABLE>
+
+<H1><A NAME="worklist_info">Worklist Info Table Attributes</A></H1>
+
+The WMS maintains a table called <EM>worklist_info</EM> that has a record for each worklist.
+The records have the attributes shown in the table below:
+
+<P>
+
+<TABLE CELLSPACING=1 CELLPADDING=5 BORDER=1>
+
+<TR>
+  <TH>Attribute</TH>
+  <TH>Description</TH>
+</TR>
+<TR>
+  <TD>name</TD>
+  <TD><A NAME="attr-name">The</A> name of the worklist - it begins with the
+	  letters "wrk" and has some indication
+	  of which MID it was created in.  The suffix consists of an underscore and
+	  a two digit segment number, though this is not always consistently applied.
+	  Note: worklist names are usually cryptic due to a 16 character limitation for
+	  table names in Ingres.  For example: wrk98e_icd10_02 refers to the second worklist
+	  of ICD 10 concepts created in MID98e.
+</TR>
+<TR>
+  <TD>grp</TD>
+  <TD><A NAME="attr-grp">Worklists</A> are edited by groups of editors.
+	  This attribute identifies the group that the worklist
+	  has been assigned to as (usually) a short abbreviation, e.g., KEV or ECRI.  This
+	  field is set by NLM (using the <A HREF="#authentication">nlmmgr</A> user ID).  The value
+	  is automatically converted to uppercase.
+  </TD>
+</TR>
+<TR>
+  <TD>editor</TD>
+  <TD><A NAME="attr-editor">This</A> attribute names the specific editor
+	  that edited a worklist (or a majority of
+	  the concepts in a worklist).  It is assigned by the group manager of an editing group
+	  and is usually a three letter abbreviation, e.g., TPW, WTH (values are automatically
+	  converted to uppercase).  Note that setting this attribute has the side-effect of
+	  setting the assign_date attribute to the current time.
+  </TD>
+</TR>
+<TR>
+  <TD>assign_date</TD>
+  <TD><A NAME="attr-assign_date">The</A> date a worklist was assigned to a
+	  specific editor by the manager of an editing group.
+	  This is automatically set in the WMS to the time when the editor attribute was set.
+  </TD>
+</TR>
+<TR>
+  <TD>return_date</TD>
+  <TD><A NAME="attr-return_date">This</A> is the date when the editor
+	  has completed working on a worklist and returns the paper
+	  material to NLM for review.  It is designed to be set either by the editors themselves
+	  or the group manager.
+  </TD>
+</TR>
+<TR>
+  <TD>stamp_status</TD>
+  <TD><A NAME="attr-stamp_status">This</A> attribute tracks the status
+	  of a worklist.  It can have one of the following values:
+	  'N/A' (worklist is still being edited or has not yet been assigned), 'Not Ready' (NLM
+	  has Q/A'ed the worklist and returned it back to the editor for further review,
+	  'Ready to Stamp' (NLM has reviewed and accepted the work), 'Stamped' (NLM has attributed
+	  the editor's authority to all the concepts in the worklist), 'Ready to Prestamp' (NLM
+	  has assurance that this worklist will be edited on paper) and 'Prestamped' (NLM has
+	  attributed an editor or a dummy value of PEN [pending] for this worklist).
+<P>
+	  When NLM sets it to 'Ready to Stamp' or 'Ready to Prestamp', the <A HREF="#actions">stampselect</A>
+	  and <A HREF="#actions">prestampselect</A> actions will identify these worklists as being
+	  ready for stamping or prestamping respectively.  When NLM sets the value to 'Not Ready',
+	  this has the effect of setting the <EM>return_date</EM> attribute to null (or N/A).
+<P>
+	  The stamp_status is changed to 'Stamped' or 'Prestamped' by the <A HREF="#actions">stamp</A>
+	  and <A HREF="#actions">prestamp</A> actions respectively.  Setting it to one of these
+	  values manually has no effect outside the table and should not normally be done.
+  </TD>
+</TR>
+<TR>
+  <TD>stamp_date</TD>
+  <TD><A NAME="attr-stamp_date">The</A> date when this worklist was stamped
+	  or prestamped.  This is set by the <A HREF="#actions">stamp</A>
+	  or <A HREF="#actions">prestamp</A> actions.
+  </TD>
+</TR>
+<TR>
+  <TD>create_date</TD>
+  <TD><A NAME="attr-create_date">Date</A> when the worklist was created.
+	  This is obtained from the database system catalogs by the
+	  <A HREF="#action-refresh">refresh</A> action.
+  </TD>
+</TR>
+<TR>
+  <TD>num_concepts</TD>
+  <TD><A NAME="attr-num_concepts">The</A> number of concepts that were in the
+	  worklist at the time it was created.  This is
+	  computed by the <A HREF="#action-refresh">refresh</A> action when a worklist
+	  record is initialized.
+  </TD>
+</TR>
+</TABLE>
+
+<H1><A NAME="authentication">Authentication</A></H1>
+
+The Worklist Management System (WMS) operates under the control of a WWW (HTTP) server
+and relies on standard HTTP (Hypertext Transfer Protocol) mechanisms for
+authenticating users.  Currently, access to the WMS is allowed by users authenticated with
+the user IDs: <EM>nlmmgr</EM> and <EM>editor</EM>.  Limited access is also provided
+to other users of <A HREF="http://meow.nlm.nih.gov">MEOW</A>,
+the Metathesaurus Editors' Web site.
+
+<P>
+
+The <EM>nlmmgr</EM> user is allowed full access to modify data in the WMS.  They are allowed
+to execute all the actions, including the <A HREF="#action-stamp">stamp</A>,
+<A HREF="#action-prestamp">prestamp</A>,  <A HREF="#action-refresh">refresh</A>,
+<A HREF="#action-clean">clean</A>, <A HREF="#action-delete">delete</A>, etc.,
+and allowed to modify the different <A HREF="#worklist_info">attributes</A> of the
+worklist_info table.
+The password to this user ID is only given to NLM personnel managing and tracking
+the editing work.
+
+<P>
+
+The <EM>editor</EM> user is allowed partial edit access to data in the WMS.  They are allowed
+to execute the actions <A HREF="#action-stamp">select</A> (and
+<A HREF="#action-update">update</A> and can modify the
+<A HREF="#attr-editor">editor</A> and <A HREF="#attr-return_date">return_date</A> attributes
+of the worklist_info table.
+The password to this user ID is given to all editors and the editing managers working on the
+UMLS Metathesaurus.
+
+<P>
+
+The unauthenticated user of MEOW is allowed to query the data and examine the contents
+of the worklist_info table in read-only mode.  They are also allowed to execute
+the <A HREF="#action-view">view</A>
+action that lets them browse a worklist down to retrieving a concept report.
+
+<H1><A NAME="worklist_selection">Worklist Selection</A></H1>
+
+This is the query form for the Worklist Management System.
+It contains a variety of criteria for specifying which worklists are to be
+retrieved.  If no criteria are specified, the result set contains all
+worklists from the <A HREF="#worklist_info">worklist_info</A> table.
+Each criterion reduces the result set to only those worklists that match it.
+Multiple criteria implies that the result set satisfies all of them (i.e., a boolean
+AND).
+<P>
+The checkbox in the leftmost column must first be selected to make a criterion active.
+The current set of criteria are:
+
+<P>
+
+<TABLE CELLSPACING=1 CELLPADDING=5 BORDER=1>
+
+<TR>
+  <TH>Criterion</TH>
+  <TH>Description</TH>
+</TR>
+<TR>
+  <TD>Worklist Prefix</TD>
+  <TD>This is an exhaustive list of all worklist names that is constructed on-the-fly
+	  from the database upto the trailing worklist number.  For example, if there
+	  are three worklists named: wrk98e_msh_01, wrk98e_msh_02, wrk98e_msh_03,
+	  an entry "wrk98e_msh" is added to the menu.  Selecting this criterion
+	  retrieves all the worklists with this prefix.
+  </TD>
+</TR>
+<TR>
+  <TD>With Name Like</TD>
+  <TD>This criterion retrieves all worklists whose names have the typed-in value
+	  as a substring. In SQL terms, the search pattern is constructed as '%foo%',
+	  if you typed in "foo" to retrieve all worklists whose names have the
+	  string 'foo' in them.
+  </TD>
+</TR>
+<TR>
+  <TD>Group</TD>
+  <TD>This is a pick list of all the groups currently in the database
+	  (in the <A HREF="#worklist_info">worklist_info</A> table)
+	  and is retrieved
+	  using a dynamic query.  The Null group is represented as N/A.  Selecting
+	  a group retrieves all worklists assigned to that group.
+  </TD>
+</TR>
+<TR>
+  <TD>Editor</TD>
+  <TD>This is a pick list of all the editors currently in the database
+	  (in the <A HREF="#worklist_info">worklist_info</A> table)
+	  and is retrieved
+	  using a dynamic query.  The Null editor is represented as N/A.  Selecting
+	  an editor retrieves all worklists assigned to that editor.
+  </TD>
+</TR>
+<TR>
+  <TD>Create Date Between</TD>
+  <TD>This criterion can be used to restrict the <A HREF="#attr-create_date">create_date</A>
+	  of worklists to be retrieved.
+	  The date range is specified using two year, month, date menus, with the latter
+	  date set to the current date.  The origin date is configureable in the WMS
+	  system and is set to Jan 1 of the previous year.  Use this to look for
+	  worklists that were created on or around a certain date.
+  </TD>
+</TR>
+<TR>
+  <TD>Assign Date Between</TD>
+  <TD>This criterion can be used to restrict the <A HREF="#attr-assign_date">assign_date</A>
+	  of worklists to be retrieved.
+	  The date range is specified using two year, month, date menus, with the latter
+	  date set to the current date.  The origin date is configureable in the WMS
+	  system and is set to Jan 1 of the previous year.  Use this to look for
+	  worklists that were assigned to an editor on or around a certain date.
+  </TD>
+</TR>
+<TR>
+  <TD>Return Date Between</TD>
+  <TD>This criterion can be used to restrict the <A HREF="#attr-return_date">return_date</A>
+	  of worklists to be retrieved.
+	  The date range is specified using two year, month, date menus, with the latter
+	  date set to the current date.  The origin date is configureable in the WMS
+	  system and is set to Jan 1 of the previous year.  Use this to look for
+	  worklists that were returned to NLM on or around a certain date.
+  </TD>
+</TR>
+<TR>
+  <TD>Return Date is Null</TD>
+  <TD>This criterion can be used to look for worklists that still haven't been returned
+	  to NLM.
+  </TD>
+</TR>
+<TR>
+  <TD>Stamp Status</TD>
+  <TD>This criterion allows selection by the <A HREF="#attr-stamp_status">stamp_status</A>
+	  attribute of the worklist_info table.  This menu allows for multiple items
+	  to be selected and returns all worklists with any of the specified values.
+	  The value N/A refers to a null stamp status.
+  </TD>
+</TR>
+<TR>
+  <TD>Stamp Date Between</TD>
+  <TD>This criterion can be used to restrict the <A HREF="#attr-stamp_date">stamp_date</A>
+	  of worklists to be retrieved.
+	  The date range is specified using two year, month, date menus, with the latter
+	  date set to the current date.  The origin date is configureable in the WMS
+	  system and is set to Jan 1 of the previous year.  Use this to look for
+	  worklists that were stamped (or prestamped) on or around a certain date.
+  </TD>
+</TR>
+</TABLE>
+
+<P>
+
+There is a final checkbox for restricting the result set to worklists created
+in the current database.
+
+<H2>Example</H2>
+Retrieve all worklists with group = "KEV" and return_date is null, i.e., all
+worklists that are currently being edited by Kevric.  To effect this, select the
+group criterion checkbox (lefmost column), select "KEV" from the group menu,
+and select the checkbox for "return_date is null".  The hit the submit button
+(labelled "Get Worklists") to see the result.
+
+<H1><A NAME="matching_worklists">Matching Worklist</A></H1>
+
+This table displays the result of a query.  Information about the matching worklists
+are displayed in tabular form.  All attributes from the <A HREF="#worklist_info">worklist_info</A>
+table are shown.  Some of the information in each row may be editable if the user was
+<A HREF="#authentication">authenticated</A> as the user <EM>nlmmgr</EM> or <EM>editor</EM>.
+For these users, there is a submit button below the table labelled "Record Changes" that
+executes the <A HREF="#action-update">update</A> action and records the changes made
+in the database.  The result of the update contains information on what was changed.
+
+<P>
+
+The "Reset Values" button undoes all the changes made in the table and restores it to its
+initial state.
+
+Whenever the name of a worklist is displayed, it is anchored to the <A HREF="#action-view">view</A>
+action for that worklist that lets the user browse the worklist in read-only mode.
+
+<H1><A NAME="worklist_selection_for_stamping">Worklist Selection for Stamping</A></H1>
+
+When the <A HREF="#action-stampselect">stampselect</A> action is invoked,
+all worklists whose <A HREF="#attr-stamp_status">stamp_status</A> is "Ready to Stamp" are
+retrieved.  The diplay consists of a table with these worklists and the editor initials
+and a checkbox to confirm the stamping of each worklist.  The user can deselect the
+checkboxes of those worklist he/she does not want to stamp at this time.  If not all
+worklists have assigned editors, the stamping process will not run and there will
+not be a submit button.  In such cases, <A HREF="#action-prestamp">prestamping</A>
+may be more appropriate.
+<P>
+Since stamping can be a database intensive process, there is the option of running the
+actual stamping subprocess later in the night.  If a time of 'now' is chosen, the the
+stamping process runs concurrently.  In either case, the result of submitting
+the form (the Go Prestamp! button) shows the
+worklists that were either stamped or will be stamped later that night.
+The "Reset Values" button
+initializes the checkbox selection to the default values.
+
+<H1><A NAME="worklist_selection_for_prestamping">Worklist Selection for Prestamping</A></H1>
+
+When the <A HREF="#action-prestampselect">prestampselect</A> action is invoked,
+all worklists whose <A HREF="#attr-stamp_status">stamp_status</A> is "Ready to Prestamp" are
+retrieved.  The diplay consists of a table with these worklists and the editor initials
+and a checkbox to confirm the prestamping of each worklist.  The user can deselect the
+checkboxes of those worklist he/she does not want to prestamp at this time.  If the editor
+is not specified, the initials "PEN" (for "pending") are assigned.
+<P>
+Since prestamping can be a database intensive process, there is the option of running the
+actual prestamping subprocess later in the night.  If a time of 'now' is chosen, the the
+prestamping process runs concurrently.  In either case, the result of submitting
+the form (the Go Prestamp! button) shows the
+worklists that were either prestamped or will be prestamped later that night.
+The "Reset Values" button
+initializes the checkbox selection to the default values.
+
+<H1><A NAME="worklist_information_refresh">Worklist Information Refresh</A></H1>
+
+This page shows the names of all the (newly created) worklists for which records
+were added to the <A HREF="#worklist_info">worklist_info</A> table.  The names
+are anchored to the <A HREF="#action-view">view</A> action for browsing the contents
+of the worklist.
+
+<H1><A NAME="customqueries">Custom Queries</A></H1>
+
+<TABLE CELLSPACING=1 CELLPADDING=5 BORDER=1>
+
+<TR>
+  <TH>Query</TH>
+  <TH>Description</TH>
+</TR>
+
+<TR>
+  <TD>1</TD>
+  <TD>All worklists currently assigned to an editor but not yet returned to NLM.  Computed as:
+	  <A HREF="#attr-assign_date">assign_date</A> is not null and
+	  <A HREF="#attr-return_date">return_date</A> is null.
+  </TD>
+</TR>
+
+<TR>
+  <TD>2</TD>
+  <TD>All worklists currently assigned to a specific Group and some Editor.  Computed as:
+	  <A HREF="#attr-assign_date">assign_date</A> is not null and
+	  <A HREF="#attr-return_date">return_date</A> is null and
+	  <A HREF="#attr-grp">grp</A> = specified group.
+  </TD>
+</TR>
+
+<TR>
+  <TD>3</TD>
+  <TD>All worklists currently assigned to a specific Editor.  Computed as:
+	  <A HREF="#attr-assign_date">assign_date</A> is not null and
+	  <A HREF="#attr-return_date">return_date</A> is null and
+	  <A HREF="#attr-editor">editor</A> = specified editor.
+  </TD>
+</TR>
+
+<TR>
+  <TD>4</TD>
+  <TD>All worklists where the Editor attribute is null.  Computed as:
+	  <A HREF="#attr-editor">editor</A> is null.
+  </TD>
+</TR>
+
+<TR>
+  <TD>5</TD>
+  <TD>All worklists returned to NLM and pending action are retrieved as:
+	  <A HREF="#attr-return_date">return_date</A> is not null and
+	  <A HREF="#attr-stamp_status">stamp_status</A> is null.
+  </TD>
+</TR>
+
+<TR>
+  <TD>6</TD>
+  <TD>All worklists awaiting stamping or prestamping are retrieved as:
+	  <A HREF="#attr-stamp_status">stamp_status</A> = 'Ready to Stamp' or
+	  <A HREF="#attr-stamp_status">stamp_status</A> = 'Ready to Prestamp'.
+  </TD>
+</TR>
+
+<TR>
+  <TD>7</TD>
+  <TD>All worklists that were fully edited, i.e., assigned to
+	  an editor and returned by the editor during a certain time period.  Computed as:
+	  <A HREF="#attr-assign_date">assign_date</A> >= date 1 and
+	  <A HREF="#attr-return_date">return_date</A> <= date 2.
+  </TD>
+</TR>
+
+<TR>
+  <TD>8</TD>
+  <TD>All worklists that were fully edited by a Group, i.e., assigned
+	  and returned during a certain time period.  Computed as:
+	  <A HREF="#attr-assign_date">assign_date</A> >= date 1 and
+	  <A HREF="#attr-return_date">return_date</A> <= date 2 and
+	  <A HREF="#attr-grp">grp</A> = specified Group.
+  </TD>
+</TR>
+
+<TR>
+  <TD>9</TD>
+  <TD>All worklists that were fully edited by an Editor, i.e., assigned
+	  and returned during a certain time period.  Computed as:
+	  <A HREF="#attr-assign_date">assign_date</A> >= date 1 and
+	  <A HREF="#attr-return_date">return_date</A> <= date 2 and
+	  <A HREF="#attr-grp">editor</A> = specified Editor.
+  </TD>
+</TR>
+
+</TABLE>
+
+<P><HR>
+<ADDRESS>Contact: <A HREF="mailto:suresh@nlm.nih.gov">Suresh Srinivasan</A></ADDRESS>
+<ADDRESS>Created: October 1997</ADDRESS>
+<ADDRESS>Last Updated: 10/97</ADDRESS>
+<ADDRESS><A HREF="/index.html">Meta News Home</A></ADDRESS>
+</BODY>
+</HTML>

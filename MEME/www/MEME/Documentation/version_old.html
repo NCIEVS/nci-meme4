@@ -1,0 +1,465 @@
+<HTML>
+<HEAD>
+   <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=utf8">
+   <TITLE>MEME II Software Release Notice: Atomic Actions (5/4/98)</TITLE>
+   <LINK REL=FONTDEF SRC="http://www.truedoc.com/pfrs/EngraversGothic.pfr">
+   <LINK REL=FONTDEF SRC="http://www.truedoc.com/pfrs/Calligraph421.pfr"> 
+   <LINK REL=FONTDEF SRC="http://www.netscape.com/comprod/products/communicator/fonts/aldine.pfr">
+<STYLE type="text/css">
+   BODY { font-family: "Calligraph421 BT"; }
+   TT   { font-family: "EngraversGothic BT"; 
+          font-size: 14pt; }
+</STYLE>
+</HEAD>
+<BODY>
+<CENTER>
+<H1>
+<A NAME="top"></A><B>MEME II Software Release Policy</B></H1></CENTER>
+
+<H2>
+<B>Overview</B></H2>
+The purpose of this document is to describe the details of the version
+control/ Software release policy.&nbsp; Generally there will be 4 steps
+involved in creating/releasing a new version of some software:
+<BR>&nbsp;
+<OL>
+<LI>
+Create new application/component or make desired changes.</LI>
+
+<LI>
+<A HREF="#update">Update version information within that application/component</A>.</LI>
+
+<LI>
+<A HREF="#files">Create new version files and distribute to</A> <TT>m3b:$MEME_HOME/Release</TT>.</LI>
+
+<LI>
+<A HREF="#release">Send Release Notices</A>.</LI>
+</OL>
+
+<H2>
+<A NAME="update"></A><B>Update Version Information [<A HREF="#files">next</A>]</B></H2>
+After changes to an application/component are made, there are a number
+of important things to do.
+<UL>
+<LI>
+<B>Choose a new version number</B>.</LI>
+
+<UL>
+<LI>
+&nbsp;If the changes to the component/application are small and are not
+sufficient to constitue a new release, then just upgrade the version number
+by something small.&nbsp; For example, if you make a small change to version
+<I>3</I> of some component and you don't intend to release it until further
+changes have taken place, pick <I>3.1</I> as the new version number</LI>
+
+<LI>
+If you are releasing a new version of some component, choose the next highest
+whole number as the version number for that release.&nbsp; So, if you have
+a component/application whose version number is <I>3.2</I> and you are
+releasing a new version choose <I>4.0</I> as the new version number.</LI>
+</UL>
+
+<LI>
+<B>Update the version information in the component. </B>Specifically how
+to do this depends on the type of component.</LI>
+
+<UL>
+<LI>
+<B>Perl or Shell script.</B>&nbsp; At the beginning of each "component"
+script, there should be a section something like this,</LI>
+
+
+<P><TT># Version Information</TT>
+<BR><TT>#</TT>
+<BR><TT>#&nbsp;&nbsp; 2.0:&nbsp;&nbsp;&nbsp; First version with a version
+number.</TT>
+<BR><TT>#&nbsp;&nbsp; 2.1:&nbsp;&nbsp;&nbsp; Error doesn't prevent whole
+file from printing out if -[tf]</TT>
+<BR><TT>#&nbsp;&nbsp; 3.0:&nbsp;&nbsp;&nbsp; Released with 2.* changes</TT>
+<BR><TT>$version = "3.0";</TT>
+<BR><TT>$version_date = "5/26/98";</TT>
+<BR><TT>$version_authority="BAC";</TT>
+
+<P>The section describes the version history with numbers and descriptions
+of what each new version entailed.&nbsp; Each time you make a new version,
+update this history as well as the three version information fields: <I>version</I>,
+<I>version_date</I>, and <I>version_authority</I>.
+<LI>
+<B>OpenROAD component.</B>&nbsp; Most components do NOT have their own
+version information section.&nbsp; Some do; for example concept_rpt_proc.&nbsp;
+For these, you must update the version information at the beginning of
+the component.&nbsp; It will look something like this:</LI>
+
+
+<P><TT>/* Old versions:&nbsp; 2/8/98.BAC:&nbsp;&nbsp; new version finds
+last concept approval,</TT>
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+last action done to this concept,</TT>
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+sets lockmode to prevent readlocks,</TT>
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+and deals with SNMI, MESH attributes (EMW)</TT>
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+2/11/98.BAC:&nbsp; Concept_status authority, and classes status</TT>
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+added.</TT>
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+2/13/98.BAC:&nbsp; Semantic type status added.</TT>
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+2/26/98.EMW:&nbsp; determine the type of context then</TT>
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+split it according to its appropriate delimiter</TT>
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+triage messages.</TT>
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+2/27/98.EMW:&nbsp; show tbr='N' atoms.</TT>
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+3/26/98.BAC:&nbsp; limit reading of rels using parameter</TT>
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+4/1/98.BAC:&nbsp;&nbsp; Show rels limit, if it was limited.</TT>
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+4/3/98.BAC:&nbsp;&nbsp; CONCEPT_NOTE, SFO/LFO changed to SFO,LFO</TT>
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+4/14/98.BAC:&nbsp; Faster queries for retrieving last action info</TT>
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+4/20/98.BAC:&nbsp; Cproc read called with no_commit='Y' to</TT>
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+prevent unnecessary locking.</TT>
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+get limit sections were changed.</TT>
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+4/23/98.BAC:&nbsp; Small change to handle all SFO/LFO,SFO,LFO</TT>
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+4/27/98.OSM:&nbsp; Changed get demotion section</TT>
+<BR><TT>*/</TT>
+
+<P><TT>&nbsp;&nbsp;&nbsp; version = '4/27/98.OSM';</TT>
+
+<P>As with regular scripts, this section describes the version history
+and names the new version number.&nbsp; Update it accordingly.</UL>
+
+<LI>
+<B>Update the version information in the Application.</B>&nbsp; Although
+most OpenROAD components do not have their own version numbers, OpenROAD
+applications do track version information for the whole application.&nbsp;
+Each time a component within an Open ROAD application is changed, the version
+information should also be updated.&nbsp; This information appears in a
+procedure within the application called <I>&lt;application_name>_version<B>&nbsp;</B></I>
+where <I>&lt;application_name></I> is the name of the application.&nbsp;
+(e.g. for <I>Molecular_Actions</I>, this procedure would be called <I>Molecular_Actions_Version</I>.)&nbsp;
+This procedure contains information like the following,</LI>
+
+
+<P><TT>/*&nbsp; VERSION NUMBER:&nbsp; 9.0&nbsp;&nbsp;&nbsp; */</TT>
+<BR><TT>/*&nbsp; VERSION HISTORY</TT>
+
+<P><TT>&nbsp;7.0: first version.</TT>
+<BR><TT>&nbsp;7.01: change to Cproc_change_status, returns -1 if demotions
+present</TT>
+<BR><TT>&nbsp; without matching C.&nbsp; Also, possibly reworking irreversible</TT>
+<BR><TT>&nbsp; constraint section.&nbsp; Redo/Undo use atomic_action_row
+object.</TT>
+<BR><TT>&nbsp;8.00: New version of application, called molecular_actions
+(version</TT>
+<BR><TT>&nbsp; # not contained within name.)</TT>
+<BR><TT>&nbsp;8.01: Undo/Redo changed to assume is_handled_actions only
+has 1 row.</TT>
+<BR><TT>&nbsp;8.02: MG,MV,SP changed to not unapprove source level stuff</TT>
+<BR><TT>&nbsp;8.03: MG maintains E status</TT>
+<BR><TT>&nbsp;9:&nbsp; Released (MEME II 1.4)</TT>
+<BR><TT>*/</TT>
+
+<P><TT>&nbsp;&nbsp;&nbsp; version.version_number = 9;</TT>
+<BR><TT>&nbsp;&nbsp;&nbsp; version.version_date = '26-may-1998';</TT>
+<BR><TT>&nbsp;&nbsp;&nbsp; version.authority = 'BAC';</TT>
+<BR><TT>&nbsp;&nbsp;&nbsp; version.comment = 'RELEASED with 8.* changes;';</TT>
+<BR><TT>&nbsp;&nbsp;&nbsp; version.object = 'Application: Molecular_Actions.';</TT>
+
+<P><B>There are two things to do</B>:
+<UL>
+<LI>
+As before, you should add a new line in the <I>VERSION HISTORY</I> section
+describing the changes you&nbsp; made to a component within this application,
+then update the version <I>number</I>, <I>date</I>, <I>authority</I>, <I>comment</I>,
+and<I> object</I>.</LI>
+
+<LI>
+Also, when you make these changes change the <I>Short Remarks</I> section
+for the application by choosing <I>Properties</I> from the <I>Application</I>
+menu in the application editor.&nbsp; Update the remarks so it reads</LI>
+
+
+<P><TT>Version # (date)</TT>
+
+<P>For example,
+
+<P><TT>Version 2.11 (5/23/1998)</TT></UL>
+</UL>
+
+<H2>
+<A NAME="files"></A>Create New Version Files [<A HREF="#update">previous</A>/<A HREF="#release">next</A>]</H2>
+After you have chosen a new version number and updated the version information
+within the components, it is time to create files to distribute.&nbsp;
+The files to create differe slightly for different types of releasable
+components.
+<UL>
+<LI>
+<B>Perl or Shell Scripts</B>.&nbsp; When releasing a new version of a script,
+you must make sure that the script will execute in the NLM environment.&nbsp;
+There are at least a couple of things that you MUST check.</LI>
+
+<UL>
+<LI>
+&nbsp;If you are using a perl script, for the nlm, the first line must
+read:</LI>
+
+
+<P><TT>#!/site/bin/perl5</TT>
+
+<P>The comparable version of Perl here is in <TT>/usr/local/bin/perl</TT>,
+but that path leads to an older version of perl at the NLM which is often
+NOT compatible.
+<LI>
+Environment variables must be set correctly.&nbsp; If the script depends
+on particular environment variables being set, and it generates defaults
+if they are NOT set, those defaults must be set correctly.&nbsp; For example,
+in a nubmer of scripts, the $MEME_HOME variable is set.&nbsp; On LTI machines,
+the correct path for $MEME_HOME is <TT>/b1/W4gl/MEME2</TT>, but on NLM
+machines, the correct path is <TT>/d5/MEME2 </TT>(and this may change over
+time).&nbsp; Also, if scripts rely on a particular version of the norm
+program, then the path to the right version must also be checked.&nbsp;
+Remember folks, the environment here is different from there, so <I>make
+sure</I> your scripts run there as well as here.&nbsp; When in doubt, test
+them.</LI>
+
+<LI>
+Make sure you set the permissions so that the script can be run.</LI>
+</UL>
+
+<LI>
+<B>OpenROAD Image files</B>.&nbsp; Sometimes release of images is required.&nbsp;
+When this is the case, create an image of the appropriate application as
+you normally would, by using <TT>makeimage</TT>.</LI>
+
+<LI>
+<B>OpenROAD Export Files</B>. Whever new versions of applications are to
+be released which need to be loaded into OpenROAD databases on the NLM
+side, an export file needs to be made.&nbsp; Export files are made using
+the <TT>exportapp</TT> utility.</LI>
+
+<LI>
+<B>Database Tables/Procedures/Rules/Events/Data</B>.&nbsp; Whenever anything
+for the database needs to be released (New atomic actions, new versions
+of tables, data, etc.), prepare an sql script to perform the necessary
+queries to load what is being released.&nbsp; In addition, prepare a csh
+or other shell script which can be simply called to run all of the sql
+files.</LI>
+</UL>
+Another important issue in creating version files is <I>naming</I> them.&nbsp;
+When choosing names for the files which will reside in the <TT>m3b:$MEME_HOME/Release</TT>
+directory, it is helpful to choose names which are unique and easy to search
+by and informative.&nbsp; It is suggested that you include the version
+number, date, and type of file into the file name.&nbsp; The following
+table summarizes the general format for names of particular components
+and specific examples.
+<BR>&nbsp;
+<BR>&nbsp;
+<CENTER><TABLE BORDER CELLPADDING=5 WIDTH="90%" NOSAVE >
+<TR NOSAVE>
+<TH NOSAVE>Type of Component</TH>
+
+<TH NOSAVE>General Name Format</TH>
+
+<TH NOSAVE>Specific Name example</TH>
+</TR>
+
+<TR NOSAVE>
+<TD NOSAVE>Perl Script</TD>
+
+<TD NOSAVE>Name_version.date.pl</TD>
+
+<TD>reports_v2.1998.05.26.pl</TD>
+</TR>
+
+<TR>
+<TD>Csh Script</TD>
+
+<TD>Name_version.date.csh</TD>
+
+<TD>load_aprocs_v3.1998.05.26.csh</TD>
+</TR>
+
+<TR>
+<TD>OpenROAD image</TD>
+
+<TD>Name_version.date.img</TD>
+
+<TD>ORWeL_v3.1998.05.26.img</TD>
+</TR>
+
+<TR>
+<TD>OpenROAD export</TD>
+
+<TD>Name_version.date.exp</TD>
+
+<TD>ORWeL_v3.1998.05.26.exp</TD>
+</TR>
+
+<TR>
+<TD>Database procedure/&nbsp;
+<BR>Database table, etc.</TD>
+
+<TD>Name_version.date.sql</TD>
+
+<TD>aproc_change_dead_v3.1998.05.04.sql</TD>
+</TR>
+</TABLE></CENTER>
+&nbsp;
+<BR>&nbsp;
+<H2>
+<A NAME="release"></A>Send Release Notices [<A HREF="#files">previous</A>/<A HREF="#top">top</A>]</H2>
+There are two parts to the Release Notice process.&nbsp; First, an ASCII
+version of a release notice needs to be sent to relevant parties informing
+them of the delivery of new versions of software.&nbsp; This notice should
+be comprised of 9 fields:
+<UL>
+<LI>
+<B>Component Name.</B> The descriptive name of the component being released.</LI>
+
+<LI>
+<B>File Name.</B><I> </I>The file name for this component.</LI>
+
+<LI>
+<B>Version.</B> The version number.</LI>
+
+<LI>
+<B>Date.</B> The date it is being released.</LI>
+
+<LI>
+<B>Location.</B> The path (including file name) of the component.&nbsp;
+Usually this will be m3b:$MEME_HOME/Relase/file_name</LI>
+
+<LI>
+<B>Developer.</B> The person responsible for the changes.</LI>
+
+<LI>
+<B>Changes.</B> Brief description of problems this version addresses, or
+just general description of changes.</LI>
+
+<LI>
+<B>Comments.</B> Any additional comments about the use of this component.</LI>
+
+<LI>
+<B>Instructions.</B><I> </I>Instructions on how to install this component.</LI>
+</UL>
+The ASCII release notice should be mailed at least to <TT>nlmreg@nlm.nih.gov</TT>.&nbsp;&nbsp;
+I would also recommend mailing the it to: <TT>meme@apelon.com</TT> and
+when appropriate: <TT>santor@nlm.nih.gov</TT>, <TT>suresh@nlm.nih.gov</TT>.
+
+<P>The Second part is an HTML version of the release notice. This version
+is used to track the various versions of a component on its way to being
+used in the production system.&nbsp; The HTML Release notice should look
+essentially like the following sampe release notice,
+<H1>
+<B>MEME II Software Release Notice:&nbsp; reports.pl (5/1/1998).</B></H1>
+&nbsp;
+<TABLE BORDER CELLPADDING=5 WIDTH="80%" NOSAVE >
+<TR NOSAVE>
+<TD NOSAVE><B>Component Name</B></TD>
+
+<TD>reports.pl</TD>
+</TR>
+
+<TR>
+<TD><B>File Name</B></TD>
+
+<TD>reports_v3.1998.05.01.pl</TD>
+</TR>
+
+<TR>
+<TD><B>Version</B></TD>
+
+<TD>3.0</TD>
+</TR>
+
+<TR>
+<TD><B>Date</B></TD>
+
+<TD>5/1/1998</TD>
+</TR>
+
+<TR>
+<TD><B>Location</B></TD>
+
+<TD>m3b:$MEME_HOME/Release/reports_v3.1998.05.01.pl</TD>
+</TR>
+
+<TR>
+<TD><B>Developer</B></TD>
+
+<TD>BAC</TD>
+</TR>
+
+<TR>
+<TD><B>Changes</B></TD>
+
+<TD>It now does the following things&nbsp;
+<BR>1. bla&nbsp;
+<BR>2. bla bla</TD>
+</TR>
+
+<TR>
+<TD><B>Comments</B></TD>
+
+<TD></TD>
+</TR>
+
+<TR>
+<TD><B>Instructions</B></TD>
+
+<TD>Copy to the test directory.&nbsp;
+
+<P><TT>> cp $MEME_HOME/Release/reports_v3.1998.05.01.pl \&nbsp;</TT>&nbsp;
+<BR><TT>&nbsp;&nbsp;&nbsp;&nbsp; $MEME_HOME/bin/reports.pl</TT></TD>
+</TR>
+</TABLE>
+&nbsp;
+
+<P>The ASCII release notice can be created from the HTML version by viewing
+it a browser and saving as a text file.&nbsp; These two release notice
+messages should be titled in the following way.
+
+<P><B>MEME II Software Component Release Notice &lt;component name> &lt;date></B>
+
+<P>If interdependent components are released (for example, a new version
+of common and a new version of Molecular_actions which relies on that new
+versin of common), they should be included in the same release notice,
+and the header should read <B>Multiple Components</B> instead of the component
+name.
+
+<P>The HTML version of the release notice should be mailed to the MEME
+II webmaster (currently <A HREF="mailto:bcarlsen@apelon.com">Brian Carlsen</A>, <A HREF="mailto:bcarlsen@apelon.com">bcarlsen@apelon.com</A>).&nbsp;
+It will then be used to update the Release Index page and post the HTML
+message in the WWW/ReleaseNotices directory under the name and date of
+the component (e.g. Concept_Report_Script.19980501.html).
+<BR>
+<HR>
+<ADDRESS>
+Contact: <A HREF="mailto:bcarlsen@apelon.com">Brian Carlsen</A></ADDRESS>
+
+<ADDRESS>
+Created: 5/29/98</ADDRESS>
+
+<ADDRESS>
+Last Updated: 5/29/98</ADDRESS>
+
+<ADDRESS>
+<A HREF="/index.html">Meta News Home</A></ADDRESS>
+
+</BODY>
+<!-- These comments are used by the What's new Generator -->
+<!-- Changed On: 1998/05/04 format -->
+<!-- Changed by: Brian Carlsen -->
+<!-- Change Note: MEME II release notice. -->
+<!-- Fresh for: 1 month -->
+</HTML>

@@ -1,0 +1,444 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head><title>SUPPRESS Specification</title>
+  
+
+  
+  <meta content="Brian Carlsen" name="author">
+
+  
+  <meta content="Specifies how SUPPRESS is to be represented and used across all Meta life-cycle stages." name="description"></head>
+<body>
+<h2><center>SUPPRESS Specification (06/22/2005)</center></h2>
+
+<hr width="100%">
+<div style="text-align: center;">
+[ <a href="#overview">overview</a> | <a href="#details">details</a> | <a href="#references">references</a> ]<br>
+
+&nbsp;<br>
+
+<img src="/images/package.gif" alt="Package Icon" style="width: 167px; height: 201px;"><br>
+</div>
+
+<h3><a name="overview"></a>Overview</h3>
+
+
+<p>
+  This document describes how suppressibility is represented and used across the various life-cycle stages.</p>
+<ul>
+<li><a href="#conceptual">Conceptual Model</a></li>
+ <li><a href="#rrf">Rich Release Format</a></li>
+ <li><a href="#mid">MID Representation</a></li>
+ <li><a href="#objects">UMLS Objects API</a></li>
+ <li><a href="#meme">MEME Representation</a></li>
+ <li><a href="#src">.src Representation</a></li>
+ <li><a href="#qa"><span style="text-decoration: underline;">QA Changes</span></a><br>
+</li>
+</ul>
+
+
+<a name="conceptual"></a><a name="details"></a>
+<h3>Conceptual Model</h3>
+Not all content is created equal.&nbsp; For a
+variety of reasons, it is valuable to allow some content in the UMLS
+Metathesaurus to be suppressed, so that it can be excluded from certain
+sets of data where it would not be useful.&nbsp; There are a number of
+specific cases in which data is suppressed.&nbsp; These include:
+abbreviations, misspellings, clinical drugs no longer on the market,
+and blatant content errors.&nbsp; A somewhat overlapping concept is
+"obsoleteness", which is used to describe content that was valid at
+some time in the past but is no longer.&nbsp; These can include many of
+the same types of examples as things we would like ot suppress.<br>
+
+<br>
+The most common data element to suppress or obsolete is an atom. Most
+generally,
+this is indicated by the suppression of an entire term type
+(MRRANK.SUPPRESS) or the marking of a term type as obsolete (MRDOC
+tt_class=obsolete entry).&nbsp; However, the UMLS data model supports
+suppressibliity and obsoleteness of a variety of different data
+elements, including term types (MRRANK), atoms (MRCONSO), attributes
+(MRSAT), definitions (MRDEF), and relationships (MRREL).<br>
+
+<br>
+
+Suppressibility at the term-type level is inherited down to the atoms
+that comprise those term types.&nbsp; Thus, all RXNORM/OCD atoms are
+marked with SUPPRESS=Y because their term type is so marked.&nbsp;
+However, in some cases, editors have made explicit decisions to mark
+certain atoms with non-suppressible term types as suppressible (e.g.
+strings like "Other").&nbsp; In these cases, they would be marked as
+SUPPRESS=E.<br>
+
+<br>
+
+An term type can be marked as suppressible (MRRANK,
+termgroup_rank),&nbsp; but it can also be marked as being obsolete
+(tty_class=obsolete in MRDOC).&nbsp; Such a term type can be
+suppressible or not suppressible independently of whether or not it is
+obsolete.&nbsp;&nbsp; It may also be necessary to mark atoms with
+non-obsolete term types as themselves obsolete (the RXNORM/SCD that has
+only RXNORM/OCDs in the same concept).&nbsp; In this case, we would
+mark the atom with SUPPRESS=O.<br>
+
+<br>
+
+To implement the notions of suppressilbity and obsoleteness together, we now support four values of SUPPRESS:<br>
+
+<ol>
+
+  <li>N - not suppressed</li>
+  <li>Y - suppressed ONLY at term type level</li>
+  <li>E - suppressed ONLY by editor</li>
+  <li>O - marked as obsolete</li>
+</ol>
+
+Any of these four values may be applied to atoms, attributes,
+definitions, and relationships.&nbsp; For term-types, suppressibility
+is either Y or N and obsoleteness is made explicit in the tty_class
+MRDOC entries for each TTY value.<br>
+
+<br>
+
+Following is an analysis of suppressibility and obsoleteness for the
+various Metathesaurus data elements may be suppressed or obsolete:<span style="font-weight: bold;"><br>
+</span>
+<blockquote><dl><dt><b>Atom</b></dt>
+   <dd> Most of the
+suppressibility and obsoleteness architecture exists to serve
+atoms.&nbsp; Atoms may have any of the four suppressibility values, but
+there is an order of precedence that should be applied when deciding
+which value to give.<br>
+      <ol>
+        <li>If the source files indicate a suppressibility of 'O', it should always be O.</li>
+        <li>If the atom's term-type has SUPPRESS=Y, then atom should have 'Y' (unless rule #1 is in effect)</li>
+        <li>If the atom's term-type has SUPPRESS='N', then the atom can have 'E' if indicated by an editor.</li>
+        <li>If none of the above apply, the atom should have 'N'</li>
+      </ol>
+</dd><br>
+<dt><b>  Attribute, Definition<br>
+</b></dt>
+    <dd>Attributes, including definitions, can be suppressed when inserted as either 'Y' or 'O'.&nbsp; Otherwise, they are 'N'.</dd>
+<br>   
+<dt><b>Relationship</b><br>
+</dt>
+    <dd>Attributes, including definitions, can be suppressed when inserted as either 'Y' or 'O'.&nbsp; Otherwise, they are 'N'.  </dd>
+<br>
+<dt><b>Term Type</b></dt>
+<dd>Term-types can either be suppressed or not.&nbsp; Obsoleteness is indicated with a tty_class.<br>
+</dd>
+      
+    
+
+
+</dl>
+</blockquote>
+There is something of a precedence to the assignment of the values O,
+Y, and E, in the event that more than one may apply.&nbsp; If an
+element can be considered O, it will receive SUPPRESS=O, even if the Y
+or E labels also apply.&nbsp; If not, but Y applies, then it will
+receive SUPPRESS=Y even if the E label also applies.&nbsp; If Y and O
+do not apply, but E does, then SUPPRESS=E.<br>
+<br>
+Finally, it may be important to ask of a data element "are you
+suppressible?" without having to differentiate between the different
+values.&nbsp; To make this simple, we define SUPRPESS=N to mean "not
+suppressible" and SUPPRESS!=N to mean "suppressible".&nbsp; This may be
+used to compute suppressibility for the ORF and for the MMSYS
+suppressibility filter's notion of "remove suppressible data".<br>
+<br>
+<br>
+
+<a name="rrf"></a><br>
+
+
+<h3>Rich Release Format</h3>
+
+<p>Suppressibility and obsoleteness appear in 6 of the RRF files.<br>
+</p>
+<ol>
+  <li>MRDOC.RRF has some rows for suppressibility, and some for obsoleteness<br>
+  </li>
+  <ol style="list-style-type: lower-alpha;">
+    <li>Contains 'expanded_form' entries for the various valid values of SUPPRESS.<br>
+    </li>
+    <li>Contains 'tty_class' entries where the VALUE=obsolete for obsolete TTY values.<br>
+    </li>
+  </ol>
+  <li>MRRANK.RRF entries may be marked with a SUPPRESS value of Y or N<br>
+  </li>
+  <li>MRCONSO.RRF entries may be marked with a SUPPRESS value of O, E, Y, or N<br>
+  </li>
+  <li>MRDEF.RRF entries may be marked with a SUPPRESS value of O, E, Y, or N</li>
+  <li>MRREL.RRF entries may be marked with a SUPPRESS value of O, E, Y, or N</li>
+  <li>MRSAT.RRF entries may be marked with a SUPPRESS value of O, E, Y, or N</li>
+</ol>
+To summarize from above, an atom, attribute, definition, or
+relationship may be marked as suppressed (Y) or obsolete (O) or not
+suppressed (N).&nbsp;&nbsp; <br>
+An atom may also be marked as suppressed by an editor explicitly
+(E).&nbsp; A term-type may be marked as suppressed (Y) or not (N) in
+MRRANK, and may be marked as obsolete in MRDOC.&nbsp;&nbsp; The valid
+set of SUPPRESS values appears in MRDOC as expanded_form entries.<br>
+<br>
+<a name="mid"></a>
+<h3>MID Representation</h3>
+
+<p>
+  Representation in the MID is very similar to that in the release.
+  There are six tables where suppressibility is represented.<br>
+</p>
+<ol>
+  <li>suppressible_rank.&nbsp; Lists the valid values of "suppressible" fields in classes, attributes, and relationships.<br>
+  </li>
+  <li>meme_properties.&nbsp; Contains the metadata for the MRDOC expanded_form and tt_class entries.<br>
+  </li>
+  <li>termgroup_rank.suppressible.&nbsp; Indicates whether or not term-types are suppressed, can have Y or N values.<br>
+  </li>
+  <li>classes.suppressible. Indicates how the atom is suppressed, can have O, E, Y, or N values.<br>
+  </li>
+  <li>attributes.suppressible. Indicates how the attribute is suppressed, can have O, Y, or N values.<br>
+  </li>
+  <li>relationships.suppressible.&nbsp; Indicates how the relationship is suppressed, can have O, Y, or N values.<br>
+
+  </li>
+</ol>
+<p>Note: context_relationships also has a suppressible field for
+symmetry, but the corresponding release files MRCXT, and MRHIER do not
+have corresponding SUPPRESS values, and so this field is effectively
+ignored. the fact and the remaining structure continues to work for
+backwards compatability.<br>
+<br>
+There is a specific issue with respect to "safe replacement" and
+"source replacement".&nbsp; When a new version data element replaces an
+old version one and they have different suppressibility values, the
+following truth table should dictate the outcome.<br>
+</p>
+<table style="width: 90%; text-align: left; margin-left: auto; margin-right: auto;" border="1" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <th style="vertical-align: top; background-color: rgb(255, 255, 204); text-align: center;">OLD<br>
+      </th>
+      <th style="vertical-align: top; background-color: rgb(255, 255, 204); text-align: center;">NEW<br>
+      </th>
+      <th style="vertical-align: top; background-color: rgb(255, 255, 204); text-align: center;">OUTCOME<br>
+      </th>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">N<br>
+      </td>
+      <td style="vertical-align: top;">Y<br>
+      </td>
+      <td style="vertical-align: top;">Y, do not inherit<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">N<br>
+      </td>
+      <td style="vertical-align: top;">O<br>
+      </td>
+      <td style="vertical-align: top;">O, do not inherit<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Y<br>
+      </td>
+      <td style="vertical-align: top;">N<br>
+      </td>
+      <td style="vertical-align: top;">N, do not inherit<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Y<br>
+      </td>
+      <td style="vertical-align: top;">O<br>
+      </td>
+      <td style="vertical-align: top;">O, do not inherit<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">O<br>
+      </td>
+      <td style="vertical-align: top;">Y<br>
+      </td>
+      <td style="vertical-align: top;">Y, do not inherit<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">O<br>
+      </td>
+      <td style="vertical-align: top;">N<br>
+      </td>
+      <td style="vertical-align: top;">N, do not inherit<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">E<br>
+      </td>
+      <td style="vertical-align: top;">Y<br>
+      </td>
+      <td style="vertical-align: top;">Y, do not inherit<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">E<br>
+      </td>
+      <td style="vertical-align: top;">N<br>
+      </td>
+      <td style="vertical-align: top;">E, inherit<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">E<br>
+      </td>
+      <td style="vertical-align: top;">O<br>
+      </td>
+      <td style="vertical-align: top;">O, do not inherit<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p><br>
+</p>
+
+<a name="objects"></a>
+<h3>UMLS Objects API</h3>
+
+<p>
+  The object API has a "Suppressible" class that represents the
+enumeration of the various values of SUPPRESS.&nbsp; There is a
+SuppressibleElement interface that is inherited by all objects that can
+be suppressed (Atom, Attribute, Relationship, and
+SourceTermType).&nbsp; The input and ouptut streams read the field and
+translate it into one of the enumerated values, and then write out the
+corresponding abbreviation to the output file.&nbsp; When writing out
+ORF, values of "O", "E", and "Y" are considered "suppressible" for
+computing whether not to lowercase the TS value.&nbsp; <br>
+<br>
+In MetamorphoSys,&nbsp; the suppresibility filter accommodates all of
+the values and passes them to the output handler correctly.&nbsp; It no
+longer needs to make use of the "suppressed_auis" property from the
+make_config script because it can simply ask each atom if it is
+suppressed.&nbsp; However, since MMSYS will support the subsetting of
+an ORF subset into another ORF subset, we do need to preserve the
+"suppressed_terms" property, which should now be computed to take into
+account the "O" value in MRCONSO.RRF.<br>
+</p>
+<p>Suppressibility of Attributes, Definitions, and Relationships should be passed through from input to output stream intact.<br>
+
+</p>
+
+
+<a name="meme"></a>
+<h3>MEME Representation</h3>
+
+<p>
+  In MEME, the following objects are affected:<br>
+</p>
+<ol>
+  <li>ReportsGenerator.&nbsp; The various suppressibility values O, E, and Y should show up instead of just a simple 'S'</li>
+  <li>CoreData.&nbsp; The suppressibility should not be treated as a boolean value, instead allow all four values.<br>
+  </li>
+  <li>Mappers (AtomMapper, etc..).&nbsp; Mappers and other code that
+calls CoreData.setSuppressible() should properly handle all values.</li>
+  <li>Connection/ActionEngine objects may have to be updated to accommodate O and E values.</li>
+  <span style="font-family: monospace;"></span>
+</ol>
+The PL/SQL may have to be updated, in particular the
+MEME_SOURCE_PROCESSING functions for inserting atoms
+(core_table_insert) and foreign atoms (foreign_classes_insert),
+inheriting suppressibility across safe-replacement facts
+(safe_replacement), and computing source replacement
+(source_replacement).<br>
+<br>
+There is also a MEME_INTEGRITY_PROC function for computing concepts with mixed suppressibility that can likely stay the same.<br>
+<br>
+In MRD, the MRD_RELEASE_OPERATIONS code for mrconso_prepare and
+mrrank_prepare should be reviewed to account for O and E.&nbsp; The
+building of mrd_classes and mrd_termgroup_rank correctly just reuses
+suppressible values from classes and termgroup_rank, so no change is
+required.<br>
+<br>
+Finally,&nbsp; Jekyll will have to correctly handle the making of an atom suppressible.&nbsp; It should follow these rules:<br>
+<ol>
+  <li>An editor should only be able to make a suppressible=N atom
+suppressible (and it should set the new suppressible value to E instead
+of Y).<br>
+  </li>
+  <li>An editor should only be able to make a suppressible='E' atom unsuppressible (and should set the new suppressible value to N).</li>
+</ol>
+<br>
+<a name="src"></a>
+<h3>.src File Representation</h3>
+
+<p>
+  Suppressibility and obsoleteness can be indicated at the .src file level in the following ways:</p>
+<ol>
+  <li>classes_atoms.src.&nbsp; May have suppressible value of O, Y, or
+N.&nbsp; If set to N, term-type suppressibility will override the value.</li>
+  <li>attributes.src.&nbsp; May have suppressible value of O, Y, or N.&nbsp; Values is simply passed to attributes table.</li>
+  <li>relationships.src.&nbsp; May have suppressible value of O, Y, or N.&nbsp; Values is simply passed to relationships table.</li>
+  <li>termgroups.src.&nbsp; May have suppressible value of Y or N.</li>
+  <li>MRDOC.RRF.&nbsp; May indicate tty_class of term types defined in termgroups.src <br>
+  </li>
+</ol>
+<p>The termgroups.src and classes_atoms.src should agree (i.e. termgroups should not say Y where classes says N).<br>
+<br>
+</p>
+<a name="qa"></a>
+<h3>QA Issues<br>
+</h3>
+MID Validation queries that deal with suppressibility or obsoleteness
+should be reviewed for correctness.&nbsp; On the release QA side, we
+should count by SUPRPESS for all files that have it as a field (MRRANK,
+MRCONSO, MRDEF, MRSAT, MRREL).&nbsp; Any semantic QA checks on the
+release side should also be evaluated to ensure that they account for
+the O and E values.<br>
+<br>
+
+<h3><a name="references"></a>References</h3>
+
+
+
+
+<p>Use the following references for more information.
+  </p>
+
+
+
+
+<ul>
+
+<li><a href="http://www.nlm.nih.gov/research/umls/documentation.html">UMLS Documentation</a></li><li><a href="/MEME/Data/src_format.html">SRC Format docs</a></li>
+  <li><a href="/MRD/Training/tables_all.html">Tables documentation</a><br>
+  </li>
+
+</ul>
+
+<br>
+
+
+<div style="text-align: center;">
+[ <a href="#overview">overview</a> | <a href="#details">details</a> | <a href="#references">references</a> ]</div>
+
+<br>
+
+<hr width="100%">
+<table nosave="" border="0" cols="2" width="100%">
+
+<tbody><tr nosave=""><td nosave="" align="left" valign="top">
+<address><a href="/">Meta News Home</a></address></td>
+<td nosave="" align="right" valign="top">
+<address><font size="-1">Contact: <a href="mailto:bcarlsen@apelon.com">Brian A. Carlsen</a></font></address>
+<address><font size="-1">Created: 06/21/2005</font></address>
+<address><font size="-1">Last Updated: 06/22/2005</font></address>
+</td>
+</tr>
+</tbody>
+</table>
+
+<!-- These comments are used by the What's new Generator --><!-- Changed On: 2005/06/25 --><!-- Changed by: MEME Team --><!-- Change Note: MEME - Developer Guides - MRMAP Specification -->
+
+
+
+<!-- Fresh for: 1 month -->
+</body></html>

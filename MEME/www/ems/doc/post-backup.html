@@ -1,0 +1,54 @@
+<HTML>
+<HEAD>
+<TITLE>ems-post-backup.pl</TITLE>
+</HEAD>
+
+<BODY>
+
+<P ALIGN=right>suresh@nlm.nih.gov 12/2002
+
+<H1>ems-post-backup.pl</H1>
+
+This script resides in /site/umls/scripts and is the entry point for
+EMS functions that need to be performed after a machine reboots or the
+DBMS functionality is restored after a backup.  It also is used to
+start MEME and LVG services on all machines that need this.
+<P>
+It is typically called from the /etc/AutoDump/make_ready_for_nlm.s
+script after Oracle is available (with the -lme options).
+It has to run with root privileges.
+The script is also called with the -l option (to start LVG services)
+after the editing-db MID service is changed.
+<P>
+It prints status messages to STDERR as it progresses.
+
+<H1>Options</H1>
+The script has the following options (one of 'l', 'm', or 'e' is
+required, otherwise the script does nothing):
+<UL>
+
+<P><LI>-g<BR>
+Just print the actions without doing them.  Useful for debugging.
+
+<P><LI>-m<BR>
+Re-start the MEME server on this machine.  This brings up
+the MEME server if this machine is one named by MID service
+like meme-server-host*.  The MEME start up script is expected
+in /etc/init.d/meme_server and it has to support the 'restart' option.
+
+<P><LI>-l<BR>
+Re-start LVG servers.  The algorithm to start LVG servers is this:
+a) Start one locally if named in MID services like lvg-server-host*
+b) Start one remotely (using rsh) on all hosts named by MID services
+like lvg-server-host* if machine is named by the 'editing-db' MID
+service.  The LVG startup script is expected in /etc/init.d/lvg_server
+and it has to support the 'restart' option.
+
+<P><LI>-e<BR>
+Run all EMS-related initialization, e.g., Matrix initialization,
+CUI assignment, ME bins repartitioning, etc.
+
+</UL>
+</BODY>
+</HTML>
+

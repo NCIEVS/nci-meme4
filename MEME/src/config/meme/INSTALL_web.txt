@@ -1,0 +1,194 @@
+INSTALL
+-------
+1. Choose $MEME_HOME
+2. Unzip dist_meow*.zip into $MEME_HOME
+3. Configure properties files
+
+   1. Copy the etc/meme.prop_orig to etc/meme.prop and meme.client.prop_orig to meme.client.prop
+   2. Edit this properties file.
+   3. Copy the etc/mrd.prop_orig to etc/mrd.prop and mrd.client.prop_orig to mrd.client.prop
+   4. Edit this properties file.
+   5. Copy etc/meme.client.prop to webapps-meme/WEB-INF/classes/meme.prop
+   6. Copy etc/mrd.client.prop to webapps-meme/WEB-INF/classes/mrd.prop
+   7. Copy etc/meme.client.prop to webapps-meme-editors/WEB-INF/classes/meme.prop
+   8. Copy etc/mrd.client.prop to webapps-meme-editors/WEB-INF/classes/mrd.prop
+   9. Link webapps-meme/Sources to "<path to $MEME_HOME>/www/Sources"
+   
+4. Edit $ENV_FILE and set MEME_HOME property to $MEME_HOME path
+5. Configure Apache
+
+   a. Configure the user info (in $APACHE/conf/httpd.conf). For example,
+
+User meme
+Group other
+SetEnv ENV_HOME <path to $ENV_HOME>
+SetEnv ENV_FILE <path to $ENV_FILE>
+SetEnv ORACLE_HOME <path to $ORACLE_HOME>
+
+   b. Configure Timout. For example,
+
+Timeout 7200
+
+   c. Configure document root to be $MEME_HOME/www in $APACHE/conf/httpd.conf. For example,
+
+DocumentRoot "<path to $MEME_HOME>/www"
+
+   d. Add JNLP to $APACHE/conf/mime.types. For example,
+
+application/x-java-jnlp-file    jnlp
+
+   e. Configure CGI directories to point to $MEME_HOME/cgi-bin.
+
+ScriptAlias /cgi-bin/ /cgi-bin/
+AddHandler cgi-script .cgi
+
+   f. Make sure the CGI <Directory> directive has
+
+Options FollowSymLinks
+
+   g. Support server side includes. For example,
+
+<IfModule mod_mime.c>
+...
+    #
+    # To use server-parsed HTML files
+    #
+    AddType text/html .shtml
+    AddHandler server-parsed .shtml
+...
+</IfModule>
+
+<Directory />
+    Options FollowSymLinks +Includes
+    AllowOverride None
+</Directory>
+
+   h. Support index.shtml as index page. For example,
+
+#
+# DirectoryIndex: Name of the file or files to use as a pre-written HTML
+# directory index.  Separate multiple entries with spaces.
+#
+<IfModule mod_dir.c>
+    DirectoryIndex index.html index.shtml
+</IfModule>
+
+   i. Configure authentication. For each Directory directive do something like this:
+
+    Order Deny,Allow
+    Deny from all
+        AuthType Basic
+        AuthName "Metathesaurus Editors Online World"
+        AuthUserFile /etc/umls/meow.passwd
+        AuthGroupFile /etc/umls/meow.group
+        require group meowusers
+        deny from redoubt
+        satisfy any
+
+   j. Connect Apache, Tomcat.  This is just a suggestion, there are many ways to connect them. See http://jakarta.apache.org/tomcat/tomcat-4.1-doc/config/jk.html for reference.
+
+LoadModule jk_module          libexec/mod_jk.so
+#AddModule mod_jk.c
+
+JkWorkersFile /usr/local/apache/conf/workers.properties
+JkLogFile     /usr/local/apache/logs/mod_jk.log
+JkLogLevel    info
+JkLogStampFormat "[%a %b %d %H:%M:%S %Y] "
+JkMount /*.jsp ajp13
+JkMount /servlet/* ajp13
+JkMount /admin/* ajp13
+JkMount /manager/* ajp13
+JkMount /examples/* ajp13
+JkMount /webapps-meme/* ajp13
+JkMount /webapps-meme-editors/* ajp13
+JkMount /webapps-mrd/* ajp13
+
+  k. Next, edit workers.properties.
+
+workers.tomcat_home=/usr/local/tomcat
+workers.java_home=/usr/java
+ps=/
+worker.list=ajp13
+worker.ajp13.port=5009
+worker.ajp13.host=localhost
+worker.ajp13.type=ajp13
+
+6. Configure Tomcat
+
+   a. Connect Apache, Tomcat users.  If you want to use the manager application, you will need a tomcat-users.xml file like this:
+
+<?xml version='1.0' encoding='utf-8'?>
+<tomcat-users>
+  <role rolename="manager"/>
+  <user username="mth" password="da3f16e8581e271a13a48dc4468cf1e7" roles="manager"/>
+</tomcat-users>
+
+   b. Connect Apache to Tomcat. First, create a $TOMCAT/webapps/webapps-meme.xml file like this:
+
+<Context path="/webapps-meme" docBase="<put meme_home here>/webapps-meme"
+        debug="0">
+          <Logger className="org.apache.catalina.logger.FileLogger"
+                     prefix="localhost_webapps-meme_log." suffix=".txt"
+                  timestamp="true"/>
+</Context>
+
+   c. Now, create a $TOMCAT/webapps/webapps-meme-editors.xml file like this:
+
+<Context path="/webapps-meme-editors" docBase="<put meme_home here>/webapps-meme-editors"
+        debug="0">
+          <Logger className="org.apache.catalina.logger.FileLogger"
+                     prefix="localhost_webapps-meme-editors_log." suffix=".txt"
+                  timestamp="true"/>
+</Context>
+
+7. Configure startup script to start Apache/Tomcat
+
+8. Configure cron job to run cronvalidate.csh on saturdays. First, copy 
+   $MEME_HOME/etc/cronvalidate.csh_orig to $MEME_HOME/bin/cronvalidate.csh.
+   Then configure a crontab entry
+   For example,
+
+# Compute MID Validation report each Saturday
+0 9 * * 6 /usr/bin/env ENV_FILE=<path to ENV_HOME>/etc/env.prop ENV_HOME=<path to ENV_HOME> <path to MEME_HOME>/bin/cronvaldate.csh
+
+  An alternative to using "env" is to just call 
+  <meme_home>/bin/cronvalidate.csh and edit it to 
+  include lines to import the environment like this:
+  
+  setenv ENV_HOME <path to env home>
+  setenv ENV_FILE $ENV_HOME/etc/env.prop
+  source $ENV_HOME/bin/env.csh
+  
+9. Build tables documentation.  If ant is installed in the environment
+   cd to $MEME_HOME/etc and run ant using the supplied build.xml file.
+
+Dependencies
+-----------------------
+Subsystem Dependencies
+  $ENV_HOME - used by CGI apps
+  $MIDSVCS_HOME - clients used by some .shtml, some CGI
+  $SAFEBOX_HOME - used by some CGI apps
+  $LVG_HOME - for finder services
+  $LVGIF_HOME - for LVG link off main meow page.
+
+Network Dependencies
+  MIDSVCS Server - host/port specified in etc/mrd.prop
+  LVG Server - host/port specified by MIDSVCS (lvg-server-host, lvg-server-port)
+  MEME Server
+  MRD Server
+  Mail Server
+  
+Required Perl Libraries
+  Text::Wrap
+  Mail::Sender
+  DBI
+  DBD::Oracle
+  Socket
+  Net::FTP
+  Getopt::STD
+  Net::SFTP - recommended 
+  CGI
+  
+UPDATE
+------
+Same as install

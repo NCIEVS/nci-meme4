@@ -1,0 +1,28 @@
+Mapping:          NCI Thesaurus to ICD-9-CM
+Requested by:     NCI EVS
+Requested output: MRMAP.RRF
+Script:           dump_icd9cm_mappings.csh
+
+Description:
+
+This script identifies the Neoplasm NCI/PT atom (aui=A2662660) and its children.  It then maps these atoms to ICD9CM atoms in the following order:
+
+1) Find ICD9CM atoms in the same CUI (concept_id). These are SY mappings.
+2) For NCI atoms not mapped in 1), use parent/child context relationships and look for ICD9CM atoms in those concepts. These are RN/RB mappings.
+3) For NCI atoms not mapped in 1) or 2), use grandparent/grandchild context relationships and look for ICD9CM atoms in those concepts. These are also RN/RB mappings.
+
+The mappings are ranked using the following algorithm (1 being best, increasing values being less accurate):
+- To start, 2 points are given to each mapping
+- Subtract 1 (award) if both sides of the mapping are Preferred Terms (i.e., NCI/PT, ICD9CM/PT)
+- Add 1 (penalize) if NCI concept is involved involved a merge
+- Add 1 (penalize) if NCI concept is involved in a split
+- Add 1 (penalize) if ICD9CM concept is involved in a merge
+- Add 1 (penalize) if ICD9CM concept is involved in a split
+
+-- jfw (joanne.f.wong@lmco.com)
+
+
+
+Additional Notes:
+
+If MRMAP.RRF format is requested in an Excel spreadsheet, make sure any code fields are formatted as Text (not General).

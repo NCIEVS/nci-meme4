@@ -1,0 +1,171 @@
+<html>
+    <head>
+      <title>RECIPE -- CBO2005_06</title>
+    </head>
+    <body>        <h2>Load Section</h2>
+        <ol>
+          <li>
+            <h3>Load Data into Core Tables</h3>
+            <p>source name : CBO2005_06<br>
+            source language : ENG<br>
+            <ul>
+            <li>Concepts are being inserted.
+            <li>Atoms are being inserted.
+            <li>Attributes are being inserted.
+            <li>Relationships are being inserted.
+            </ul>
+          <br>
+          </li>
+        </ol>
+        <h2>New Merge Section</h2>
+        <ol>
+          <li>
+            <h3>Merge Step - mergefacts.src</h3>
+            <table ALIGN=CENTER WIDTH=90% BORDER=1 CELLSPACING=1 CELLPADDING=2>
+              <tr><th colspan=2>Merge Parameters</th></tr>
+              <tr>
+                <td><b>Merge Set:</b></td><td>CBO-SRC</td>
+              </tr>
+              <tr>
+                <td><b>Integrity Vector:</b></td><td></td>
+              </tr>
+              <tr>
+                <td><b>Demote:</b></td><td>Yes</td>
+              </tr>
+              <tr>
+                <td><b>Change Status:</b></td><td>No</td>
+              </tr>
+              <tr>
+                <td><b>Pre Insert:</b></td><td>N to N</td>
+              </tr>
+            </table>
+          <br>
+          </li>
+          <li>
+            <h3>Merge Step - mergefacts.src</h3>
+            <table ALIGN=CENTER WIDTH=90% BORDER=1 CELLSPACING=1 CELLPADDING=2>
+              <tr><th colspan=2>Merge Parameters</th></tr>
+              <tr>
+                <td><b>Merge Set:</b></td><td>CBO-CODE</td>
+              </tr>
+              <tr>
+                <td><b>Integrity Vector:</b></td><td>ALL</td>
+              </tr>
+              <tr>
+                <td><b>Demote:</b></td><td>Yes</td>
+              </tr>
+              <tr>
+                <td><b>Change Status:</b></td><td>Yes</td>
+              </tr>
+              <tr>
+                <td><b>Pre Insert:</b></td><td>N to N</td>
+              </tr>
+            </table>
+          <br>
+          </li>
+          <li>
+            <h3>Merge Step - MID Merging</h3>
+            <table WIDTH=90% BORDER=1 CELLSPACING=1 CELLPADDING=2>
+              <tr><th colspan=2>Merge Parameters</th></tr>
+              <tr>
+                <td><b>Merge Set:</b></td><td>CBO-MID</td>
+              </tr>
+              <tr>
+                <td><b>String Match:</b></td><td>BOTH</td>
+              </tr>
+              <tr>
+                <td><b>Code Match:</b></td><td>NONE</td>
+              </tr>
+              <tr>
+                <td><b>Source AUI Match:</b></td><td>NONE</td>
+              </tr>
+              <tr>
+                <td><b>Source CUI Match:</b></td><td>NONE</td>
+              </tr>
+              <tr>
+                <td><b>Source DUI Match:</b></td><td>NONE</td>
+              </tr>
+              <tr>
+                <td><b>Term Type Match:</b></td><td>NONE</td>
+              </tr>
+              <tr>
+                <td><b>Source Termgroups:</b></td><td>CBO2005_06/PT, CBO2005_06/SY                </td>
+              </tr>
+              <tr>
+                <td><b>Source Options:</b></td><td>                  <ul>
+                    <li>Use Exclude List</li>
+                    <li>Use Norm-Exclude List</li>
+                    <li>Restrict to New Atoms Only</li>
+                    <li>Include termgroups in list</li>
+                  </ul>
+                </td>
+              </tr>
+              <tr>
+                <td><b>Target Termgroups:</b></td><td>CBO2005_06/PT, CBO2005_06/SY                </td>
+              </tr>
+              <tr>
+                <td><b>Target Options:</b></td><td>                  <ul>
+                    <li>Use Exclude List</li>
+                    <li>Use Norm-Exclude List</li>
+                    <li>Exclude termgroups in list</li>
+                  </ul>
+                </td>
+              </tr>
+              <tr>
+                <td><b>Integrity Vector:</b></td><td>ALL</td>
+              </tr>
+              <tr>
+                <td><b>Demote:</b></td><td>Yes</td>
+              </tr>
+              <tr>
+                <td><b>Change Status:</b></td><td>Yes</td>
+              </tr>
+              <tr>
+                <td><b>Pre Insert:</b></td><td>None</td>
+              </tr>
+              <tr>
+                <td><b>Filters:</b></td><td>                  <ol>
+                 <li>Exclude safe replacement atoms from source.</li>
+                  </ol>
+                </td>
+              </tr>
+            </table>
+          <br>
+          </li>
+        </ol>
+        <h2>Post-Merge Section</h2>
+        <ol>
+          <li>
+            <h3>Resolve Semantic Types</h3>
+            <table ALIGN=CENTER WIDTH=90% BORDER=1 CELLSPACING=1 CELLPADDING=2>
+              <tr><td><b>Sources:</b></td><td>
+                   CBO2005_06
+              </tr>
+              <tr><td><b>Win or Lose:</b></td><td>
+                 Lose</td></tr>
+            </table>
+          <br>
+          </li>
+          <li>
+            <h3>Standard Post Merge Steps</h3>
+            <table ALIGN=CENTER WIDTH=90% BORDER=1 CELLSPACING=1 CELLPADDING=2>
+              <tr>
+                <td><b>Update String/Word Indexes</b></td></tr>
+              <tr>
+                <td><b>Run matrix initializer</b></td></tr>
+              <tr>
+                <td><b>Generate standard report tables</b></td></tr>
+              <tr>
+                <td><b>Set Core Table Ranks</b></td></tr>
+              </table>
+          <br>
+          </li>
+        </ol>
+        <p>
+         <!-- These comments are used by the What's new Generator -->
+         <!-- Changed On: 2005/08/30 -->
+         <!-- Changed by: MEME Team -->
+         <!-- Change Note: This page moved to NLM. -->
+         <!-- Fresh for: 1 month -->
+    </body>
+</html>

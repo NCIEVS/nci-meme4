@@ -1,0 +1,140 @@
+
+<html>
+<head>
+   <title>MEME Tables Documentation - sg_molecular_actions</title>
+</head>
+<body text="#000000" bgcolor="#FFFFFF" link="#3333FF" vlink="#999999" alink="#FF0000">
+
+<center>
+<h2>
+MEME Tables - <tt>sg_molecular_actions</tt></h2></center>
+
+<hr><i>Following is a description of </i><tt>sg_molecular_actions</tt><i> and its fields</i>
+<br>&nbsp;
+
+    <p>
+	
+	<!-- sg_molecular_actions -->
+
+    <a name="sg_molecular_actions">
+    <center>
+      <table border="0" width="90%">
+        <tr><td valign="top" width="20%"><font size="-1"><b>Table name:</b></font></td><td valign="top" width="80%"><b><tt>sg_molecular_actions</tt></b></td></tr>
+        <tr><td valign="top"><font size="-1"><b>Description:</b></font></td><td valign="top"><font size="-1">Not currently used. This table was envisioned as a parallel to <a href="molecular_actions.html"><tt>molecular_actions</tt></a> for integrated vocabulary development (editing of sources within the <i>MID</i>).</font></td></tr>
+        <tr><td valign="top"><font size="-1"><b>Fields:</b></font></td><td valign="top">
+	    <table border="1" cellpadding="2" width="90%">
+
+	<tr><td width="20%" valign="top"><tt>transaction_id</tt></td>
+	    <td width="20%" valign="top"><font size="-1"><b>NUMBER(12)</b></font></td>
+ 	    <td width="60%" valign="top"><font size="-1">must be in <a href="molecular_actions.html"><tt>molecular_actions.transaction_id</tt></a>&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>molecule_id</tt></td>
+	    <td width="20%" valign="top"><font size="-1"><b>NUMBER(12)</b></font></td>
+ 	    <td width="60%" valign="top"><font size="-1">a unique identifier for each row, primary key&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>authority</tt></td>
+	    <td width="20%" valign="top"><font size="-1"><b>VARCHAR2(20)</b></font></td>
+ 	    <td width="60%" valign="top"><font size="-1">the authority responsible for this row, can be validated by <a href="/MEME/Documentation/plsql_mr.html#get_source_authority_rank"><tt>MEME_RANKS.get_source_authority_rank</tt></a>&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>timestamp</tt></td>
+	    <td width="20%" valign="top"><font size="-1"><b>DATE</b></font></td>
+ 	    <td width="60%" valign="top"><font size="-1">indicates when this row was inserted or last modified&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>molecular_action</tt></td>
+	    <td width="20%" valign="top"><font size="-1"><b>VARCHAR2(30)</b></font></td>
+ 	    <td width="60%" valign="top"><font size="-1">a code indicating the action performed, must be in <a href="code_map.html"><tt>code_map</tt></a> where the <tt>type='molecular_action'</tt>&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>source_sg_id</tt></td>
+	    <td width="20%" valign="top"><font size="-1"><b>VARCHAR2(50)</b></font></td>
+ 	    <td width="60%" valign="top"><font size="-1">a generic type if identifier, originally for <i>source group identifier</i>&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>source_sg_type</tt></td>
+	    <td width="20%" valign="top"><font size="-1"><b>VARCHAR2(50)</b></font></td>
+ 	    <td width="60%" valign="top"><font size="-1">a field indicating the type of an <tt>sg_id</tt>, valid values can be found in <a href="code_map.html"><tt>code_map.code</tt></a> where the <tt>type='sg_type'</tt>&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>source_sg_qualifier</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(50)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">some <tt>sg_types</tt> require two pieces of information, an id and a qualifier, e.g. for <tt>CODE_SOURCE</tt> it would be a source value&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>target_sg_id</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(50)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">a generic type if identifier, originally for <i>source group identifier</i>&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>target_sg_type</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(50)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">a field indicating the type of an <tt>sg_id</tt>, valid values can be found in <a href="code_map.html"><tt>code_map.code</tt></a> where the <tt>type='sg_type'</tt>&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>target_sg_qualifier</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(50)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">some <tt>sg_types</tt> require two pieces of information, an id and a qualifier, e.g. for <tt>CODE_SOURCE</tt> it would be a source value&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>undone</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(1)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">a <tt>Y</tt>/<tt>N</tt> flag indicating whether or not this action was undone&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>undone_by</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(20)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">the authority responsible for undoing this action, if <tt>undone='Y'</tt>&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>undone_when</tt></td>
+	    <td width="20%" valign="top"><font size="-1">DATE</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">the timestamp of the undoing of this action, if <tt>undone='Y'</tt>&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>status</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(1)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">must be in <a href="level_status_rank.html"><tt>level_status_rank.status</tt></a> where the <tt>table_name</tt> matches the code for this core table&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>elapsed_time</tt></td>
+	    <td width="20%" valign="top"><font size="-1">NUMBER(12)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">an integer number of seconds&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>work_id</tt></td>
+	    <td width="20%" valign="top"><font size="-1">NUMBER(12)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">must be either 0 or must be in <a href="meme_work.html"><tt>meme_work.work_id</tt></a>&nbsp;</font></td>
+	</tr>
+	    </table>
+        </td></tr>
+        <tr><td valign="top"><font size="-1"><b>Indexes:</b></font></td><td valign="top">
+
+	     <li><tt>sg_molecular_actions_pk ON molecule_id</tt></li>
+
+	     <li><tt>x_sgma_sid ON source_sg_id</tt></li>
+
+	     <li><tt>x_sgma_tid ON target_sg_id</tt></li>
+
+        </td></tr>
+
+      </table>
+    </center>
+    </p>
+
+<p>
+<hr WIDTH="100%">
+<table BORDER=0 COLS=2 WIDTH="100%" NOSAVE >
+<tr NOSAVE>
+<td ALIGN=LEFT VALIGN=TOP NOSAVE>
+<address>
+<a href="/MEME/">MEME Home</a></address>
+</td>
+
+<td ALIGN=RIGHT VALIGN=TOP NOSAVE>
+<address>
+<font size=-1>Contact: <a href="mailto:bcarlsen@apelon.com">Brian A. Carlsen</a></font></address>
+
+<address>
+<font size=-1>Created: 7/27/2001</font></address>
+
+<address>
+<font size=-1>Last Updated: 05/05/2003</font></address>
+
+</td>
+</tr>
+</table>
+
+</body>
+<!-- These comments are used by the What's new Generator -->
+<!-- Changed On: 2003/05/05 -->
+<!-- Changed by: Brian Carlsen -->
+<!-- Change Note: MEME Schema documentation - sg_molecular_actions  -->
+<!-- Fresh for: 1 month -->
+</html>

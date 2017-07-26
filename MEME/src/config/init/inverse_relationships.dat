@@ -1,0 +1,23 @@
+AQ|QB||allowed qualifier|AQ|1|
+BT|NT||is broader than|RB|1|
+CHD|PAR||child|CHD|1|
+LEX|LEX|||LEX|1|
+LFO|SFO|||LFO|1|
+LK|LK||is like|RL|1|
+NT|BT||is narrower than|RN|1|
+PAR|CHD||parent|PAR|1|
+QB|AQ||qualified by|QB|1|
+RT|RT||is related to|RO|1|
+RT?|RT?||maybe related to|RQ|1|
+SFO|LFO|||SFO|1|
+SFO/LFO|SFO/LFO||short form of/long form of|SY|1|
+SIB|SIB||sibling|SIB|1|
+SY|SY||is synonymous|SY|1|
+XR|XR||is not related to|XR|9|
+XS|XS||is not synonymous|XS|1|
+BT?|NT?||maybe broader than|BT?|1|
+NT?|BT?||maybe narrower than|NT?|1|
+BRT|BRT||is bequeathed as related|RO|1|
+BNT|BBT||is bequeathed as narrower|RN|1|
+BBT|BNT||is bequeathed as broader|RB|1|
+RU|RU|N|related, unspecified|RU|1|

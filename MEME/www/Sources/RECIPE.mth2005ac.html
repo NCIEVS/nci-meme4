@@ -1,0 +1,596 @@
+<html>
+    <head>
+      <title>RECIPE -- MTH2005AC</title>
+    </head>
+    <body>        <h2>Load Section</h2>
+        <ol>
+          <li>
+            <h3>Load Data into Core Tables</h3>
+            <p>source name : MTH2005AC<br>
+            <p>old source name : <br>
+            source language : ENG<br>
+            <ul>
+            <li>Concepts are being inserted.
+            <li>Atoms are being inserted.
+            <li>Attributes are being inserted.
+            <li>Relationships are being inserted.
+            </ul>
+          <br>
+          </li>
+          <li>
+            <h3>Ad Hoc Step</h3>
+            <p>
+              <pre>$ORACLE_HOME/bin/sqlplus -s $user@$db &lt;&lt;EOF &gt;&! /tmp/t.$$.log
+    set serveroutput on size 100000
+    set feedback off
+    ALTER SESSION SET sort_area_size=200000000;
+    ALTER SESSION SET hash_area_size=200000000;
+    WHENEVER SQLERROR EXIT -1
+
+    update classes set released='N'
+    where source in
+        (select low_source from source_source_rank);
+    update classes set released='N'
+    where atom_id in
+        (select atom_id from source_classes_atoms
+         where source not in
+             (select high_source from source_source_rank));
+
+EOF
+if ($status != 0) then
+    echo "Error running ad hoc step"
+    cat /tmp/t.$$.log
+    exit 1
+endif
+                </pre><br>
+          Comments: Update released 
+          <br>
+          </li>
+        </ol>
+        <h2>Update Merge Section</h2>
+        <ol>
+          <li>
+            <h3>Merge Step - mergefacts.src</h3>
+            <table ALIGN=CENTER WIDTH=90% BORDER=1 CELLSPACING=1 CELLPADDING=2>
+              <tr><th colspan=2>Merge Parameters</th></tr>
+              <tr>
+                <td><b>Merge Set:</b></td><td>MTH-SRC</td>
+              </tr>
+              <tr>
+                <td><b>Integrity Vector:</b></td><td>ALL</td>
+              </tr>
+              <tr>
+                <td><b>Demote:</b></td><td>Yes</td>
+              </tr>
+              <tr>
+                <td><b>Change Status:</b></td><td>No</td>
+              </tr>
+              <tr>
+                <td><b>Pre Insert:</b></td><td>N to N</td>
+              </tr>
+            </table>
+          <br>
+          </li>
+          <li>
+            <h3>Merge Step - mergefacts.src</h3>
+            <table ALIGN=CENTER WIDTH=90% BORDER=1 CELLSPACING=1 CELLPADDING=2>
+              <tr><th colspan=2>Merge Parameters</th></tr>
+              <tr>
+                <td><b>Merge Set:</b></td><td>META-CUI</td>
+              </tr>
+              <tr>
+                <td><b>Integrity Vector:</b></td><td>ALL</td>
+              </tr>
+              <tr>
+                <td><b>Demote:</b></td><td>Yes</td>
+              </tr>
+              <tr>
+                <td><b>Change Status:</b></td><td>Yes</td>
+              </tr>
+              <tr>
+                <td><b>Pre Insert:</b></td><td>N to N</td>
+              </tr>
+            </table>
+          <br>
+          </li>
+          <li>
+           <h3>Ad Hoc Merge Step - Replace all termgroups</h3>
+
+            <table border="1" cellpadding="2" cellspacing="1" width="90%">
+              <tbody><tr><th colspan="2">Merge Parameters</th></tr>
+              <tr>
+
+                <td><b>Merge Set:</b></td><td>META-REPL</td>
+              </tr>
+              <tr>
+                <td><b>String Match:</b></td><td>NONE</td>
+              </tr>
+              <tr>
+                <td><b>Code Match:</b></td><td>NONE</td>
+
+              </tr>
+              <tr>
+                <td><b>Source AUI Match:</b></td><td>NONE</td>
+              </tr>
+              <tr>
+                <td><b>Source CUI Match:</b></td><td>NONE</td>
+              </tr>
+
+              <tr>
+                <td><b>Source DUI Match:</b></td><td>NONE</td>
+              </tr>
+              <tr>
+                <td><b>Term Type Match:</b></td><td>NONE</td>
+              </tr>
+              <tr>
+
+                <td><b>Source Termgroups:</b></td><td>META2005AC/* </td>
+              </tr>
+              <tr>
+                <td><b>Source Options:</b></td><td>                  <ul>
+                    <li>Use Exclude List</li>
+                    <li>Use Norm-Exclude List</li>
+
+                    <li>Include termgroups in list</li>
+                  </ul>
+                </td>
+              </tr>
+              <tr>
+                <td><b>Target Termgroups:</b></td><td>META2005AB/* </td>
+              </tr>
+
+              <tr>
+                <td><b>Target Options:</b></td><td>                  <ul>
+                    <li>Use Exclude List</li>
+                    <li>Use Norm-Exclude List</li>
+                    <li>Include termgroups in list</li>
+                  </ul>
+
+                </td>
+              </tr>
+              <tr>
+                <td><b>Integrity Vector:</b></td><td>ALL</td>
+              </tr>
+              <tr>
+                <td><b>Demote:</b></td><td>Yes</td>
+
+              </tr>
+              <tr>
+                <td><b>Change Status:</b></td><td>Yes</td>
+              </tr>
+              <tr>
+                <td><b>Pre Insert:</b></td><td>One to One</td>
+              </tr>
+
+              <tr>
+                <td><b>Comments:</b></td><td>AD HOC MERGE STEP based on last_release_cui: see script for details.  All integrity checks.<br>Merge all new termgroups with all old termgroups</td></tr>
+            </tbody></table>
+          <br>
+          </li>
+          <li>
+            <h3>Merge Step - mergefacts.src</h3>
+            <table ALIGN=CENTER WIDTH=90% BORDER=1 CELLSPACING=1 CELLPADDING=2>
+              <tr><th colspan=2>Merge Parameters</th></tr>
+              <tr>
+                <td><b>Merge Set:</b></td><td>META-MERGE</td>
+              </tr>
+              <tr>
+                <td><b>Integrity Vector:</b></td><td>ALL</td>
+              </tr>
+              <tr>
+                <td><b>Demote:</b></td><td>Yes</td>
+              </tr>
+              <tr>
+                <td><b>Change Status:</b></td><td>Yes</td>
+              </tr>
+              <tr>
+                <td><b>Pre Insert:</b></td><td>None</td>
+              </tr>
+            </table>
+          <br>
+          </li>
+
+<li>
+    <h3>Merge Step - Replace all termgroups</h3>
+
+            <table border="1" cellpadding="2" cellspacing="1" width="90%">
+              <tbody><tr><th colspan="2">Merge Parameters</th></tr>
+              <tr>
+
+                <td><b>Merge Set:</b></td><td>NCI-MERGE</td>
+              </tr>
+              <tr>
+                <td><b>String Match:</b></td><td>NONE</td>
+              </tr>
+              <tr>
+                <td><b>Code Match:</b></td><td>NONE</td>
+
+              </tr>
+              <tr>
+                <td><b>Source AUI Match:</b></td><td>NONE</td>
+              </tr>
+              <tr>
+                <td><b>Source CUI Match:</b></td><td>NONE</td>
+              </tr>
+
+              <tr>
+                <td><b>Source DUI Match:</b></td><td>NONE</td>
+              </tr>
+              <tr>
+                <td><b>Term Type Match:</b></td><td>NONE</td>
+              </tr>
+              <tr>
+
+                <td><b>Source Termgroups:</b></td><td>MTH2005AB/* </td>
+              </tr>
+              <tr>
+                <td><b>Source Options:</b></td><td>                  <ul>
+                    <li>Use Exclude List</li>
+                    <li>Use Norm-Exclude List</li>
+
+                    <li>Include termgroups in list</li>
+                  </ul>
+                </td>
+              </tr>
+              <tr>
+                <td><b>Target Termgroups:</b></td><td>MTH2005AB/* </td>
+              </tr>
+
+              <tr>
+                <td><b>Target Options:</b></td><td>                  <ul>
+                    <li>Use Exclude List</li>
+                    <li>Use Norm-Exclude List</li>
+                    <li>Include termgroups in list</li>
+                  </ul>
+
+                </td>
+              </tr>
+              <tr>
+                <td><b>Integrity Vector:</b></td><td>None</td>
+              </tr>
+              <tr>
+                <td><b>Demote:</b></td><td>Yes</td>
+
+              </tr>
+              <tr>
+                <td><b>Change Status:</b></td><td>Yes</td>
+              </tr>
+              <tr>
+                <td><b>Pre Insert:</b></td><td>None</td>
+              </tr>
+
+              <tr>
+                <td><b>Comments:</b></td><td>Find UMLS CUI "pure merges" from previous NCI editing and allow these to merge without integrity checks.  See script for details.</td></tr>
+            </tbody></table>
+          <br>
+          </li>
+<li>
+    <h3>Merge Step - Replace all termgroups</h3>
+
+            <table border="1" cellpadding="2" cellspacing="1" width="90%">
+              <tbody><tr><th colspan="2">Merge Parameters</th></tr>
+              <tr>
+
+                <td><b>Merge Set:</b></td><td>NCI-MERGE2</td>
+              </tr>
+              <tr>
+                <td><b>String Match:</b></td><td>NONE</td>
+              </tr>
+              <tr>
+                <td><b>Code Match:</b></td><td>NONE</td>
+
+              </tr>
+              <tr>
+                <td><b>Source AUI Match:</b></td><td>NONE</td>
+              </tr>
+              <tr>
+                <td><b>Source CUI Match:</b></td><td>NONE</td>
+              </tr>
+
+              <tr>
+                <td><b>Source DUI Match:</b></td><td>NONE</td>
+              </tr>
+              <tr>
+                <td><b>Term Type Match:</b></td><td>NONE</td>
+              </tr>
+              <tr>
+
+                <td><b>Source Termgroups:</b></td><td>MTH2005AC/* </td>
+              </tr>
+              <tr>
+                <td><b>Source Options:</b></td><td>                  <ul>
+                    <li>Use Exclude List</li>
+                    <li>Use Norm-Exclude List</li>
+
+                    <li>Include termgroups in list</li>
+                  </ul>
+                </td>
+              </tr>
+              <tr>
+                <td><b>Target Termgroups:</b></td><td>MTH2005AC/* </td>
+              </tr>
+
+              <tr>
+                <td><b>Target Options:</b></td><td>                  <ul>
+                    <li>Use Exclude List</li>
+                    <li>Use Norm-Exclude List</li>
+                    <li>Include termgroups in list</li>
+                  </ul>
+
+                </td>
+              </tr>
+              <tr>
+                <td><b>Integrity Vector:</b></td><td>ALL minus MGV_E, MGV_A4</td>
+              </tr>
+              <tr>
+                <td><b>Demote:</b></td><td>Yes</td>
+
+              </tr>
+              <tr>
+                <td><b>Change Status:</b></td><td>Yes</td>
+              </tr>
+              <tr>
+                <td><b>Pre Insert:</b></td><td>One to One</td>
+              </tr>
+
+              <tr>
+                <td><b>Comments:</b></td><td>One time mergeset for resolving NCI SNOMEDCT editing.  See script for details. </td></tr>
+            </tbody></table>
+          <br>
+          </li>
+        </ol>
+        <h2>New Merge Section</h2>
+        <ol>
+          <li>
+            <h3>Ad Hoc Step</h3>
+            <p>
+              <pre>echo "    Update releasability ...`/bin/date`"
+
+#
+# Update releasability
+#
+
+foreach value (`$MEME_HOME/bin/dump_table.pl -u $user -d $db -q "select a.high_source,a.low_source,b.stripped_source from source_source_rank a, source_rank b where a.low_source=b.source and a.stripped_source=b.stripped_source"`)
+    set ns=`echo $value | perl -ne 'split /\|/; print "$_[0]\n";'`
+    set os=`echo $value | perl -ne 'split /\|/; print "$_[1]\n";'`
+    set ss=`echo $value | perl -ne 'chop;split /\|/; print "$_[2]\n";'`
+
+    echo "    Update Releasability ($os)...`/bin/date`"
+
+    $ORACLE_HOME/bin/sqlplus -s $user@$db &lt;&lt;EOF &gt;&! /tmp/t.$$.log
+        WHENEVER SQLERROR EXIT -2
+        set serveroutput on size 100000  
+        set feedback off
+        ALTER SESSION SET sort_area_size=200000000;
+        ALTER SESSION SET hash_area_size=200000000;
+        exec MEME_SOURCE_PROCESSING.update_releasability (-
+            old_source =&gt; '$os', -
+            new_source =&gt; '$ns', -
+            authority =&gt; '$authority', -
+            new_value =&gt; 'n', -
+            work_id =&gt; $work_id );
+EOF
+    if ($status != 0) then
+        echo "Error updating releasability"
+        cat /tmp/t.$$.log   
+        exit 1
+    endif
+
+end</pre><br>
+          Comments: Update releasability
+          <br>
+          </li>
+          <li>
+            <h3>Ad Hoc Step</h3>
+            <p>
+              <pre>echo "    Ad hoc step (A)... `/bin/date`"
+$ORACLE_HOME/bin/sqlplus -s $user@$db &lt;&lt;EOF &gt;&! /tmp/t.$$.log
+    set serveroutput on size 100000
+    set feedback off
+    ALTER SESSION SET sort_area_size=200000000;
+    ALTER SESSION SET hash_area_size=200000000;
+    WHENEVER SQLERROR EXIT -1
+
+    exec MEME_UTILITY.drop_it('table','tbac');
+    create table tbac as
+    select a.atom_id as old, b.atom_id as new
+    from classes a, source_classes_atoms b
+    where a.aui = b.aui
+    and b.source not in (select high_source from source_source_rank)
+    and a.atom_id != b.atom_id;
+
+    exec MEME_UTILITY.drop_it('table','tbac2');
+    create table tbac2 as
+    select attribute_id as row_id, old as old_value, new as new_value
+    from attributes a, tbac b
+    where attribute_level='S'
+    and a.atom_id = old;
+
+EOF
+if ($status != 0) then
+    echo "Error creating tables for ad hoc step"
+    cat /tmp/t.$$.log
+    exit 1
+endif
+
+$MEME_HOME/bin/batch.pl -a=A -t=A -s=t tbac2 $db $authority
+
+echo "    Ad hoc step (R1)... `/bin/date`"
+$ORACLE_HOME/bin/sqlplus -s $user@$db &lt;&lt;EOF &gt;&! /tmp/t.$$.log
+    set serveroutput on size 100000
+    set feedback off
+    ALTER SESSION SET sort_area_size=200000000;
+    ALTER SESSION SET hash_area_size=200000000;
+    WHENEVER SQLERROR EXIT -1
+
+    exec MEME_UTILITY.drop_it('table','tbac2');
+    create table tbac2 as
+    select relationship_id as row_id, old as old_value, new as new_value
+    from relationships a, tbac b
+    where relationship_level='S'
+    and a.atom_id_1 = old;
+
+EOF
+if ($status != 0) then
+    echo "Error creating tables for ad hoc step"
+    cat /tmp/t.$$.log
+    exit 1
+endif
+
+$MEME_HOME/bin/batch.pl -a=A -t=R -s=t tbac2 $db $authority
+
+
+echo "    Ad hoc step (R2)... `/bin/date`"
+$ORACLE_HOME/bin/sqlplus -s $user@$db &lt;&lt;EOF &gt;&! /tmp/t.$$.log
+    set serveroutput on size 100000
+    set feedback off
+    ALTER SESSION SET sort_area_size=200000000;
+    ALTER SESSION SET hash_area_size=200000000;
+    WHENEVER SQLERROR EXIT -1
+
+    exec MEME_UTILITY.drop_it('table','tbac2');
+    create table tbac2 as
+    select relationship_id as row_id, old as old_value, new as new_value
+    from relationships a, tbac b
+    where relationship_level='S'
+    and a.atom_id_2 = old;
+
+EOF
+if ($status != 0) then
+    echo "Error creating tables for ad hoc step"
+    cat /tmp/t.$$.log
+    exit 1
+endif
+
+$MEME_HOME/bin/batch.pl -a=A -t=R -s=t tbac2 $db $authority
+
+
+echo "    Ad hoc step (CR1)... `/bin/date`"
+$ORACLE_HOME/bin/sqlplus -s $user@$db &lt;&lt;EOF &gt;&! /tmp/t.$$.log
+    set serveroutput on size 100000
+    set feedback off
+    ALTER SESSION SET sort_area_size=200000000;
+    ALTER SESSION SET hash_area_size=200000000;
+    WHENEVER SQLERROR EXIT -1
+
+    exec MEME_UTILITY.drop_it('table','tbac2');
+    create table tbac2 as
+    select relationship_id as row_id, old as old_value, new as new_value
+    from context_relationships a, tbac b
+    where relationship_level='S'
+    and a.atom_id_1 = old;
+
+EOF
+if ($status != 0) then
+    echo "Error creating tables for ad hoc step"
+    cat /tmp/t.$$.log
+    exit 1
+endif
+
+$MEME_HOME/bin/batch.pl -a=A -t=CR -s=t tbac2 $db $authority
+
+
+echo "    Ad hoc step (CR2)... `/bin/date`"
+$ORACLE_HOME/bin/sqlplus -s $user@$db &lt;&lt;EOF &gt;&! /tmp/t.$$.log
+    set serveroutput on size 100000
+    set feedback off
+    ALTER SESSION SET sort_area_size=200000000;
+    ALTER SESSION SET hash_area_size=200000000;
+    WHENEVER SQLERROR EXIT -1
+
+    exec MEME_UTILITY.drop_it('table','tbac2');
+    create table tbac2 as
+    select relationship_id as row_id, old as old_value, new as new_value
+    from context_relationships a, tbac b
+    where relationship_level='S'
+    and a.atom_id_2 = old;
+
+EOF
+if ($status != 0) then
+    echo "Error creating tables for ad hoc step"
+    cat /tmp/t.$$.log
+    exit 1
+endif
+
+$MEME_HOME/bin/batch.pl -a=A -t=CR -s=t tbac2 $db $authority</pre><br>
+          Comments: Move atts,rels,context rels
+          <br>
+          </li>
+        </ol>
+        <h2>Post-Merge Section</h2>
+        <ol>
+          <li>
+            <h3>Resolve Semantic Types</h3>
+            <table ALIGN=CENTER WIDTH=90% BORDER=1 CELLSPACING=1 CELLPADDING=2>
+              <tr><td><b>Sources:</b></td><td>
+                   MTH2005AC
+              </tr>
+              <tr><td><b>Win or Lose:</b></td><td>
+                 Win</td></tr>
+            </table>
+          <br>
+          </li>
+          <li>
+            <h3>Ad Hoc Step</h3>
+            <p>
+              <pre>#
+# Update releasability
+#
+
+#foreach value (`$MEME_HOME/bin/dump_table.pl -u $user -d $db -q "select a.high_source,a.low_source,b.stripped_source from source_source_rank a, source_rank b where a.low_source=b.source and a.stripped_source=b.stripped_source"`)
+#    set ns=`echo $value | perl -ne 'split /\|/; print "$_[0]\n";'`
+#    set os=`echo $value | perl -ne 'split /\|/; print "$_[1]\n";'`
+#    set ss=`echo $value | perl -ne 'chop;split /\|/; print "$_[2]\n";'`
+
+#    echo "    Update Releasability ($os)...`/bin/date`"
+
+#    $ORACLE_HOME/bin/sqlplus -s $user@$db &lt;&lt;EOF &gt;&! /tmp/t.$$.log
+#        WHENEVER SQLERROR EXIT -2
+#        set serveroutput on size 100000  
+#        set feedback off
+#        ALTER SESSION SET sort_area_size=200000000;
+#        ALTER SESSION SET hash_area_size=200000000;
+#        exec MEME_SOURCE_PROCESSING.update_releasability (-
+#            old_source =&gt; '$os', -
+#            new_source =&gt; '$ns', -
+#            authority =&gt; '$authority', -
+#            new_value =&gt; 'n', -
+#            work_id =&gt; $work_id );
+#EOF
+#    if ($status != 0) then
+#        echo "Error updating releasability"
+#        cat /tmp/t.$$.log   
+#        exit 1
+#    endif
+
+#end</pre><br>
+          Comments: update releasability
+          <br>
+          </li>
+          <li>
+            <h3>Standard Post Merge Steps</h3>
+            <table ALIGN=CENTER WIDTH=90% BORDER=1 CELLSPACING=1 CELLPADDING=2>
+              <tr>
+                <td><b>Map sg and obsolete relationships. </b></td></tr>
+              <tr>
+                <td><b>Update String/Word Indexes</b></td></tr>
+              <tr>
+                <td><b>Run matrix initializer</b></td></tr>
+              <tr>
+                <td><b>Assign CUIs</b></td></tr>
+              <tr>
+                <td><b>Generate standard report tables</b></td></tr>
+              <tr>
+                <td><b>Set Core Table Ranks</b></td></tr>
+              </table>
+          <br>
+          </li>
+        </ol>
+        <p>
+         <!-- These comments are used by the What's new Generator -->
+         <!-- Changed On: 2006/01/16 -->
+         <!-- Changed by: MEME Team -->
+         <!-- Change Note: This page moved to NLM. -->
+         <!-- Fresh for: 1 month -->
+    </body>
+</html>

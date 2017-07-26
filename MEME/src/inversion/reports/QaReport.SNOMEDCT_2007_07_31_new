@@ -1,0 +1,906 @@
+
+File: Source	Field: SrcName <1>
+    Field Stats:<recs, min, max, avg, NF> = <1, 19, 19, 19.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	SNOMEDCT_2007_07_31 => 1
+
+
+File: Source	Field: LowSrc <2>
+    Field Stats:<recs, min, max, avg, NF> = <1, 19, 19, 19.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	SNOMEDCT_2007_01_31 => 1
+
+
+File: Source	Field: RestrictionLvl <3>
+    Field Stats:<recs, min, max, avg, NF> = <1, 1, 1, 1.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	4 => 1
+
+
+File: Source	Field: NormSrc <4>
+    Field Stats:<recs, min, max, avg, NF> = <1, 19, 19, 19.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	SNOMEDCT_2007_07_31 => 1
+
+
+File: Source	Field: StrpSrc <5>
+    Field Stats:<recs, min, max, avg, NF> = <1, 8, 8, 8.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	SNOMEDCT => 1
+
+
+File: Source	Field: Version <6>
+    Field Stats:<recs, min, max, avg, NF> = <1, 10, 10, 10.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	2007_07_31 => 1
+
+
+File: Source	Field: SrcFamily <7>
+    Field Stats:<recs, min, max, avg, NF> = <1, 8, 8, 8.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	SNOMEDCT => 1
+
+
+File: Source	Field: OffcialName <8>
+    Field Stats:<recs, min, max, avg, NF> = <1, 21, 21, 21.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	SNOMED Clinical Terms => 1
+
+
+File: Source	Field: NLMContact <9>
+    Field Stats:<recs, min, max, avg, NF> = <1, 15, 15, 15.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+
+File: Source	Field: AcqContact <10>
+    Field Stats:<recs, min, max, avg, NF> = <1, 0, 0, 0.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 1, 0, 0, 0, 0, 0>
+    Errors
+	**** Vmin_1_10 => 
+	**** VnullFlds_1_10 => 
+    Tally Field:
+	 => 1
+
+
+File: Source	Field: ContentContact <11>
+    Field Stats:<recs, min, max, avg, NF> = <1, 17, 17, 17.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	spackman@ohsu.edu => 1
+
+
+File: Source	Field: LicContact <12>
+    Field Stats:<recs, min, max, avg, NF> = <1, 0, 0, 0.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+	**** VnullFlds_1_12 => 
+    Tally Field:
+	 => 1
+
+
+File: Source	Field: Inverter <13>
+    Field Stats:<recs, min, max, avg, NF> = <1, 16, 16, 16.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	olson@apelon.com => 1
+
+
+File: Source	Field: ContextType <14>
+    Field Stats:<recs, min, max, avg, NF> = <1, 10, 10, 10.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	FULL-NOSIB => 1
+
+
+File: Source	Field: URL <15>
+    Field Stats:<recs, min, max, avg, NF> = <1, 21, 21, 21.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	http://www.snomed.org => 1
+
+
+File: Source	Field: Language <16>
+    Field Stats:<recs, min, max, avg, NF> = <1, 3, 3, 3.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	ENG => 1
+
+
+File: Source	Field: Citation <17>
+    Field Stats:<recs, min, max, avg, NF> = <1, 234, 234, 234.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	College of American Pathologists, SNOMED Clinical Terms. SNOMED International, 325 Waukegan Road, Northfield, IL 60093-2750. Phone: 800-323-4040 ext. 7700. Email: snomed@cap.org. Release Date: July 31, 2007. URL: http://www.snomed.org => 1
+
+
+File: Source	Field: LicInfo <18>
+    Field Stats:<recs, min, max, avg, NF> = <1, 0, 0, 0.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+	**** VnullFlds_1_18 => 
+    Tally Field:
+	 => 1
+
+
+File: Source	Field: CharSet <19>
+    Field Stats:<recs, min, max, avg, NF> = <1, 5, 5, 5.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	UTF-8 => 1
+
+
+File: Source	Field: RelDirFlag <20>
+    Field Stats:<recs, min, max, avg, NF> = <1, 1, 1, 1.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	Y => 1
+
+End of Sources check
+=======================
+
+
+File: Termgroup	Field: Source <1>
+    Field Stats:<recs, min, max, avg, NF> = <19, 22, 28, 24.105, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	SNOMEDCT_2007_07_31/FN => 1
+	SNOMEDCT_2007_07_31/IS => 1
+	SNOMEDCT_2007_07_31/MTH_FN => 1
+	SNOMEDCT_2007_07_31/MTH_IS => 1
+	SNOMEDCT_2007_07_31/MTH_OF => 1
+	SNOMEDCT_2007_07_31/MTH_OP => 1
+	SNOMEDCT_2007_07_31/MTH_PT => 1
+	SNOMEDCT_2007_07_31/MTH_PTGB => 1
+	SNOMEDCT_2007_07_31/MTH_SY => 1
+	SNOMEDCT_2007_07_31/MTH_SYGB => 1
+	SNOMEDCT_2007_07_31/OB => 1
+	SNOMEDCT_2007_07_31/OF => 1
+	SNOMEDCT_2007_07_31/OP => 1
+	SNOMEDCT_2007_07_31/PT => 1
+	SNOMEDCT_2007_07_31/PTGB => 1
+	SNOMEDCT_2007_07_31/SB => 1
+	SNOMEDCT_2007_07_31/SY => 1
+	SNOMEDCT_2007_07_31/SYGB => 1
+	SNOMEDCT_2007_07_31/XM => 1
+
+
+    Errors:
+End of Termgroups check
+=======================
+
+
+File: Atom	Field: SrcAtomId <1>
+    Field Stats:<recs, min, max, avg, NF> = <1068727, 9, 9, 9.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+
+File: Atom	Field: Source <2>
+    Field Stats:<recs, min, max, avg, NF> = <1068727, 3, 19, 19.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	SNOMEDCT_2007_07_31 => 1068724
+	SRC => 3
+
+
+File: Atom	Field: TermGroup <3>
+    Field Stats:<recs, min, max, avg, NF> = <1068727, 7, 28, 22.086, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	SNOMEDCT_2007_07_31/FN => 310311
+	SNOMEDCT_2007_07_31/IS => 68555
+	SNOMEDCT_2007_07_31/MTH_FN => 3170
+	SNOMEDCT_2007_07_31/MTH_IS => 130
+	SNOMEDCT_2007_07_31/MTH_OF => 278
+	SNOMEDCT_2007_07_31/MTH_OP => 472
+	SNOMEDCT_2007_07_31/MTH_PT => 3160
+	SNOMEDCT_2007_07_31/MTH_PTGB => 136
+	SNOMEDCT_2007_07_31/MTH_SY => 932
+	SNOMEDCT_2007_07_31/MTH_SYGB => 19
+	SNOMEDCT_2007_07_31/OB => 1152
+	SNOMEDCT_2007_07_31/OF => 118564
+	SNOMEDCT_2007_07_31/OP => 81792
+	SNOMEDCT_2007_07_31/PT => 310311
+	SNOMEDCT_2007_07_31/PTGB => 21612
+	SNOMEDCT_2007_07_31/SB => 2
+	SNOMEDCT_2007_07_31/SY => 140303
+	SNOMEDCT_2007_07_31/SYGB => 7824
+	SNOMEDCT_2007_07_31/XM => 1
+	SRC/VAB => 1
+	SRC/VPT => 1
+	SRC/VSY => 1
+
+
+File: Atom	Field: Code <4>
+    Field Stats:<recs, min, max, avg, NF> = <1068727, 6, 21, 8.665, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+
+File: Atom	Field: Status <5>
+    Field Stats:<recs, min, max, avg, NF> = <1068727, 1, 1, 1.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	N => 1068727
+
+
+File: Atom	Field: TobeReleased <6>
+    Field Stats:<recs, min, max, avg, NF> = <1068727, 1, 1, 1.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	Y => 1068727
+
+
+File: Atom	Field: Released <7>
+    Field Stats:<recs, min, max, avg, NF> = <1068727, 1, 1, 1.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	N => 1068727
+
+
+File: Atom	Field: Name <8>
+    Field Stats:<recs, min, max, avg, NF> = <1068727, 1, 289, 35.514, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 1501, 0, 0, 0, 0, 0>
+    Errors
+	**** Vmin_112458678_8 => Rib
+	**** Vmin_112464195_8 => MRI
+	**** Vmin_112465490_8 => PLT
+	**** Vmin_112479725_8 => VTD
+	**** Vmin_112552824_8 => Fit
+	**** Vmin_112553658_8 => Tic
+	**** Vmin_112554682_8 => Fly
+	**** Vmin_112562596_8 => HVT
+	**** Vmin_112607704_8 => Awn
+	**** Vmin_112609433_8 => Uta
+
+File: Atom	Field: Suppressible <9>
+    Field Stats:<recs, min, max, avg, NF> = <1068727, 1, 1, 1.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	N => 797784
+	O => 270943
+
+
+File: Atom	Field: SAUI <10>
+    Field Stats:<recs, min, max, avg, NF> = <1068727, 0, 10, 9.052, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+
+File: Atom	Field: SCUI <11>
+    Field Stats:<recs, min, max, avg, NF> = <1068727, 0, 9, 8.665, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+	**** VnullFlds_112455001_11 => 
+
+File: Atom	Field: SDUI <12>
+    Field Stats:<recs, min, max, avg, NF> = <1068727, 0, 0, 0.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+
+File: Atom	Field: Lang <13>
+    Field Stats:<recs, min, max, avg, NF> = <1068727, 3, 3, 3.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	ENG => 1068727
+
+
+File: Atom	Field: OrderId <14>
+    Field Stats:<recs, min, max, avg, NF> = <1068727, 1, 8, 7.698, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+
+File: Atom	Field: LRCUI <15>
+    Field Stats:<recs, min, max, avg, NF> = <1068727, 0, 0, 0.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+
+Valid sources are :
+	SRC
+	SNOMEDCT_2007_07_31
+Valid termgroups are :
+	SNOMEDCT_2007_07_31/MTH_IS
+	SNOMEDCT_2007_07_31/MTH_PTGB
+	SNOMEDCT_2007_07_31/MTH_SY
+	SNOMEDCT_2007_07_31/MTH_FN
+	SNOMEDCT_2007_07_31/SY
+	SNOMEDCT_2007_07_31/SB
+	SRC/RAB
+	SNOMEDCT_2007_07_31/SYGB
+	SRC/SSN
+	SNOMEDCT_2007_07_31/OB
+	SRC/VSY
+	SNOMEDCT_2007_07_31/PTGB
+	SNOMEDCT_2007_07_31/XM
+	SRC/RHT
+	SNOMEDCT_2007_07_31/MTH_OF
+	SNOMEDCT_2007_07_31/FN
+	SNOMEDCT_2007_07_31/IS
+	SRC/RPT
+	SNOMEDCT_2007_07_31/PT
+	SRC/VPT
+	SRC/RSY
+	SRC/VAB
+	SNOMEDCT_2007_07_31/MTH_SYGB
+	SNOMEDCT_2007_07_31/MTH_PT
+	SNOMEDCT_2007_07_31/MTH_OP
+	SNOMEDCT_2007_07_31/OF
+	SNOMEDCT_2007_07_31/OP
+File: Atoms
+
+    Errors
+UTF Counts:
+	161	3
+	162	1
+	163	30
+	164	15
+	165	3
+	166	3
+	167	38
+	168	57
+	169	261
+	170	5
+	171	14
+	174	4
+	175	1
+	177	15
+	179	9
+	180	2
+	181	12
+	182	102
+	184	6
+	188	79
+	194	19
+	195	680
+	226	2
+	339	3
+	732	6
+	769	2
+	771	6
+	772	1
+	776	57
+	807	6
+	8230	3
+	8240	1
+	8260	79
+	8364	2
+	8482	2
+
+	Min/Max saids: <112455001, 113523727>
+End of Atoms check
+#=================
+
+
+File: Attribute	Field: SrcAttrId <1>
+    Field Stats:<recs, min, max, avg, NF> = <13980738, 1, 8, 7.205, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+
+File: Attribute	Field: Id <2>
+    Field Stats:<recs, min, max, avg, NF> = <13980738, 6, 10, 9.088, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+
+File: Attribute	Field: AttrLevel <3>
+    Field Stats:<recs, min, max, avg, NF> = <13980738, 1, 1, 1.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+
+File: Attribute	Field: Name <4>
+    Field Stats:<recs, min, max, avg, NF> = <13980738, 2, 23, 13.147, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	AQ => 309999
+	CHARACTERISTICTYPE => 1359435
+	COMPONENTHISTORY => 1823811
+	CONCEPTSTATUS => 376046
+	CONTEXT => 1646278
+	CTV3ID => 376046
+	DESCRIPTIONSTATUS => 1060424
+	DESCRIPTIONTYPE => 1060424
+	FROMRSAB => 1
+	FROMVSAB => 1
+	INITIALCAPITALSTATUS => 1060424
+	ISPRIMITIVE => 376046
+	LANGUAGECODE => 1060424
+	MAPSETNAME => 1
+	MAPSETREALMID => 1
+	MAPSETRSAB => 1
+	MAPSETRULETYPE => 1
+	MAPSETSCHEMEID => 1
+	MAPSETSCHEMENAME => 1
+	MAPSETSCHEMEVERSION => 1
+	MAPSETSEPARATORCODE => 1
+	MAPSETSID => 1
+	MAPSETTYPE => 1
+	MAPSETVERSION => 1
+	MAPSETVSAB => 1
+	MAPSETXRTARGETID => 1
+	MTH_MAPFROMCOMPLEXITY => 1
+	MTH_MAPFROMEXHAUSTIVE => 1
+	MTH_MAPSETCOMPLEXITY => 1
+	MTH_MAPTOCOMPLEXITY => 1
+	MTH_MAPTOEXHAUSTIVE => 1
+	MTH_UMLSMAPSETSEPARATOR => 1
+	REFINABILITY => 1359435
+	SEMANTIC_TYPE => 1
+	SNOMEDID => 376046
+	SOS => 1
+	SUBSETCONTEXTID => 2
+	SUBSETLANGUAGECODE => 2
+	SUBSETMEMBER => 1521829
+	SUBSETORIGINALID => 2
+	SUBSETREALMID => 2
+	SUBSETTYPE => 2
+	SUBSETVERSION => 2
+	TARGETSCHEMEID => 1
+	TORSAB => 1
+	TOVSAB => 1
+	UMLSREL => 66
+	UMLSRELA => 66
+	XMAP => 99635
+	XMAPFROM => 99635
+	XMAPTO => 14631
+
+
+File: Attribute	Field: Value <5>
+    Field Stats:<recs, min, max, avg, NF> = <13980738, 0, 1756, 69.669, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <1646279, 0, 0, 0, 0, 0, 0>
+    Errors
+	**** VnullFlds_5746021_5 => 
+
+File: Attribute	Field: Source <6>
+    Field Stats:<recs, min, max, avg, NF> = <13980738, 3, 19, 19.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	SNOMEDCT_2007_07_31 => 13980737
+	SRC => 1
+
+
+File: Attribute	Field: Status <7>
+    Field Stats:<recs, min, max, avg, NF> = <13980738, 1, 1, 1.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	R => 13980738
+
+
+File: Attribute	Field: ToBeReleased <8>
+    Field Stats:<recs, min, max, avg, NF> = <13980738, 1, 1, 1.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	Y => 12334460
+	n => 1646278
+
+
+File: Attribute	Field: Released <9>
+    Field Stats:<recs, min, max, avg, NF> = <13980738, 1, 1, 1.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	N => 13980738
+
+
+File: Attribute	Field: Suppressible <10>
+    Field Stats:<recs, min, max, avg, NF> = <13980738, 1, 1, 1.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	N => 13980738
+
+
+File: Attribute	Field: IdType <11>
+    Field Stats:<recs, min, max, avg, NF> = <13980738, 10, 15, 11.995, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	CODE_TERMGROUP => 213926
+	ROOT_SOURCE_CUI => 2360096
+	ROOT_SOURCE_RUI => 2718870
+	SOURCE_AUI => 7041567
+	SRC_ATOM_ID => 1646279
+
+
+File: Attribute	Field: IdQualifier <12>
+    Field Stats:<recs, min, max, avg, NF> = <13980738, 0, 22, 12.812, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	 => 1646279
+	SNOMEDCT => 5078966
+	SNOMEDCT_2007_07_31 => 7041567
+	SNOMEDCT_2007_07_31/XM => 213926
+
+
+File: Attribute	Field: ATUI <13>
+    Field Stats:<recs, min, max, avg, NF> = <13980738, 0, 0, 0.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+
+File: Attribute	Field: HashCode <14>
+    Field Stats:<recs, min, max, avg, NF> = <13980738, 32, 32, 32.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+File: Attributes
+
+    Errors:
+End of Attributes check
+=======================
+
+
+File: Relation	Field: SrcRelId <1>
+    Field Stats:<recs, min, max, avg, NF> = <937852, 1, 6, 5.882, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+
+File: Relation	Field: RelLevel <2>
+    Field Stats:<recs, min, max, avg, NF> = <937852, 1, 1, 1.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	S => 937852
+
+
+File: Relation	Field: Id1 <3>
+    Field Stats:<recs, min, max, avg, NF> = <937852, 3, 21, 8.462, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+
+File: Relation	Field: RelName <4>
+    Field Stats:<recs, min, max, avg, NF> = <937852, 2, 7, 2.059, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	BT => 912
+	NT => 100116
+	RT => 774544
+	RT? => 13482
+	SFO/LFO => 8298
+	SY => 40500
+
+
+File: Relation	Field: RelAttr <5>
+    Field Stats:<recs, min, max, avg, NF> = <937852, 5, 32, 14.525, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	associated_with => 1809
+	due_to => 2158
+	has_access => 40289
+	has_active_ingredient => 18961
+	has_approach => 3217
+	has_associated_finding => 2913
+	has_associated_morphology => 58667
+	has_associated_procedure => 1579
+	has_causative_agent => 22371
+	has_clinical_course => 68199
+	has_component => 9120
+	has_definitional_manifestation => 5737
+	has_direct_device => 3774
+	has_direct_morphology => 7997
+	has_direct_procedure_site => 33447
+	has_direct_substance => 4674
+	has_dose_form => 9126
+	has_episodicity => 68225
+	has_finding_context => 2227
+	has_finding_informer => 2497
+	has_finding_method => 8461
+	has_finding_site => 86403
+	has_focus => 3106
+	has_indirect_device => 67
+	has_indirect_morphology => 478
+	has_indirect_procedure_site => 8225
+	has_intent => 3636
+	has_interpretation => 5055
+	has_laterality => 16351
+	has_measurement_method => 40
+	has_method => 52825
+	has_occurrence => 8940
+	has_pathological_process => 246
+	has_priority => 53546
+	has_procedure_context => 1184
+	has_procedure_device => 191
+	has_procedure_morphology => 54
+	has_procedure_site => 5270
+	has_property => 90
+	has_recipient_category => 113
+	has_revision_status => 1127
+	has_route_of_administration => 51
+	has_scale_type => 49
+	has_severity => 68095
+	has_specimen => 1962
+	has_specimen_procedure => 508
+	has_specimen_source_identity => 48
+	has_specimen_source_morphology => 64
+	has_specimen_source_topography => 1346
+	has_specimen_substance => 238
+	has_subject_relationship_context => 3415
+	has_temporal_context => 3412
+	has_time_aspect => 1
+	has_version => 1
+	interprets => 25336
+	mapped_to => 69899
+	may_be_a => 28621
+	moved_to => 1151
+	mth_has_plain_text_form => 4456
+	mth_has_xml_form => 3842
+	occurs_after => 2200
+	part_of => 47502
+	replaced_by => 4433
+	same_as => 40500
+	uses_access_device => 1169
+	uses_device => 5177
+	uses_energy => 399
+	uses_substance => 1570
+	was_a => 12
+
+
+File: Relation	Field: Id2 <6>
+    Field Stats:<recs, min, max, avg, NF> = <937852, 6, 10, 8.701, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+
+File: Relation	Field: Source <7>
+    Field Stats:<recs, min, max, avg, NF> = <937852, 3, 19, 19.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	SNOMEDCT_2007_07_31 => 937851
+	SRC => 1
+
+
+File: Relation	Field: SourceOfLabel <8>
+    Field Stats:<recs, min, max, avg, NF> = <937852, 3, 19, 19.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	SNOMEDCT_2007_07_31 => 937851
+	SRC => 1
+
+
+File: Relation	Field: Status <9>
+    Field Stats:<recs, min, max, avg, NF> = <937852, 1, 1, 1.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	R => 937852
+
+
+File: Relation	Field: ToBeReleased <10>
+    Field Stats:<recs, min, max, avg, NF> = <937852, 1, 1, 1.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	Y => 937852
+
+
+File: Relation	Field: Released <11>
+    Field Stats:<recs, min, max, avg, NF> = <937852, 1, 1, 1.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	N => 937852
+
+
+File: Relation	Field: Suppressible <12>
+    Field Stats:<recs, min, max, avg, NF> = <937852, 1, 1, 1.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	N => 937852
+
+
+File: Relation	Field: IdType1 <13>
+    Field Stats:<recs, min, max, avg, NF> = <937852, 11, 20, 15.337, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	CODE_STRIPPED_SOURCE => 69899
+	CODE_TERMGROUP => 1
+	ROOT_SOURCE_CUI => 859654
+	SRC_ATOM_ID => 8298
+
+
+File: Relation	Field: IdQaulifier1 <14>
+    Field Stats:<recs, min, max, avg, NF> = <937852, 0, 8, 7.780, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	 => 8298
+	ICD9CM => 69899
+	SNOMEDCT => 859654
+	SRC/VPT => 1
+
+
+File: Relation	Field: IdType2 <15>
+    Field Stats:<recs, min, max, avg, NF> = <937852, 10, 15, 14.956, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	CODE_TERMGROUP => 1
+	ROOT_SOURCE_CUI => 929553
+	SOURCE_AUI => 8298
+
+
+File: Relation	Field: IdQaulifier2 <16>
+    Field Stats:<recs, min, max, avg, NF> = <937852, 7, 19, 8.097, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	SNOMEDCT => 929553
+	SNOMEDCT_2007_07_31 => 8298
+	SRC/RPT => 1
+
+
+File: Relation	Field: SourceRui <17>
+    Field Stats:<recs, min, max, avg, NF> = <937852, 0, 10, 9.016, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+
+File: Relation	Field: RelGroup <18>
+    Field Stats:<recs, min, max, avg, NF> = <937852, 0, 2, 0.917, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+File: Relations
+
+    Errors:
+	badDupRuis = 16366
+	**** VBadDupRuis_78216 => duplicate of 78207
+	**** VBadDupRuis_78228 => duplicate of 78219
+	**** VBadDupRuis_78625 => duplicate of 78624
+	**** VBadDupRuis_78645 => duplicate of 78644
+	**** VBadDupRuis_78789 => duplicate of 78788
+	**** VBadDupRuis_78904 => duplicate of 78903
+	**** VBadDupRuis_79004 => duplicate of 79003
+	**** VBadDupRuis_79305 => duplicate of 79304
+	**** VBadDupRuis_79607 => duplicate of 79606
+	**** VBadDupRuis_80465 => duplicate of 80464
+End of Relationships check
+==========================
+
+
+File: Merge	Field: Id1 <1>
+    Field Stats:<recs, min, max, avg, NF> = <1109213, 6, 21, 9.116, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+
+File: Merge	Field: MergeLevel <2>
+    Field Stats:<recs, min, max, avg, NF> = <1109213, 2, 2, 2.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	SY => 1109213
+
+
+File: Merge	Field: Id2 <3>
+    Field Stats:<recs, min, max, avg, NF> = <1109213, 6, 10, 8.669, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+
+File: Merge	Field: Source <4>
+    Field Stats:<recs, min, max, avg, NF> = <1109213, 3, 19, 19.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	SNOMEDCT_2007_07_31 => 1109211
+	SRC => 2
+
+
+File: Merge	Field: IntegrityVector <5>
+    Field Stats:<recs, min, max, avg, NF> = <1109213, 0, 0, 0.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+
+File: Merge	Field: MakeDemotion <6>
+    Field Stats:<recs, min, max, avg, NF> = <1109213, 1, 1, 1.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	N => 1109213
+
+
+File: Merge	Field: ChangeStatus <7>
+    Field Stats:<recs, min, max, avg, NF> = <1109213, 1, 1, 1.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	N => 1109213
+
+
+File: Merge	Field: MergeSet <8>
+    Field Stats:<recs, min, max, avg, NF> = <1109213, 11, 15, 13.073, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 1, 0, 0, 0>
+    Errors
+	**** VvalPat_790030_730033_SNOMEDCT-SB_8 => SNOMEDCT-SB
+    Tally Field:
+	SNOMEDCT-SAMEAS => 40500
+	SNOMEDCT-SB => 1
+	SNOMEDCT-SCUI => 1068700
+	SNOMEDCT-SRC => 2
+	SNOMEDCT-SRCRPT => 9
+	SNOMEDCT-SRCVPT => 1
+
+
+File: Merge	Field: IdType1 <9>
+    Field Stats:<recs, min, max, avg, NF> = <1109213, 10, 15, 10.190, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	CODE_TERMGROUP => 11
+	ROOT_SOURCE_CUI => 40500
+	SOURCE_AUI => 1060403
+	SRC_ATOM_ID => 8299
+
+
+File: Merge	Field: IdQual1 <10>
+    Field Stats:<recs, min, max, avg, NF> = <1109213, 0, 22, 18.456, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	 => 8299
+	SNOMEDCT => 40500
+	SNOMEDCT_2007_07_31 => 1060403
+	SNOMEDCT_2007_07_31/SB => 1
+	SRC/RPT => 9
+	SRC/VPT => 1
+
+
+File: Merge	Field: IdType2 <11>
+    Field Stats:<recs, min, max, avg, NF> = <1109213, 10, 15, 15.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	CODE_TERMGROUP => 1
+	ROOT_SOURCE_CUI => 1109200
+	SOURCE_AUI => 10
+	SRC_ATOM_ID => 2
+
+
+File: Merge	Field: IdQual2 <12>
+    Field Stats:<recs, min, max, avg, NF> = <1109213, 0, 22, 8.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	 => 2
+	SNOMEDCT => 1109200
+	SNOMEDCT_2007_01_31/SB => 1
+	SNOMEDCT_2007_07_31 => 10
+
+File: Merges
+
+    Errors:
+End of Merges check
+==========================
+

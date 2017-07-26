@@ -1,0 +1,56 @@
+<HTML>
+<HEAD>
+<TITLE>How to Change the Epoch</TITLE>
+</HEAD>
+
+<BODY>
+<H1>How to Change the Epoch</H1>
+
+(What is an <A HREF="/ems/doc/faq.html#2">epoch</A>?)
+
+<P>
+
+<UL>
+
+<P><LI>
+The epoch can now be changed in the EMS.
+
+<P><LI>
+Decide what the epoch is going to be called, e.g., 01a, etc.
+Names are conventionally 3 characters - the first two are the
+two-digit release year (last two chars of the MID name) followed
+by a lowercase alpha character, a, b, etc.  Thus for the MID
+with the TNS name <B>oa_mid2002</B> say, the first epoch will be <B>02a</B> and
+the next <B>02b</B>, etc.
+
+<P><LI>
+Ensure that the new epoch sorts after the previous one in ASCII order, e.g., 02b comes after 02a.
+
+<P><LI>
+Optional: set older epochs (say 98b) to inactive by using sqlplus (as meow):
+
+<FONT SIZE=-1>
+<PRE>
+
+UPDATE ems_current_editing_epoch SET active='N' WHERE epoch='98b';
+
+</PRE>
+</FONT>
+
+This controls which epochs show up in the WMS query menu.
+<P>
+You can also remove old worklist tables (for the epochs you have
+deemed inactive) from the database.  These worklists are tables in the
+database whose names have the prefix <EM>wrk&lt;epoch&gt;_</EM>.
+<P>
+But first ensure that these have been stamped/returned in
+the WMS and always check with Tammy/Laura.  I usually
+keep a whole year's worth in the DB.  Remember, worklists are
+also archived in UNIX and we have tapes.  So nothing is
+ever irretrievably lost.  I usually end up scripting
+this if there are more than a handful.
+</UL>
+
+</BODY>
+</HTML>
+

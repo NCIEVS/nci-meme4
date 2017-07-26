@@ -1,0 +1,293 @@
+<html>
+    <head>
+      <title>RECIPE -- PDQ2005_12</title>
+    </head>
+    <body>        <h2>Load Section</h2>
+        <ol>
+          <li>
+            <h3>Load Data into Core Tables</h3>
+            <p>source name : PDQ2005_12<br>
+            <p>old source name : PDQ2005<br>
+            source language : ENG<br>
+            <ul>
+            <li>Concepts are being inserted.
+            <li>Atoms are being inserted.
+            <li>Attributes are being inserted.
+            <li>Relationships are being inserted.
+            </ul>
+          <br>
+          </li>
+        </ol>
+        <h2>Update Merge Section</h2>
+        <ol>
+          <li>
+            <h3>Merge Step - mergefacts.src</h3>
+            <table ALIGN=CENTER WIDTH=90% BORDER=1 CELLSPACING=1 CELLPADDING=2>
+              <tr><th colspan=2>Merge Parameters</th></tr>
+              <tr>
+                <td><b>Merge Set:</b></td><td>PDQ-SRC</td>
+              </tr>
+              <tr>
+                <td><b>Integrity Vector:</b></td><td></td>
+              </tr>
+              <tr>
+                <td><b>Demote:</b></td><td>Yes</td>
+              </tr>
+              <tr>
+                <td><b>Change Status:</b></td><td>No</td>
+              </tr>
+              <tr>
+                <td><b>Pre Insert:</b></td><td>N to N</td>
+              </tr>
+            </table>
+          <br>
+          </li>
+          <li>
+            <h3>Merge Step - mergefacts.src</h3>
+            <table ALIGN=CENTER WIDTH=90% BORDER=1 CELLSPACING=1 CELLPADDING=2>
+              <tr><th colspan=2>Merge Parameters</th></tr>
+              <tr>
+                <td><b>Merge Set:</b></td><td>PDQ-SY</td>
+              </tr>
+              <tr>
+                <td><b>Integrity Vector:</b></td><td>ALL</td>
+              </tr>
+              <tr>
+                <td><b>Demote:</b></td><td>Yes</td>
+              </tr>
+              <tr>
+                <td><b>Change Status:</b></td><td>No</td>
+              </tr>
+              <tr>
+                <td><b>Pre Insert:</b></td><td>N to N</td>
+              </tr>
+            </table>
+          <br>
+          </li>
+          <li>
+            <h3>Insert a Binary Integrity Check</h3>
+              <table ALIGN=CENTER WIDTH=90% BORDER=1>
+               <tr>
+                <th>Name</th>
+                <th>Type 1</th>
+                <th>Value 1</th>
+                <th>Type 2</th>
+                <th>Value 2</th>
+                <th>Negation</th>
+               </tr><tr>
+                <td ALIGN=CENTER>MGV_K</td>
+                <td ALIGN=CENTER>SOURCE</td>
+                <td ALIGN=CENTER>PDQ2005_!2</td>
+                <td ALIGN=CENTER>SOURCE</td>
+                <td ALIGN=CENTER>PDQ2005</td>
+                <td ALIGN=CENTER>false</td>
+               </tr>
+              </table>
+          <br>
+          </li>
+          <li>
+            <h3>Merge Step - Replace all termgroups</h3>
+            <table WIDTH=90% BORDER=1 CELLSPACING=1 CELLPADDING=2>
+              <tr><th colspan=2>Merge Parameters</th></tr>
+              <tr>
+                <td><b>Merge Set:</b></td><td>PDQ-REPL</td>
+              </tr>
+              <tr>
+                <td><b>String Match:</b></td><td>BOTH</td>
+              </tr>
+              <tr>
+                <td><b>Code Match:</b></td><td>NONE</td>
+              </tr>
+              <tr>
+                <td><b>Source AUI Match:</b></td><td>NONE</td>
+              </tr>
+              <tr>
+                <td><b>Source CUI Match:</b></td><td>NONE</td>
+              </tr>
+              <tr>
+                <td><b>Source DUI Match:</b></td><td>NONE</td>
+              </tr>
+              <tr>
+                <td><b>Term Type Match:</b></td><td>NONE</td>
+              </tr>
+              <tr>
+                <td><b>Source Termgroups:</b></td><td>PDQ2005_12/AB, PDQ2005_12/ACR, PDQ2005_12/BD, PDQ2005_12/CAS, PDQ2005_12/CHN, PDQ2005_12/CON, PDQ2005_12/FBD, PDQ2005_12/HT, PDQ2005_12/IND, PDQ2005_12/IS, PDQ2005_12/LV, PDQ2005_12/NSC, PDQ2005_12/OP, PDQ2005_12/PSC, PDQ2005_12/PT, PDQ2005_12/SY                </td>
+              </tr>
+              <tr>
+                <td><b>Source Options:</b></td><td>                  <ul>
+                    <li>Use Exclude List</li>
+                    <li>Use Norm-Exclude List</li>
+                    <li>Include termgroups in list</li>
+                  </ul>
+                </td>
+              </tr>
+              <tr>
+                <td><b>Target Termgroups:</b></td><td>PDQ2005_12/AB, PDQ2005_12/ACR, PDQ2005_12/BD, PDQ2005_12/CAS, PDQ2005_12/CHN, PDQ2005_12/CON, PDQ2005_12/FBD, PDQ2005_12/HT, PDQ2005_12/IND, PDQ2005_12/IS, PDQ2005_12/LV, PDQ2005_12/NSC, PDQ2005_12/OP, PDQ2005_12/PSC, PDQ2005_12/PT, PDQ2005_12/SY, PDQ2005/AB, PDQ2005/ACR, PDQ2005/BD, PDQ2005/ET, PDQ2005/FBD, PDQ2005/HT, PDQ2005/IS, PDQ2005/LV, PDQ2005/OP, PDQ2005/PT, PDQ2005/SY                </td>
+              </tr>
+              <tr>
+                <td><b>Target Options:</b></td><td>                  <ul>
+                    <li>Use Exclude List</li>
+                    <li>Use Norm-Exclude List</li>
+                    <li>Include termgroups in list</li>
+                  </ul>
+                </td>
+              </tr>
+              <tr>
+                <td><b>Integrity Vector:</b></td><td>ALL</td>
+              </tr>
+              <tr>
+                <td><b>Demote:</b></td><td>Yes</td>
+              </tr>
+              <tr>
+                <td><b>Change Status:</b></td><td>Yes</td>
+              </tr>
+              <tr>
+                <td><b>Pre Insert:</b></td><td>None</td>
+              </tr>
+              <tr>
+                <td><b>Comments:</b></td><td>Merge all new termgroups with all old termgroups</td></tr>
+            </table>
+          <br>
+          </li>
+        </ol>
+        <h2>Safe Replacement Section</h2>
+        <ol>
+          <li>
+            <h3>Source Safe Replacement</h3>
+            <p>source name : PDQ2005_12<br>
+            old source name : PDQ2005<br>
+            string match : EXACT<br>
+            code match : NONE<br>
+            source aui match : NONE<br>
+            source cui match : NONE<br>
+            source dui match : NONE<br>
+            term type match : NONE<br>
+            <ul>
+            <li>Change Status.
+            </ul>
+          <br>
+          </li>
+        </ol>
+        <h2>New Merge Section</h2>
+        <ol>
+          <li>
+            <h3>Merge Step - MID Merging</h3>
+            <table WIDTH=90% BORDER=1 CELLSPACING=1 CELLPADDING=2>
+              <tr><th colspan=2>Merge Parameters</th></tr>
+              <tr>
+                <td><b>Merge Set:</b></td><td>PDQ-MID</td>
+              </tr>
+              <tr>
+                <td><b>String Match:</b></td><td>BOTH</td>
+              </tr>
+              <tr>
+                <td><b>Code Match:</b></td><td>NONE</td>
+              </tr>
+              <tr>
+                <td><b>Source AUI Match:</b></td><td>NONE</td>
+              </tr>
+              <tr>
+                <td><b>Source CUI Match:</b></td><td>NONE</td>
+              </tr>
+              <tr>
+                <td><b>Source DUI Match:</b></td><td>NONE</td>
+              </tr>
+              <tr>
+                <td><b>Term Type Match:</b></td><td>NONE</td>
+              </tr>
+              <tr>
+                <td><b>Source Termgroups:</b></td><td>PDQ2005_12/AB, PDQ2005_12/ACR, PDQ2005_12/BD, PDQ2005_12/CAS, PDQ2005_12/CHN, PDQ2005_12/CON, PDQ2005_12/FBD, PDQ2005_12/HT, PDQ2005_12/IND, PDQ2005_12/IS, PDQ2005_12/LV, PDQ2005_12/NSC, PDQ2005_12/OP, PDQ2005_12/PSC, PDQ2005_12/PT, PDQ2005_12/SY                </td>
+              </tr>
+              <tr>
+                <td><b>Source Options:</b></td><td>                  <ul>
+                    <li>Use Exclude List</li>
+                    <li>Use Norm-Exclude List</li>
+                    <li>Restrict to New Atoms Only</li>
+                    <li>Include termgroups in list</li>
+                  </ul>
+                </td>
+              </tr>
+              <tr>
+                <td><b>Target Termgroups:</b></td><td>PDQ2005_12/AB, PDQ2005_12/ACR, PDQ2005_12/BD, PDQ2005_12/CAS, PDQ2005_12/CHN, PDQ2005_12/CON, PDQ2005_12/FBD, PDQ2005_12/HT, PDQ2005_12/IND, PDQ2005_12/IS, PDQ2005_12/LV, PDQ2005_12/NSC, PDQ2005_12/OP, PDQ2005_12/PSC, PDQ2005_12/PT, PDQ2005_12/SY, PDQ2005/AB, PDQ2005/ACR, PDQ2005/BD, PDQ2005/ET, PDQ2005/FBD, PDQ2005/HT, PDQ2005/IS, PDQ2005/LV, PDQ2005/OP, PDQ2005/PT, PDQ2005/SY                </td>
+              </tr>
+              <tr>
+                <td><b>Target Options:</b></td><td>                  <ul>
+                    <li>Use Exclude List</li>
+                    <li>Use Norm-Exclude List</li>
+                    <li>Exclude termgroups in list</li>
+                  </ul>
+                </td>
+              </tr>
+              <tr>
+                <td><b>Integrity Vector:</b></td><td>ALL</td>
+              </tr>
+              <tr>
+                <td><b>Demote:</b></td><td>Yes</td>
+              </tr>
+              <tr>
+                <td><b>Change Status:</b></td><td>Yes</td>
+              </tr>
+              <tr>
+                <td><b>Pre Insert:</b></td><td>None</td>
+              </tr>
+              <tr>
+                <td><b>Filters:</b></td><td>                  <ol>
+                 <li>Exclude safe replacement atoms from source.</li>
+                  </ol>
+                </td>
+              </tr>
+            </table>
+          <br>
+          </li>
+        </ol>
+        <h2>Post-Merge Section</h2>
+        <ol>
+          <li>
+            <h3>Resolve Semantic Types</h3>
+            <table ALIGN=CENTER WIDTH=90% BORDER=1 CELLSPACING=1 CELLPADDING=2>
+              <tr><td><b>Sources:</b></td><td>
+                   PDQ2005_12
+              </tr>
+              <tr><td><b>Win or Lose:</b></td><td>
+                 Lose</td></tr>
+            </table>
+          <br>
+          </li>
+          <li>
+            <h3>Update Source Releasability</h3>
+            <table ALIGN=CENTER WIDTH=90% BORDER=1 CELLSPACING=1 CELLPADDING=2>
+              <tr><td><b>Sources:</b></td><td>
+                   PDQ2005
+              </tr>
+              <tr><td><b>TBR:</b></td><td>
+                 n</td></tr>
+            </table>
+          <br>
+          </li>
+          <li>
+            <h3>Standard Post Merge Steps</h3>
+            <table ALIGN=CENTER WIDTH=90% BORDER=1 CELLSPACING=1 CELLPADDING=2>
+              <tr>
+                <td><b>Map sg and obsolete relationships. </b></td></tr>
+              <tr>
+                <td><b>Update String/Word Indexes</b></td></tr>
+              <tr>
+                <td><b>Run matrix initializer</b></td></tr>
+              <tr>
+                <td><b>Assign CUIs</b></td></tr>
+              <tr>
+                <td><b>Generate standard report tables</b></td></tr>
+              <tr>
+                <td><b>Set Core Table Ranks</b></td></tr>
+              </table>
+          <br>
+          </li>
+        </ol>
+        <p>
+         <!-- These comments are used by the What's new Generator -->
+         <!-- Changed On: 2005/12/08 -->
+         <!-- Changed by: MEME Team -->
+         <!-- Change Note: This page moved to NLM. -->
+         <!-- Fresh for: 1 month -->
+    </body>
+</html>

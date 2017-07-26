@@ -1,0 +1,172 @@
+<HTML>
+
+<HEAD>
+<TITLE>How to make the release</TITLE>
+</HEAD>
+
+<BODY>
+<H1>How to make the release</H1>
+
+The distribution consists of two aggregate files: UMLS2000.ZIP and
+UMLS2000.TGZ, the former for operating systems that use DOS style CR-LF
+line termination (and Windows executables) and the latter for
+UNIX-style line termination (LF) and Solaris and Linux executables.
+
+<P>
+
+The release files themselves are made at LTI.  In addition, they
+should deliver the MetamorphoSys archives as in the files
+MetamorphoSysWin.zip and MetamorphoSysUnix.zip after testing and
+verifying that it works!  Once they have declared victory, NLM copies
+the MR files into:
+
+<PRE>
+
+  wthsun:/d21/2000/MASTER/UMLS2000/META
+
+</PRE>
+
+Let /d21/2000 be TOP - change this to suit for the current release.
+The full directory structure below TOP is:
+
+<PRE>
+
+  &lt;TOP&gt;/MASTER
+    UMLS2000
+      META
+      METASUBSET
+      NET
+      DOC
+      LEX
+
+</PRE>
+with other subdirectories beneath these.  Here are the steps in sequence:
+
+<UL>
+
+<LI>First, the master2dist.pl script makes some assumptions about which files
+go on which CD.
+
+  <UL>
+  <LI>It assumes there are to be 2 CD's one containing the MRCXT file and
+      the other the remaining files.
+
+  <LI>Also that the final ZIP's are made on a PC and copied back over.
+       To this end, it makes intermediate UM2000_[12].tgz files for copying to
+       the PC and zipping (Bill does this).  Lately I've also made the ZIP using
+       UNIX zip (in &lt;TOP&gt;/ZIP). But these do not go out on the CD until Bill
+       is happy that it works on all platforms.
+   <P>
+    ***If any of these assumptions are no longer valid, you need to modify the
+    code.
+  </UL>
+
+<P>
+
+<LI>Timestamps on all files are set to the Jan 1st for that year, but this will
+    change with every release.  This is unfortunately not parameterized in the
+    script so modify the script to set the timestamp.
+
+<P>
+
+<LI>Ensure that LTI sets the permissions in the MetamorphoSys zip's correctly.
+    The config directory contents should be group writeable.
+
+<P>
+
+<LI>Ensure that the versions of text files in TOP/MASTER have UNIX
+    line termination.  Ensure that the DOC contents are current and
+    up-to-date.
+
+<P>
+
+<LI>The MASTER/METASUBSET directory should be empty
+
+<P>
+
+<LI>Copy the latest (correct and verified) NET, LEX and DOC contents
+    NET data comes from Alexa's group, LEX from Allen's and DOC from Laura.
+
+<P>
+
+<LI>Copy the MetamorphoSys zip's and the latest README.MMS into /d21/2000
+    (test MetamorphoSys again if necessary!)
+
+<P>
+
+<LI>Ensure that the /d21/2000/UNIX and /d21/2000/ISO directories are present
+
+<P>
+
+<LI>Run the script /site/umls/release/master2dist.pl as the user 'wth':
+<PRE>
+
+    /site/umls/release/master2dist.pl -d /d21/2000 >& master2dist.log
+
+</PRE>
+    This took ~2 hrs to run for the 2000 release.  Once it has run, there
+    should be contents in the UNIX, ISO, ZIP and TAR.
+
+<P>
+
+<LI>Verify that the ISO and UNIX contents are identical by running:
+
+    /site/umls/release/md5_cmp.pl -u /d21/2000/UNIX/UMLS2000 -d /d21/2000/ISO/UMLS200 > md5.log
+
+<P>
+
+<LI>The &lt;TOP&gt;/TAR/UMLS2000.TAR/*.TGZ file gets mastered on the TAR CD.
+
+<P>
+
+<LI>The &lt;TOP&gt;/ZIP directory contains the tgz files which are FTP'ed to the PC,
+    zip'ed and copied back into &lt;TOP&gt;/ZIP/UMLS2000.ZIP/*ZIP.
+
+<P>
+
+<LI>Ensure that these remade zip files have the timestamp and permission set correctly.
+
+<P>
+
+<LI>Master the CD's (Joe does this)
+
+<P>
+
+<LI>Compare the MD5 of the CD contents with that in &lt;TOP&gt;
+
+<P>
+
+<LI>Checking the CD's with md5_cmp.pl as:
+
+<P>
+
+<LI>unpack the TAR contents to say: /tmp/UNIX
+
+<PRE>
+
+    /site/umls/release/md5_cmp.pl -u /d21/2000/MASTER -d /tmp/UNIX -n
+
+</PRE>
+
+<P>
+
+<LI>unpack the ISO contents to say: /tmp/ISO
+
+<PRE>
+
+    /site/umls/release/md5_cmp.pl -u /d21/2000/MASTER -d /tmp/ISO
+
+</PRE>
+
+<P>
+
+<LI>If this checks out, test again!
+</UL>
+
+<P><HR>
+<ADDRESS>Contact: <A HREF="mailto:suresh@nlm.nih.gov">Suresh Srinivasan</A></ADDRESS>
+<ADDRESS>Created: April 2000</ADDRESS>
+<ADDRESS>Last Updated: 4/00</ADDRESS>
+<ADDRESS><A HREF="/index.html">Meta News Home</A></ADDRESS>
+</BODY>
+</HTML>

@@ -1,0 +1,93 @@
+A list of semantic types for each group used in the Finder search:
+---------------------------------------------------
+
+1. Organism Group
+Organism
+Plant
+Fungus
+Virus
+Bacterium
+Eukaryote
+Archaeon
+Vertebrate
+Amphibian
+Bird
+Fish
+Reptile
+Mammal
+Human
+Animal
+
+2. Anatomical Abnormality
+Anatomical Abnormality
+Congenital Abnormality
+Acquired Abnormality
+
+
+3. Anatomical Structure Group
+Embryonic Structure
+Fully Formed Anatomical Structure
+Body Part, Organ, or Organ Component
+Tissue
+Cell
+Cell component
+Gene or Genome
+Body Space or Junction
+Body Location or Region
+Body System
+
+4. Pathological Function Group
+Pathologic Function
+Disease or Syndrome
+Mental or Behavioral Dysfunction
+Neoplastic Process
+Cell or Molecular Dysfunction
+Injury or Poisoning
+Body Substance
+Finding
+Sign or Symptom
+
+5. Physiologic Function Group
+Physiologic Function
+Organism Function
+Mental Process
+Organ or Tissue Function
+Cell Function
+Molecular Function
+Genetic Function
+
+6. Health Care Activity Group
+Laboratory Procedure
+Diagnostic Procedure
+Therapeutic or Preventative Procedure
+Health Care Activity
+Laboratory or Test Result
+
+
+7. Chemical Group
+Pharmacologic Substance
+Antibiotic
+Biomedical or Dental material
+Biologically Active Substance
+Neuroactive Substance or Biogenic Aine
+Hormone
+Enzyme
+Vitamin
+Immunologic Factor
+Receptor
+Indicator Reagent, or Diagnositc Aid
+Hazardous or Poisonous Substance
+Organic Chemical
+Nucleic Acid, Nucleoside or Nucleotide
+Organicophoshorous Compound
+Amino Acid, Peptide, Protein
+Carbohydrate
+Lipid
+Steroid
+Eicosanoid
+Inorganic Chemical
+Element, Ion Isotope
+Molecular Sequence
+Nucleoside Sequence
+Amino Acid Sequence
+Carbohydrate Sequence

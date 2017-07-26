@@ -1,0 +1,208 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"><html><head>
+        
+  
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>MEME - Developer Guides - PLSQL Documentation</title>
+  
+
+  
+            
+  
+  <style>
+    A.noline { text-decoration: none; }
+  </style></head><body style="color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);" link="#3333ff" vlink="#999999" alink="#ff0000">
+    
+<center>  
+<h2> MEME PL/SQL Packages</h2>
+ </center>
+
+    
+<hr>
+<div style="text-align: center;">&nbsp;<br>
+[ <a href="#overview">overview</a> | <a href="#details">details</a> | <a href="#references">references</a> ]<br>
+&nbsp;<br>
+<img src="/images/packages.gif" title="" alt="Packages Icon" style="width: 167px; height: 201px;"><br>
+&nbsp;<br>
+<div style="text-align: left; margin-left: 40px;">
+<h3><a name="overview"></a>Overview/Objective</h3>
+The MEME PL/SQL packages are an implementation of the low-level MEME
+functions as Oracle PL/SQL procedures.&nbsp; These functions are
+logically divided into a series of different packages. <br>
+<h3><a name="details"></a>Details</h3>
+Each package contains a set of functions and procedures that implements
+a logical portion of the low level MEME services.&nbsp; Descriptions of
+each package are shown below as well as the order in which the packages
+should be loaded (due to dependencies).<br>
+</div>
+<div style="margin-left: 40px;">
+
+
+ &nbsp;  
+</div>
+</div>
+<center style="margin-left: 40px;"> 
+<table cellspacing="5" cellpadding="2" style="width: 90%;" nosave="">
+  <tbody>
+     <tr nosave="">
+  <td nosave="" style="vertical-align: top;"><b><a href="plsql_api.html">MEME PL/SQL Package API</a></b></td>
+   <td style="vertical-align: top;"><font size="-1">This document describes a standard set of attributes,
+ procedures, and functions that every <tt>MEME_*</tt> package should implement.</font></td>
+  </tr>
+   <tr nosave="">
+  <td nosave="" style="vertical-align: top;"><b><a href="plsql_mc.html">MEME_CONSTANTS</a></b></td>
+   <td style="vertical-align: top;"><font size="-1">This package contains common constants used by the 
+other packages.&nbsp; It implements most of the standard constants described
+       <a href="constants.html">here</a>.</font></td>
+  </tr>
+   <tr nosave="">
+  <td nosave="" style="vertical-align: top;"><b><a href="plsql_mu.html">MEME_UTILITY</a></b></td>
+   <td nosave="" style="vertical-align: top;"><font size="-1">This package contains useful utility procedures
+ that make common development tasks simpler.</font></td>
+  </tr>
+   <tr nosave="">
+  <td nosave="" style="vertical-align: top;"><b><a href="plsql_ms.html">MEME_SYSTEM</a></b></td>
+   <td nosave="" style="vertical-align: top;"><font size="-1">This package manages the system (reindexing, 
+table changes, analyzing tables, etc.)</font></td>
+  </tr>
+   <tr nosave="">
+  <td nosave="" style="vertical-align: top;"><b><a href="plsql_mr.html">MEME_RANKS</a></b></td>
+   <td style="vertical-align: top;"><font size="-1">This package manages ranking of core table rows and 
+validation of core table field values.</font></td>
+  </tr>
+   <tr nosave="">
+  <td nosave="" style="vertical-align: top;"><b><a href="plsql_ma.html">MEME_APROCS</a></b></td>
+   <td style="vertical-align: top;"><font size="-1">This package implements the atomic actions API.</font></td>
+  </tr>
+   <tr>
+  <td style="vertical-align: top;"><b><a href="plsql_mba.html">MEME_BATCH_ACTIONS</a></b></td>
+   <td style="vertical-align: top;"><font size="-1">This package implements batch versions of common molecular
+ actions.</font></td>
+  </tr>
+   <tr nosave="">
+  <td style="vertical-align: top;"><b><a href="plsql_mip.html">MEME_INTEGRITY_PROC</a></b></td>
+   <td nosave="" style="vertical-align: top;"><font size="-1">This package implements the integrity check 
+procedures and qa_bin procedures.</font></td>
+  </tr>
+   <tr>
+  <td style="vertical-align: top;"><b><a href="plsql_msp2.html">MEME_SNAPSHOT_PROC</a></b></td>
+   <td style="vertical-align: top;"><font size="-1">This package implements integrity snapshot procedures.</font></td>
+  </tr>
+   <tr>
+  <td style="vertical-align: top;"><b><a href="plsql_mi.html">MEME_INTEGRITY</a></b></td>
+   <td style="vertical-align: top;"><font size="-1">This package contains code for running parts of the 
+integrity system like the matrix initializer and the integrity snapshot.</font></td>
+  </tr>
+   <tr>
+  <td style="vertical-align: top;"><b><a href="plsql_msp.html">MEME_SOURCE_PROCESSING</a></b></td>
+   <td style="vertical-align: top;"><font size="-1">This package contains code to support the source processing
+ machinery.</font></td>
+  </tr>
+   <tr>
+  <td style="vertical-align: top;"><b><a href="plsql_mo.html">MEME_OPERATIONS</a></b></td>
+   <td style="vertical-align: top;"><font size="-1">This package contains code for routine maintenance 
+operations.&nbsp; Eventually the matrix initializer, integrity snapshot should 
+be run from here.</font></td>
+  </tr>
+   <tr nosave="">
+  <td style="vertical-align: top;"><b><a href="plsql_mt.html">MEME_TESTER</a></b></td>
+   <td nosave="" style="vertical-align: top;"><font size="-1">This package contains code to support the 
+testing/validation of the other packages.&nbsp; For example, it will create 
+sample sets for MEME_BATCH_ACTIONS to work with.</font></td>
+  </tr>
+     
+  </tbody> 
+</table>
+ </center>
+<div style="margin-left: 40px;">
+    
+</div>
+<p style="margin-left: 40px;">There are dependencies among the packages and so it is important that 
+they be loaded in the correct order.&nbsp; Currently, that order is:
+<br>
+
+  
+     
+  </p>
+<ul style="margin-left: 40px;">
+  <li><tt>@MEME_CONSTANTS</tt> </li>
+  <li><tt>@MEME_UTILITY</tt> </li>
+  <li><tt>@MEME_SYSTEM</tt> </li>
+  <li><tt>@MEME_RANKS</tt> </li>
+  <li><tt>@MEME_APROCS</tt> </li>
+  <li><tt>@MEME_BATCH_ACTIONS</tt> </li>
+  <li><tt>@MEME_INTEGRITY_PROC</tt> </li>
+  <li><tt>@MEME_SNAPSHOT_PROC</tt> </li>
+  <li><tt>@MEME_INTEGRITY</tt> </li>
+  <li><tt>@MEME_SOURCE_PROCESSING</tt> </li>
+  <li><tt>@MEME_OPERATIONS</tt> <br>
+  </li>
+</ul>
+<div style="margin-left: 40px;">The <span style="font-family: monospace;">$MEME_HOME/sql/packages.sql</span> scrpit can be trusted to load them in the correct order.<br>
+</div>
+<p style="margin-left: 40px;">
+       
+       
+       
+       
+       
+       
+       
+       
+       
+       
+</p>
+<div style="margin-left: 40px;">
+ 
+</div>
+<center style="margin-left: 40px;"> 
+
+ </center>
+<div style="margin-left: 40px;">
+    
+</div>
+<p style="margin-left: 40px;"> </p>
+<h3 style="margin-left: 40px;"><a name="references"></a>References</h3>
+<div style="margin-left: 40px;">
+</div>
+<p style="margin-left: 40px;">Use the following references for more information.
+  </p>
+<div style="margin-left: 40px;">
+</div>
+<ul>
+  <ul>
+
+    <li><a href="/MEME/Documentation/developer_guides.html">MEME Developer Guides Page</a></li>
+    <li><a href="/Oracle/doc_9.2/appdev.920/a96590/adg01dev.htm#426720">Oracle Documentation PL/SQL Overview</a></li>
+  </ul>
+
+</ul><br>
+<div style="text-align: center;">
+[ <a href="#overview">overview</a> | <a href="#details">details</a> | <a href="#references">references</a> ]</div>
+
+
+<br>
+
+<hr width="100%">  
+<table border="0" cols="2" width="100%" nosave="">
+
+  <tbody>
+     <tr nosave="">
+  <td align="left" valign="top" nosave="">        
+      <address> <a href="/MEME">MEME Home</a></address>
+  </td>
+   <td align="right" valign="top" nosave="">        
+      <address> <font size="-1">Contact: <a href="mailto:bcarlsen@apelon.com">Brian A. Carlsen</a></font></address>
+          
+      <address> <font size="-1">Created: 6/1/2000</font></address>
+          
+      <address> <font size="-1">Last Updated: 05/10/2004</font></address>
+  </td>
+  </tr>
+     
+  </tbody> 
+</table>
+<!-- These comments are used by the What's new Generator --><!-- Changed On: 2004/05/10 --><!-- Changed by: Brian Carlsen --><!-- Change Note: MEME - Developer Guides - PL/SQL Documentation --><!-- Fresh for: 1 month -->
+ 
+         <br>
+
+ 
+</body></html>

@@ -1,0 +1,22 @@
+INSTALL
+-------
+1. Choose $RECIPE_HOME
+2. Unzip dist_recipe*.zip into $RECIPE_HOME
+3. Configure the properties file
+ a. Copy the etc/recipe.ini_orig to etc/recipe.ini
+ b. Edit the properties file.
+ c. In particular, set these
+    i. MIDSVCS_HOST, MIDSVCS_PORT
+    ii. DB_USER, DB_PASSWORD, DB_SERVICE
+    iii. SRC_DIRECTORY
+4. Configure the run script (for Windows
+ a. Copy bin/recipe.bat_orig to bin/recipe.bat
+ b. Edit recipe.bat to set JAVA_HOME
+
+To run recipe writer on Windows:
+1. Edit the properties file (etc/recipe.ini) and set the DB parameters and SRC_DIRECTORY
+2. Run bin/recipe.bat
+
+UPDATE
+------
+Same as install

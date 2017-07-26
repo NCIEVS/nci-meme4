@@ -1,0 +1,178 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"><html><head>
+  
+  
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+
+
+  
+  
+  <link href="/MRD/Documentation/stylesheets.css" rel="stylesheet" type="text/css">
+
+
+
+  
+  
+  
+  <script language="javascript">
+function launchCenter(url, name, height, width)
+{
+	var str = "height=" + height + ",innerHeight=" + height;
+	str += ",width=" + width + ",innerWidth=" + width;
+	if (window.screen)
+	{
+		var ah = screen.availHeight - 30;
+		var aw = screen.availWidth - 10;
+
+		var xc = (aw - width) / 2;
+		var yc = (ah - height) / 2;
+
+		str += ",left=" + xc + ",screenX=" + xc;
+		str += ",top=" + yc + ",screenY=" + yc;
+	}
+	str += ", menubar=no, scrollbars=yes, status=0, location=0, directories=0, resizable=1";
+	window.open(url, name, str);
+}
+  </script>
+  <title>Target Details</title>
+
+  </head><body>
+<span id="blue"><center>MRDEF</center></span>
+<hr width="100%">
+<form name="form1" mehtod="get" action="controller">
+
+	<center>
+	<table width="90%">
+      	<tbody><tr><th colspan="3"> QA Checks </th></tr>
+	<tr> <td width="5%">Verify </td><td colspan="2">required files </td></tr>
+<tr> <td width="5%">Verify </td><td colspan="2">field formats </td></tr>
+<tr> <td width="5%">Verify </td><td colspan="2">SAB in MRSAB.RSAB where MRSAB.SABIN=Y </td></tr>
+<tr> <td width="5%">Verify </td><td colspan="2">CUI|ATUI unique </td></tr>
+<tr> <td width="5%">Verify </td><td colspan="2">ATUI unique </td></tr>
+<tr> <td width="5%">Verify </td><td colspan="2">min(length(DEF))&gt;10 </td></tr>
+<tr><td><br>
+</td><td id="error" width="5%">Warning</td> <td>The minimum DEF length is less than 10</td></tr>
+<tr> <td width="5%">Verify </td><td colspan="2">CUI in MRCONSO.CUI </td></tr>
+<tr> <td width="5%">Verify </td><td colspan="2">CUI,SAB in in MRCONSO.CUI,SAB </td></tr>
+<tr> <td width="5%">Verify </td><td colspan="2">ATUI unique </td></tr>
+<tr> <td width="5%">Verify </td><td colspan="2">long attribute expansion </td></tr>
+<tr> <td width="5%">Verify </td><td colspan="2">sort order </td></tr>
+
+	</tbody></table>
+	<table width="90%">
+      	<tbody><tr><th colspan="5"> Report MRDEF real-gold differences (versionless) </th></tr>
+	<tr><td>&nbsp;</td></tr>
+        <tr><td colspan="4" id="nodiff"> There are no diffs between qa_MRDEF_2005AA and qa_MRDEF_2005AA_gold where keys match </td> </tr>
+<tr></tr>
+<tr><td colspan="4" id="nodiff"> There are no rows in qa_MRDEF_2005AA not found in qa_MRDEF_2005AA_gold</td> </tr>
+<tr></tr>
+<tr><td colspan="4" id="nodiff"> There are no rows in qa_MRDEF_2005AA_gold not found in qa_MRDEF_2005AA</td> </tr>
+<tr></tr>
+
+	</tbody></table>
+
+	<table width="90%">
+	<tbody><tr><td>&nbsp;</td></tr>
+      	<tr><th colspan="5"> Report MRDEF real-minor differences (versionless) </th></tr>
+        <tr><td>&nbsp;</td></tr>
+<tr><td colspan="4" id="nodiff"> Differences between qa_MRDEF_2005AA and qa_MRDEF_2004AC</td></tr>
+<tr align="right"><td><strong>Test</strong></td><td><strong>Value</strong></td><td><strong>2005AA Count</strong></td><td><strong>2004AC Count</strong></td><td><strong>Diff</strong></td></tr>
+<tr><td>&nbsp;</td></tr>
+<tr><td colspan="4"><strong>Expected increase due to UMD update.</strong></td></tr>
+<tr><td>&nbsp;</td></tr>
+<tr align="right"><td><a href="/cgi-lti-oracle/code_map.cgi?state=GENERATE_DATA&amp;category=qa_test_name&amp;code=aui_cnt" onclick="launchCenter(this.href, 'TestNameDescription', 200,480);return false;"> aui_cnt</a></td><td><br>
+</td><td>62624</td><td>62501</td><td>123</td></tr>
+<tr align="right"><td><a href="/cgi-lti-oracle/code_map.cgi?state=GENERATE_DATA&amp;category=qa_test_name&amp;code=cui_cnt" onclick="launchCenter(this.href, 'TestNameDescription', 200,480);return false;"> cui_cnt</a></td><td><br>
+</td><td>56219</td><td>56119</td><td>100</td></tr>
+<tr align="right"><td><a href="/cgi-lti-oracle/code_map.cgi?state=GENERATE_DATA&amp;category=qa_test_name&amp;code=row_cnt" onclick="launchCenter(this.href, 'TestNameDescription', 200,480);return false;"> row_cnt</a></td><td><br>
+</td><td>62982</td><td>62859</td><td>123</td></tr>
+<tr align="right"><td><a href="/cgi-lti-oracle/code_map.cgi?state=GENERATE_DATA&amp;category=qa_test_name&amp;code=sab_tally" onclick="launchCenter(this.href, 'TestNameDescription', 200,480);return false;"> sab_tally</a></td><td>UMD</td><td>5536</td><td>5413</td><td>123</td></tr>
+<tr><td colspan="4" id="nodiff"> There are no rows in qa_MRDEF_2005AA not found in qa_MRDEF_2004AC</td> </tr>
+<tr></tr>
+<tr><td colspan="4" id="nodiff"> There are no rows in qa_MRDEF_2004AC not found in qa_MRDEF_2005AA</td> </tr>
+<tr></tr>
+
+	</tbody></table>
+	<table width="90%">
+	<tbody><tr><td>&nbsp;</td></tr>
+      	<tr><th colspan="5"> Report MRDEF real-major differences (versionless) </th></tr>
+        <tr><td>&nbsp;</td></tr>
+<tr><td colspan="4" id="nodiff"> Differences between qa_MRDEF_2005AA and qa_MRDEF_2004AA</td></tr>
+<tr align="right"><td><strong>Test</strong></td><td><strong>Value</strong></td><td><strong>2005AA Count</strong></td><td><strong>2004AA Count</strong></td><td><strong>Diff</strong></td></tr>
+<tr><td>&nbsp;</td></tr>
+<tr><td colspan="4"><strong>Aggregate changes due to new/update sources.</strong></td></tr>
+<tr><td>&nbsp;</td></tr>
+<tr align="right"><td><a href="/cgi-lti-oracle/code_map.cgi?state=GENERATE_DATA&amp;category=qa_test_name&amp;code=aui_cnt" onclick="launchCenter(this.href, 'TestNameDescription', 200,480);return false;"> aui_cnt</a></td><td><br>
+</td><td>62624</td><td>49914</td><td>12710</td></tr>
+<tr align="right"><td><a href="/cgi-lti-oracle/code_map.cgi?state=GENERATE_DATA&amp;category=qa_test_name&amp;code=cui_cnt" onclick="launchCenter(this.href, 'TestNameDescription', 200,480);return false;"> cui_cnt</a></td><td><br>
+</td><td>56219</td><td>44763</td><td>11456</td></tr>
+<tr align="right"><td><a href="/cgi-lti-oracle/code_map.cgi?state=GENERATE_DATA&amp;category=qa_test_name&amp;code=row_cnt" onclick="launchCenter(this.href, 'TestNameDescription', 200,480);return false;"> row_cnt</a></td><td><br>
+</td><td>62982</td><td>49914</td><td>13068</td></tr>
+<tr><td>&nbsp;</td></tr>
+<tr><td colspan="4"><strong>Expected increase due to updated sources.</strong></td></tr>
+<tr><td>&nbsp;</td></tr>
+<tr align="right"><td><a href="/cgi-lti-oracle/code_map.cgi?state=GENERATE_DATA&amp;category=qa_test_name&amp;code=sab_tally" onclick="launchCenter(this.href, 'TestNameDescription', 200,480);return false;"> sab_tally</a></td><td>CSP</td><td>4181</td><td>3000</td><td>1181</td></tr>
+<tr align="right"><td><a href="/cgi-lti-oracle/code_map.cgi?state=GENERATE_DATA&amp;category=qa_test_name&amp;code=sab_tally" onclick="launchCenter(this.href, 'TestNameDescription', 200,480);return false;"> sab_tally</a></td><td>GO</td><td>15064</td><td>8720</td><td>6344</td></tr>
+<tr align="right"><td><a href="/cgi-lti-oracle/code_map.cgi?state=GENERATE_DATA&amp;category=qa_test_name&amp;code=sab_tally" onclick="launchCenter(this.href, 'TestNameDescription', 200,480);return false;"> sab_tally</a></td><td>MSH</td><td>22640</td><td>21963</td><td>677</td></tr>
+<tr align="right"><td><a href="/cgi-lti-oracle/code_map.cgi?state=GENERATE_DATA&amp;category=qa_test_name&amp;code=sab_tally" onclick="launchCenter(this.href, 'TestNameDescription', 200,480);return false;"> sab_tally</a></td><td>NAN</td><td>226</td><td>158</td><td>68</td></tr>
+<tr align="right"><td><a href="/cgi-lti-oracle/code_map.cgi?state=GENERATE_DATA&amp;category=qa_test_name&amp;code=sab_tally" onclick="launchCenter(this.href, 'TestNameDescription', 200,480);return false;"> sab_tally</a></td><td>UMD</td><td>5536</td><td>4916</td><td>620</td></tr>
+<tr><td>&nbsp;</td></tr>
+<tr><td colspan="4" id="nodiff"> Rows in qa_MRDEF_2005AA not in qa_MRDEF_2004AA</td></tr>
+<tr align="right"><td><strong>Test</strong></td><td><strong>Value</strong></td><td><strong>Count</strong></td></tr>
+<tr><td>&nbsp;</td></tr>
+<tr><td colspan="4"><strong>Source start to supply definitions.</strong></td></tr>
+<tr><td>&nbsp;</td></tr>
+<tr align="right"><td><a href="/cgi-lti-oracle/code_map.cgi?state=GENERATE_DATA&amp;category=qa_test_name&amp;code=sab_tally" onclick="launchCenter(this.href, 'TestNameDescription', 200,480);return false;"> sab_tally</a></td><td>NCI</td><td>5897</td><td><br>
+</td></tr>
+<tr></tr>
+<tr><td>&nbsp;</td></tr>
+<tr><td colspan="4" id="nodiff"> Rows in qa_MRDEF_2004AA not in qa_MRDEF_2005AA</td></tr>
+<tr align="right"><td><strong>Test</strong></td><td><strong>Value</strong></td><td><strong>Count</strong></td></tr>
+<tr><td>&nbsp;</td></tr>
+<tr><td colspan="4"><strong>Source cease to supply definitions.</strong></td></tr>
+<tr><td>&nbsp;</td></tr>
+<tr align="right"><td><a href="/cgi-lti-oracle/code_map.cgi?state=GENERATE_DATA&amp;category=qa_test_name&amp;code=sab_tally" onclick="launchCenter(this.href, 'TestNameDescription', 200,480);return false;"> sab_tally</a></td><td>PDQ</td><td>1719</td><td><br>
+</td></tr>
+<tr></tr>
+
+	</tbody></table>
+	</center>
+
+<table width="90%" nosave="">
+<tbody><tr>
+    <td align="center">
+	
+      <input type="button" value="Close" onclick="window.close(); return true">
+    </td>
+</tr>
+  </tbody></table>
+</form>
+
+
+
+<hr width="100%">
+<table border="0" cols="2" width="100%">
+
+
+
+  <tbody><tr>
+    <td align="left" valign="top">
+      <address><a href="/" onmouseover="window.status='Meta News Home.'; return true;" onmouseout="window.status=''; return true;">Meta News Home</a></address>
+    </td>
+    <td align="right" valign="top">
+      <font size="-1">
+      <address>Contact: <a href="/MRD/Documentation/2005AA/bcarlsen@apelon.com">Brian Carlsen</a></address>
+      <address>Generated on:Wed Dec 22 18:44:28 EST 2004</address>
+      <address>Release 4: version 1.5, 
+               08/06/2004(BAC).</address>
+      </font>
+    </td>
+  </tr>
+</tbody>
+</table>
+
+
+
+
+
+</body></html>

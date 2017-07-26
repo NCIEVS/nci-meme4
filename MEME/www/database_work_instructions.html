@@ -1,0 +1,45 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.7 [en] (X11; U; SunOS 5.8 sun4u) [Netscape]">
+</head>
+<body>
+<b>Checklist of what needs to be done during Source Insertions:</b>
+<br>&nbsp;
+<p>1. If Apelon sends a database request for any kind of source insertion,
+we need to completely cutoff editor access to the editing database. This
+includes:
+<br>&nbsp;
+<blockquote>1. Editing to the editing database (cbioapp513.nci.nih.gov_memedb) needs to be
+cutoff. This can be done off the EMS page and a link called " Editing Cutoff".
+<p>2. Turn off access to the EMS and WMS. There is a link on both the EMS
+and WMS page to close access to these pages. The link is on the left side
+of the page and is called "Access Control".</blockquote>
+
+<blockquote>3. Change the database that the editing interface and Meow
+point to. This should be the Browse database. If the database is only down
+for one night, then this database does not need to be current. If the planned
+insertion will take days or be performed over the weekend, the Browse database
+MUST&nbsp;be refreshed to as current as possible.
+<br>*Important - Make sure editing is also cutoff on the Browse database.
+Editors should not have access to make changes to this database.</blockquote>
+
+<blockquote>4. If this is a big insertion, like a UMLS update, we need to make sure
+we have a current copy of the editing database to go back to if there is
+a problem with the insertion.
+<p>5. A message needs to be sent to meme_editors to let them know the database
+will be down and approximately for how long.</blockquote>
+
+<p><br>2. If Apelon sends a request for minor database work, editing does
+not need to be cutoff if the work is being done 6:30 pm east coast time
+or later.
+<p>3. If Apelon sends a request for MAJOR database work (this would include
+lots of changing of data), then the same procedure for cutting off editing
+for a source insertion should be followed.
+<p>Apelon should NOT&nbsp;be given permission to do any work if no one
+is around to cutoff editing, switch databases, alert the editors, etc.
+<br>&nbsp;
+<p>Last updated: 5/01/2002
+</body>
+</html>

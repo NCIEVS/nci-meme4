@@ -1,0 +1,136 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<title>SNOMEDCT/FN parenthesized terms by STY</title>
+</head>
+<body>
+
+<div align=right>suresh@nlm.nih.gov 10/2003</div>
+
+<h1>STY Q/A for SNOMED/FN</h1>
+
+<PRE>
+
+Suresh Srinivasan (suresh@lhc.nlm.nih.gov)
+Fri, 03 Oct 2003 14:17:08 -0400
+
+    * Messages sorted by: [ date ][ thread ][ subject ][ author ]
+    * Next message: Brian Carlsen: "RE: ingredients w/out PNs"
+    * Previous message: Brian Carlsen: "RE: SNOMEDCT_2003_07_31 Insertion (oc_testsrc): understanding the counts?"
+    * Next in thread: Tammy Powell: "Re: STY Q/A for SNOMED/FN" 
+
+> Can one of you give me queries so we can see a breakdown of the STYs
+> compared to the terms in brackets.
+
+> Then we want to be able to make checklists or worklists of anything
+> that looks suspicious like in the case of finding, if there were some
+> with the STY food, we would get an editor to look at these.
+
+Tammy,
+
+OK, I have a multipurpose query for this in
+/site/umls/oracle/ems-2.1/QA/snmfnsty.pl
+
+It takes these options:
+
+-d <database>
+-p <pattern> for the SNOMEDCT/FN parenthesized term, e.g., finding
+-s <one or more comma separated STYs>
+
+If neither the -p nor the -s options are specified, it
+produces a list of SNOMEDCT/FN parenthesized words and their
+counts.
+
+It only the -p option is used, it produces a count of all the
+STY's for this pattern.
+
+If both -p and -s are specified it produces a list of the matching
+concept IDs that contain FNs with that pattern and that STY. In this
+form, it can be used as an EMS QA or AH query.
+
+EXAMPLE:
+
+First get a list of all possible parenthesized patterns in FN's:
+
+snmfnsty.pl -d oc_testsrc
+
+(disorder)|73172
+(procedure)|47280
+(finding)|40108
+(body structure)|25831
+(organism)|24772
+(substance)|22085
+(product)|17147
+...
+
+Now get the STY distribution of concepts that contain the "finding"
+pattern (the parens are optional):
+
+snmfnsty.pl -p finding -d oc_testsrc
+
+...
+Food|28
+...
+Therapeutic or Preventive Procedure|390
+Pathologic Function|537
+Functional Concept|547
+Classification|884
+Disease or Syndrome|947
+Mental or Behavioral Dysfunction|1149
+Laboratory or Test Result|1793
+Sign or Symptom|2151
+Injury or Poisoning|8934
+Finding|20063
+
+And finally to get the 28 concept_ids for the pattern "finding" with
+STY "Food",
+
+snmfnsty.pl -p finding -s Food -d oc_testsrc
+
+13782
+42993
+43023
+43024
+43025
+43026
+43027
+43028
+43030
+43031
+43032
+43033
+43034
+43035
+43036
+43037
+43084
+187461
+187543
+187573
+275817
+428390
+486873
+1019832
+8793405
+8793439
+8793461
+8793580
+
+One example:
+
+CN# 187461 High carbohydrate diet (finding)
+CUI C0259835 Concept Status is Reviewed
+STY Food R
+ATOMS
+R [] High carbohydrate diet (finding)
+[SNOMEDCT_2003_07_31/FN/226120004]
+
+...
+
+--Suresh
+
+    * Next message: Brian Carlsen: "RE: ingredients w/out PNs"
+    * Previous message: Brian Carlsen: "RE: SNOMEDCT_2003_07_31 Insertion (oc_testsrc): understanding the counts?"
+    * Next in thread: Tammy Powell: "Re: STY Q/A for SNOMED/FN" 
+</PRE>
+</body>
+</html>

@@ -1,0 +1,13 @@
+
+cd ..
+
+set JAVA_HOME= <EDIT THIS>
+
+set libpath=
+if not exist c:\temp mkdir c:\temp
+echo set libpath=%%libpath%%;%%1> c:\temp\cp.bat
+for %%i in (lib\*.jar) do call c:\temp\cp.bat %%i
+for %%i in (lib\*.zip) do call c:\temp\cp.bat %%i
+del c:\temp\cp.bat
+
+%JAVA_HOME%\bin\java -DPROPERTY_FILE=etc/recipe.ini -Dfile.encoding=UTF-8 -Dswing.defaultlaf=com.sun.java.swing.plaf.windows.WindowsLookAndFeel -client -Xms200M -Xmx200M -cp .%libpath% gov.nih.nlm.recipe.RxWriter

@@ -1,0 +1,46 @@
+<html><head><title>Jekyll Launch</title></head>
+<body>
+<script language="JavaScript">
+var javaws142Installed = 0;
+var javaws150Installed = 0;
+isIE = "false";
+if (navigator.mimeTypes && navigator.mimeTypes.length) {
+   x = navigator.mimeTypes['application/x-java-jnlp-file'];
+   if (x) {
+      javaws142Installed = 1;
+      javaws150Installed = 1;
+   }
+}
+else {
+   isIE = "true";
+}
+</script>
+
+<script language="VBScript">
+on error resume next
+If isIE = "true" Then
+  If Not(IsObject(CreateObject("JavaWebStart.isInstalled.1.4.2.0"))) Then
+     javaws142Installed = 0
+  Else
+     javaws142Installed = 1
+  End If
+  If Not(IsObject(CreateObject("JavaWebStart.isInstalled.1.5.0.0"))) Then
+     javaws150Installed = 0
+  Else
+     javaws150Installed = 1
+  End If
+End If
+</script>
+
+<script language="JavaScript">
+if (javaws142Installed || javaws150Installed || (navigator.userAgent.indexOf("Gecko") !=-1)) {
+    document.write("<a href=jekyll.jnlp>Launch Jekyll</a>");
+    document.write("<br />(Or run the <a href=../jaws-test/jekyll.jnlp>test version</a>.)");
+} else {
+    document.write("Click ");
+    document.write("<a href=http://java.sun.com/PluginBrowserCheck?pass=http://cbioapp513.nci.nih.gov/jaws/download.html&fail=http://java.sun.com/j2se/1.5.0/download.html>here</a> ");
+    document.write("to download and install JRE 1.6.0 and the application.");
+}
+</script>
+
+</body></html>

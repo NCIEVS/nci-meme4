@@ -1,0 +1,123 @@
+<HTML>
+<HEAD>
+<TITLE>Loading Release Data into MySQL</TITLE>
+</HEAD>
+
+<BODY>
+
+<H1>Loading Release Data into MySQL</H1>
+
+Once a release is made, it can be loaded into a MySQL database running
+on the machine with the name: release.nlm.nih.gov.  This is currently
+a PC running Linux.  This database version of the release can be used
+for Q/A.
+
+<P>
+Here are the steps:
+<P>
+<UL>
+<P><LI>The staging area for the release data is in release:~suresh/UMLS.
+Create a directory there for the current release, e.g., 2002AA,
+and unpack the entire release (from CD or FTP'ed from wthsun)
+into this directory.
+
+<P><LI>The perl scripts to create the load scripts (using meta data in MRFILES, etc)
+are in /site/umls/mysql/scripts/meta2mysql.pl and net2mysql.pl.
+Examine the scripts to ensure that the right fields will be indexed, etc.
+Note that the STY/RL and the STN/RTN fields in SRDEF have been changed to STYRL
+and STNRTN resp (use the describe command in MySQL to see the table descriptions).
+
+<P><LI>Create the load scripts on a machine with access to /site and
+to the release files (say via NFS).  Smis, wthsun or astra all work.
+Save the resulting SQL to the conventional names: &lt;version&gt;-{meta|net|cui}.sql
+Here's how:
+
+<PRE>
+<FONT SIZE=-1>
+/site/umls/mysql/scripts/meta2mysql.pl
+			-m &lt;path to the META directory&gt;
+			-f &lt;relative path to the META directory for the load&gt;
+
+/site/umls/mysql/scripts/net2mysql.pl
+			-m &lt;path to the NET directory&gt;
+			-f &lt;relative path to the NET directory for the load&gt;
+
+/site/umls/mysql/scripts/cui2mysql.pl
+			-m &lt;path to the CHANGE directory&gt;
+			-f &lt;relative path to the CHANGE directory for the load&gt;
+
+Example:
+
+meta2mysql.pl -m /d3/Release/$VERSION/META -f ../$VERSION/META > $VERSION-meta.sql
+net2mysql.pl  -m /d3/Release/$VERSION/NET  -f ../$VERSION/NET  > $VERSION-net.sql
+cui2mysql.pl  -m /d3/Release/$VERSION/META/CHANGE  -f ../$VERSION/META/CHANGE  > $VERSION-cui.sql
+
+</FONT>
+
+</PRE>
+
+The relative path in the -f option is used by the mysql loader to find the relevant
+MR* file.  It is specified relative to the "load" subdirectory.
+
+<P><LI>Now you are ready to load into the MySQL database (ensure it is up and running).
+Create the database, e.g.,
+
+<PRE>
+<FONT SIZE=-1>
+% mysql -h release -u meow -p
+mysql> drop database $UMLSVERSION;
+mysql> create database $UMLSVERSION;
+</FONT>
+</PRE>
+
+<P><LI>Then load the data with:
+
+<PRE>
+<FONT SIZE=-1>
+% mysql -h release -u meow -p $UMLSVERSION < $UMLSVERSION-meta.sql > $UMLSVERSION-meta.log
+% mysql -h release -u meow -p $UMLSVERSION < $UMLSVERSION-net.sql > $UMLSVERSION-net.log
+% mysql -h release -u meow -p $UMLSVERSION < $UMLSVERSION-cui.sql > $UMLSVERSION-cui.log
+</FONT>
+</PRE>
+
+The load could take a while.  Examine the log file for errors.
+Note: for the CUI load (MERGED.CUI, etc.), you may need to create a symbolic link to the
+AMBIG.LUI and AMBIG.SUI files since these are now not in the CHANGE directory, but in META.
+E.g.,
+
+<PRE>
+<FONT SIZE=-1>
+% cd /home/sureshUMLS/2002AB/META/CHANGE
+% ln -s ../AMBIG.LUI
+% ln -s ../AMBIG.SUI
+</FONT>
+</PRE>
+
+<P><LI> There is an additional database called LVG_indexes that has these tables
+for every release: $VERSION_lstr (lowercased strings), $VERSION_nstr (normalized strings)
+$VERSION_lwd (lowercased word), $VERSION_nwd (normalized word).  The normalized tables
+have to be create with the <EM>current</EM> norm and this has to be done on a different
+machine than umls-release since a Linux based norm is not currently available.
+<P>
+
+The staging area for this is /aux/UMLS/lvg-indexes on umls-release.
+If norm has not changed (as for the quarterly releases), then the
+script make-files.pl will make the necessary files from the release.
+Once the files above are created, the script load-files.pl will load it
+into the database.
+
+<P><LI> The release database is then available for Q/A and querying, e.g.,
+
+<PRE>
+<FONT SIZE=-1>
+% echo "select * from MRCON where CUI='C0002344'" | mysql -h release -u meow -p 2002AA
+</FONT>
+</PRE>
+
+This can be done from any machine with the mysql client and access to the MySQL
+database on release.nlm.nih.gov.
+</UL>
+
+</BODY>
+</HTML>
+

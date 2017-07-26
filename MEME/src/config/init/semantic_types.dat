@@ -1,0 +1,136 @@
+Entity|N||N|
+Physical Object|N||N|
+Organism|N||N|
+Plant|N||N|
+Alga|N||N|
+Fungus|N||N|
+Virus|N||N|
+Rickettsia or Chlamydia|N||N|
+Bacterium|N||N|
+Archaeon|N||N|
+Animal|N||N|
+Invertebrate|N||N|
+Vertebrate|N||N|
+Amphibian|N||N|
+Bird|N||N|
+Fish|N||N|
+Reptile|N||N|
+Mammal|N||N|
+Human|N||N|
+Anatomical Structure|N||N|
+Embryonic Structure|N||N|
+Anatomical Abnormality|N||N|
+Congenital Abnormality|N||N|
+Acquired Abnormality|N||N|
+Fully Formed Anatomical Structure|N||N|
+Body Part, Organ, or Organ Component|N||N|
+Tissue|N||N|
+Cell|N||N|
+Cell Component|N||N|
+Gene or Genome|N||Y|
+Manufactured Object|N||N|
+Medical Device|N||N|
+Research Device|N||N|
+Substance|N||Y|
+Body Substance|N||N|
+Food|N||Y|
+Conceptual Entity|N||N|
+Idea or Concept|N||N|
+Temporal Concept|N||N|
+Qualitative Concept|N||N|
+Quantitative Concept|N||N|
+Functional Concept|N||N|
+Body System|N||N|
+Spatial Concept|N||N|
+Body Space or Junction|N||N|
+Body Location or Region|N||N|
+Molecular Sequence|N||Y|
+Nucleotide Sequence|N||Y|
+Amino Acid Sequence|N||Y|
+Carbohydrate Sequence|N||Y|
+Geographic Area|N||N|
+Finding|N||N|
+Laboratory or Test Result|N||N|
+Sign or Symptom|N||N|
+Organism Attribute|N||N|
+Intellectual Product|N||N|
+Classification|N||N|
+Regulation or Law|N||N|
+Language|N||N|
+Occupation or Discipline|N||N|
+Biomedical Occupation or Discipline|N||N|
+Organization|N||N|
+Health Care Related Organization|N||N|
+Professional Society|N||N|
+Self-help or Relief Organization|N||N|
+Group Attribute|N||N|
+Group|N||N|
+Professional or Occupational Group|N||N|
+Population Group|N||N|
+Family Group|N||N|
+Age Group|N||N|
+Patient or Disabled Group|N||N|
+Event|N||N|
+Activity|N||N|
+Behavior|N||N|
+Social Behavior|N||N|
+Individual Behavior|N||N|
+Daily or Recreational Activity|N||N|
+Occupational Activity|N||N|
+Health Care Activity|N||N|
+Laboratory Procedure|N||N|
+Diagnostic Procedure|N||N|
+Therapeutic or Preventive Procedure|N||N|
+Research Activity|N||N|
+Molecular Biology Research Technique|N||N|
+Governmental or Regulatory Activity|N||N|
+Educational Activity|N||N|
+Machine Activity|N||N|
+Phenomenon or Process|N||N|
+Human-caused Phenomenon or Process|N||N|
+Environmental Effect of Humans|N||N|
+Natural Phenomenon or Process|N||N|
+Biologic Function|N||N|
+Physiologic Function|N||N|
+Organism Function|N||N|
+Mental Process|N||N|
+Organ or Tissue Function|N||N|
+Cell Function|N||N|
+Molecular Function|N||N|
+Genetic Function|N||N|
+Pathologic Function|N||N|
+Disease or Syndrome|N||N|
+Mental or Behavioral Dysfunction|N||N|
+Neoplastic Process|N||N|
+Cell or Molecular Dysfunction|N||N|
+Experimental Model of Disease|N||N|
+Injury or Poisoning|N||N|
+ALL CHEMICAL STYs||||
+Chemical Viewed Functionally|Y|F|Y|
+Pharmacologic Substance|Y|F|Y|
+Antibiotic|Y|F|Y|
+Biomedical or Dental Material|Y|F|Y|
+Biologically Active Substance|Y|F|Y|
+Neuroreactive Substance or Biogenic Amine|Y|F|Y|
+Hormone|Y|F|Y|
+Enzyme|Y|F|Y|
+Vitamin|Y|F|Y|
+Immunologic Factor|Y|F|Y|
+Receptor|Y|F|Y|
+Indicator, Reagent, or Diagnostic Aid|Y|F|Y|
+Hazardous or Poisonous Substance|Y|F|Y|
+Chemical Viewed Structurally|Y|S|Y|
+Organic Chemical|Y|S|Y|
+Nucleic Acid, Nucleoside, or Nucleotide|Y|S|Y|
+Organophosphorus Compound|Y|S|Y|
+Amino Acid, Peptide, or Protein|Y|S|Y|
+Carbohydrate|Y|S|Y|
+Lipid|Y|S|Y|
+Steroid|Y|S|Y|
+Eicosanoid|Y|S|Y|
+Inorganic Chemical|Y|S|Y|
+Element, Ion, or Isotope|Y|S|Y|
+Chemical|Y||Y|
+Clinical Drug|Y|F|Y|
+Clinical Attribute|N||N|
+Drug Delivery Device||N|Y|

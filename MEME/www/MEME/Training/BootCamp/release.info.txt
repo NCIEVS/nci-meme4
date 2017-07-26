@@ -1,0 +1,344 @@
+COMPONENT|RELEASE|VERSION|DATE|CHANGES|COMMENTS|DATE|
+meme.prop|4|1|20011101|First release.||11/01|
+memerun.pl|4|1|20011101|First release.||11/01|
+reports.pl|4|1|20011101|First release.||11/01|
+reports.pl|4|1|20011101|First release.||11/01|
+shutdown.pl|4|1|20011101|First release.||11/01|
+start.pl|4|1|20011101|First release.||11/01|
+gov_nih_nlm_meme.jar|4|1|20011101|First release.||11/01|
+gov_nih_nlm_meme_client.jar|4|1|20011101|First release.||11/01|
+gov_nih_nlm_meme_common.jar|4|1|20011101|First release.||11/01|
+gov_nih_nlm_meme_server.jar|4|1|20011101|First release.||11/01|
+gov_nih_nlm_meme_sql.jar|4|1|20011101|First release.||11/01|
+gov_nih_nlm_meme_xml.jar|4|1|20011101|First release.||11/01|
+stats.pl|4|1|20011101|First release.||11/01|
+memerun.pl|4|1|20020201|Re-make of v1 release to work with meme.jar||02/01|
+start.pl|4|2|20020201|Remake of v2 release to work with meme.jar||02/01|
+meme.jar|4|2|20020201|Repackaging of code into a single jar file.  This<br>file contains all of the MEME4 classes as well as<br>all of the auxiliary code needed to make MEME4 run.<br>This component can be used for server-side or<br>client-side installations.||02/01|
+meme.prop|4|2|20020201|The offending gov.nih.nlm.meme.sql.MEMESchedule was <br>removed from the bootstrap property.||02/01|
+admin.pl|4|1|20020307|First release of this component.||03/07|
+meme.prop|4|3|20020307|Some property names were changed to<br>synchronize with names used by MRD.||03/07|
+start.pl|4|3|20020307|Some property names were changed to<br>synchronize with names used by MRD.||03/07|
+reports.pl|4|3|20020307|Supports additional switch, -atom,<br>for generating atom concept reports.||03/07|
+meme.jar|4|3|20020307|There are a number of improvements/upgrades<br>1. ReportsClient has an additional method<br>   for generating atom concept reports.<br>   ReportsGenerator supports this additional<br>   report type.<br>2. AdminClient provides consolidated access<br>   to administrative services.  It is the<br>   java equivalent of admin.pl.<br>3. Optimizations to core data structures, in<br>   particular we represent Semantic Types better.<br>4. MIDServices class supports additional methods<br>   for connecting to norm, luinorm servers.<br>5. Reports show MUIs at the end of the MSH atom lines<br>   Reports also display end-of-report info slightly<br>   differently, but include the actual database name.<br>6. MGV_MUI integrity check added.<br>7. Methods to manage integrity system were added to <br>   MEMEDataSource<br>8. Initial atomic_action engine created.  A more fully<br>   specified representation of actions was <br>   implemented.||03/07|
+meme.jar|4|4|20020326|Upgraded to support extended concept reports.<br>Upgraded to allow MEMERelaEditorKit to insert<br>new relationship attributes and their inverses.||03/26|
+xreports.pl|4|1|20020326|First release. For documentation see:<br>http://meow.nlm.nih.gov/MEME4/Documentation/xreports.html||03/26|
+meme.prop|4|4|20020326|Small changes.||03/26|
+meme.jar|4|5|20020404|This release fixes the following four problems:<br>1. Max cursor limit problem.<br>2. Erroneous DEFs in reports.<br>3. Incorrect db name in html reports.<br>4. Rela editor hanging mid.<br>This jar file has been tested on oa in<br>/d5/MEME4/dev.||04/04|
+meme.jar|4|6|20020422|The following changes were made to the reports code:<br>1. logic for when to show context relationships was corrected<br>2. hyperlinks on concept_ids should have #report appended<br>3. HTML character entities for &lt;, &gt; and &amp; are used||04/22|
+start.pl|4|4|20020422|Upgraded to remove logs older than two weeks.||04/22|
+start.pl|4|5|20020513|Fixed bug in logic to delete old logs.||05/13|
+medline_parser.pl|4|1|20020513|Used to parse XML Medline files.||05/13|
+process_medline_data.csh|4|1.0|20020513|Loads output of XML Medline parser into <br>MID or MRD.  Handles both baseline and<br>update files.||05/13|
+update_medline_data.pl|4|1|20020513|Downloads and processes XML Medline files.<br>Makes use of process_medline_data.csh.||05/13|
+meme.jar|4|7|20020513|This release contains the following changes:<br>1. Upgrade to MEMERelaEditorKit to support<br>   concept id relationships.<br>2. Fixes bug in listener that prevented to<br>   requests from using the parser at the same<br>   time.<br>3. Correctly handles sources and tergroups not<br>   cached on server start-up.  This fixes the<br>   bug involving MDR50 that Suresh discovered<br>   while running reports.||05/13|
+rebuild_mid.pl|4|1|20020610|First version.  Rebulids MID tables using <br>MEME_SYSTEM.rebuild procedure.  Works like<br>reindex_mid.pl with respect to OS parallelism.||06/10|
+start.pl|4|6|20020620|Correctly handles deleting of old logs.||06/20|
+dump_mid.pl|4|1|20020620|Dumps mid data using OS parallelization.  First version.||06/20|
+meme.prop|4|5|20020620|New properties for tracking mid and lvg<br>services hosts and ports.||06/20|
+meme.jar|4|8|20020620|Upgraded to have reports show actual source<br>of concept level relationships, specifically<br>NLM03.  Also, error handling and handling of<br>source and termgroup value in general where<br>made more stable.|<br>Requires version 5 of meme.prop|06/20|
+meme.prop|4|6|20020627|This configuration file supports changes to<br>meme.jar file.  It includes properties for<br>validating atomic/molecular actions (which will<br>be used later) and an additional entry<br>in the services list for RxNormService.||06/27|
+meme.jar|4|9|20020627|This release is primarily to make the RxNorm server<br>code publicly available.  This server should function<br>normally for all other purposes as well but will<br>additionally allow you to manage code for testing<br>the RxNorm editor.  You MUST use version 6 of the meme.prop<br>properties file for everything to work.  Along with<br>this a new RxNorm editor has been uploaded ot<br>oa:/d5/MEME4/Release/snf.20020627.zip.  This new<br>editor code allows worklists/checklists to both be<br>loaded, and it fixes some bugs detected earlier.||06/27|
+meme.prop|4|7|20020828|Supports new jar file.||08/28|
+meme.jar|4|10|20020828|Minor bug fixes plus RxNorm API and a complete<br>set of client side APIs for supporting a MEME<br>editing interface.  A sample GUI application is<br>also provided (gov.nih.nlm.meme.client.TestFinderFrame).||08/28|
+admin.pl|4|2|20020828|Supports a wider variety of administrative tasks.<br>Including enabling/disabling editing, integrities,<br>and action validation.||08/28|
+medline_parser.pl|4|2|20020828|The handler class for medline parsing was<br>moved into the gov.nih.nlm.meme.xml package<br>which precipitated a change in this wrapper script.||08/28|
+memerun.pl|4|2|20020828|Verify NLM has most recent version.||08/28|
+reports.pl|4|4|20020828|Small fix to exception handling routines.||08/28|
+xreports.pl|4|2|20020903|Upgraded to communicate with server using<br>a smaller XML document.||09/03|
+meme.jar|4|11|20020916|There are three main changes:<br>1. Upgrade to support the incomplete SCDCs<br>   inserted with the status H NLM02 data.<br>2. Upgrade to reports to provide links for<br>   context relationships in HTML reports.<br>3. Upgrade to WorklistClient to provide<br>   stamping functionality.<br>Documentation for new release will be<br>available tommorrow in the  Developer Guides<br>section of the MEME4 documentation.||09/16|
+meme.jar|4|11|20020924|This release was made for two changes to the RxNorm server code:<br>1. Support the new HL7_1998-2002 source<br>2. Prevent MTH/MM, MTH/TM atoms from appearing on worklists.||09/24|
+meme.jar|4|11|20020925|Same release as before, but it fixes the<br>problem of keeping database sessions open.||09/25|
+meme.prop|4|8|20021114|Supports the new meme.app. property architecture.||11/14|
+meme.jar|4|12|20021114|There are a number of changes.  For details see:<br>http://meow.nlm.nih.gov/MEME4/Documentation/javadoc/gov/nih/nlm/meme/Version.html||11/14|
+meme.jar|4|13|20021202|Three main changes:<br>1. fixes bug preventing concept reports from running<br>2. Correctly interacts with LVG server, making use<br>   of lvg-server-host and lvg-server-port and <br>   Suresh's new protocol<br>3. Improved AUI maintenance for inserting atoms.||12/02|
+meme.jar|4|13|20021204|RxNorm code closes all open cursors.||12/04|
+meme.jar|4|14|20021211|This new MEME4 release includes support for<br>the new RNOrm editor (also released).  IT has<br>a few bug fixes included as well.||12/11|
+meme.jar|4|15|20030113|Minor changes, including the following:<br>1. Updates to support branded RxNorm editing<br>2. Better WorklistClient to support ActionHarvester<br>3. Better AdminClient to support admin pages (to be released)||01/13|
+meme.jar|4|16|20030115|Small changes include:<br>1. AdminClient supplies version information about the server.<br>2. Minor changes to support Change Server feature of RxNorm editor.||01/15|
+meme.jar|4|17|20030306|1. ChangeServerAction, ChangeDataSourceAction <br>   implemented.  See TestFinderFrame for<br>   examples on how to use.<br><br>2. Full implementation of merge engine and <br>   batch actions (via MergeEngineClient<br>   and ActionClient)<br><br>3. AuxliaryDataClient.getNextIdentifierForType()<br>   now implemented.  Use it to obtain<br>   transaction ids.<br><br>4. Application services can now be defined<br>   as reentrant (so as to prevent more than<br>   one thing running at at time, e.g.<br>   merge engine).<br><br>5. Bug fixes to MEMERelaEditorService,<br>   ReportsGenerator, and CoreDataService.<br><br>6. RxNorm editor upgrades.<br>   a. "apply to concept" will remove all <br>      unconnected RxNorm forms in that concept.<br>   b. Fixes to bugs that were preventing<br>      the editor from loading certain worklists.<br>   c. Try "Tools->Graph Report"<br><br>7. SortableJTable now has icons indicating<br>   sort order of columns (ascending/descending).||03/06|
+meme.prop|4|9|20030306|Added MergeEngineService to the services list<br>and increased optimal pool sizes to 10||03/06|
+memerun.pl|4|3|20030306|Returns non-zero status code if the java<br>application fails.||03/06|
+add_words.csh|4|1|20030318|Ported to MEME4.||03/18|
+assign_cuis.pl|4|1|20030318|Ported to MEME4||03/18|
+assign_luis.csh|4|1|20030318|Ported to MEME4.||03/18|
+atts_to_stringtab.csh|4|1.0|20030318|Ported to MEME4||03/18|
+classes_to_strings.csh|4|1.0|20030318|Ported to MEME4.||03/18|
+load_section.csh|4|1|20030318|Ported ot MEME4.||03/18|
+load_src.csh|4|1.0|20030318|Ported to MEME4.||03/18|
+luiNorm|4|1|20030318|Ported to MEME4||03/18|
+norm|4|1|20030318|Ported to MEME4.||03/18|
+raw_to_contexts.csh|4|1.0|20030318|Ported to MEME4.||03/18|
+wordind|4|1|20030318|Ported to MEME4||03/18|
+matrixinit.pl|4|1|20030318|Ported to MEME4.||03/18|
+admin.pl|4|3|20030319|Upgraded to handle new XML document type.||03/19|
+batch.pl|4|1|20030319|Ported to MEME4.||03/19|
+insert.pl|4|1|20030319|Ported to MEME4.||03/19|
+merge.pl|4|1|20030319|Ported to MEME4||03/19|
+mthtm.pl|4|1|20030319|Ported to MEME4.||03/19|
+reports.pl|4|5|20030319|Upgraded to handle new XML document type.||03/19|
+xreports.pl|4|3|20030319|Upgraded to handle new XML document type.<br>Supports file without cluster ids with -fX switches.<br>Supports -cluster XX switch to explictly<br>name the cluster_id.||03/19|
+
+meme.jar|4|18|20030319|There are a number of changes:<br>1. Faster reading of worklists/checklists.<br>   This is accomplished by reading only the<br>   concept identifier and preferred atom<br>   for concept worklists.<br>2. A fix was made to support "batch insert".<br>3. Stamping functionality was added.<br>4. Minor changes were made to support RxNorm.<br>5. The ObjectXMLSerializer now produces documents<br>   that are significantly smaller.||03/19|
+meme.jar|4|19|20030401|Several changes including:<br>1. Rxnorm client/server support access to large worklists.<br>2. CoreDataClient supports more efficient access<br>  to data<br>3. Minor bug fixes to exception, integrity, xml packages.<br>4. Merge supports a method for identifying conflicting<br>  relationships.<br>5. MEMEConnection was upgraded to support more consistent<br>  access to core data, and better performance.||04/01|
+xreports.pl|4|4|20030402|Re-introduced code to support enscript-style excape<br>sequences.  This bug was introduced in the last released<br>and is fixed here.||04/02|
+meme.prop|4|10|20030409|Addition of ActivityMonitor as a service.||04/09|
+xreports.pl|4|5|20030409|Fix to cluster numbering for Suresh.||04/09|
+meme.jar|4|20|20030409|1. MEME4 uses UTF-8 character encoding in <br>   XML documents instead of USASCII.<br>2. Bug fixes for Jekyll:<br>  o Concept.getSemanticTypes works now<br>  o Atom.getFormattedContexts works now<br>  o after performing a MolecularSplitAction <br>    the target concept can be recovered by <br>    calling getTarget() on the action itself. <br>    However, it is not a populated concept <br>    so you must re-read it by using <br>    CoreDataClient.<br>3. RxNorm performance improvements.<br>4. Read-relationships performance improvements <br>   (including improvements to reports code, the <br>   large concept "Serum" 114833 now can be read <br>   in under a minute with subsetquent reads taking <br>   under 30 seconds.<br>5. Minor other changes.||04/09|
+start.pl|4|7|20030410|Fixes bug with respect to deleting old logs.<br>Adds .jar files in $MEME_HOME/ext directory to<br>be added to the classpath.  This is useful in<br>providing patches and extra functionality without<br>having to have new releases.||04/10|
+memerun.pl|4|4|20030425|Two changes:<br>1. default setting for meme.view is now true<br>2. memory paramaters for java call set to support large <br>   concept reads.<br>This version of memerun.pl should be used in the<br>/site/java-meme/bin directory.||04/25|
+xreports.pl|4|6|20030425|Better reporting of badly formatted ids.  This would catch<br>the problem Suresh had of using -c with a CUI value.||04/25|
+meme.jar|4|21|20030425|Variety of changes:<br>1. Some bug-fixes for Vlad.<br>2. RxNorm performance improvements.<br>3. Added "server administration" functionality.<br>4. Other changes...||04/25|
+rxnorm_maintenance.cgi|4|1|20030425|First version of a tool for maintaining RxNorm<br>content. Be careful when using this tool, make<br>sure you understand what is about to happen.||04/25|
+mid_maintenance.cgi|4|1|20030425|First version of a tool for running general mid<br>maintenance processes.  Includes a tool for researching<br>database locks.  Be careful when using this tool<br>and make sure you understand what is about to<br>happen when you run it.||04/25|
+admin.pl|4|4|20030512|Enhanced access to server, session, and transaction<br>log files.||05/12|
+start.pl|4|8|20030512|Added MEME_HOME/ext to the classpath to allow for<br>extensions and patches to be installed easily.||05/12|
+meme.jar|4|22|20030512|Variety of changes detailed here:<br>http://meow.nlm.nih.gov/MEME4/Documentation/javadoc/gov/nih/nlm/meme/Version.html||05/12|
+tables.sql|4|20|20030512|Updated to match recent schema changes.||05/12|
+indexes.sql|4|13|20030512|Updated to match recent schema changes.||05/12|
+synonyms.sql|4|8.1|20030512|Updated to match recent schema changes.||05/12|
+MEME_APROCS.sql|4|13|20030512|Updated to handle the sg_ fields in the<br>core tables.  The aproc_insert_ procedures now<br>also handle these fields.||05/12|
+MEME_BATCH_ACTIONS.sql|4|18|20030512|Updated to handle sg_ field changes.||05/12|
+MEME_SOURCE_PROCESSING.sql|4|30|20030512|Updated to handle sg_ field changes and<br>to maintain the atom_ordering table.||05/12|
+meme.jar|4|23|20030516|Multiple changes:<br>1. Jekyll fixes.<br>2. RxNorm fixes.<br>3. Graph enhancements.<br>4. Progress monitor implementation (for action sequences)<br>  you will see more about this soon.||05/16|
+start.pl|4|9|20030516|Configured to run in headless environment. (no GUI)||05/16|
+MEME_SOURCE_PROCESSING.sql|4|31|20030516|Bug fix to update_releasabilty routin.e||05/16|
+meme.jar|4|24|20030521|Fixes for RxNorm problems, minor fixes for Jekyll.||05/21|
+meme.prop|4|11|20030521|Includes new ActionSequences service for<br>gauging system performance.||05/21|
+tables.sql|4|21|20030605|Reflects most recent schema changes.||06/05|
+indexes.sql|4|14|20030605|Reflects most recent schema changes.||06/05|
+views.sql|4|9|20030605|Reflects most recent schema changes.|<br>|06/05|
+synonyms.sql|4|10|20030605|Reflects most recent schema changes.||06/05|
+MEME_SYSTEM.sql|4|14|20030605|Fixes problems with dumping the MID.||06/05|
+dump_mid.pl|4|2|20030605|New preferred way of dumping the MID. Fixes all<br>outstanding problems.|<br>Should be used with MEME_SYSTEM version 14.|06/05|
+meme.prop|4|11|20030606|Updated to remove a depricated service.  Please<br>distribute this file to oc as well otherwise the<br>server will not start properly.||06/06|
+admin.pl|4|5|20030606|Supports a mode to kill the server, even if it<br>has not finished processing requests.||06/06|
+dump_mid.pl|4|2|20030606|Fixes problems in version released 6/5.||06/06|
+meme.jar|4|25|20030606|A variety of minor changes, including better reporting of<br>transaction logs and cleaner interfaces for interacting<br>with web applications.  RxNorm code was also updated<br>to look for NLM02 ingredients and brand names.||06/06|
+tables.sql|4|22|20030616|Final schema used for 2003AB release.||06/16|
+indexes.sql|4|15|20030616|Final schema used for 2003AB release.||06/16|
+MEME_INTEGRITY.sql|4|11|20030619|Matrix initializer no longer uses NOLOGGING.||06/19|
+MEME_SYSTEM.sql|4|15|20030619|The reindex procedure no longer uses NOLOGGING.||06/19|
+meme.jar|4|26|20030619|Several changes, including:<br>1. Better use of NLM02/IN and BN atoms, now we<br>  connect to an NLM02/IN matching the string<br>  and concept id of the preferred ingredient name<br>  and insert a matching one if it does not exist.<br>2. Concept report problem in RxNorm fixed.<br>3. Problem with 1691698 in RxNorm fixed (from email)<br>4. Improvements for Jekyll.<br>5. Improvements to integrity system to support<br>  the interactive editor and the MEME4 merge<br>  engine.||06/19|
+meme.jar|4|27|20030627|This release includes two important changes:<br>1. Bug fix to MolecularSplitAction for Vladimir.<br>2. Worklist/Checklists are now read by looking up every<br>   atom in every concept on the worklist/checklist.<br>   And Laura's problem of not reading the final<br>   concept on the worklist/checklist was fixed.||06/27|
+meme.jar|4|28|20030716|Important changes include:<br>1. TestReportFrame fixes for Vlad.<br>2. RxNorm fixes for Tammy (apply to concept fix)<br>doen||07/16|
+tables.sql|4|23|20030718|Added foreign_attributes and dead_foreign_attributes.||07/18|
+indexes.sql|4|23|20030718|Added indexes forforeign_attributes and dead_foreign_attributes.||07/18|
+synonyms.sql|4|11|20030718|Added foreign_attributes and dead_foreign_attributes.||07/18|
+meme.jar|4|29|20030801|This release upgrades RxNorm to include <br>the new SBDF and SCDF atoms in the graph <br>structure maintained by RxNormService. <br>Bug fixes to things like maintaining <br>precedence, and handling null editing <br>authorities in the concept reports, and <br>inability to correctly print concept <br>reports from Jekyll were fixed.||08/01|
+indexes.sql|4|17|20030801|Additional indexes for source_classes_atoms,<br>source_relationships, and molecular_actions.||08/01|
+undo.pl|4|1|20030801|First version of a script to undo batch/macro actions.||08/01|
+redo.pl|4|1|20030801|First version of a script to redo batch/macro actions.||08/01|
+meme.jar|4|30|20030811|Primary changes are:<br>1. Fix to RxNorm - precise ingredient issue.<br>2. Prefevent self-referential merges<br>3. Change in how action reports are communicated to client||08/11|
+admin.pl|4|6|20030819|Supports the refresh_db service which can be used<br>to change the "default" mid service used by a <br>running server.||08/19|
+meme.jar|4|31|20030819|This release includes a variety of bug fixes and improvements.<br>1. Merge and Move actions were fixed to work<br>  properly with respect to P rels and changing status.<br>2. The concept reports were revised to allow<br>  wrapping to make it easier to print properly<br>  scaled reports from Jekyll.  (test to make sure<br>  report structure did not change).<br>3. RxNorm service fixed to allow the only action<br>  to be the addition of an SY where none exists.<br>4. Server now supports a function to switch the<br>  default data source while the server is running.||08/19|
+xreports.pl|4|7|20030819|Supports updated concept reports.||08/19|
+norm|4|2|20030826|Updated to prepare for lvg2004.||08/26|
+luiNorm|4|2|20030826|Updated to prepare for lvg2004.||08/26|
+wordind|4|2|20030826|Updated to prepare for lvg2004.||08/26|
+meme.jar|4|32|20030826|Variety of changes including:<br>1. The RxNorm server side code does a <br>   better job of identifying precise vs. <br>   base ingredients.  This only mattered <br>   in the previous versions if the precise <br>   ingredient were shorter than the base.<br>2. Problems with the DT_I3B integrity <br>   check were fixed.<br>3. The problem of duplicate concepts on <br>   checklists/worklists was fixed.<br>4. The SortableJTable supports a resetSort()<br>   method to reset the state of the table <br>   to perform no sorting operations.<br>   (requested by Vlad).<br>5. All input streams, output streams use <br>   UTF-8 encoding.<br>6. When printing concept reports from Jekyll<br>   the font size should be bigger.<br>7. We made a change to the parser that may<br>   solve the jdk 1.4.2 problems we were having.||08/26|
+MEME_INTEGRITY_PROC.sql|4|14|20030908|Fixed the mxsuppr function which finds<br>cases of CUI,SUI with mixed suppressibility<br>values.||09/08|
+meme.jar|4|32.1|20030908|Several changes:<br>1. The getConflictingRelationships code was revised.<br>2. The client used by batch.pl reports errors more<br>   completely.<br>3. "Apply to Concept" was improved, and TRD LTs are<br>   now inserted with the correct tbr value.<br>4. Atomic actions are now retrieved in order so <br>   Jekyll problems with Undo should be gone.<br>5. The SystemToolkit class was updated to generate<br>   MD5 has values (for ATUI computation later).<br>||09/08|
+classes_to_strings.csh|4|2.0|20030908|Used in source insertion process for norming<br>strings in classes_atoms.src and producting<br>strings.src.  This script was updated to handle<br>multiple languages in a single file.<br>||09/08|
+tables.sql|4|25|20030908|Changes to cui_history to support MR+ MRCUI.<br>Changes to sr_predicate to support cui matching.||09/08|
+indexes.sql|4|18|20030908|Maintains primary key for inverse_relationships_ui.||09/08|
+tables.sql|4|26|20030930|Released to ensure code is current.||09/30|
+synonyms.sql|4|12|20030930|Released to ensure code is current.||09/30|
+mthtm.pl|4|2|20030930|Performance improvement.||09/30|
+reindex_mid.pl|4|2|20030930|Performance improvement.||09/30|
+rebuild_mid.pl|4|2|20030930|Performance improvement.||09/30|
+stamping.pl|4|2|20030930|Script to replace mproc_change_status.pl.||09/30|
+meme.prop|4|12|20030930|Updated mail server to lhc.nlm.nih.gov.||09/30|
+release_maintenance.cgi|4|2|20030930|Additional functionality.||09/30|
+mid_maintenance.cgi|4|2|20030930|Additional functionality.||09/30|
+rxnorm_maintenance.cgi|4|2|20030930|Additional functionality.||09/30|
+MEME_RANKS.sql|4|11|20030930|Ranking algorithm for atoms matches that used by MEME4<br>and the release processes.||09/30|
+MEME_APROCS.sql|4|14|20030930|Maintains AUI, RUI, and ATUI.||09/30|
+MEME_BATCH_ACTIONS.sql|4|19|20030930|maintains AUI, RUI, and ATUI.||09/30|
+MEME_SOURCE_PROCESSING.sql|4|33|20030930|Maintains AUI, RUI, and ATUI, plus a host of<br>other additional optimizations and improvements<br>for inserting SNOMEDCT and other sources.||09/30|
+rebuild_mid.pl|4|3|20031002|Uses correct procedure name, sets <br>sort_area_size. ||10/02|
+reindex_mid.pl|4|3|20031002|Sets sort_area_size correctly.||10/02|
+meme.jar|4|33|20031002|Most important changes are:<br>1. Communicates warning vectors back to client<br>  on molecular actions.<br>2. Supports the new MEME_APROCS with the additional<br>   fields.||10/02|
+MEME_APROCS.sql|4|15|20031009|Change to the source value used in assigning AUI, ATUI, RUI<br>(now uses root normalized source instead of simple<br>root source).  Also fix to sg_id recomputations when<br>concept_ids change that uses correct types.  This<br>fixes the Merging problem reported by LAD.<br>||10/09|
+MEME_SOURCE_PROCESSING.sql|4|34|20031009|Minor bug fixes to resolve_stys procedure and to<br>the way root normalized source is used in computing<br>atui values.||10/09|
+tables.sql|4|27|20031009|New field added to mid_validation_queries to support<br>auto-fixing of violations.<br>||10/09|
+reindex_mid.pl|4|3.1|20031009|Upgraded for efficiency, to match JS script.||10/09|
+rebuild_mid.pl|4|3.1|20031009|Same changes as for reindex_mid.pl||10/09|
+MEME_SOURCE_PROCESSING.sql|4|35|20031014|Fix to map_sg_fields, some queries were<br>returning ambiguous field errors.|<br>doine|10/14|
+enscript.pl|4|1|20031016|First release of Perl HTML printing<br>wrapper script.||10/16|
+memerun.pl|4|5|20031016|Fix to memerun.pl to allow parameters in quotes<br>with multiple words to be passed to underlying<br>java call.||10/16|
+MEME_INTEGRITY_PROC.sql|4|15|20031016|Bug fix to rcd_sep, addition of snomedct_mrg and<br>snomedct_sep procedures.||10/16|
+meme.jar|4|34|20031016|Several important changes, but mostly:<br>1. Implementation of generic printing API.<br>2. Bug fix for Jekyll sessions bug (causing<br>    NullPointerExceptions).<br>3. Bug fix to allow dead_attributes information<br>    to be read for action reports.||10/16|
+matrixinit.pl|4|2|20031022|Makes use of sort_area_size parameter.||10/22|
+MEME_SOURCE_PROCESSING.sql|4|36|20031022|Small changes for source insertion.<br>1. replacement_merges doesn't analyze source_classes_atoms<br>2. insert_ranks handles new sources better||10/22|
+meme.jar|4|34.1|20031022|Several minor changes:<br>1. Adds SNOMEDCT concept status to the concept reports.<br>2. PrintConceptReportAction now prints 2 pages per sheet properly.<br>3. Actions were optimized to not require reading of concept when not needed.<br>   Anything using action must properly set concept of data elements<br>   begin operated on.||10/22|
+enscript.pl|4|2|20031024|Two new parameters for controlling the scaling<br>of the document: -s and -noscale.  We looked<br>into allowing this to operate in a headless <br>environment and it simply cannot be done because<br>Swing components are used to render the HTML.<br>Thus, the DISPLAY variable must be set.||10/24|
+meme.jar|4|34.2|20031024|Two changes:<br>1. Fix for getConflictingRelationships<br>2. Additional printing parameters allowing<br>   enscript.pl to control the scaling factor<br>   of the document being printed.||10/24|
+meme.jar|4|35|20031031|This release includes these changes:<br>1. Bugs in certain molecular actions were fixed.<br>  (Namely delete and change actions)<br>2. Printing should be faster (please test).<br>3. The printing code now scales the title-bar<br>   independently of the content-scaling options.<br>4. The duplicate components problem in the RxNorm<br>   editor was fixed.<br>5. The copy/paste from the report frame should now<br>   work properly.||10/31|
+reindex_mid.pl|4|4|20031031|Correctly handles sort_area_size.||10/31|
+rebuild_mid.pl|4|4|20031031|Correctly handles sort_area_size.||10/31|
+jenscript.pl|4|3|20031107|Renamed from enscript.pl, works in headless environment,<br>faster than before.||11/07|
+memerun.pl|4|6|20031107|Supports code running in headless environment<br>via the -headless switch.|<br>This script is required by jenscript.pl so please<br>install both together.|11/07|
+meme.jar|4|36|20031107|There are several important changes, and a couple of fixes.<br>1. Compiled with jdk1.4.2.  When we are ready please run<br>  this in a 1.4.2 environment with 1.4.2 clients.  Please<br>  specify that the JAWS jekyll should require 1.4.2.<br>2. Faster printing.  I believe we solved the outstanding<br>  printing issues.<br>3. Fixes to molecular actions, all should work as expected<br>  now.  So long as Jekyll manages concept status actions<br>  should work correctly.<br>4. Minor other changes detailed in javadocs.||11/07|
+MEME_BATCH_ACTIONS.sql|4|20|20031107|Small change to make sure that rui gets inserted <br>when context_relationships is loaded.||11/07|
+MEME_APROCS.sql|4|16|20031201|Validates SEMANTIC_TYPE values when they are inserted.||12/01|
+MEME_SOURCE_PROCESSING.sql|4|37|20031201|Bug fix to map_sg_data to allow things to not be<br>mapped.  This should fix a recurring problem found<br>in the meme_error log.||12/01|
+tables.sql|4|28|20031201|Added a release_name field to inverse_relationships.||12/01|
+meme.prop|4|14|20031201|Added tkao@apelon.com to the administator list, to<br>receive email messages when errors occur.||12/01|
+meme.jar|4|37|20031201|Mostly this is a maintenance release with changes to<br>the back end which do not affect the clients too directly.<br>Some notable changes are:<br>1. Reworked how sessions track requests to prevent<br>  conflicts.<br>2. Reworked session timeout to allow clients to<br>  set it manually (or even turn it off).<br>3. Improved javadocs and error messages that get<br>  sent back to client.<br>4. Added client-side access to dead data<br>  (for validating test suites).<br><br>We have not yet added support for integrity checks<br>to move actions, that is our next priority.||12/01|
+meme.jar|4|37.1|20031204|Two major reasons for this release:<br>1. It fixes a bug related to sessions timing out.<br>2. Move integrity checks are implemented.||12/04|
+MEME_BATCH_ACTIONS.sql|4|21|20031215|We cleaned up some queries in the source<br>code to make it more readable.  No substantive<br>functional changes.||12/15|
+MEME_SOURCE_PROCESSING.sql|4|38|20031215|Two changes:<br>1. Optimized the assign_atui,assign_rui procedures<br>2. Added code to source_replacement to handle<br>  replaced attributes only.<br>  (necessary for MSH insertion).||12/15|
+meme.jar|4|38|20031215|Mostly this release solves some threading issues<br>with the clients and when using sessions on the<br>server side.  These fixes avert potential future<br>problems but do not in themselves fix the "<br>freezing problems we have experienced recently in<br>Jekyll.<br>An initial Mapping API is also included.||12/15|
+indexes.sql|4|19|20031219|Changed relationships_ui, attributes_ui indexes.||12/19|
+MEME_SOURCE_PROCESSING.sql|4|39|20031219|Made assign_ruis,assign_atuis more efficient.||12/19|
+xreports.pl|4|8|20031219|Supports the new -max parameter.||12/19|
+meme.jar|4|39|20031219|Several changes.<br>1. Small fix to RxNorm back-end to prevent<br>  duplicate ingredient level relationships.<br>2. Implementation of TPWs request to limit<br>  REVIEWED relationships in the concept report<br>  (see xreports.pl -max)<br>3. Progress monitor functionality added<br>  (for future use).<br>4. Fix to prevent concept reports from reporting<br>  missing data exceptions when they have C level<br>  rels to empty concepts.||12/19|
+meme.jar|4|39.1|20031229|This is a bug-fix release to solve the problem<br>Kin Wah had trying to split.  It had to do with<br>confusion over MEME "source identifiers" and<br>"src identifiers". ||12/29|
+MEME_SYSTEM.sql|4|16|20040120|Several changes:<br>1. Parallelize ANALYZE statements.<br>2. Limit initial extent to 1GB when rebuilding a table.<br>3. Support rebuilding of partitioned tables.||01/20|
+MEME_APROCS.sql|4|17|20040120|Small change to computing RUIs for NLM03 rels.||01/20|
+MEME_SOURCE_PROCESSING.sql|4|40|20040120|Much better RUI and ATUI assignment algorithms.||01/20|
+validate.pl|4|3|20040120|Makes better use of sort/hash area sizes.||01/20|
+meme.jar|4|40|20040120|Several changes:<br>1.  Freshness of data is now validated <br>    before molecular actions are performed.<br>2. The molecular action locking mechanism <br>   was made more efficient, and coordinated <br>   with the undo/redo locking mechanism.<br>3. The mapping client can now fully <br>   support editing of map set information.<br>4. Small MolecularMergeAction bug was <br>   fixed (should prevent some MEME4 errors).<br>5. Actions more aggressively re-read <br>   data to prevent errors.<br>6. New exception: StaleDataException.<br>7. Small server bug fix to prevent <br>   recurring null pointer exception.||01/20|
+tables.sql|4|29|20040206|New table: test_suite_statistics<br>Revised table: source_replacement||02/06|
+indexes.sql|4|20|20040206|New indexes for source_replacement, relationships_ui, attributes_ui||02/06|
+meme.jar|4|41|20040206|There are several changes, most to server side things.<br>1. Bug fixes that can replace the patches released recently.<br>2. Extensions to CoreDataService to provide more/better<br>  access to core data.<br>3. Improvements to MEMEConnection in how it reads core data.<br>4. Improvements to how ObjectXMLSerializer tracks<br>  "primitive" objects.<br>5. RxNorm fix (for TPW).<br>6. Other minor changes.|<br>Please remove the $MEME_HOME/ext patch files before<br>starting this version of the server.<br>|02/06|
+admin.pl|4|7|20040220|Supports MEME version 41 (and higher) documents||02/20|
+norm|4|3|20040220|Supports additional library for lvg2004.||02/20|
+luiNorm|4|3|20040220|Supports additional library for lvg2004.||02/20|
+wordind|4|3|20040220|Supports additional library for lvg2004.||02/20|
+tables.sql|4|30|20040220|Schema changes to better support attributes connected<br>to different MEME data types and to better support<br>fully fledged non-English content.||02/20|
+indexes.sql|4|21|20040220|Supports newest tables.sql||02/20|
+meme.jar|4|42|20040220|Main changes are bug fixes:<br>1. CONCEPT_NOTES should now be visible<br>2. RxNorm problems are gone in this version.<br><br>Other improvements (mostly for the future) are:<br>1. Better support for non ENG content<br>2. Better support for attributes connected to rels<br>3. gov.nih.nlm.util.BrowserLauncher|<br>Make sure that any patch files (esp patch.20040219.jar)<br>are removed when using this version of the server.|02/20|
+MEME_OPERATIONS.sql|4|8|20040308|Updated ranking algorithm for resolving CUI merges and splits.||03/08|
+MEME_SOURCE_PROCESSING.sql|4|41|20040308|Supports newer source update model.||03/08|
+MEME_BATCH_ACTIONS.sql|4|22|20040308|Fixes a bug related to inserting context rels.||03/08|
+tables.sql|4|31|20040308|Schema script used to load oa_mid2005.||03/08|
+MEME_APROCS.sql|4|18|20040308|Bug fix to always compute ATUI for SEMANTIC_TYPE using<br>MTH as root source.||03/08|
+tables.sql|4|32|20040317|Minor changes:<br>1. coc_subheadings is not IOT<br>2. sg_meme_id fields are nullable|<br>doen|03/17|
+indexes.sql|4|22|20040317|Supports coc_subheadings_pk.||03/17|
+views.sql|4|10|20040317|Better queries for views.||03/17|
+synonyms.sql|4|13|20040317|Supports synonyms for views.||03/17|
+MEME_BATCH_ACTIONS.sql|4|23|20040317|Bug fix for insert into context_relationships query.||03/17|
+MEME_SOURCE_PROCESSING.sql|4|42|20040317|Various changes, including better source_replacement<br>algorithm and improved update_releasability algorithm.||03/17|
+meme.jar|4|43|20040317|Mostly minor changes.  Includes bug fixes handled<br>previously by patches, and an additional bug<br>fix for the server RxNorm code.  Major improvements <br>include: ability to handle attributes as attached <br>to relationships (or any other core data type),<br>ability to configure some DB parameters (sort <br>area size/ hash area size), and a more stable <br>EditingClient. |<br>Please remove all patches in the $MEME_HOME/ext diredctories.|03/17|
+meme.jar|4|43.1|20040323|Bug fix related to actions that re-read concepts<br>that have not been fully emptied.  PRoblem was<br>identified during PDQ merging.||03/23|
+meme.jar|4|43.2|20040329|Bug fix for RxNorm issues and concept report issues.||03/29|
+MEME_SOURCE_PROCESSING.sql|4|43|20040329|Improvements for source processing, in particular<br>for loading SAUI, SCUI, SDUI for foreign atoms.||03/29|
+meme.jar|4|43.3|20040330|Bug fix for concept name on concept report problem.||03/30|
+MEME_APROCS.sql|4|19|20040419|Improved AUI, RUI, ATUI assignment algorithm that<br>takes into account the source identifier values.||04/19|
+MEME_INTEGRITY.sql|4|12|20040419|Parallelized matrix initializer queries.||04/19|
+MEME_RANKS.sql|4|12|20040419|Small change in setting precedence.||04/19|
+MEME_SOURCE_PROCESSING.sql|4|44|20040419|Improvements to code for mapping<br>identifiers and to inserting foreign atoms.||04/19|
+MEME_SYSTEM.sql|4|17|20040419|Includes support for compute_stats_flag when reindexing<br>tables and now supports auto-reindexing of BITMAP indexes.||04/19|
+meme.jar|4|44|20040419|Updated to allow (by default) reports and MEME4 <br>to see non-ENG language sources.||04/19|
+meme.jar|4|44.1|20040421|This release serves two purposes.<br>1. More comprehensive support for SPA atoms in classes.<br>2. Support for FinderClient.restrictByReleasable to allow<br>  searches on only releasable data.||04/21|
+meme.jar|4|44.2|20040422|Minor fix for versionitis issue.||04/22|
+tables.sql|4|33|20040428|Updated to fully reflect new AUI,RUI,ATUI assignment algos.||04/28|
+indexes.sql|4|23|20040428|Updated to reflect/support tables.sql changes.||04/28|
+MEME_APROCS.sql|4|20|20040428|Fully implements revised AUI assignment algorithm.||04/28|
+MEME_UTILITY.sql|4|15|20040428|Much improved md5 support.||04/28|
+MEME_BATCH_ACTIONS.sql|4|24|20040428|Fully supports new AUI assignment algorithm.||04/28|
+MEME_SOURCE_PROCESSING.sql|4|45|20040428|Fully supports new AUI assignment algorithm.||04/28|
+MEME_SYSTEM.sql|4|18|20040503|Fixed to work with oracle 9.2||05/03|
+MEME_INTEGRITY_PROC.sql|4|16|20040503|Fixed to work with oracle 9.2||05/03|
+MEME_INTEGRITY.sql|4|13|20040503|Fixed to work with oracle 9.2||05/03|
+MEME_SOURCE_PROCESSING.sql|4|46|20040503|Fixed to work with oracle 9.2||05/03|
+MEME_TESTER.sql|4|2|20040503|Fixed to work with oracle 9.2||05/03|
+MEME_BATCH_ACTIONS.sql|4|25|20040503|Fixed to work with oracle 9.2||05/03|
+MEME_BATCH_ACTIONS.sql|4|26|20040505|Fixed to work with oracle 9.2.||05/05|
+mthtm.pl|4|3|20040505|Now removes cases of just one MTH/TM with a given<br>base string left.  Addresses an issue raised by<br>TPW.||05/05|
+meme.jar|4|45|20040507|There are three main reasons for this release.<br>1. CoreDataClient and ReportsClient now support explicitly<br>   including or excluding a list of languages to read.<br>2. We fixed a problem that was allowing deadlocks.<br>3. The caching of RELAs is better so that when we add<br>   new RELAs to the MID it should not cause errors if<br>   your client is pointing to the wrong server.||05/07|
+MEME_APROCS.sql|4|21|20040519|Improved support for AUI computation when changing<br>source_aui, source_cui, source_dui fields.||05/19|
+MEME_SOURCE_PROCESSING.sql|4|47|20040519|Improvements to source insertion software.  Delete<br>demotions code now resets status of C level rels.||05/19|
+tables.sql|4|34|20040609|Extended attribute_name fields, added tables for content<br>view management and extended some fields in sr_predicate.||06/09|
+views.sql|4|11|20040609|Added mdba_cur for tracking open cursors. Changed<br>separated string views to only pick up ENG language<br>strings.||06/09|
+MEME_APROCS.sql|4|22|20040609|Minor bug fix to assign_rui procedure.||06/09|
+MEME_BATCH_ACTIONS.sql|4|27|20040609|Removed the batch_insert procedure (only macro should<br>be used).  Also minor normalization with respect to the<br>use of parallel and append hints.||06/09|
+MEME_SOURCE_PROCESSING.sql|4|48|20040609|Code review/changes for source_replacment procedure<br>and minor performance enhancements for assign_auis<br>procedure.||06/09|
+MEME_SYSTEM.sql|4|19|20040615|Use DBMS_STATS to analyze tables.||06/15|
+MEME_RANKS.sql|4|13|20040615|Faster code for set_ranks and set_preference.||06/15|
+xreports.pl|4|9|20040615|Supports a new -lat switch for restricting to a particlar<br>list of languages.  Missing data error happens if you<br>select a language that does not appear in the concept<br>to generate the report for.||06/15|
+meme.jar|4|46|20040615|1. New functionality (for test suites) to <br>  read an inverse relationship.  <br>2. Minor changes to the molecular "change" <br>   actions, also for test suites.<br>3. New integrity check: <br>   MGV_STY to prevent STY pairs from merging.<br>4. Web-graphs should now report avg,min,max <br>   elapsed time in milliseconds not seconds.<br>5. Small RxNorm bug (causing the "B 10 ml") <br>    was fixed.<br>6. Concept reports support concept level SOS and DEFINITION.<br>7. Better management of closing cursors when DB is busy.||06/15|
+indexes.sql|4|24|20040706|New indexes for atom_ordering and content_view_members.||07/06|
+tables.sql|4|35|20040706|Revised table definitions for content_views<br>and content_view_members.||07/06|
+MEME_SOURCE_PROCESSING.sql|4|49|20040706|Bug fix for source_replacement of attributes,<br>Improvement to insert_ranks procedures to minimize<br>work of set_ranks.  We now rank updates of sources<br>at same level as previous version, tobereleased will<br>cause actual core data ranks to differ.||07/06|
+meme.jar|4|46|20040709|This release includes the following changes/updates:<br>1. Minor changes to the toolkit classes for performance.<br>2. Content view implementation (to be integrated into<br>  a web application for maintaining content views).<br>3. Upgrades to actions to support our full action test<br>  suites.  Also a bug fix to split causing a problem <br>  with RUI assignments in the background.<br>4. Small upgrade to MGV_M to allow SNOMEDCT,SNMI,RCD<br>  NEC atoms to merge.<br>5. Small upgrade to MEDLINE XML handler to support<br>  all of the bad date formats used in medline XML files.||07/09|
+meme.prop|4|15|20040716|Two new services added to the services list:<br>MappingService, ContentViewService.||07/16|
+MEME_SOURCE_PROCESSING.sql|4|50|20040716|Minor changes for source insertion support.<br>1. maintain termgroup.release_rank<br>2. ensure termgroup_rank is set properly where it<br>   is assigned (instead of causing problem later)<br>3. Minor source_replacment bug fix.||07/16|
+meme.jar|4|47|20040720|This release includes the following changes/updates:<br>1. Minor changes to the toolkit classes for performance.<br>2. Content view implementation (to be integrated into<br>   a web application for maintaining content views).<br>3. Upgrades to actions to support our full action test<br>   suites.  Also a bug fix to split causing a problem <br>   with RUI assignments in the background.<br>4. Small upgrade to MGV_M to allow SNOMEDCT,SNMI,RCD<br>   NEC atoms to merge.<br>5. Small upgrade to MEDLINE XML handler to support<br>   all of the bad date formats used in medline XML files.||07/20|
+meme.jar|4|47.1|20040722|Bug fix for NullPointerException encountered during testing.||07/22|
+meme.jar|4|47.2|20040723|Bug fix relating to split actions.||07/23|
+meme.jar|4|47.3|20040730|Small bug fix to allow editing of SRC concepts.||07/30|
+tables.sql|4|36|20040809|Added release_rank field to termgroup_rank, and<br>revised definitions for content_views and<br>content_view_members.||08/09|
+indexes.sql|4|25|20040809|New index on classes.last_release_cui.||08/09|
+MEME_APROCS.sql|4|23|20040809|Minor change to assign_atui for SMENATIC_TYPEs.<br>Infrastructure for "force" undo and redo built.<br>Language is not null when inserting into classes.||08/09|
+MEME_UTILITY.sql|4|16|20040809|New procedure for mapping sg_type,sg_id,sg_qualifier<br>to an actual MEME id and an atom id.||08/09|
+MEME_SOURCE_PROCESSING.sql|4|51|20040809|Improved sampling for test insertions.||08/09|
+meme.jar|4|48|20040819|Several changes:<br>1. Updates to content view API.<br>2. New concept mapping API (initial).<br>3. Bug fix for data source pool overflow problem.<br>4. Better socket interaction (timeout/buffering).<br>5. Minor javadoc improvements||08/19|
+MEME_SOURCE_PROCESSING.sql|4|52|20040819|Improved source insertion software.<br>1. Better reports sampling queries.<br>2. Better computation of source rank.||08/19|
+MEME_UTILITY.sql|4|17|20040831|Preserves work_ids when test insertions are restarted.||08/31|
+meme.prop|4|16|20040908|We realized that the mail server specified by<br>the properties file was mail.apelon.com instead<br>of lhc.nlm.nih.gov.  This update to the properties<br>file fixes that problem and adds tkao to all of<br>the email lists used by the server for reporting<br>errors.||09/08|
+MEME_APROCS.sql|4|24|20040920|Bug fix in ATUI,RUI computation when splits/merges happen.||09/20|
+MEME_OPERATIONS.sql|4|9|20040920|CUI assignment algorithm that uses release rank instead<br>of MID rank.||09/20|
+meme_server.sh|4|1.0|20040928|First Release.|<br>Make sure to copy to oa and oc, /d5/MEME4/bin.|09/28|
+tables.sql|4|37|20041006|Primary keys for code_map, language, editors,<br>and editor_preferences. New meme_properties fields.||10/06|
+indexes.sql|4|26|20041006|Primary keys for code_map, language, editors, <br>and editor_preferences.||10/06|
+MEME_APROCS.sql|4|25|20041006|Minor changes.||10/06|
+MEME_INTEGRITY_PROC.sql|4|17|20041006|Better deleted_cui procedure.||10/06|
+MEME_SOURCE_PROCESSING.sql|4|53|20041006|Source replacement algorithm fixes and better<br>sampling algorithm.||10/06|
+meme.jar|4|49|20041105|Major upgrade to MEME4.  Includes these changes:<br>1. New action architecture, eventually to<br>  allow all MID changes to be conducted<br>  through MEME server.<br>2. Improved data cacheing architecture.<br>3. Extended support for MEME services available<br>   via meow.  We indend to replace all .cgi<br>   functionality with .jsp applications.<br>   This release supports the MRSAB, MRDOC,<br>   and MRCOLS/FILES editors.<br>4. Some bug fixes.<br>5. Some documentation changes.<br>6. New package: gov.nih.nlm.meme.action.<br>   All actions in gov.nih.nlm.meme.common have<br>   been deprecated (although they should still<br>   work as before).||11/05|
+update_src.csh|4|2|20041119|No longer need to maintain RXNORM SRC concepts this way.||11/19|
+add_words.csh|4|3|20041119|Rebuilds tables when -all switch is used.||11/19|
+load_section.csh|4|4|20041119|Runs better on linux, ensures source table indexes<br>after truncating.  Overall more stable for insertions.||11/19|
+load_src.csh|4|5.0|20041119|Supports expanded strings.src file.||11/19|
+process_medline_data.csh|4|2.0|20041119|Better fault tolerance.||11/19|
+raw_to_contexts.csh|4|3.0|20041119|Better fault tolerance||11/19|
+MEME_APROCS.sql|4|26|20041119|Better handling of ATUI, RUI if level chagnes.<br>RUI logic handles C level rels with RELA values<br>properly with sab=RELA.||11/19|
+MEME_RANKS.sql|4|14|20041119|Ranking in classes now uses release termgroup_rank<br>instead of editing termgroup_rank.  MEME4 will <br>properly show editing ranks/preference in Jekyll.||11/19|
+MEME_SOURCE_PROCESSING.sql|4|54|20041119|Improvements to source insertion process. In particular,<br>better handling of RUI, AUI assignments, ability<br>to assign CUIs from source files and insert basic<br>sims_info rows (if not present) from sources.src.||11/19|
+dump_mid.pl|4|3|20041119|Field separator can be set with -f.||11/19|
+validate.pl|4|4|20041119|Better use of sort_area_size, hash_area_size.||11/19|
+assign_cuis.pl|4|2|20041119|Supports arbitrary CUI prefix for new CUI<br>assignments.  Useful for temp or other <br>style CUI values.||11/19|
+MEME_APROCS.sql|4|26.1|20041122|Small bug fixes in response to test suites.  Please use this<br>version instead of installing version 26.||11/22|
+tables.sql|4|38|20041213|New tables: action_log, aui_history, mid_validation_results<br>Old tables: operations_queue, authority_rank,                  <br>  authority_groups, ic_violations||12/13|
+indexes.sql|4|27|20041213|Changes to support table changes.||12/13|
+synonyms.sql|4|14|20041213|Changes to support table changes.||12/13|
+MEME_APROCS.sql|4|27|20041213|Better RUI, AUI, ATUI computation (data driven prefixes<br>and lengths).  Minor bug fixes based on test suite<br>results.  Fix to LKW reported problem inserting LTs.||12/13|
+MEME_BATCH_ACTIONS.sql|4|28|20041213|No longer using report_table_change,<br>report_macro_change.  Cascaded actions<br>for delete are now supported.  In other words,<br>deleting atoms will now delete connected atts<br>and relationships.||12/13|
+MEME_OPERATIONS.sql|4|10|20041213|Improved CUI assignment with data-driven previx<br>and length.  Also, uses last_assigned_cui in addition<br>to last_release_cui to preserve interim assignments.||12/13|
+MEME_RANKS.sql|4|15|20041213|Concept preferred_atom_ids are again computed using<br>editing ranks, not release ranks. All other uses of<br>termgroup_rank refer to release rank.||12/13|
+MEME_SOURCE_PROCESSING.sql|4|55|20041213|Enter changes (type "done" when finished).<br>UI assignments are more data driven.  Better support<br>for CODE_ROOT_SOURCE/TERMGROUP types. Better ordering<br>of merge facts.  Other misc. source insertion <br>improvements.||12/13|
+MEME_UTILITY.sql|4|17|20041213|Removed old MRD reporting mechanism.  Better support<br>for single-id map_sg_fields procedure.||12/13|
+process_medline_data.csh|4|3.0|20041213|Removes old MRD reporting mechanism.||12/13|
+assign_luis.csh|4|2|20041213|Removed old MRD reporting mechanism.||12/13|
+add_words.csh|4|4|20041213|Removed old MRD reporting mechanism.||12/13|
+meme.prop|4|17|20041213|Added smayhugh to admin lists. Added MaintenanceService<br>to list of supported services.||12/13|
+merge.pl|4|3|20041213|Supports -c switch for merging 2 concepts.||12/13|
+meme.jar|4|50|20041213|Contains a variety of small bug fixes and feature<br>enhancements.  Also supports a much wider variety<br>of actions for maintaining auxiliary MID tables.<br>It also (optionally) supports logging of ALL actions<br>and real-time CUI assignment.||12/13|
+meme.jar|4|50.1|20041221|Same as version 50, but better query<br>for reading preferred names on worklists.||12/21|
+MEME_BATCH_ACTIONS.sql|4|29|20041230|Improvements to log operation call.  Bug fix to "delete rels"<br>to allow attributes connected to rels to be deleted too.<br>Better support for forcing undo/redo actions.||12/30|
+MEME_INTEGRITY.sql|4|14|20041230|Cleaner code, better logging for matrix initializer/updater.||12/30|
+MEME_OPERATIONS.sql|4|11|20041230|Better use of work_ids by assign_cuis procedure.||12/30|
+MEME_RANKS.sql|4|16|20041230|Better support for work_id by set_Ranks, set_preference.<br>All code that sets concept_status.preferred_atom_id<br>now uses editin grank.||12/30|
+MEME_SOURCE_PROCESSING.sql|4|56|20041230|Bug fix to replacement_merges procedure to handle<br>ambig flag correctly.  Matching algorthms now support<br>all of the criteria the same way.  Merge order is<br>now correctly computed.  Better use of log_operation.||12/30|
+add_words.csh|4|5|20041230|Takes -w switch to support work_id.||12/30|
+matrixinit.pl|4|3|20041230|Takes -w switch to support work_id.||12/30|
+assign_cuis.pl|4|3|20041230|Takes -w switch to support work_id.||12/30|
+cronvalidate.csh|4|1|20041230|New (already on smis, no action needed).||12/30|
+load_section.csh|4|5|20041230|Better use of log_operation.pl.||12/30|
+mthtm.pl|4|4|20041230|Better computation of elapsed time.||12/30|
+undo.pl|4|2|20050114|Supports force-undo of actions, passing of work_ids<br>Requires MEME v51 or higher.||01/14|
+redo.pl|4|2|20050114|Supports force-undo of actions, passing of work_ids<br>Requires MEME v51 or higher. ||01/14|
+meme.jar|4|51|20050114|Variety of changes and bug fixes mostly focused on <br>tightening the undo and redo mechanisms for the new <br>action model.  Only a few changes here will apply <br>to editors/Jekyll.  Changes include,<br>1. Completion of action model for undoing logged <br>   actions.  Now, every action defines its own inverse <br>   and can be undone by performing the inverse of the <br>   action.  This alleviates the need for an explicit <br>   "undo" action.  To perform a "redo", all you have <br>   to do is get the inverse of the "undo" action.<br>2. Some actions are inherently not undoable and these <br>   return as their inverse an action that performs <br>   no operation.<br>3. CONTEXTS section of the concept report was moved <br>   below RELATIONSHIPS.<br>4. SAB for DEF and SOS attributes will now show up on <br>   concept report.<br>5. A bug that happens when the preferred atom of a <br>   related concept is not set was fixed.<br>6. Improved support for transaction and work identifiers.||01/14|
+MEME_APROCS.sql|4|28|20050114|Fixed bug in undoing a delete of a long attribute.||01/14|
+meme.jar|4|52|20050125|This release was primarily made to addresss the recent<br>recurring network problems.  Now, when a MEME java client<br>experiences a network problem when communicating with the<br>server it tries again to send the request (if it was not<br>sent successfully) and tries again to receive the response<br>(if the request was sent but no response was obtained).<br>A 2 second delay is used between attempts and up to 5 attempts<br>are made.  If failure continues after this, exceptions are <br>thrown as before.  Two new exceptions may be thrown:<br>1. FailedToConnectException (indicates a failure to connect<br>   to the server, meaning try again later)<br>2. UnknownStateException (indicates that the server received<br>   a request but the client after 5 attempts was unable to<br>   receive the response.  we do not know in this state whether<br>   or not the request was processed successfully).<br><br>A fix was also made to the recent "fetch out of sequence" error.||01/25|
+MEME_OPERATIONS.sql|4|12|20050125|Full-DB CUI assignment algorithm updated to match MEME4 <br>algorithm.||01/25|
+meme.jar|4|52|20050126|This release was primarily made to addresss the recent<br>recurring network problems.  Now, when a MEME java client<br>experiences a network problem when communicating with the<br>server it tries again to send the request (if it was not<br>sent successfully) and tries again to receive the response<br>(if the request was sent but no response was obtained).<br>A 2 second delay is used between attempts and up to 5 attempts<br>are made.  If failure continues after this, exceptions are <br>thrown as before.  Two new exceptions may be thrown:<br>1. FailedToConnectException (indicates a failure to connect<br>   to the server, meaning try again later)<br>2. UnknownStateException (indicates that the server received<br>   a request but the client after 5 attempts was unable to<br>   receive the response.  we do not know in this state whether<br>   or not the request was processed successfully).<br><br>A fix was also made to the recent "fetch out of sequence" error.||01/26|
+MEME_OPERATIONS.sql|4|12|20050126|Full-DB CUI assignment algorithm updated to match MEME4 <br>algorithm.||01/26|
+
+MEME_APROCS.sql|4|29|20050311|Better handling of "force" undo for concept actions.||03/11|
+MEME_BATCH_ACTIONS.sql|4|30|20050311|Better handling of last_release_cui when loading<br>classes from data that knows its CUI assignment.||03/11|
+MEME_SOURCE_PROCESSING.sql|4|57|20050311|Better sampling algorithm, minor bug fix.  Support<br>CUI_SOURCE, CUI_ROOT_SOURCE map types.||03/11|
+meme_server.sh|4|2.0|20050311|Uses admin.pl -s kill to shutdown server not shutdown.pl.||03/11|
+start.pl|4|10|20050323|Memory settings changed to allow max 2GB.||03/23|

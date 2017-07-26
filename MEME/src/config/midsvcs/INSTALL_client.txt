@@ -1,0 +1,20 @@
+INSTALL
+-------
+1. Choose $MIDSVCS_HOME
+2. Unzip dist_midsvcs*.zip into $MIDSVCS_HOME
+3. Configure $SAFEBOX_HOME/etc/oracle.passwd file
+4. Edit $ENV_FILE and set MIDSVCS_HOME property to $MIDSVCS_HOME path
+5. Edit $ENV_FILE and set MIDSVCS_HOST and MIDSVCS_PORT properties 
+   to the host and port where the MID Services server is running 
+  
+Dependencies
+-----------------------
+Subsystem Dependencies
+  $ENV_HOME
+
+Network Dependencies
+  MIDSVCS Server - specified via $ENV_FILE
+  
+UPDATE
+------
+Same as install

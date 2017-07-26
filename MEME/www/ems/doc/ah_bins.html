@@ -1,0 +1,126 @@
+<HTML>
+<HEAD>
+<TITLE>Managing AH Bins</TITLE>
+</HEAD>
+
+<BODY>
+<P ALIGN=right>suresh@nlm.nih.gov 10/2000
+
+<H1>Managing AH bins</H1>
+
+The AH bins in the EMS are driven by a configuration file in smis:/d3/ems/config.
+The default config file is named <A HREF="AH.config">AH.config</A>.
+If there is a DB specific
+file named AH.config.&lt;db&gt;, e.g., AH.config.ob_mid2001 then that takes
+precedence for that database.
+
+<P>
+
+Each line in the file contains several '|' separated fields which are
+described below.
+Comment lines start with a '#' and blank lines are allowed.
+
+<P>
+<B>NOTE</B>:
+Please make changes to this file with care.  Changes made to this
+file are instrumental in the behavior of the AH bins scheme.
+
+<P>
+
+Once the changes are made, call up the AH bins via the EMS.  It will report any
+errors it finds.
+Fix them IMMEDIATELY, else the scheme will not work.
+
+<P>
+
+The field formats are:
+
+<OL>
+
+<LI><B>bin_name</B>: The name of the bin.  Bin names are made up of lowercase
+alphabetic and numeric characters and the "_" (underscore) character
+and must be less than 32 characters long.
+
+<P>
+
+<LI><B>Description</B>: A short, pithy description for the bin.
+The description should be less than 240 chars.
+
+<P>
+
+<LI><B>Generator Script</B>: This field contains the name of a script that is
+used to generate the clustered set of
+concepts for this bin and its arguments (optional).  Scripts reside in
+smis:/site/umls/oracle/ems-2.0/AH.
+When making worklists, concepts are basically ordered by cluster ID,
+and clustered by the generating script, so no ordering script is needed.
+<P>
+If the field begins with MEME_INTEGRITY_PROC: then the generator is
+the named integrity procedure.
+
+<P>
+If it begins with FILE:, then the
+contents of the bin are assumed to come from the named file (has to be
+a full path name, e.g., FILE:/d3/rpts/02/foo.rpt).  Please ensure that
+the file contains one or two fields per line with either a concept_id
+or a concept_id|cluster_id pair.  Also, since this is a statically generated
+list, you will want to set the "track history" attribute to L or G.  Without
+that, concepts on worklists that have been stamped will be put on new worklists
+made from the bin.
+
+<P>
+If it begins with TABLE:, then the EMS expects a table name following the colon
+that must have the column: concept_id and optionally cluster_id.  This table
+forms the basis of the contents of this bin.  E.g., TABLE:Bad_merges
+In some cases, the table seems inaccessible because only the MTH user has
+read privileges.  In these cases, either have Apelon give everyone read
+permission or prefix the table name with "MTH.", e.g., TABLE:MTH.Bad_merges.
+
+<P>
+Some AH queries (e.g., Missed Synonymy, take days to generate.  So these are
+pregenerated into a file.  The generator script simply concatenates these
+file(s).  So be aware that the information returned by the generator script
+may not always be fresh.
+
+<P>
+
+For information about using the STY and word combination script to create an AH bin,
+<A HREF="stywrd.html">see here</A>.
+
+<P>
+
+<LI><B>Order Script</B>: This field is NOT USED so should be left empty.  See above.
+
+<P>
+
+<LI><B>Contents</B>: This field tells the EMS whether the contents of the bin are known to be
+chemicals (C), non-chemicals (N) or a mixture (M).  If M, the bin is split
+in to chem and nonchem components.
+
+<P>
+
+<LI><B>Chem Algo</B>: For mixed chem/nonchem bins, this field tells the EMS how a cluster
+of concepts should be classified as a chemical or non-chemical.  Allowed values are:
+A (a cluster is chemical if ALL concepts have chemical STYs), or O (a cluster is a chemical
+if any ONE concept has a chemical STY).  This can be left empty and defaults to A.
+
+<P>
+
+<LI><B>Track History</B>: AH bins have history, i.e., once a set of
+concepts in a cluster have been reviewed for a purpose, they need not
+be looked at again for the same purpose whether or not they meet the
+inclusion criteria for the bin.  Allowed values are: G (history is
+GLOBAL, i.e., spans all editing epochs going back to the dawn of
+time) - this is the default, or L (history is LOCAL, i.e., if the
+cluster is present in a worklist made from this bin in the CURRENT
+EDITING EPOCH), or N (no history whatsoever).  The N case should only
+be used for testing, otherwise it should be an L.  The L prevents
+concepts from being reedited in the case when a worklist is stamped
+and a new one is made without regenerating the bin.  One off lists of
+concepts to edit can be made into AH bins with track_history of L.
+
+</OL>
+
+</BODY>
+</HTML>
+

@@ -1,0 +1,143 @@
+
+<html>
+<head>
+   <title>MEME Tables Documentation - coc_headings</title>
+    <script language="javascript">
+	function openDescription (thing,dsc) {
+	    var html = "<html><head><title>Description: "+thing;
+	    html = html + "</title></head><body bgcolor=#ffffff>" + dsc + "<center><form><input type=button onClick='window.close(); return true' value='Close'></form></center></body></html>";
+	    var win = window.open("","","scrollbars,width=500,height=250,resizable");
+	    win.document.open();
+	    win.document.write(html);
+	    win.document.close();
+	}; // end openDescription
+    </script>
+</head>
+
+<body text="#000000" bgcolor="#FFFFFF" link="#3333FF" vlink="#999999" alink="#FF0000">
+
+<center>
+
+<h2>MEME Tables</h2></center>
+
+<hr width="100%">
+
+<!-- Nav bar -->
+  <p><center>[ <a href="#overview">overview</a> | <a href="#details">details</a> | <a href="#references">references</a> ]</center></p>
+
+<!-- Image -->
+<p><center><tt><b>coc_headings</b></tt><br>
+   <img src="/images/table.gif" alt="Table Icon"></center></p>
+
+<!-- Content section -->
+
+<blockquote>
+
+  <a name="overview"></a><h3>Overview/Objective</h3>
+  This document contains a description of <tt>coc_headings</tt> 
+     and its various fields.  It also (may) include information
+  about how this table is used in the various stages of MID processing.
+<br>&nbsp;
+<a name="details"></a><h3>Details</h3>
+
+
+    <p>
+	
+	<!-- coc_headings -->
+
+    <a name="coc_headings"></a>
+    <center>
+      <table border="0" width="90%">
+        <tr><td valign="top" width="20%"><font size="-1"><b>Table name:</b></font></td><td valign="top" width="80%"><b><tt>coc_headings</tt></b></td></tr>
+        <tr><td valign="top"><font size="-1"><b>Table Type:</b></font></td><td valign="top"><font size="-1">
+          <a href="javascript:openDescription('auxiliary','<p>MID Used for other processes or just general system maintenance.</p>')">auxiliary</a></font></td></tr>
+        <tr><td valign="top"><font size="-1"><b>Description:</b></font></td><td valign="top"><font size="-1">Contains our representation of the Medline and other COC data.  Each <i>article</i> is given a citation set id (for Medline from the <tt>PMID</tt> tag)number and any two heading ids (<tt>atom_id</tt>s) that have the same citation set id are considered to be co-occurring headings.</font></td></tr>
+        <tr><td valign="top"><font size="-1"><b>Fields:</b></font></td><td valign="top">
+	    <table border="1" cellpadding="2" width="90%">
+
+	<tr><td width="20%" valign="top"><tt>citation_set_id</tt></td>
+	    <td width="20%" valign="top"><font size="-1"><b>NUMBER(12)</b></font></td>
+ 	    <td width="60%" valign="top"><font size="-1">an id assigned to represent a set of citations for an <i>article</i> within a particular source such as Medline&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>publication_date</tt></td>
+	    <td width="20%" valign="top"><font size="-1"><b>DATE</b></font></td>
+ 	    <td width="60%" valign="top"><font size="-1">the date of publication of an article from which citations are drawn&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>heading_id</tt></td>
+	    <td width="20%" valign="top"><font size="-1"><b>NUMBER(12)</b></font></td>
+ 	    <td width="60%" valign="top"><font size="-1">an id representing an atom/term that was found as a citation in some article, must be in <a href="classes.html"><tt>classes.atom_id</tt></a>&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>major_topic</tt></td>
+	    <td width="20%" valign="top"><font size="-1"><b>VARCHAR2(1)</b></font></td>
+ 	    <td width="60%" valign="top"><font size="-1">a <tt>Y</tt>/<tt>N</tt> flag indicating whether this subheading are considered <i>major topics</i>, this corresponds to a *'d entry in the old Medline file format&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>subheading_set_id</tt></td>
+	    <td width="20%" valign="top"><font size="-1">NUMBER(12)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">an unique id within the <tt>citation_set_id</tt> identifying (groups of) subheadings&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>source</tt></td>
+	    <td width="20%" valign="top"><font size="-1"><b>VARCHAR2(20)</b></font></td>
+ 	    <td width="60%" valign="top"><font size="-1">must be in <a href="source_rank.html"><tt>source_rank.source</tt></a>&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>coc_type</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(10)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">indicates the nature of a citation and what type of co-ocurrence it may become.  The values are those from the <tt>MRCOC.COT</tt> field&nbsp;</font></td>
+	</tr>
+	    </table>
+        </td></tr>
+        <tr><td valign="top"><font size="-1"><b>Indexes:</b></font></td><td valign="top">
+
+	     <li><tt>x_coch_cid ON citation_set_id</tt></li>
+
+	     <li><tt>x_coch_heading_id ON heading_id</tt></li>
+
+        </td></tr>
+
+	<tr><td valign="top"><font size="-1"><b>Insertion&nbsp;Role:</b></font></td><td valign="top"><font size="-1">A complex process is used to load this data from about 40GB of Medline XML files.  The primary scripts involved are the <tt>$MEME_HOME/bin</tt> scripts: <tt>medline_parser.pl</tt> (which uses <tt>MedlineHandler.pm</tt>), <tt>update_medline_data.pl</tt>, and <tt>process_medline_data.csh</tt>.  There are two flavors of Medline XML files: <i>initialization</i>, and <i>update</i>.  The initialization files come when the whole set is recomputed for a new version of MSH (baseline), the updates should come at other times throughout the year.  The initialization files can all be processed at once by the parser script and loaded by the .csh script.  The update files should be processed in chronological order, one at a time because they main contain indications to delete or update records from earlier files in the update set (this is handled by <tt>update_medline_data.pl</tt>.&nbsp;</font></td></tr>
+
+	<tr><td valign="top"><font size="-1"><b>Production&nbsp;Role:</b></font></td><td valign="top"><font size="-1">This data is used in conjunction with <a href="coc_subheadings.html"><tt>coc_subheadings</tt></a> to produce MRCOC data as well as the <tt>MED&lt;year&gt; MRSAT</tt> rows and the <tt>*CITATIONS MRLO</tt> rows.&nbsp;</font></td></tr>
+
+      </table>
+    </center>
+    </p>
+
+<p>
+<a name="references"></a><h3>References/Links</h3>
+Use the following references for related information.
+<ol>
+  <li><a href="../tables_all.html" alt="All Tables Info">All MEME tables</a></li>
+</ol>
+</p>
+</blockquote>
+
+<p><center>[ <a href="#overview">overview</a> | <a href="#details">details</a> | <a href="#references">references</a> ]</center></p>
+
+<hr WIDTH="100%">
+<table BORDER=0 COLS=2 WIDTH="100%" NOSAVE >
+<tr NOSAVE>
+<td ALIGN=LEFT VALIGN=TOP NOSAVE>
+<address>
+<a href="/MEME/">MEME Home</a></address>
+</td>
+
+<td ALIGN=RIGHT VALIGN=TOP NOSAVE>
+<address>
+<font size=-1>Contact: <a href="mailto:bcarlsen@apelon.com">Brian A. Carlsen</a></font></address>
+
+<address>
+<font size=-1>Created: 7/27/2001</font></address>
+
+<address>
+<font size=-1>Last Updated: 03/07/2005</font></address>
+
+</td>
+</tr>
+</table>
+
+</body>
+<!-- These comments are used by the What's new Generator -->
+<!-- Changed On: 2005/03/07 -->
+<!-- Changed by: Brian Carlsen -->
+<!-- Change Note: MEME Schema documentation - coc_headings  -->
+<!-- Fresh for: 1 month -->
+</html>

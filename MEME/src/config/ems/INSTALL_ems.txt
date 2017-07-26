@@ -1,0 +1,37 @@
+NSTALL ( Can be used only in OCCS enviroment.)
+-------
+1. Unzip dist_ems*zip into $MEME_HOME on the web box.
+2. Make sure the apache.conf file contains the following environment variables set
+	ENV_HOME
+	ENV_FILE
+	MEME_HOME
+3. THe env properties file on the web machine should have the following variables correctly set.
+   EMS_HOME  ( shoule be same as MEME_HOME)
+   WMS_HOME= ( should be same as MEME_HOME)
+   MIDSVCS_HOME 
+   MIDSVCS_HOST
+   MIDSVCS_PORT
+   SAFEBOX_HOME
+4. To access cetain features of EMS/WMS, user should defined in $SAFEBOX_HOME/meow.passwd, meow.group. 
+5.  $EMS_HOME/etc/ems.config  should be configured correctly for each user. 
+6. The user used to start the apache webserver should be placed in the same group as the user who installs. 
+    ( webuser user id is used to write logs and other data).
+
+Dependencies
+-----------------------
+Subsystem Dependencies
+  MEOW Installation
+  
+Network Dependencies
+  MIDSVCS Server
+  LVG Server (for concept report normalized searches)
+
+Required Perl Libraries
+  Archive::Zip
+  Digest::MD5
+  Mail::Sender
+
+
+UPDATE
+------
+Same as install

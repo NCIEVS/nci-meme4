@@ -1,0 +1,1405 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head><title>UMLS - Installation Profiles</title>
+  
+
+  
+
+  
+  
+  <meta content="BrianCarlsen" name="author">
+
+  
+  <meta content="Describes the various distributable components and their dependencies." name="description"></head>
+<body>
+<h2><center>UMLS Software Installation Profiles.<br>
+</center></h2>
+
+
+<hr width="100%">
+<h3>Overview</h3>
+The UMLS software development methodology will evolve
+to the point where all of the software and configuration information
+used to maintain the data used to produce the Metathesaurus will be
+tracked by a configruation management system and built into manageable
+distributable component.&nbsp; This doucment attempts to describe those
+distributable components, or "installation profiles".&nbsp; We have
+attempted to list all desired profiles, including the environment
+variables associated with them, the ANT script build targets, the other
+profiile dependencies, the module lists, and theinstallation instructions. <br>
+
+<br>
+
+Here is the current list of installation profiles:<br>
+
+<ul>
+<li><a href="#mid">Metathesaurus Information Database (MID) Installation</a></li><li><a href="#mrd">Metathesaurus Release Database (MRD) Installation</a></li>
+  <li><a href="#env">Common Environment Installation</a></li>
+  <li><a href="#extlib">External Library Installation</a></li>
+  <li><a href="#safebox">Safebox Installation</a></li>
+  <li><a href="#lvg">LVG Installation</a></li>
+  <li><a href="#lvgif">LVG Interface Installation<br>
+    </a></li>
+  <li><a href="#adapter">EMS/MID Services Adapter Installation (temporary)</a><br>
+  </li>
+  <li><a href="#midsvcs">MID Services Installation</a></li>
+  <li><a href="#meme_apps">MEME Application Server Installation</a></li>
+  <li><a href="#mrd_apps">MRD Application Server Installation</a></li>
+  <li><a href="#lhc_meow">LHC Jekyll Installation (temporary) (includes jekyll)<br>
+    </a></li>
+  <li><a href="#meow">Full MEOW Installation</a></li>
+</ul>
+
+
+
+Later, we will likely also need these:&nbsp; Recipe Writer Installation.<br>
+<br>
+<a name="mid"></a>
+<h3>Metathesaurus Information Database (MID) Installation<br>
+</h3>
+Following is information about this installation profile:<br>
+
+<table style="margin-left: auto; margin-right: auto; width: 90%; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+
+  <tbody>
+    <tr>
+      <td style="vertical-align: top;">Environment Variables:<br>
+      </td>
+      <td style="vertical-align: top;">$ORACLE_HOME<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Description:<br>
+      </td>
+      <td style="vertical-align: top;">An Oracle instance, fully populated with MID users, schema structures and data.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Dependencies (this machine):<br>
+      </td>
+      <td style="vertical-align: top;">Oracle Installation<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Network Dependencies:<br>
+      </td>
+      <td style="vertical-align: top;">None<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Modules:<br>
+      </td>
+      <td style="vertical-align: top;">N/A<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Ant Build Target:</td>
+      <td style="vertical-align: top;">make_initimid (for files to load an initial MID)<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Install Instructions:<br>
+      </td>
+      <td style="vertical-align: top;">
+      <ol>
+        <li>Create and configure a UTF-8 database. <br>
+        </li>
+        <li>Consider tune these parameters (for performance): <br>
+        </li>
+        <ul>
+          <li>bitmap_merge_area_size</li>
+          <li>create_bitmap_area_size</li>
+          <li>db_block_buffers</li>
+          <li>db_cache_size</li>
+          <li>db_file_multiblock_read_count</li>
+          <li>hash_area_size</li>
+          <li>large_pool_size</li>
+          <li>log_buffer</li>
+          <li>optimizer_dynamic_sampling</li>
+          <li>optimizer_index_caching</li>
+          <li>optimizer_index_cost_adj</li>
+          <li>optimizer_max_permutations</li>
+          <li>parallel_automatic_tuning</li>
+          <li>sga_max_size</li>
+          <li>shared_pool_size</li>
+          <li>sort_area_retained_size</li>
+          <li>sort_area_size<br>
+          </li>
+        </ul>
+        <li>Create MID tablespace (for tables), MIDI tablespace (for indexes)</li>
+        <li>Create MTH, MEOW schemas (with default MID tablespace)</li>
+        <li>
+Grants and roles for MTH:<br>
+
+        <span style="font-family: monospace;">GRANT CREATE SEQUENCE TO
+"MTH";</span><br style="font-family: monospace;">
+
+        <span style="font-family: monospace;">GRANT CREATE TABLE TO
+"MTH";</span><br style="font-family: monospace;">
+
+        <span style="font-family: monospace;">GRANT SELECT ANY TABLE TO
+"MTH" WITH ADMIN OPTION;</span><br style="font-family: monospace;">
+
+        <span style="font-family: monospace;">GRANT UNLIMITED
+TABLESPACE TO "MTH";</span><br style="font-family: monospace;">
+
+        <span style="font-family: monospace;">GRANT SELECT ON
+"SYS"."PUBLICSYN" TO "MTH" WITH GRANT OPTION;</span><br style="font-family: monospace;">
+
+        <span style="font-family: monospace;">GRANT
+"AQ_ADMINISTRATOR_ROLE" TO "MTH";</span><br style="font-family: monospace;">
+
+        <span style="font-family: monospace;">GRANT "AQ_USER_ROLE" TO
+"MTH";</span><br style="font-family: monospace;">
+
+        <span style="font-family: monospace;">GRANT "CONNECT" TO "MTH";</span><br style="font-family: monospace;">
+
+        <span style="font-family: monospace;">GRANT "DBA" TO "MTH";</span><br style="font-family: monospace;">
+
+        <span style="font-family: monospace;">GRANT
+"DELETE_CATALOG_ROLE" TO "MTH";</span><br style="font-family: monospace;">
+
+        <span style="font-family: monospace;">GRANT
+"EXECUTE_CATALOG_ROLE" TO "MTH";</span><br style="font-family: monospace;">
+
+        <span style="font-family: monospace;">GRANT "RESOURCE" TO "MTH";</span><br style="font-family: monospace;">
+
+        <span style="font-family: monospace;">GRANT
+"SELECT_CATALOG_ROLE" TO "MTH";</span><br style="font-family: monospace;">
+
+        <span style="font-family: monospace;">GRANT ALTER TABLESPACE TO
+"MTH";</span><br style="font-family: monospace;">
+
+        <span style="font-family: monospace;">GRANT SELECT ANY
+DICTIONARY TO "MTH";&nbsp; </span><br style="font-family: monospace;">
+
+        <span style="font-family: monospace;">ALTER USER "MTH" DEFAULT
+ROLE ALL;</span></li>
+        <li>
+Grants and roles for MEOW:<br>
+
+        <span style="font-family: monospace;">GRANT UNLIMITED
+TABLESPACE TO "MEOW";</span><br style="font-family: monospace;">
+
+        <span style="font-family: monospace;">GRANT "CONNECT" TO "MEOW";</span><br style="font-family: monospace;">
+
+        <span style="font-family: monospace;">GRANT "DBA" TO "MEOW";</span><br style="font-family: monospace;">
+
+        <span style="font-family: monospace;">GRANT "RESOURCE" TO
+"MEOW";</span><br style="font-family: monospace;">
+
+        <span style="font-family: monospace;">ALTER USER "MEOW" DEFAULT
+ROLE ALL;</span></li>
+        <li>Additional Roles (for other users, e.g. editors)<br>
+
+        <span style="font-family: monospace;">create role MID_SUPERUSER;</span><br style="font-family: monospace;">
+
+        <span style="font-family: monospace;">create role MID_USER;</span><br style="font-family: monospace;">
+
+        <br style="font-family: monospace;">
+
+        <span style="font-family: monospace;">-- Initializing
+MID_SUPERUSER role</span><br style="font-family: monospace;">
+
+        <span style="font-family: monospace;">GRANT CONNECT to
+MID_SUPERUSER with admin option;</span><br style="font-family: monospace;">
+
+        <span style="font-family: monospace;">GRANT RESOURCE to
+MID_SUPERUSER with admin option;</span><br style="font-family: monospace;">
+
+        <span style="font-family: monospace;">GRANT DBA to
+MID_SUPERUSER with admin option;</span><br style="font-family: monospace;">
+
+        <br style="font-family: monospace;">
+
+        <span style="font-family: monospace;">-- Initializing MID_USER;</span><span style="font-family: monospace;"><br>
+GRANT CONNECT TO MID_USER;<br>
+GRANT "MID_USER" TO "MTH";<br>
+GRANT "MID_USER" TO "MEOW";<br>
+          <br>
+          </span></li>
+        <li>Grant ALL on all MTH and MEOW tables to MID_USER<br>
+
+        <span style="width: 500px;"></span>
+          <pre><span style="width: 500px;">DECLARE<br>    CURSOR cur IS SELECT table_name FROM user_tables;<br>    cv cur%ROWTYPE;<br><span class="hl">BEGIN</span><br>    OPEN cur;<br>    LOOP<br>        FETCH cur INTO cv;<br>        EXIT WHEN cur%NOTFOUND;<br>        EXECUTE IMMEDIATE '<span class="hl">GRANT</span> ALL ON ' || cv.table_name || ' TO MID_USER';<br>    <span class="hl">END</span> LOOP;<br><span class="hl">END</span>;<br>/</span></pre>
+          <span style="width: 500px;"></span></li>
+        <li>Create an $ORACLE_HOME/network/admin/tnsnames.ora name like &lt;machine&gt;_&lt;sid&gt;<br>
+          <br>
+</li><li>If loading a MID from scratch:</li>
+        <ol style="list-style-type: lower-alpha;">
+          <li>Create tables, indexes, views, synonyms, and load packages<br>
+            <pre>sqlplus user/pwd@db &lt;&lt; EOF<br>@&lt;initmid&gt;/etc/sql/meme_tables<br>@&lt;initmid&gt;/etc/sql/meme_indexes<br>@&lt;initmid&gt;/etc/sql/meme_views<br>@&lt;initmid&gt;/etc/sql/meme_synonyms<br>@&lt;initmid&gt;/etc/sql/meme_packages<br>EOF</pre>
+            <br>
+          </li>
+          <li>Populate the tables with initial data (&lt;initmid&gt;/bin/load.csh)<br>
+          </li>
+        </ol>
+
+      </ol>
+</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Update Instructions:</td>
+      <td style="vertical-align: top;">N/A<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<br>
+
+<br>
+
+<a name="mrd"></a>
+<h3>Metathesaurus Release Database (MRD) Installation<br>
+</h3>
+
+Following is information about this installation profile:<br>
+<table style="margin-left: auto; margin-right: auto; width: 90%; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+
+
+  <tbody>
+    <tr>
+      <td style="vertical-align: top;">Environment Variables:<br>
+      </td>
+      <td style="vertical-align: top;">$ORACLE_HOME<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Description:<br>
+      </td>
+      <td style="vertical-align: top;">An Oracle instance, fully populated with MRD users, schema structures and data.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Dependencies (this machine):<br>
+      </td>
+      <td style="vertical-align: top;">Oracle Installation<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Network Dependencies:<br>
+      </td>
+      <td style="vertical-align: top;">None<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Modules:<br>
+      </td>
+      <td style="vertical-align: top;">N/A<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Ant Build Target:</td>
+      <td style="vertical-align: top;">make_initmrd (for files to load an initial MRD)
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Install Instructions:<br>
+      </td>
+      <td style="vertical-align: top;">
+      <ol><li>Create and configure a UTF-8 database. <br>
+        </li><li>Consider tune these parameters (for performance): <br>
+        </li><ul><li>bitmap_merge_area_size</li><li>create_bitmap_area_size</li><li>db_block_buffers</li><li>db_cache_size</li><li>db_file_multiblock_read_count</li><li>hash_area_size</li><li>large_pool_size</li><li>log_buffer</li><li>optimizer_dynamic_sampling</li><li>optimizer_index_caching</li><li>optimizer_index_cost_adj</li><li>optimizer_max_permutations</li><li>parallel_automatic_tuning</li><li>sga_max_size</li><li>shared_pool_size</li><li>sort_area_retained_size</li><li>sort_area_size<br>
+          </li></ul><li>Create MID and MRD tablespaces (for tables), MIDI and MRDI tablespaces (for indexes)<br>
+</li><li>Create MTH, MEOW schemas (with default MRD tablespace)<br>
+</li><li>See <a href="#mid">MID Installation</a> for grants and roles. <span style="font-family: monospace;"></span><br style="font-family: monospace;">
+
+        <span style="width: 500px;"></span></li><li>Create an $ORACLE_HOME/network/admin/tnsnames.ora name like &lt;machine&gt;_&lt;sid&gt;<br>
+</li><li>If loading a MRD from scratch:</li>
+        <ol style="list-style-type: lower-alpha;">
+<li>Copy MID, MIDI tablespaces from a valid MID</li><li>Create tables, indexes, views, synonyms, and load packages<br>
+            <pre>sqlplus user/pwd@db &lt;&lt; EOF<br>@&lt;initmrd&gt;/etc/sql/mrd_tables<br>@&lt;initmrd&gt;/etc/sql/mrd_indexes<br>@&lt;initmrd&gt;/etc/sql/mrd_views<br>@&lt;initmrd&gt;/etc/sql/mrd_synonyms<br>@&lt;initmrd&gt;/etc/sql/mrd_packages<br>EOF<br><br></pre>
+          </li>
+<li>Populate the tables with initial data<br>
+  </li>
+        </ol>
+</ol>
+</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Update Instructions:</td>
+      <td style="vertical-align: top;">N/A<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+
+
+<br>
+
+<a name="env"></a>
+<h3>Common Environment Installation<br>
+</h3>
+
+Following is information about this installation profile:<br>
+
+
+<table style="margin-left: auto; margin-right: auto; width: 90%; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+
+
+  <tbody>
+    <tr>
+      <td style="vertical-align: top;">Environment Variables:<br>
+      </td>
+      <td style="vertical-align: top;">$ENV_HOME, $ENV_FILE<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Description:<br>
+      </td>
+      <td style="vertical-align: top;">This
+application is for consolidating environment information across all
+applications that support UMLS Metathesaurus development.&nbsp; Each
+installation profile has one or more associated environment
+variables.&nbsp; Management of all of these variables and their values
+are handled by the properties file and support scripts.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Dependencies (this machine):<br>
+      </td>
+      <td style="vertical-align: top;">None<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Network Dependencies:<br>
+      </td>
+      <td style="vertical-align: top;">None<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Modules:<br>
+      </td>
+      <td style="vertical-align: top;">
+      <ul>
+        <li>Environment properties file (etc/env.prop)</li>
+        <li>Importable scripts for .csh, .sh, and .pl scripts (for setting environment)<br>
+        </li>
+      </ul>
+
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Ant Build Target:</td>
+      <td style="vertical-align: top;">make_env<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Install Instructions:<br>
+      </td>
+      <td style="vertical-align: top;">
+      <ol>
+        <li>Choose $ENV_HOME</li>
+        <li>Unzip <a style="font-family: monospace;" href="dist_env_current.zip">dist_env*.zip</a> into $ENV_HOME</li>
+        <li>Copy the <span style="font-family: monospace;">etc/env.prop_orig</span> to <span style="font-family: monospace;">etc/env.prop</span></li>
+
+        <li>Edit the properties file.</li>
+        <li>Configure the shell environment by setting $ENV_HOME and $ENV_FILE ($ENV_HOME/etc/env.prop)<br>
+        </li>
+      </ol>
+</td></tr><tr><td style="vertical-align: top;">Update Instructions:</td>
+      <td style="vertical-align: top;">Same as installation instructions.<br>
+</td></tr></tbody>
+</table>
+<br>
+
+
+<br>
+
+<a name="extlib"></a>
+<h3>External Library Installation<br>
+</h3>
+
+Following is information about this installation profile:<br>
+
+
+<table style="margin-left: auto; margin-right: auto; width: 90%; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+
+
+  <tbody>
+    <tr>
+      <td style="vertical-align: top;">Environment Variables:<br>
+      </td>
+      <td style="vertical-align: top;">$EXT_LIB<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Description:<br>
+      </td>
+      <td style="vertical-align: top;">Set of third-party .jar, .zip, and .pm libraries<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Dependencies (this machine):<br>
+      </td>
+      <td style="vertical-align: top;">$ENV_HOME - used to reference $EXT_LIB<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Network Dependencies:<br>
+      </td>
+      <td style="vertical-align: top;">None<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Modules:<br>
+      </td>
+      <td style="vertical-align: top;">N/A<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Ant Build Target:</td>
+      <td style="vertical-align: top;">make_extlib<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Install Instructions:<br>
+      </td>
+      <td style="vertical-align: top;">
+      <ol>
+        <li>Choose $EXT_LIB</li>
+        <li>
+      Unzip <a style="font-family: monospace;" href="dist_extlib_current.zip">dist_extlib*.zip</a> into $EXT_LIB</li><li>Edit $ENV_FILE and set EXT_LIB property to $EXT_LIB path<br>
+        </li>
+
+      </ol>
+</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Update Instructions:</td>
+      <td style="vertical-align: top;">Same as installation instructions<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+
+<br>
+
+
+<br>
+
+<a name="safebox"></a>
+<h3>Safebox Installation<br>
+</h3>
+
+Following is information about this installation profile:<br>
+<table style="margin-left: auto; margin-right: auto; width: 90%; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+
+
+
+  <tbody>
+    <tr>
+      <td style="vertical-align: top;">Environment Variables:<br>
+      </td>
+      <td style="vertical-align: top;">$SAFEBOX_HOME<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Description:<br>
+      </td>
+      <td style="vertical-align: top;">The safebox is a place to store files containing sensitive information, like usernames and passwords. This directory should have restricted access.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Dependencies (this machine):<br>
+      </td>
+      <td style="vertical-align: top;">$ENV_HOME - used to reference $SAFEBOX_HOME<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Network Dependencies:<br>
+      </td>
+      <td style="vertical-align: top;">None<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Modules:<br>
+      </td>
+      <td style="vertical-align: top;">N/A<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Ant Build Target:</td>
+      <td style="vertical-align: top;">make_safebox<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Install Instructions:<br>
+      </td>
+      <td style="vertical-align: top;">
+      <ol><li>Choose $SAFEBOX_HOME</li><li>
+      Unzip <a style="font-family: monospace;" href="dist_safebox_current.zip">dist_safebox*.zip</a> into $SAFEBOX_HOME</li><li>Configure password files, copy the _orig files to filenames without _orig and edit as needed<br>
+        </li>
+<li>Edit $ENV_FILE and set SAFEBOX_HOME property to $SAFEBOX_HOME path<br>
+        </li></ol>
+</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Update Instructions:</td>
+      <td style="vertical-align: top;">Same as installation instructions<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+
+
+<br>
+
+<a name="lvg"></a>
+<h3>LVG Installation<br>
+</h3>
+
+Following is information about this installation profile:<br>
+<table style="margin-left: auto; margin-right: auto; width: 90%; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+
+
+
+  <tbody>
+    <tr>
+      <td style="vertical-align: top;">Environment Variables:<br>
+      </td>
+      <td style="vertical-align: top;">$LVG_HOME<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Description:<br>
+      </td>
+      <td style="vertical-align: top;">Third-party NLM Lexical Variant Generator program<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Dependencies (this machine):<br>
+      </td>
+      <td style="vertical-align: top;">$ENV_HOME - used to reference $LVG_HOME<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Network Dependencies:<br>
+      </td>
+      <td style="vertical-align: top;">None<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Modules:<br>
+      </td>
+      <td style="vertical-align: top;">N/A<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Ant Build Target:</td>
+      <td style="vertical-align: top;">N/A<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Install Instructions:<br>
+      </td>
+      <td style="vertical-align: top;">
+      
+      <ol>
+<li>Choose $LVG_HOME</li><li>
+      Unzip <a style="font-family: monospace;" href="lvg_current.zip"><span style="font-family: monospace;">lvg*.</span></a><a style="font-family: monospace;" href="lvg_current.zip">zip</a> into $LVG_HOME</li>
+        <li>Edit these files to set JAVA and CLASSPATH:</li>
+        <ul>
+          <li><span style="font-family: monospace;">/site/package/lvg/current/bin/luiNorm</span></li>
+          <li><span style="font-family: monospace;">/site/package/lvg/current/bin/norm<br>
+            </span></li>
+          <li><span style="font-family: monospace;">/site/package/lvg/current/bin/wordind<br>
+            </span></li>
+        </ul>
+        <li>Configure the <span style="font-family: monospace;">data/conf/lvg.properties</span> file.</li>
+        <ul>
+          <li>Set LVG_DIR</li>
+        </ul>
+        <li>Edit $ENV_FILE and set LVG_HOME property to $LVG_HOME path<br>
+        </li>
+      </ol>
+
+</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Update Instructions:</td>
+      <td style="vertical-align: top;">Same as installation instructions<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+
+
+<br>
+
+<a name="lvgif"></a>
+<h3>LVG Interface Installation<br>
+</h3>
+
+Following is information about this installation profile:<br>
+<table style="margin-left: auto; margin-right: auto; width: 90%; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+
+
+
+  <tbody>
+    <tr>
+      <td style="vertical-align: top;">Environment Variables:<br>
+      </td>
+      <td style="vertical-align: top;">$LVGIF_HOME<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Description:<br>
+      </td>
+      <td style="vertical-align: top;">Toolkit to run an LVG in a client/server context.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Dependencies (this machine):<br>
+      </td>
+      <td style="vertical-align: top;">$ENV_HOME - used to reference $EXT_LIB<br>
+$LVG_HOME - LVG must be installed<br>
+$MIDSVCS_HOME - used by clients to find LVG server<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Network Dependencies:<br>
+      </td>
+      <td style="vertical-align: top;">None<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Modules:<br>
+      </td>
+      <td style="vertical-align: top;">LVG Server (LVGServer.pl)<br>
+LVG Clients (cnorm.pl, cluinorm.pl, cwordind.pl)<br>
+LVG Server Control (lvg_server.pl)<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Ant Build Target:</td>
+      <td style="vertical-align: top;">make_lvgif<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Install Instructions:<br>
+      </td>
+      <td style="vertical-align: top;">
+      <ol><li>Choose $LVGIF_HOME</li><li>
+      Unzip <a style="font-family: monospace;" href="dist_lvgif_current.zip">dist_lvgif*.zip</a> into $LVGIF_HOME</li><li>Edit $ENV_FILE and set LVGIF_HOME property to $LVGIF_HOME path</li><li>If LVG server is to run in this environment, configure startup script to call it<br>
+        </li>
+</ol>
+</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Update Instructions:</td>
+      <td style="vertical-align: top;">Same as installation instructions<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+
+
+<br>
+
+<a name="adapter"></a>
+<h3>EMS/MID Services Adapter Installation<br>
+</h3>
+
+Following is information about this installation profile:<br>
+<table style="margin-left: auto; margin-right: auto; width: 90%; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+
+
+
+  <tbody>
+    <tr>
+      <td style="vertical-align: top;">Environment Variables:<br>
+      </td>
+      <td style="vertical-align: top;">$EMS_HOME, $MIDSVCS_HOME<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Description:<br>
+      </td>
+      <td style="vertical-align: top;">Adapter
+to EMS and MIDSVCS until refactored release is ready.&nbsp; This is
+essentially an environment variables with symbolic links to the
+old-style commands.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Dependencies (this machine):<br>
+      </td>
+      <td style="vertical-align: top;">$ENV_HOME - used to reference $EMS_HOME and $MIDSVCS_HOME<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Network Dependencies:<br>
+      </td>
+      <td style="vertical-align: top;">None<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Modules:<br>
+      </td>
+      <td style="vertical-align: top;">Build script (build.csh)<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Ant Build Target:</td>
+      <td style="vertical-align: top;">N/A<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Install Instructions:<br>
+      </td>
+      <td style="vertical-align: top;">
+      <ol><li>Choose $EMS_HOME</li><li>
+      Unzip <a style="font-family: monospace;" href="ems_adapter_current.zip">ems_adapter*.zip</a> into $EMS_HOME</li><li>Edit $ENV_FILE and set EMS_HOME property to $EMS_HOME path</li><li>Edit $ENV_FILE and set MIDSVCS_HOME property to $EMS_HOME path<br>
+Thus, $EMS_HOME and $MIDSVCS_HOME are the same for this adapter.<br>
+        </li>
+</ol>
+</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Update Instructions:</td>
+      <td style="vertical-align: top;">Same as installation instructions<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+
+
+<br>
+
+<a name="midsvcs"></a>
+<h3>MID Services Installation<br>
+</h3>
+
+Following is information about this installation profile:<br>
+<table style="margin-left: auto; margin-right: auto; width: 90%; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+
+
+
+  <tbody>
+    <tr>
+      <td style="vertical-align: top;">Environment Variables:<br>
+      </td>
+      <td style="vertical-align: top;">$MIDSVCS_HOME<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Description:<br>
+      </td>
+      <td style="vertical-align: top;">Key/Value lookup mechanism, supported by a server and a client.&nbsp; Also includes a tool for obtaining default database authentication information.<br>
+</td></tr><tr><td style="vertical-align: top;">Dependencies (this machine):<br>
+      </td>
+      <td style="vertical-align: top;">$ENV_HOME - used to reference $MIDSVCS_HOME<br>
+$SAFEBOX_HOME - used for oracle.passwd file<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Network Dependencies:<br>
+      </td>
+      <td style="vertical-align: top;">None<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Modules:<br>
+      </td>
+      <td style="vertical-align: top;">MID Services file (etc/mid-services-data)<br>
+Get Oracle Password Script (bin/get-oracle-pwd.pl)<br>
+MID Services Server script (runs as inetd service)<br>
+MID Services Client Script (bin/midsvcs.pl)<br>
+ROT13 implementation (bin/rot13.pl)<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Ant Build Target:</td>
+      <td style="vertical-align: top;">make_midsvcs<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Install Instructions:<br>
+      </td>
+      <td style="vertical-align: top;">
+      <ol><li>Choose $MIDSVCS_HOME</li><li>
+      Unzip <a style="font-family: monospace;" href="dist_midsvcs_current.zip">dist_midsvcs*.zip</a> into $EXT_LIB</li><li>Configure MID Services File (<span style="font-family: monospace;">etc/mid-services-data</span>)</li>
+        <ol style="list-style-type: lower-alpha;">
+          <li>Copy <span style="font-family: monospace;">etc/mid-services-data_orig</span> to <span style="font-family: monospace;">etc/mid-services-data</span></li>
+          <li>Configure <span style="font-family: monospace;">etc/mid-services-data</span></li>
+          <li>Configure $SAFEBOX_HOME/etc/oracle.passwd file<br>
+          </li>
+        </ol>
+<li>If you intend to run the server on this machine, edit:</li>
+        <ol style="list-style-type: lower-alpha;">
+          <li><span style="font-family: monospace;">/etc/services</span>
+(Add these lines):
+        <blockquote>
+          <pre>#<br># Local Metathesaurus Services<br>#<br>midsvcs             5125/tcp        # MID services<br></pre>
+        </blockquote>
+      </li>
+          <li><span style="font-family: monospace;">/etc/inetd.conf</span>
+(Add this line):
+        
+            <blockquote>
+          
+              <pre>#<br># Local Metathesaurus Services<br>#<br>midsvcs stream tcp nowait nobody /usr/bin/env env \<br>  ENV_FILE=&lt;PATH TO ENV_HOME&gt;/etc/env.prop \<br>  ENV_HOME=&lt;PATH TO ENV_HOME&gt; \<br>  &lt;path to MIDSVCS_HOME&gt;/bin/midsvcs-server.pl<br></pre>
+            </blockquote>
+          </li>
+
+          <li>Reboot machine or "kill -HUP" on the inetd process (as root)<br>
+            <br>
+          </li>
+        </ol>
+        <li>Edit $ENV_FILE and set MIDSVCS_HOME property to $MIDSVCS_HOME path<br>
+          <br>
+        </li>
+</ol>
+</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Update Instructions:</td>
+      <td style="vertical-align: top;">Same as installation instructions escept for 4a and 4b (which should already have been done).<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+
+
+<br>
+
+<a name="meme_apps"></a>
+<h3>MEME Application Server Installation<br>
+</h3>
+
+Following is information about this installation profile:<br>
+<table style="margin-left: auto; margin-right: auto; width: 90%; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+
+
+
+  <tbody>
+    <tr>
+      <td style="vertical-align: top;">Environment Variables:<br>
+      </td>
+      <td style="vertical-align: top;">$MEME_HOME<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Description:<br>
+      </td>
+      <td style="vertical-align: top;">MEME Application Server and supporting scripts and environment<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Dependencies (this machine):<br>
+      </td>
+      <td style="vertical-align: top;">$ENV_HOME - used to reference $EXT_LIB<br>
+MID Installation<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Network Dependencies:<br>
+      </td>
+      <td style="vertical-align: top;">$MIDSVCS_HOME - host/port specified in etc/meme.prop<br>
+
+$LVGIF_HOME - LVG server should be running at host/porrt specified by $MIDSVCS (lvg-server-host, lvg-server-port)<br>
+
+MID, accessible through &lt;machine&gt;_&lt;sid&gt; TNS name and "editing-db", "editing-jdbc"
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Modules:<br>
+      </td>
+      <td style="vertical-align: top;">MEME Environment (meme.prop)<br>
+Java packages:<br>
+&nbsp;&nbsp; <span style="font-family: monospace;">gov.nih.nlm.meme</span><br style="font-family: monospace;">
+&nbsp;&nbsp; <span style="font-family: monospace;">gov.nih.nlm.meme.action</span><br>
+&nbsp;&nbsp; <span style="font-family: monospace;">gov.nih.nlm.meme.client</span><br style="font-family: monospace;">
+&nbsp;&nbsp; <span style="font-family: monospace;">gov.nih.nlm.meme.common</span><br style="font-family: monospace;">
+&nbsp;&nbsp; <span style="font-family: monospace;">gov.nih.nlm.meme.exception</span><br style="font-family: monospace;">
+&nbsp;&nbsp; <span style="font-family: monospace;">gov.nih.nlm.meme.integrity</span><br style="font-family: monospace;">
+&nbsp;&nbsp; <span style="font-family: monospace;">gov.nih.nlm.meme.server</span><br style="font-family: monospace;">
+&nbsp;&nbsp; <span style="font-family: monospace;">gov.nih.nlm.meme.sql</span><br style="font-family: monospace;">
+&nbsp;&nbsp; <span style="font-family: monospace;">gov.nih.nlm.meme.xml</span><br style="font-family: monospace;">
+&nbsp;&nbsp; <span style="font-family: monospace;">gov.nih.nlm.swing</span><br style="font-family: monospace;">
+&nbsp;&nbsp; <span style="font-family: monospace;">gov.nih.nlm.util</span><br style="font-family: monospace;">
+      <br style="font-family: monospace;">
+Administrative Scripts (Server control, check server stats, etc)<br>
+Maintenance Scripts (Maintain word indexes, Matrix Initializer, MEDLINE processing etc.)<br>
+Reports Generation (xreports.pl, editing.csh)<br>
+Utilities (jenscript.pl, etc)<br>
+      <br>
+PL/SQL Packages:<br>
+&nbsp;&nbsp; <span style="font-family: monospace;">MEME_APROCS.sql</span><br style="font-family: monospace;">
+&nbsp;&nbsp; <span style="font-family: monospace;">MEME_BATCH_ACTIONS.sql</span><br style="font-family: monospace;">
+&nbsp;&nbsp; <span style="font-family: monospace;">MEME_CONSTANTS.sql</span><br style="font-family: monospace;">
+&nbsp;&nbsp; <span style="font-family: monospace;">MEME_INTEGRITY.sql</span><br style="font-family: monospace;">
+&nbsp;&nbsp; <span style="font-family: monospace;">MEME_INTEGRITY_PROC.sql</span><br style="font-family: monospace;">
+&nbsp;&nbsp; <span style="font-family: monospace;">MEME_OPERATIONS.sql</span><br style="font-family: monospace;">
+&nbsp;&nbsp; <span style="font-family: monospace;">MEME_RANKS.sql</span><br style="font-family: monospace;">
+&nbsp;&nbsp; <span style="font-family: monospace;">MEME_SOURCE_PROCESSING.sql</span><br style="font-family: monospace;">
+&nbsp;&nbsp; <span style="font-family: monospace;">MEME_SYSTEM.sql</span><br style="font-family: monospace;">
+&nbsp;&nbsp; <span style="font-family: monospace;">MEME_UTILITY.sql</span><br>
+      <br>
+Schema scripts:<br>
+&nbsp;&nbsp; <span style="font-family: monospace;">meme_indexes.sql</span><br style="font-family: monospace;">
+&nbsp;&nbsp; <span style="font-family: monospace;">meme_packages.sql</span><br style="font-family: monospace;">
+&nbsp;&nbsp; <span style="font-family: monospace;">meme_synonyms.sql</span><br style="font-family: monospace;">
+&nbsp;&nbsp; <span style="font-family: monospace;">meme_tables.sql</span><br style="font-family: monospace;">
+&nbsp;&nbsp; <span style="font-family: monospace;">meme_views.sql</span><br>
+&nbsp;<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Ant Build Target:</td>
+      <td style="vertical-align: top;">make_meme</td></tr><tr><td style="vertical-align: top;">Install Instructions:<br>
+      </td>
+      <td style="vertical-align: top;">
+      <ol><li>Choose $MEME_HOME</li><li>
+      Unzip <a style="font-family: monospace;" href="dist_meme_current.zip">dist_meme*.zip</a> into $MEME_HOME</li><li>Configure the properties file</li>
+        <ol style="list-style-type: lower-alpha;">
+          <li>Copy the <span style="font-family: monospace;">etc/meme.prop_orig</span> to <span style="font-family: monospace;">etc/meme.prop</span></li>
+          <li>Edit the properties file. <br>
+          </li>
+          <li>In particular, set <span style="font-family: monospace;">env.ENV_HOME</span> and <span style="font-family: monospace;">env.ENV_FILE</span>.<br>
+          </li>
+        </ol>
+<li>Edit $ENV_FILE and set MEME_HOME&nbsp; property to $MEME_HOME path</li><li>Edit the startup environment to run a server (<span style="font-family: monospace;">$MEME_HOME/bin/meme_server.sh</span>)</li><li>Reboot the machine to start server<br>
+        </li>
+
+</ol>
+</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Update Instructions:</td>
+      <td style="vertical-align: top;">
+      <ol>
+<li>Shut down any running servers</li><li>Repeat installation instructions without 3a<br>
+  </li>
+      </ol>
+
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+
+
+<br>
+
+<a name="mrd_apps"></a>
+<h3>MRD Application Server Installation<br>
+</h3>
+
+Following is information about this installation profile:<br>
+<table style="margin-left: auto; margin-right: auto; width: 90%; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+
+
+
+
+  <tbody>
+    <tr>
+      <td style="vertical-align: top;">Environment Variables:<br>
+      </td>
+      <td style="vertical-align: top;">$MEME_HOME, $MRD_HOME<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Description:<br>
+      </td>
+      <td style="vertical-align: top;">MRD Application Server and supporting scripts and environment.&nbsp; In particular,&nbsp; modules used for building a release.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Dependencies (this machine):<br>
+      </td>
+      <td style="vertical-align: top;">$ENV_HOME - used to reference $EXT_LIB<br>MRD Installation<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Network Dependencies:<br>
+      </td>
+      <td style="vertical-align: top;">$MIDSVCS_HOME - host/port specified in etc/meme.prop<br>
+
+$LVGIF_HOME - LVG server should be running at host/porrt specified by $MIDSVCS (lvg-server-host, lvg-server-port)<br>
+
+MRD, accessible through &lt;machine&gt;_&lt;sid&gt; TNS name and through "mrd-db" and "mrd-jdbc"
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Modules:<br>
+      </td>
+      <td style="vertical-align: top;">MRD Environment (mrd.prop)<br>
+Java packages:<br>
+&nbsp;&nbsp; <span style="font-family: monospace;">gov.nih.nlm.meme</span><br style="font-family: monospace;">&nbsp;&nbsp; <span style="font-family: monospace;">gov.nih.nlm.meme.common</span><br style="font-family: monospace;">
+&nbsp;&nbsp; <span style="font-family: monospace;">gov.nih.nlm.meme.exception</span><br style="font-family: monospace;">&nbsp;&nbsp; <span style="font-family: monospace;">gov.nih.nlm.meme.server</span><br style="font-family: monospace;">
+&nbsp;&nbsp; <span style="font-family: monospace;">gov.nih.nlm.meme.sql</span><br style="font-family: monospace;">
+&nbsp;&nbsp; <span style="font-family: monospace;">gov.nih.nlm.meme.xml</span><br style="font-family: monospace;">
+&nbsp;&nbsp; <span style="font-family: monospace;">gov.nih.nlm.swing</span><br style="font-family: monospace;">
+&nbsp;&nbsp; <span style="font-family: monospace;">gov.nih.nlm.util<br>
+</span>
+&nbsp;&nbsp; <span style="font-family: monospace;">gov.nih.nlm.mrd.common<br></span>
+&nbsp;&nbsp; <span style="font-family: monospace;">gov.nih.nlm.mrd.server<br>
+      </span>
+&nbsp;&nbsp; <span style="font-family: monospace;">gov.nih.nlm.mrd.server.handlers<br>
+      </span>
+&nbsp;&nbsp; <span style="font-family: monospace;">gov.nih.nlm.sql<br>
+      </span><br style="font-family: monospace;">
+Administrative Scripts (Server control, check server stats, etc)<br>
+Config Builder (make_config.csh)<br>
+Documentation Generation (gen_chronology.csh, gen_subset_profile.csh)<br>
+Gold Script (gold_script.csh)<br>
+Maintenance Scripts (MEDLINE processing etc.)<br>
+MetamorphoSys Zip (mmsys.zip)<br>QA Checks (qa_checks.csh, orf_checks.csh)<br>
+QA Counts (qa_counts.csh, qa_previous.csh, orf_counts. csh)<br>
+QA Report (qa_report.csh)<br>
+Reports Generation (cui_report.csh, showrel.pl)<br>
+Utilities (tallyfield.pl, etc)<br>
+      <br>
+PL/SQL Packages:<br>
+&nbsp;&nbsp; <span style="font-family: monospace;">MEME_APROCS.sql</span><br style="font-family: monospace;">
+&nbsp;&nbsp; <span style="font-family: monospace;">MEME_BATCH_ACTIONS.sql</span><br style="font-family: monospace;">
+&nbsp;&nbsp; <span style="font-family: monospace;">MEME_CONSTANTS.sql</span><br style="font-family: monospace;">
+&nbsp;&nbsp; <span style="font-family: monospace;">MEME_INTEGRITY.sql</span><br style="font-family: monospace;">
+&nbsp;&nbsp; <span style="font-family: monospace;">MEME_INTEGRITY_PROC.sql</span><br style="font-family: monospace;">
+&nbsp;&nbsp; <span style="font-family: monospace;">MEME_OPERATIONS.sql</span><br style="font-family: monospace;">
+&nbsp;&nbsp; <span style="font-family: monospace;">MEME_RANKS.sql</span><br style="font-family: monospace;">
+&nbsp;&nbsp; <span style="font-family: monospace;">MEME_SOURCE_PROCESSING.sql</span><br style="font-family: monospace;">
+&nbsp;&nbsp; <span style="font-family: monospace;">MEME_SYSTEM.sql</span><br style="font-family: monospace;">
+&nbsp;&nbsp; <span style="font-family: monospace;">MEME_UTILITY.sql</span><br>
+      
+&nbsp;&nbsp; <span style="font-family: monospace;">MRD_OPERATIONS_UTILITY.sq</span><br>
+
+
+&nbsp;&nbsp; <span style="font-family: monospace;">MRD_RELEASE_OPERATIONS.sql</span><br>
+
+<br>
+Schema scripts:<br>
+&nbsp;&nbsp; <span style="font-family: monospace;">mrd_indexes.sql</span><br style="font-family: monospace;">
+&nbsp;&nbsp; <span style="font-family: monospace;">mrd_packages.sql</span><br style="font-family: monospace;">
+&nbsp;&nbsp; <span style="font-family: monospace;"></span><span style="font-family: monospace;">mrd_tables.sql</span><br style="font-family: monospace;">
+&nbsp;&nbsp; <span style="font-family: monospace;">mrd_views.sql</span><br>
+&nbsp;<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Ant Build Target:</td>
+      <td style="vertical-align: top;">make_meme</td></tr><tr><td style="vertical-align: top;">Install Instructions:<br>
+      </td>
+      <td style="vertical-align: top;">
+      <ol><li>Choose $MRD_HOME</li><li>
+      Unzip <a style="font-family: monospace;" href="dist_mrd_current.zip">dist_mrd*.zip</a> into $MRD_HOME</li><li>Configure the properties file</li><ol style="list-style-type: lower-alpha;"><li>Copy the <span style="font-family: monospace;">etc/mrd.prop_orig</span> to <span style="font-family: monospace;">etc/mrd.prop</span></li><li>Edit the properties file. <br>
+          </li><li>In particular, set <span style="font-family: monospace;">env.ENV_HOME</span> and <span style="font-family: monospace;">env.ENV_FILE</span>.<br>
+          </li></ol><li>Edit $ENV_FILE and set MRD_HOME&nbsp; property to $MRD_HOME path</li><li>Edit $ENV_FILE and set MEME_HOME&nbsp; property to $MRD_HOME path</li>
+<li>Edit the startup environment to run a server (<span style="font-family: monospace;">$MRD_HOME/bin/mrd_server.sh</span>)</li><li>Reboot the machine to start server<br>
+        </li>
+</ol>
+</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Update Instructions:</td>
+      <td style="vertical-align: top;">
+      <ol>
+        <li>Shut down any running servers</li>
+        <li>Repeat installation instructions without 3a<br>
+        </li>
+      </ol>
+</td>
+    </tr>
+  </tbody>
+</table>
+<br>
+
+
+<br>
+
+<a name="lhc_meow"></a>
+<h3>LHC Jekyll Installation<br>
+</h3>
+
+Following is information about this installation profile:&nbsp;&nbsp; <br>
+<table style="margin-left: auto; margin-right: auto; width: 90%; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+
+
+
+  <tbody>
+    <tr>
+      <td style="vertical-align: top;">Environment Variables:<br>
+      </td>
+      <td style="vertical-align: top;">N/A<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Description:<br>
+      </td>
+      <td style="vertical-align: top;">Temporary
+build to support the existing LHC environment.&nbsp; In particular, it
+builds the meme.jar file required by Jekyll as well as a makejnlp
+script that resigns the .jar files and rebuilds meme.prop into it.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Dependencies (this machine):<br>
+      </td>
+      <td style="vertical-align: top;">LHC MEOW Installation<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Network Dependencies:<br>
+      </td>
+      <td style="vertical-align: top;">None<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Modules:<br>
+      </td>
+      <td style="vertical-align: top;">Make JNLP Script (for re-signing jar files)<br>
+Master MEME JAR file (including meme jars and extlib jars)<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Ant Build Target:</td>
+      <td style="vertical-align: top;">make_jekyll<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Install Instructions:<br>
+      </td>
+      <td style="vertical-align: top;">
+      
+      <ol>
+        <li>Unzip <a style="font-family: monospace;" href="dist_jekyll_current.zip">dist_jekyll*zip</a> into jaws/jekyll of the LHC MEOW document root.</li>
+        <li>Prepare a config.jar that contains bundles/meme.prop (with properly formatted meme.prop file)</li>
+        <ol style="list-style-type: lower-alpha;">
+          <li>mkdir bundles</li>
+          <li>Copy jaws/jekyll/etc/meme.prop_orig to bundles/meme.prop</li>
+          <li>Edit bundles/meme.prop</li>
+          <li>jar cvf config.prop bundles<br>
+          </li>
+        </ol>
+        <li>Run the makejnlp.csh script to build a new .jnlp file and resign the .jar files.<br>
+        </li>
+      </ol>
+</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Update Instructions:</td>
+      <td style="vertical-align: top;">Same as installation instructions<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+
+
+<br>
+
+<a name="meow"></a>
+<h3>MEOW Installation<br>
+</h3>
+
+Following is information about this installation profile:<br>
+<table style="margin-left: auto; margin-right: auto; width: 90%; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+
+
+
+  <tbody>
+    <tr>
+      <td style="vertical-align: top;">Environment Variables:<br>
+      </td>
+      <td style="vertical-align: top;">$MEME_HOME<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Description:<br>
+      </td>
+      <td style="vertical-align: top;">MEOW web environment, including CGI and webapps applications.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Dependencies (this machine):<br>
+      </td>
+      <td style="vertical-align: top;">$ENV_HOME - used by CGI apps<br>
+$MIDSVCS_HOME - used by some .shtml, some CGI<br>
+$SAFEBOX_HOME - used by some CGI apps<br>
+Apache Installation<br>
+Tomcat Installation<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Network Dependencies:<br>
+      </td>
+      <td style="vertical-align: top;">MEME Application Server - to respond to webapps<br>
+MRD Application Server - to respond to webapps<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Modules:<br>
+      </td>
+      <td style="vertical-align: top;">Index and Documentation pages<br>
+Tomcat Manager application<br>
+CGI Applications (Action Harvester, etc.)<br>
+WEB Applictations (ReleaseManager, etc.)<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Ant Build Target:</td>
+      <td style="vertical-align: top;">make_meow<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Install Instructions:<br>
+      </td>
+      <td style="vertical-align: top;">
+      <ol><li>Choose $MEME_HOME<br>
+</li><li>
+      Unzip <a style="font-family: monospace;" href="dist_meow_current.zip">dist_meow*.zip</a> into $MEME_HOME</li><li>Configure webapp properties files</li>
+        <ol>
+          <li>Copy the <span style="font-family: monospace;">etc/meme.prop_orig</span> to <span style="font-family: monospace;">etc/meme.prop</span></li>
+          <li>Edit the properties file. <br>
+  </li>
+          <li>In particular, set <span style="font-family: monospace;">env.ENV_HOME</span> and <span style="font-family: monospace;">env.ENV_FILE</span>.</li>
+          <li>Copy meme.prop to <span style="font-family: monospace;">webapps-meme/WEB-INF/meme.prop</span><span style="font-family: monospace;"></span></li>
+          <li>Copy meme.prop to <span style="font-family: monospace;">webapps-meme/WEB-INF/mrd.prop</span></li>
+          <li>Copy <span style="font-family: monospace;">webapps-meme/WEB-INF/states.prop_orig</span> to <span style="font-family: monospace;">webapps-meme/WEB-INF/states.prop</span></li>
+        </ol>
+        <li>Configure client-side meme properties file</li>
+        <ol style="list-style-type: lower-alpha;">
+          <li>Copy the <span style="font-family: monospace;">etc/meme.prop_orig</span> to <span style="font-family: monospace;">etc/meme.prop</span></li>
+          <li>Edit the properties file. <br>
+          </li>
+          <li>In particular, set <span style="font-family: monospace;">env.ENV_HOME</span> and <span style="font-family: monospace;">env.ENV_FILE</span>.</li>
+        </ol>
+<li>Edit $ENV_FILE and set MEME_HOME property to $MEME_HOME path</li><li>Configure Apache</li>
+        <ol style="list-style-type: lower-alpha;">
+          <li>Configure the user info (in <span style="font-family: monospace;">$APACHE/conf/httpd.conf</span>). For
+example,
+        
+            <blockquote>
+          
+              <pre>User meme<br>Group other<br>SetEnv ENV_HOME &lt;path to $ENV_HOME&gt;<br>SetEnv ENV_FILE &lt;path to $ENV_FILE&gt;<br></pre>
+
+        </blockquote>
+
+      </li>
+          <li>Configure Timout. For example,
+        <blockquote>
+          <pre>Timeout 7200<br></pre>
+        </blockquote>
+      </li>
+          <li>Configure document root to be <span style="font-family: monospace;">$MEME_HOME/www</span> in <span style="font-family: monospace;">$APACHE/conf/httpd.conf</span>. For
+example,
+        <blockquote>
+          <pre>DocumentRoot "&lt;path to $MEME_HOME&gt;/www"<br></pre>
+        </blockquote>
+      </li>
+          <li>Add JNLP to <span style="font-family: monospace;">$APACHE/conf/mime.types</span>.
+For example,
+        <blockquote>
+          <pre>application/x-java-jnlp-file    jnlp<br></pre>
+        </blockquote>
+      </li>
+          <li>Configure CGI directories to point to <span style="font-family: monospace;">$MEME_HOME/cgi-bin</span>.
+        <blockquote>
+          <pre>ScriptAlias /cgi-bin/ <path to="" meme_home="">/cgi-bin/<path to="" meme_home=""><path to="" meme_home=""><path to="" meme_home=""><path to="" meme_home=""><br>AddHandler cgi-script .cgi<br></path></path></path></path></path></pre>
+        </blockquote>
+      </li>
+          <li>Make sure the CGI <span style="font-family: monospace;">&lt;Directory&gt;</span>
+directive has
+        <blockquote>
+          <pre>Options FollowSymLinks<br></pre>
+        </blockquote>
+      </li>
+          <li>Support server side includes. For example,
+        <blockquote>
+          <pre>&lt;IfModule mod_mime.c&gt;<br>...<br>    #<br>    # To use server-parsed HTML files<br>    #<br>    AddType text/html .shtml<br>    AddHandler server-parsed .shtml<br>...<br>&lt;/IfModule&gt;<br><br>&lt;Directory /&gt;<br>    Options FollowSymLinks +Includes<br>    AllowOverride None<br>&lt;/Directory&gt;<br></pre>
+        </blockquote>
+      </li>
+          <li>Support <span style="font-family: monospace;">index.shtml</span>
+as index page. For example,
+        <blockquote>
+          <pre>#<br># DirectoryIndex: Name of the file or files to use as a pre-written HTML<br># directory index.  Separate multiple entries with spaces.<br>#<br>&lt;IfModule mod_dir.c&gt;<br>    DirectoryIndex index.html index.shtml<br>&lt;/IfModule&gt;<br></pre>
+        </blockquote>
+      </li>
+          <li>Configure authentication. For each <span style="font-family: monospace;">Directory</span> directive do
+something like this:
+        <blockquote>
+          <pre>    Order Deny,Allow<br>    Deny from all<br>        AuthType Basic<br>        AuthName "Metathesaurus Editors Online World"<br>        AuthUserFile /etc/umls/meow.passwd<br>        AuthGroupFile /etc/umls/meow.group<br>        require group meowusers<br>        deny from redoubt<br>        satisfy any<br></pre>
+        </blockquote>
+      </li>
+          <li>Connect Apache, Tomcat.&nbsp; This is just a suggestion, there are many ways to connect them.
+        
+            <blockquote>
+          <pre>LoadModule jk_module          libexec/mod_jk.so<br>AddModule mod_jk.c<br><br># statements from the tomcat generated mod_jk.conf-auto<br># ( /usr/local/jakarta-tomcat-3.2.1/conf/mod_jk.conf-bw )<br># were placed here - an Include statement was not used because the<br># LoadModule and and AddModule statements for mod_jk need to go before the<br># corresponding statements for mod_rewrite in the above sections<br>#<br>JkWorkersFile /usr/local/apache/conf/workers.properties<br>JkLogFile     /usr/local/apache/logs/mod_jk.log<br>#JkLogLevel    warn<br>JkLogLevel    info<br>JkMount /*.jsp ajp13<br>JkMount /servlet/* ajp13<br>JkMount /admin/* ajp13<br>JkMount /manager/* ajp13<br>JkMount /examples/* ajp13<br>JkMount /webapps-meme/* ajp13<br>JkMount /webapps-mrd/* ajp13<br></pre>
+        </blockquote>
+
+Next, edit <span style="font-family: monospace;">workers.properties</span>.
+        
+            <blockquote>
+          <pre>workers.tomcat_home=/usr/local/tomcat4<br>workers.java_home=/usr/java<br>ps=/<br>worker.list=ajp12, ajp13<br>worker.ajp12.port=5007<br>worker.ajp12.host=localhost<br>worker.ajp12.type=ajp12<br>worker.ajp12.lbfactor=1<br>worker.ajp13.port=5009<br>worker.ajp13.host=localhost<br>worker.ajp13.type=ajp13<br>worker.ajp13.lbfactor=1<br>worker.loadbalancer.type=lb<br>worker.loadbalancer.balanced_workers=ajp12, ajp13<br>worker.inprocess.type=jni<br>worker.inprocess.class_path=$(workers.tomcat_home)$(ps)classes<br>worker.inprocess.class_path=$(workers.tomcat_home)$(ps)lib$(ps)jaxp.jar<br>worker.inprocess.class_path=$(workers.tomcat_home)$(ps)lib$(ps)parser.jar<br>worker.inprocess.class_path=$(workers.tomcat_home)$(ps)lib$(ps)jasper.jar<br>worker.inprocess.class_path=$(workers.tomcat_home)$(ps)lib$(ps)servlet.jar<br>worker.inprocess.class_path=$(workers.tomcat_home)$(ps)lib$(ps)webserver.jar<br>worker.inprocess.class_path=$(workers.java_home)$(ps)lib$(ps)tools.jar<br>worker.inprocess.cmd_line=-config<br>worker.inprocess.cmd_line=$(workers.tomcat_home)/conf/jni_server.xml<br>worker.inprocess.cmd_line=-home<br>worker.inprocess.cmd_line=$(workers.tomcat_home)<br>worker.inprocess.jvm_lib=$(workers.java_home)$(ps)jre$(ps)bin$(ps)classic$(ps)jvm.dll<br>worker.inprocess.stdout=$(workers.tomcat_home)$(ps)inprocess.stdout<br>worker.inprocess.stderr=$(workers.tomcat_home)$(ps)inprocess.stderr<br>worker.inprocess.sysprops=tomcat.home=$(workers.tomcat_home)<br></pre>
+        </blockquote>
+
+      
+  </li>
+        </ol>
+        <li>Configure Tomcat</li>
+        <ol style="list-style-type: lower-alpha;">
+          <li>Connect Apache, Tomcat users.&nbsp; If you want to use the
+manager application, you will need a tomcat-users.xml file like this:<br>
+        <pre>&lt;?xml version='1.0' encoding='utf-8'?&gt;<br>&lt;tomcat-users&gt;<br>  &lt;role rolename="manager"/&gt;<br>  &lt;user username="mth" password="da3f16e8581e271a13a48dc4468cf1e7" roles="manager"/&gt;<br>&lt;/tomcat-users&gt;<br><br></pre>
+      </li>
+          <li>Connect Apache to Tomcat. First, create a
+$TOMCAT/webapps/webapps-meme.xml file like this:
+        <blockquote>
+          <pre>&lt;Context path="/webapps-meme" docBase="<path to="" meme_home="">/webapps-meme"<br>        debug="0"&gt;<br>          &lt;Logger className="org.apache.catalina.logger.FileLogger"<br>                     prefix="localhost_webapps-meme_log." suffix=".txt"<br>                  timestamp="true"/&gt;<br>&lt;/Context&gt;<br></path></pre>
+        </blockquote>
+          </li>
+        </ol>
+        <li>Configure startup script to start Apache/Tomcat</li>
+        <li>Reboot machine<br>
+        </li>
+</ol>
+</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Update Instructions:</td>
+      <td style="vertical-align: top;">Same as installation instructions<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+
+
+<br>
+
+<br>
+
+
+<hr width="100%">
+<table nosave="" border="0" cols="2" width="100%">
+
+
+<tbody><tr nosave=""><td nosave="" align="left" valign="top">
+<address><a href="/">Meta News Home</a></address></td>
+<td nosave="" align="right" valign="top">
+<address><font size="-1">Contact: <a href="mailto:bcarlsen@apelon.com">Brian A. Carlsen</a></font></address>
+<address><font size="-1">Created: 07/14/2005</font></address>
+<address><font size="-1">Last Updated: 07/14/2005</font></address>
+</td>
+</tr>
+</tbody>
+</table>
+
+
+<!-- These comments are used by the What's new Generator --><!-- Changed On: 2005/07/14 --><!-- Changed by: MEME Team --><!-- Change Note: UMLS - Installation Profiles -->
+
+
+
+
+
+<!-- Fresh for: 1 month -->
+</body></html>

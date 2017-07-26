@@ -1,0 +1,183 @@
+
+<html>
+<head>
+   <title>MEME Tables Documentation - mom_candidate_facts</title>
+    <script language="javascript">
+	function openDescription (thing,dsc) {
+	    var html = "<html><head><title>Description: "+thing;
+	    html = html + "</title></head><body bgcolor=#ffffff>" + dsc + "<center><form><input type=button onClick='window.close(); return true' value='Close'></form></center></body></html>";
+	    var win = window.open("","","scrollbars,width=500,height=250,resizable");
+	    win.document.open();
+	    win.document.write(html);
+	    win.document.close();
+	}; // end openDescription
+    </script>
+</head>
+
+<body text="#000000" bgcolor="#FFFFFF" link="#3333FF" vlink="#999999" alink="#FF0000">
+
+<center>
+
+<h2>MEME Tables</h2></center>
+
+<hr width="100%">
+
+<!-- Nav bar -->
+  <p><center>[ <a href="#overview">overview</a> | <a href="#details">details</a> | <a href="#references">references</a> ]</center></p>
+
+<!-- Image -->
+<p><center><tt><b>mom_candidate_facts</b></tt><br>
+   <img src="/images/table.gif" alt="Table Icon"></center></p>
+
+<!-- Content section -->
+
+<blockquote>
+
+  <a name="overview"></a><h3>Overview/Objective</h3>
+  This document contains a description of <tt>mom_candidate_facts</tt> 
+     and its various fields.  It also (may) include information
+  about how this table is used in the various stages of MID processing.
+<br>&nbsp;
+<a name="details"></a><h3>Details</h3>
+
+
+    <p>
+	
+	<!-- mom_candidate_facts -->
+
+    <a name="mom_candidate_facts"></a>
+    <center>
+      <table border="0" width="90%">
+        <tr><td valign="top" width="20%"><font size="-1"><b>Table name:</b></font></td><td valign="top" width="80%"><b><tt>mom_candidate_facts</tt></b></td></tr>
+        <tr><td valign="top"><font size="-1"><b>Table Type:</b></font></td><td valign="top"><font size="-1">
+          <a href="javascript:openDescription('source','<p>MID Used as staging area for source insertion data.</p>')">source</a></font></td></tr>
+        <tr><td valign="top"><font size="-1"><b>Description:</b></font></td><td valign="top"><font size="-1">Contains facts being considered for merging.  The processes that load data from <tt><a href="/MEME/Data/src_format.html#mergefacts">mergefacts.src</a></tt> files or generate facts from the database put those candidate facts here.</font></td></tr>
+        <tr><td valign="top"><font size="-1"><b>Fields:</b></font></td><td valign="top">
+	    <table border="1" cellpadding="2" width="90%">
+
+	<tr><td width="20%" valign="top"><tt>atom_id_1</tt></td>
+	    <td width="20%" valign="top"><font size="-1"><b>NUMBER(12)</b></font></td>
+ 	    <td width="60%" valign="top"><font size="-1">must be in <a href="classes.html"><tt>classes.atom_id</tt></a> or in <a href="dead_classes.html"><tt>dead_classes.atom_id</tt></a>&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>atom_id_2</tt></td>
+	    <td width="20%" valign="top"><font size="-1"><b>NUMBER(12)</b></font></td>
+ 	    <td width="60%" valign="top"><font size="-1">must be in <a href="classes.html"><tt>classes.atom_id</tt></a> or in <a href="dead_classes.html"><tt>dead_classes.atom_id</tt></a>&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>code1</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(30)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">the code of the <tt>atom_id_1</tt>&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>code2</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(30)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">the code of the <tt>atom_id_2</tt>&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>termgroup1</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(40)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">the termgroup of the <tt>atom_id_1</tt>&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>termgroup2</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(40)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">the termgroup of the <tt>atom_id_2</tt>&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>source1</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(20)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">the source of the <tt>atom_id_1</tt>&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>source2</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(20)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">the source of the <tt>atom_id_2</tt>&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>merge_level</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(3)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">a value indicating the type of merge fact, usually one of <tt>MAT</tt> (exact match), <tt>NRM</tt> (norm match), or <tt>SY</tt> (synonym)&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>status</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(1)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">not used&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>lui_1</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(10)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">the lui of the <tt>atom_id_1</tt>&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>lui_2</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(10)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">the lui of the <tt>atom_id_2</tt>&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>isui_1</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(10)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">the isui of the <tt>atom_id_1</tt>&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>isui_2</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(10)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">the isui of the <tt>atom_id_2</tt>&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>sui_1</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(10)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">the sui of the <tt>atom_id_1</tt>&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>sui_2</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(10)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">the sui of the <tt>atom_id_2</tt>&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>merge_set</tt></td>
+	    <td width="20%" valign="top"><font size="-1"><b>VARCHAR2(30)</b></font></td>
+ 	    <td width="60%" valign="top"><font size="-1">the name of the merge set that this fact belongs to&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>source</tt></td>
+	    <td width="20%" valign="top"><font size="-1"><b>VARCHAR2(20)</b></font></td>
+ 	    <td width="60%" valign="top"><font size="-1">the source of this fact&nbsp;</font></td>
+	</tr>
+	    </table>
+        </td></tr>
+        <tr><td valign="top"><font size="-1"><b>Indexes:</b></font></td><td valign="top">
+
+            <font size="-1"><tt>No indexes</tt></font>
+	    
+        </td></tr>
+
+	<tr><td valign="top"><font size="-1"><b>Insertion&nbsp;Role:</b></font></td><td valign="top"><font size="-1">This table is used by the <i>merge engine</i> as a staging area for merge facts to process.  This table is loaded by either the <a href="/MEME/Documentation/plsql_msp.html#prepare_src_mergefacts"><tt>MEME_SOURCE_PROCESSING.prepare_src_mergefacts</tt></a> or by <a href="/MEME/Documentation/plsql_msp.html#generate_facts"><tt><tt>MEME_SOURCE_PROCESSING.generate_facts</tt></a>&nbsp;</font></td></tr>
+
+      </table>
+    </center>
+    </p>
+
+<p>
+<a name="references"></a><h3>References/Links</h3>
+Use the following references for related information.
+<ol>
+  <li><a href="../tables_all.html" alt="All Tables Info">All MEME tables</a></li>
+</ol>
+</p>
+</blockquote>
+
+<p><center>[ <a href="#overview">overview</a> | <a href="#details">details</a> | <a href="#references">references</a> ]</center></p>
+
+<hr WIDTH="100%">
+<table BORDER=0 COLS=2 WIDTH="100%" NOSAVE >
+<tr NOSAVE>
+<td ALIGN=LEFT VALIGN=TOP NOSAVE>
+<address>
+<a href="/MEME/">MEME Home</a></address>
+</td>
+
+<td ALIGN=RIGHT VALIGN=TOP NOSAVE>
+<address>
+<font size=-1>Contact: <a href="mailto:bcarlsen@apelon.com">Brian A. Carlsen</a></font></address>
+
+<address>
+<font size=-1>Created: 7/27/2001</font></address>
+
+<address>
+<font size=-1>Last Updated: 03/07/2005</font></address>
+
+</td>
+</tr>
+</table>
+
+</body>
+<!-- These comments are used by the What's new Generator -->
+<!-- Changed On: 2005/03/07 -->
+<!-- Changed by: Brian Carlsen -->
+<!-- Change Note: MEME Schema documentation - mom_candidate_facts  -->
+<!-- Fresh for: 1 month -->
+</html>

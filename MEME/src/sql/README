@@ -1,0 +1,56 @@
+
+README - 07/11/2005
+
+  A - Admin
+  DEV - Developer
+
+File                                    Description
+------------------------------------    -------------------------------------
+MEME_APROCS.sql				Implements "atomic actions"
+MEME_BATCH_ACTIONS.sql			Implements batch actions
+MEME_CONSTANTS.sql			Useful constants
+MEME_INTEGRITY.sql			Implements some integrity 
+				        infrastructure
+MEME_INTEGRITY_PROC.sql			Implements some "QA bins"
+MEME_OPERATIONS.sql			Implements CUI assignment
+MEME_RANKS.sql				Implements ranking algorithms
+MEME_SNAPSHOT_PROC.sql			not used
+MEME_SOURCE_PROCESSING.sql		Implements insertion/maintenance algorithms
+MEME_SYSTEM.sql				Implements useful system-level functions
+MEME_UTILITY.sql			Implements usefule utility functions
+
+For all PL/SQL packages see $MEME_HOME/www/MEME/Documentation/plsql.html
+
+meme_index_updates.sql			Mechanism for handling index updates
+
+meme_indexes.sql			Defines MID indexes
+
+meme_packages.sql			Loads MID packages in dependency order
+
+synonyms.sql				Defines public MID synonyms
+	
+meme_table_updates.sql			Mechanism for handling table updates
+
+meme_tables.sql				Defines MID tables
+
+meme_views.sql				Defines MID views
+
+stale_stats.sql				Refresh statistics
+
+
+MRD_OPERATIONS.sql			Supports "synchronizing" MID/MRD 
+					data states
+
+MRD_RELEASE_OPERATIONS.sql		Release algorithms
+
+mrd_indexes.sql				Defines MRD indexes
+
+mrd_index_updates.sql			Mechanism for handling index updates
+
+mrd_packages.sql			Loads MRD packages in dependency order
+
+mrd_tables.sql				Defines MRD tables
+
+mrd_table_updates.sql			Mechanism for handling table updates
+
+mrd_views.sql				Defines MRD views

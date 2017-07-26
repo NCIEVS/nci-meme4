@@ -1,0 +1,362 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+            
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <meta http-equiv="Content-Type" content="text/html; charset=utf8">
+  <title>MEME - Developer Guides - Content Views</title>
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+            
+  
+  
+  
+
+  
+
+  
+             
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <meta name="author" content="Brian Carlsen">
+
+
+
+
+
+
+
+
+
+
+       
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <meta name="description" content="This document describes the content view implementation.">
+</head><body style="color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);" alink="#ff0000" link="#3333ff" vlink="#999999">
+      
+<center>   
+<h2>Content Views<br>
+</h2>
+  </center>
+
+
+
+
+
+
+
+
+
+
+      
+<hr>&nbsp;<br>
+
+
+
+
+
+
+
+
+
+
+   
+<h3>Overview</h3>
+
+
+
+
+
+
+
+
+
+
+   
+<blockquote>A content view is any definable subset of the Metathesaurus
+that is useful for some specific purpose.&nbsp; The actual definition
+of a content view can take a variety of different forms: <br>
+  <ul>
+    <li>An actual list of Metathesaurus UIs, maintained over time. <br>
+    </li>
+    <li>A list of sources that participate in the view. <br>
+    </li>
+    <li>A complex query that identifies particular sets of atoms, attributes, and relationships.<br>
+</li>
+  </ul>
+The authority responsible for a content view may use any mechanism to
+define the view before it goes into the MID.&nbsp; In order to
+represent the data homogeneously in the MID, we will take the external
+definition and construct an algorithm to build a list of Metathesaurus
+UIs..<br>
+  
+
+       
+  <ul>
+      
+       
+  </ul>
+  </blockquote>
+
+
+
+
+
+
+
+
+
+
+   
+<h3>Content Views in the MID<br>
+</h3>
+
+
+
+
+
+
+
+
+
+<blockquote>A content view is represented in the MID as a collection of
+Metathesaurus UIs (CUI,AUI,ATUI,RUI,SUI) associated with some higher level
+information about the content view itself.&nbsp; There are two MID
+tables which will contain this data.<br>
+  <br>
+  <pre>CREATE TABLE content_view_members(<br>        meta_ui                 VARCHAR2(20) NOT NULL,<br>        code                    NUMBER NOT NULL, -- Powers of 2<br>        cascade                 VARCHAR2(1) NOT NULL<br>)<br></pre>
+  
+  <pre>CREATE TABLE content_views (<br>        content_view_id         NUMBER(12) NOT NULL,<br>        contributor             VARCHAR2(100) NOT NULL,<br>        contributor_version     VARCHAR2(100) NOT NULL,<br>        content_view_contributor_url VARCHAR2(1000),<br>        contributor_date        DATE NOT NULL,<br>        maintainer              VARCHAR2(100) NOT NULL,<br>        maintainer_version      VARCHAR2(100) NOT NULL,<br>        content_view_maintainer_url VARCHAR2(1000),<br>        maintainer_date         DATE NOT NULL,<br>        content_view_name       VARCHAR2(1000) NOT NULL,<br>        content_view_description VARCHAR2(4000) NOT NULL,<br>        content_view_algorithm  VARCHAR2(4000) NOT NULL,<br>        content_view_category   VARCHAR2(100) NOT NULL,<br>        content_view_subcategory VARCHAR2(100),<br>        content_view_class      VARCHAR2(100) NOT NULL,<br>        content_view_code       NUMBER NOT NULL, -- Powers of 2<br>        content_view_previous_meta VARCHAR2(10),<br>        cascade                 VARCHAR2(1) NOT NULL,<br>        is_generated            VARCHAR2(1),<br>                                CHECK (cascade IN ('Y','N')),<br>                                CHECK (is_generated IN ('Y','N'))<br>)<br><br></pre>
+The <a href="/MEME/Training/tables/content_views.html"><span style="font-family: monospace;">content_views</span></a> table stores information about the content view itself. <br>
+  <ul>
+    <li><span style="font-family: monospace;">content_view_id</span> is a unique identifier for the view <br>
+    </li>
+    <li><span style="font-family: monospace;">contributor</span> is the party responsible for defining/creating the view.&nbsp; There is an associated <span style="font-family: monospace;">contributor_version</span> and <span style="font-family: monospace;">contributor_date</span> and <span style="font-family: monospace;">content_view_contributor_url</span>.</li><li><span style="font-family: monospace;">maintainer</span> is the party responsible for maintaining/regenerating the view.&nbsp; There is an associated <span style="font-family: monospace;">maintainer_version</span> and <span style="font-family: monospace;">maintainer_date</span> and <span style="font-family: monospace;">content_view_maintiner_url</span>.
+    </li>
+
+    <li><span style="font-family: monospace;">content_view_name</span> is a descriptive name for the view <br>
+    </li>
+    <li><span style="font-family: monospace;">content_view_description</span> is an extended description (paragraph at most). <br>
+    </li>
+    <li><span style="font-family: monospace;">content_view_algorithm</span> is ideally a query (or pl/sql block) that can be used to regenerate the set of members. <br>
+    </li>
+    <li><span style="font-family: monospace;">content_view_category</span> identifies what kind of content view it is (e.g. CHI vs. Olivier's ontology view).&nbsp; There is additionally a <span style="font-family: monospace;">content_view_subcategory </span>for further specification.</li><li><span style="font-family: monospace;">content_view_class</span>
+is a higher level classification of content views based on
+completeness, validity, correctness. usefulness, etc.&nbsp; For
+example, it may have values like "Complete and current", or "Partial",
+or "Not updated for this release".<br>
+    </li>
+
+    <li><span style="font-family: monospace;">content_view_code</span> is a number indicating the bit of the CVF field represented by this view </li><li><span style="font-family: monospace;">content_view_previous_meta</span> is the version of META this view was based upon, if computed from&nbsp; previous META.</li><li><span style="font-family: monospace;">cascade</span> is a feature that allows a view to include any data elements connected to the Metathesaurus UIs that make up its members.</li>
+<li><span style="font-family: monospace;">is_generated</span> indicates whether or not the member list was generated from a query or loaded from a file.<br>
+    </li>
+
+  </ul>
+The <a href="/MEME/Training/tables/content_view_members.html"><span style="font-family: monospace;">content_view_members</span></a>table
+is a list of the actual UIs that participate in the content view,
+along with a field indicating (via a bit mask) those concept views to
+which that UI belongs (and an indicator of whether in this context the
+view is to cascade to connected info). The code field can be linked
+back to the <a href="/MEME/Training/tables/content_views.html" style="font-family: monospace;">content_views</a> table via a bit-OR operation..&nbsp; <br>
+  <br>
+When a new content view is to be added (or updated) to the MID, we will create a new entry in the <a href="/MEME/Training/tables/content_views.html" style="font-family: monospace;">content_views</a>
+table.&nbsp; The algorithm
+field will define how the content view members are actually
+determined.&nbsp; A tool will be built so that a content view can be
+reconstructed at any point in time based on the algorithm.&nbsp; This
+allows us to review content views as soon as they are added to the MID,
+and also to guarantee their freshness and relevancy at the time we
+perform a release.<br>
+  <br>
+Each content view is also represented as a concept with an MTH/CV atom:<br>
+  <ol style="margin-top: 0in;" start="1" type="a">
+<li class="MsoNormal" style="">String=CV_NAME, e.g. “MetaMap
+      NLP View” </li><li class="MsoNormal" style="">Code=NOCODE </li><li class="MsoNormal" style="">Tty=CV </li><li class="MsoNormal" style="">Sab=MTH </li><li class="MsoNormal" style="margin-bottom: 12pt;">S*UI=null</li>
+  </ol>
+Each content view concept has an "Intellectual Product" semantic type.<br>
+  <br>
+Each content view concept also has a variety of attributes matching those fields in content view members:<br>
+  <ol style="margin-top: 0in;" start="1" type="a">
+<li class="MsoNormal" style="">CV_CONTRIBUTOR </li><li class="MsoNormal" style="">CV_CONTRIBUTOR_VERSION </li><li class="MsoNormal" style="">CV_CONTRIBUTOR_URL </li><li class="MsoNormal" style="">CV_CONTRIBUTOR_DATE </li><li class="MsoNormal" style="">CV_MAINTAINER </li><li class="MsoNormal" style="">CV_MAINTAINER_VERSION </li><li class="MsoNormal" style="">CV_MAINTAINER_URL </li><li class="MsoNormal" style="">CV_MAINTAINER_DATE </li><li class="MsoNormal" style="">CV_CLASS </li><li class="MsoNormal" style="">CV_CODE </li><li class="MsoNormal" style="">CV_CATEGORY </li><li class="MsoNormal" style="">CV_SUBCATEGORY </li><li class="MsoNormal" style="">CV_PREVIOUS_META </li><li class="MsoNormal" style="">CV_DESCRIPTION </li><li class="MsoNormal" style="">CV_ALGORITHM</li><li class="MsoNormal" style="">CV_IS_GENERATED</li>
+  </ol>
+Note: this concept itself should be included in the concept view.<br>
+</blockquote>
+<h3>Content Views in the MRD<br>
+</h3>
+
+
+
+
+
+
+
+<blockquote>The MRD will track states of the content views via a <a href="/MRD/Training/tables/mrd_content_views.html" style="font-family: monospace;">mrd_content_views</a> and <a href="/MRD/Training/tables/mrd_content_view_members.html"><span style="font-family: monospace;">mrd_content_view_members</span></a> tables
+which mirror the table structures of their MID counterparts
+(with the addition of insertion/expiration dates).&nbsp; The
+  <a style="font-family: monospace;" href="/MRD/Training/tables/mrd_attributes.html">mrd_attributes</a> and <a style="font-family: monospace;" href="/MRD/Training/tables/mrd_classes.html">mrd_classes</a> tables will track the concept
+representation of the concept view.&nbsp; There will be one atom and those attributes listed above.<br>
+</blockquote>
+
+
+
+
+
+
+
+
+
+
+
+<h3>Content Views in the Metathesaurus<br>
+</h3>
+
+
+
+
+
+
+
+
+
+<blockquote>Each content file in the Metathesaurus contains a CVF field
+which will consist of an 64-bit integer representing a bit mask.&nbsp;
+When interpreted as a binary number, each bit of the integer represents
+a particular content view (defined in the content views table).&nbsp;
+These bits will be assigned from least significant to most significant
+digit.&nbsp; Membership in a particular content view is indicated by
+the presence of a 1 in the corresponding bit.&nbsp; A 0 indicates that
+it is not a member.&nbsp; Additionally, higher level information about
+the content views will be included directly in the release files.<br>
+  <br>
+Higher level information about content views will be included as a
+concept in MRCONSO.RRF and MRSAT.RRF. This concept is described in the
+MID section above.<br>
+ </blockquote>
+
+
+
+
+
+
+<h3>Content Views in MetamorphoSys<br>
+</h3>
+
+
+
+
+
+
+<blockquote>MetamorphoSys will have an additional filter that will
+implement the content view logic.&nbsp; Any combination of content
+views will be supported.&nbsp; Generally, this filter will only be used
+if the user explicitly selects one of the new "default configurations"
+requiring it.&nbsp; For example, a new default configuration to
+restrict to HIPAA sources will require this filter and instruct
+MetamorphoSys to keep only content with that content view's members
+enabled.<br>
+
+  <span style="font-size: 10pt; font-family: Arial;"></span>&nbsp;<o:p></o:p>
+
+
+
+
+  </blockquote>
+
+
+
+
+
+
+
+
+
+
+
+<center>  
+</center>
+
+
+
+
+
+
+
+
+
+
+ 
+
+   
+<hr width="100%">   
+<table nosave="" border="0" cols="2" width="100%">
+
+
+
+
+
+
+
+
+
+
+   <tbody>
+      <tr nosave="">
+   <td nosave="" align="left" valign="top">               
+      <address> <a href="/MEME">MEME Home</a></address>
+   </td>
+    <td nosave="" align="right" valign="top">               
+      <address> <font size="-1">Contact: <a href="mailto:bcarlsen@apelon.com">Brian A. Carlsen</a></font></address>
+                  
+      <address> <font size="-1">Created: 10/07/2003</font></address>
+                  
+      <address> <font size="-1">Last Updated: 07/07/2006</font></address>
+   </td>
+   </tr>
+         
+  </tbody>  
+</table>
+
+<!-- These comments are used by the What's new Generator --><!-- Changed On: 2006/07/07 --><!-- Changed by: Brian Carlsen --><!-- Change Note: MEME - Developer Guides - Content Views --><!-- Fresh for: 1 month -->
+
+
+</body></html>

@@ -1,0 +1,87 @@
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf8">
+   <title>MEME - Developer Guides - PL/SQL Documentation -MEME_TESTER</title>
+</head>
+<body bgcolor="#ffffff">
+
+<center>
+<h2>
+MEME_TESTER</h2></center>
+
+<center>
+<hr WIDTH="100%"></center>
+
+<br>&nbsp;
+<center><table COLS=1 WIDTH="90%" >
+<tr>
+<td>This package is used to test or generate test data for other packages.
+<h2>
+<img SRC="/images/methods.gif" height=38 width=151></h2>
+<a NAME="generate_batch_action_table"></a><img SRC="/images/green-ball.gif" height=12 width=12><b>generate_batch_action_table</b>
+<pre>&nbsp;&nbsp;&nbsp; PROCEDURE generate_batch_action_table (&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; action&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; id_type&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sample_size&nbsp;&nbsp; IN INTEGER,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; old_value&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2 DEFAULT '',
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; action_field&nbsp; IN VARCHAR2 DEFAULT '');</pre>
+
+<dl>
+<dd>
+This procedure generates a table which can be used to test the <tt><a href="plsql_mba.html">MEME_BATCH_ACTIONS</a></tt>
+package. The table names it produces are of the form:<textarea>batch_&lt;action>_&lt;id_type>_&lt;sample_size></textarea>
+For example, calling <tt>generate_batch_action_table ('CS','C',100)</tt>
+would produce a table called: <tt>batch_cs_c_100</tt>.</dd>
+</dl>
+<a NAME="generate_batch_insert_data"></a><img SRC="/images/green-ball.gif" height=12 width=12><b>generate_batch_insert_data</b>
+<pre>&nbsp;&nbsp;&nbsp; PROCEDURE generate_batch_insert_data (&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; id_type&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sample_size&nbsp;&nbsp; IN INTEGER);</pre>
+
+<dl>
+<dd>
+This procedure generates dummy data which can be used to test the <tt><a href="plsql_mba.html">MEME_BATCH_ACTIONS</a></tt>
+package.</dd>
+</dl>
+<a NAME="exec_integrity_proc"></a><img SRC="/images/green-ball.gif" height=12 width=12><b>exec_integrity_proc</b>
+<pre>&nbsp;&nbsp;&nbsp; PROCEDURE exec_integrity_proc;</pre>
+
+<dl>
+<dd>
+This procedure executes <tt><a href="../../plsql_mip.html">MEME_INTEGRITY_PROC</a></tt>
+procedures for test purposes..</dd>
+
+<br>&nbsp;</dl>
+</td>
+</tr>
+</table></center>
+
+<p>
+<hr WIDTH="100%">
+<table BORDER=0 COLS=2 WIDTH="100%" NOSAVE >
+<tr NOSAVE>
+<td ALIGN=LEFT VALIGN=TOP NOSAVE>
+<address>
+<a href="/MEME/">MEME Home</a></address>
+</td>
+
+<td ALIGN=RIGHT VALIGN=TOP NOSAVE>
+<address>
+<font size=-1>Contact: <a href="mailto:bcarlsen@apelon.com">Brian A. Carlsen</a></font></address>
+
+<address>
+<font size=-1>Created: 7/18/2001</font></address>
+
+<address>
+<font size=-1>Last Updated: 09/23/2003</font></address>
+</td>
+</tr>
+</table>
+
+</body>
+<!-- These comments are used by the What's new Generator -->
+<!-- Changed On: 2003/09/23 -->
+<!-- Changed by: Brian Carlsen -->
+<!-- Change Note: MEME - Developer Guides - PL/SQL Documentation -MEME_TESTER -->
+<!-- Fresh for: 1 month -->
+</html>

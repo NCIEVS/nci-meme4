@@ -1,0 +1,123 @@
+
+<html>
+<head>
+   <title>MEME Tables Documentation - max_tab</title>
+    <script language="javascript">
+	function openDescription (thing,dsc) {
+	    var html = "<html><head><title>Description: "+thing;
+	    html = html + "</title></head><body bgcolor=#ffffff>" + dsc + "<center><form><input type=button onClick='window.close(); return true' value='Close'></form></center></body></html>";
+	    var win = window.open("","","scrollbars,width=500,height=250,resizable");
+	    win.document.open();
+	    win.document.write(html);
+	    win.document.close();
+	}; // end openDescription
+    </script>
+</head>
+
+<body text="#000000" bgcolor="#FFFFFF" link="#3333FF" vlink="#999999" alink="#FF0000">
+
+<center>
+
+<h2>MEME Tables</h2></center>
+
+<hr width="100%">
+
+<!-- Nav bar -->
+  <p><center>[ <a href="#overview">overview</a> | <a href="#details">details</a> | <a href="#references">references</a> ]</center></p>
+
+<!-- Image -->
+<p><center><tt><b>max_tab</b></tt><br>
+   <img src="/images/table.gif" alt="Table Icon"></center></p>
+
+<!-- Content section -->
+
+<blockquote>
+
+  <a name="overview"></a><h3>Overview/Objective</h3>
+  This document contains a description of <tt>max_tab</tt> 
+     and its various fields.  It also (may) include information
+  about how this table is used in the various stages of MID processing.
+<br>&nbsp;
+<a name="details"></a><h3>Details</h3>
+
+
+    <p>
+	
+	<!-- max_tab -->
+
+    <a name="max_tab"></a>
+    <center>
+      <table border="0" width="90%">
+        <tr><td valign="top" width="20%"><font size="-1"><b>Table name:</b></font></td><td valign="top" width="80%"><b><tt>max_tab</tt></b></td></tr>
+        <tr><td valign="top"><font size="-1"><b>Table Type:</b></font></td><td valign="top"><font size="-1">
+          <a href="javascript:openDescription('auxiliary','<p>MID Used for other processes or just general system maintenance.</p>')">auxiliary</a></font></td></tr>
+        <tr><td valign="top"><font size="-1"><b>Description:</b></font></td><td valign="top"><font size="-1">Maintains the maximum id values for various kinds of IDs.  Each row has a <tt>table_name</tt> which specifies what kind of id is being tracked and a maximum value.  The value in the <tt>max_id</tt> field is the maximum id used so far, so if is 12345 for table "ATOMS" it means that the maximum <tt>atom_id</tt> used so far is 12345.</font></td></tr>
+        <tr><td valign="top"><font size="-1"><b>Fields:</b></font></td><td valign="top">
+	    <table border="1" cellpadding="2" width="90%">
+
+	<tr><td width="20%" valign="top"><tt>table_name</tt></td>
+	    <td width="20%" valign="top"><font size="-1"><b>VARCHAR2(50)</b></font></td>
+ 	    <td width="60%" valign="top"><font size="-1">a label used to track a max_id, e.g. <tt>ATOMIC_ACTIONS</tt> tracks the highest <a href="atomic_actions.html"><tt>atomic_actions.atomic_action_id</tt></q>&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>max_id</tt></td>
+	    <td width="20%" valign="top"><font size="-1"><b>NUMBER(12)</b></font></td>
+ 	    <td width="60%" valign="top"><font size="-1">the maximum id, to get the next id add 1 to this&nbsp;</font></td>
+	</tr>
+	    </table>
+        </td></tr>
+        <tr><td valign="top"><font size="-1"><b>Indexes:</b></font></td><td valign="top">
+
+            <font size="-1"><tt>No indexes</tt></font>
+	    
+        </td></tr>
+
+	<tr><td valign="top"><font size="-1"><b>Insertion&nbsp;Role:</b></font></td><td valign="top"><font size="-1">When new core data is added during the insertion process, the <i>meme ids</i> used are generated from the max values held in this table.  The same goes for the new string identifiers (SUI, LUI, ISUI).&nbsp;</font></td></tr>
+
+        <tr><td valign="top"><font size="-1"><b>Editing&nbsp;Role:</b></font></td><td valign="top"><font size="-1">Every time an action happens, the action identifiers are incremented in this table and used to log the action.  Each time a piece of core data is inserted, or a new string is inserted, the max identifiers for those things are incremented and used.&nbsp;</font></td></tr>
+
+	<tr><td valign="top"><font size="-1"><b>Production&nbsp;Role:</b></font></td><td valign="top"><font size="-1">When new CUIs are assigned for production, this table tracks the previous max CUI value and all new ones are assigned in the range immediately beyond that one.&nbsp;</font></td></tr>
+
+      </table>
+    </center>
+    </p>
+
+<p>
+<a name="references"></a><h3>References/Links</h3>
+Use the following references for related information.
+<ol>
+  <li><a href="../tables_all.html" alt="All Tables Info">All MEME tables</a></li>
+</ol>
+</p>
+</blockquote>
+
+<p><center>[ <a href="#overview">overview</a> | <a href="#details">details</a> | <a href="#references">references</a> ]</center></p>
+
+<hr WIDTH="100%">
+<table BORDER=0 COLS=2 WIDTH="100%" NOSAVE >
+<tr NOSAVE>
+<td ALIGN=LEFT VALIGN=TOP NOSAVE>
+<address>
+<a href="/MEME/">MEME Home</a></address>
+</td>
+
+<td ALIGN=RIGHT VALIGN=TOP NOSAVE>
+<address>
+<font size=-1>Contact: <a href="mailto:bcarlsen@apelon.com">Brian A. Carlsen</a></font></address>
+
+<address>
+<font size=-1>Created: 7/27/2001</font></address>
+
+<address>
+<font size=-1>Last Updated: 03/07/2005</font></address>
+
+</td>
+</tr>
+</table>
+
+</body>
+<!-- These comments are used by the What's new Generator -->
+<!-- Changed On: 2005/03/07 -->
+<!-- Changed by: Brian Carlsen -->
+<!-- Change Note: MEME Schema documentation - max_tab  -->
+<!-- Fresh for: 1 month -->
+</html>

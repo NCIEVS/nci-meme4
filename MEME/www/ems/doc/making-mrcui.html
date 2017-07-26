@@ -1,0 +1,78 @@
+<HTML>
+<HEAD>
+<TITLE>Making MRCUI</TITLE>
+</HEAD>
+
+<BODY>
+
+<P ALIGN=right>suresh@nlm.nih.gov 11/2000
+
+<H1>Making MRCUI</H1>
+
+Before you can package the release, you need to make the last MR file,
+MRCUI.  This file depends on the current DELETED.CUI and MERGED.CUI
+files as well as all the previous release files.
+Currently, all releases are avaliable on smis:/d3/Release in directory
+names for the release, e.g., 1995, UMLS2000, etc.
+<P>
+
+Here is the outline of the steps:
+
+<UL>
+
+<P><LI>
+Create a directory for the current release, if needed, say UMLS2001 in smis:/d3/Release.
+<P><LI>
+Create a symbolic link called 2001 to this directory (some scripts assume
+a version name that does not have the "UMLS" prefix):
+<FONT SIZE=-1>
+<PRE>
+
+  ln -s UMLS2001 2001
+
+</PRE>
+</FONT>
+
+<P><LI>
+For computing MRCUI, all you need are the latest DELETED.CUI and MERGED.CUI
+in the 2001/META/CHANGE directory.  Apelon should have computed these files
+when they give us the release.  Copy these into there.
+<P><LI>
+For each release version, in smis:/d3/Release/&lt;version&gt; are files that control
+if a directory will be excluded for consideration for MRCUI.  These files are called:
+<EM>exclude-for-mrcui</EM>.  Currently, we exclude 1990, 1991 (different formats for CUI, etc),
+1992 (issues with Suppchem concepts being deleted and re-appearing) and
+the intermediate releases 2000A and 2000B (the general licensees do not have these
+versions).
+Ensure that these files are present (or remove them if not needed).
+<P><LI>
+Run the MRCUI generator script on smis as:
+
+<FONT SIZE=-1>
+<PRE>
+
+/site/umls/release/mrcui.pl -t /d3/Release > ~/MRCUI
+
+</PRE>
+</FONT>
+
+and save the results in a temporary file say ~/MRCUI.
+The -t option points to the top directory where all release files are.
+By the way, mrcui.pl understands different names for the <EM>DELETED</EM>
+and <EM>MERGED</EM> files (they used to be merged.con in 1993, for example)
+and different paths to these files.  I believe we have been consistent
+in naming since 1999.
+
+<P><LI>
+Check the contents of the file before you copy it into place
+in the MASTER directory on wthsun, or wherever you are packaging the
+release.
+
+<P><LI>
+Now you are ready to package the release.  Proceed to the next step.
+</UL>
+
+</BODY>
+</HTML>
+
+

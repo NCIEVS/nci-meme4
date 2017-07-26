@@ -1,0 +1,191 @@
+<html>
+<head>
+            
+  <title>MEME4 Applications - Starting and Stopping the Server</title>
+</head>
+  <body text="#000000" bgcolor="#ffffff" link="#3333ff" vlink="#999999"
+ alink="#ff0000">
+      
+<center>   
+<h3> <font size="+0">Starting and Stopping the MEME Application Server</font></h3>
+  </center>
+      
+<hr><i>Following is a description of how to start or stop the server.</i> 
+ <br>
+  &nbsp;   
+<center>  
+<table cellpadding="3" width="90%" nosave="">
+   <tbody>
+      <tr nosave="">
+   <td valign="top" nosave=""><b>Starting The Server</b></td>
+    <td valign="top" nosave=""><font size="-1">The server should be started
+ by using the <tt>$MEME_HOME/bin/start.pl</tt> script.&nbsp; It is important
+ that <tt>$MEME_HOME</tt> be set to the proper directory (e.g. <tt>/d5/MEME</tt>)
+ before starting the server otherwise problems may result.&nbsp; The script
+ has several options.</font>               
+      <pre><font size="-1">%&nbsp; start.pl [-log=&lt;file&gt;] [-prop=&lt;file&gt;] [-debug={true,false}]&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [-view={true,false}] [-mid=&lt;service name&gt;] [-user=&lt;user&gt;]<br><br>&nbsp;Options:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -log=&lt;file&gt;:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name of log file (relative to $MEME_HOME,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Default is log/&lt;date&gt;.&lt;time&gt;.log)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Use empty filename to log to STDOUT<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -prop=&lt;file&gt;:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name properties file&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Default is $MEME_HOME/bin/meme.prop)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -port=&lt;port&gt;:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  Specify which port the server should listen on<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -debug=(true|false): Debug mode<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -view=(true|false):&nbsp; View mode<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -mid=&lt;name&gt;<br>:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; MID Service name (midsvcs.pl minus the -tns)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -user=&lt;user&gt;:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Default username when connecting to mid service<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; -v[ersion]:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Print version information.<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -[-]help:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; On-line help</font></pre>
+   <font size="-1">There is some important default behavior to be aware of</font> 
+              
+      <ul>
+   <li> <font size="-1">The default log file will be <tt>$MEME_HOME/log/&lt;date&gt;.&lt;time&gt;.log</tt>, 
+ where <tt>&lt;date&gt;</tt> is the result of <tt>`/bin/date +%Y%m%d`</tt> 
+ and <tt>&lt;time&gt;</tt> is the result of <tt>`/bin/date +%H%M%S`</tt>.&nbsp;&nbsp; 
+ If you do not want logging to take place at all, but would rather have comments
+ written to <tt>STDOUT</tt>, then use the <tt>-log=</tt> switch with no log
+ file name, just <tt>-log=</tt>.</font></li>
+    <li> <font size="-1">The default properties file is shown when <tt>--help</tt> 
+ is called.&nbsp; Normally, it will be <tt>$MEME_HOME/bin/meme.prop</tt>.</font></li>
+    <li> <font size="-1">The default value for the debug property is <tt>false</tt>.</font></li>
+    <li> <font size="-1">The default value for the view property is <tt>false</tt>.</font></li>
+    <li> <font size="-1">The default mid service that is used comes from
+the  properties file, in the <tt>meme.server.mid.service.default</tt> property
+ (typically <tt>editing-db</tt>).</font></li>
+    <li> <font size="-1">The default user is <tt>mth</tt>.</font></li>
+    <li> <font size="-1">The server will listen for connections on a port 
+specified  by the <tt>meme-server-port</tt> property returned by <tt>midsvcs.pl</tt>.&nbsp; 
+ Use the <tt>-port</tt> switch for an alternate setting.</font></li>
+                 
+      </ul>
+   <font size="-1">The <tt>$MEME_HOME</tt> and <tt>$ORACLE_HOME</tt> environment 
+ variables must be set for the server to run properly.&nbsp; Either that or
+the <tt>meme.env.MEME_HOME</tt> and <tt>meme.env.ORACLE_HOME</tt> properties 
+ must be set in the properties file used (environment variables will override 
+ the properties file).</font>               
+      <p><font size="-1">Another important thing to be aware of when running
+ the server is that values passed to the <tt>-mid=</tt> flag should be <i>mid 
+ service</i> names.&nbsp; In other words, they are logical names for databases 
+ defined by Suresh's <tt>midsvcs</tt> socket server.&nbsp; In <i>MEME4</i>, 
+ we have abstracted away the notion that clients have access to databases, 
+ instead they have access to <i>data sources</i> which are identified by 
+     <i>mid  service</i> names instead of tns names.&nbsp; So, instead of 
+saying something  like <tt>oa_mid2002</tt>, you would say <tt>editing-db</tt>.&nbsp; 
+The valid set of values are those names derived when you call <tt>/site/umls/scripts/midsvcs.pl</tt> 
+ and take any rows ending in <tt>-db</tt> (e.g. <tt>editing-db</tt>) or any
+ rows ending in <tt>-jdbc</tt> (minus the <tt>-jdbc</tt> part, e.g. <tt>testsw</tt>). 
+       <i>Note</i>: Java applications in <i>MEME4</i> can access the valid
+ mid services list by calling a method of the <tt><a
+ href="/javadoc/gov/nih/nlm/meme/MIDServices.html">gov.nih.nlm.meme.MIDServices</a></tt> 
+ class called <tt>getDBServicesList()</tt>.</font> </p>
+               
+      <p><font size="-1">With all of that said, if the properties file is
+ edited with the correct values, starting the server is as easy as this:</font> 
+       </p>
+               
+      <pre><font size="-1">% $MEME_HOME/bin/start.pl &amp;</font></pre>
+   <font size="-1">Or to start it with a different default mid service, something 
+ like this:</font>               
+      <pre><font size="-1">% $MEME_HOME/bin/start.pl -mid=testsw-db</font></pre>
+   <font size="-1">The script accepts these parameters in either the form 
+      <tt>-mid=editing-db</tt>  or <tt>-mid editing-db</tt>.&nbsp;</font></td>
+   </tr>
+    <tr nosave="">
+   <td valign="top" nosave=""><b>Problems Starting the Server</b></td>
+    <td valign="top" nosave=""><font size="-1">If you are having problems 
+starting  the server, there are several things to check for.</font>      
+        
+      <ul>
+   <li> <font size="-1">Make sure that the <tt>$MEME_HOME</tt> and <tt>$ORACLE_HOME</tt> 
+ environment variables are set correctly.&nbsp; On an environment like <tt>oa</tt>, 
+ the likely settings are:</font></li>
+                      
+        <ul>
+   <li> <font size="-1"><tt>MEME_HOME</tt> = <tt>/d5/MEME</tt> or <tt>/d5/MEME/dev</tt></font></li>
+    <li> <tt><font size="-1">ORACLE_HOME = /d1/app/oracle/product/8.1.6</font></tt></li>
+                     
+        </ul>
+    <li> <font size="-1">In order for the server to function properly, the
+           <tt>meme.jar</tt> file <i>must</i> appear in <tt>$MEME_HOME/java</tt>.</font></li>
+    <br>
+          <font size="-1"><i>Note:</i> All but the <i>MEME4</i> jar files 
+should  become unnecessary once we start using the JDK1.4.</font> <li> <font
+ size="-1">Make sure that the properties file being used actually exists.&nbsp; 
+ If you do not specify a file yourself, verify that the default file named 
+ when the script is called with <tt>-help</tt> exists (should be <tt>$MEME_HOME/bin/meme.prop</tt>).</font></li>
+                 
+      </ul>
+   </td>
+   </tr>
+    <tr nosave="">
+   <td valign="top" nosave=""><a name="shutdown"></a><b>Stopping The Server</b></td>
+    <td valign="top" nosave=""><font size="-1">To stop the server, call the
+       <tt>$MEME_HOME/bin/shutdown.pl</tt> script .</font>              
+      <pre><font size="-1">% shutdown.pl [-host=&lt;host&gt;] [-port=&lt;port&gt;]<br><br>&nbsp;Options:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -host=(host) Machine where the application server is running,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&amp;nb<br>sp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Default is&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -port=(port) Port on which server is listening, default is&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -v[ersion]:<br>Print version information.<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -[-]help:&nbsp; On-line help</font></pre>
+   <font size="-1">By default this script tries to connect to the host and
+ port defined by the <tt>midsvcs.pl</tt> service names <tt>meme-server-host</tt> 
+ and <tt>meme-server-port</tt>.&nbsp; This script actually connects to the 
+ server and sends a request, which means that it can be used to remotely shut
+down the server, you can issue a command like this:</font>              
+      <pre><font size="-1">smis% shutdown.pl -host oa -port 8080</font></pre>
+   <font size="-1">and it will shutdown the <i>MEME</i> Application Server
+ running on <tt>oa</tt> listening at port <tt>8080</tt>.&nbsp; When this
+request  is received by the server, it stops accepting any new connections,
+finishes  processing any remaining requests and then shuts down. The script
+accepts  these parameters in either the form <tt>-port=8080</tt> or <tt>-port
+8080</tt>.</font>               
+      <p><font size="-1">Additionally, the server can be shut down by using
+ the administrative services client, <tt>$MEME_HOME/bin/admin.pl</tt>.&nbsp; 
+ To use this mechanism, make the following call,</font> </p>
+               
+      <pre><font size="-1">% admin.pl -s shutdown</font></pre>
+   <font size="-1">As above, the non-default server can be shutdown by using 
+ the <tt>-host</tt> and/or <tt>-port</tt> switches.</font></td>
+   </tr>
+    <tr>
+        <td valign="top"><b>Killing the Server</b><br>
+        </td>
+        <td valign="top">              
+      <p><font size="-1">The shutdown server routine described above allows
+ requests being processed to finish before the server stopped. &nbsp;Sometimes,
+ requests will become hung, and never return their resources to the server,
+ which in turn never allows shutdown to proceed to the point where the server
+ will actually stop. &nbsp;In that event, a kill request can be sent by running
+ the followign command.&nbsp;</font> </p>
+               
+      <pre><font size="-1">% admin.pl -s kill</font></pre>
+   <font size="-1">This invocation tells the server to stop running and call
+ exit regardless of whether or not requests are still being processed.</font><br>
+        </td>
+      </tr>
+      <tr nosave="">
+   <td valign="top" nosave=""><b>Problems Stopping the Server</b></td>
+    <td valign="top" nosave=""><font size="-1">It is unlikely that you will
+ have any problems shutting down the server.&nbsp; To verify that it has
+stopped  you can look at the end of the log file it generated and ensure
+that there  is a '<tt>STOP SERVER</tt>' comment.&nbsp; If the script fails
+to stop the  server, you will have to log into the machine where the server
+is running  and manually kill the server process.&nbsp; If the server fails
+to shutdown,  the most likely problem is that there are active threads that
+have not been  returned to the <tt>ThreadPool</tt>, in which case the server
+must be manually  killed.</font></td>
+   </tr>
+         
+  </tbody>  
+</table>
+  </center>
+      
+<p> </p>
+   
+<hr width="100%">   
+<table border="0" cols="2" width="100%" nosave="">
+   <tbody>
+      <tr nosave="">
+   <td align="left" valign="top" nosave="">               
+      <address> <a href="/MEME/">MEME Home</a></address>
+   </td>
+    <td align="right" valign="top" nosave="">               
+      <address> <font size="-1">Contact: <a
+ href="mailto:bcarlsen@apelon.com">Brian Carlsen</a></font></address>
+                  
+      <address> <font size="-1">Created: 10/30/2001</font></address>
+                  
+      <address> <font size="-1">Last Updated: 06/03/2002</font></address>
+   </td>
+   </tr>
+         
+  </tbody>  
+</table>
+ <!-- These comments are used by the What's new Generator --><!-- Changed On: 2002/06/03 --><!-- Changed by: BAC --><!-- Change Note: MEME4 Applications - Starting/Stopping the Server. --><!-- Fresh for: 1 month -->
+          <br>
+   <br>
+</body>
+</html>

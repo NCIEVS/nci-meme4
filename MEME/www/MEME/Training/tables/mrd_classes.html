@@ -1,0 +1,187 @@
+
+<html>
+<head>
+   <title>MEME Tables Documentation - mrd_classes</title>
+    <script language="javascript">
+	function openDescription (thing,dsc) {
+	    var html = "<html><head><title>Description: "+thing;
+	    html = html + "</title></head><body bgcolor=#ffffff>" + dsc + "<center><form><input type=button onClick='window.close(); return true' value='Close'></form></center></body></html>";
+	    var win = window.open("","","scrollbars,width=500,height=250,resizable");
+	    win.document.open();
+	    win.document.write(html);
+	    win.document.close();
+	}; // end openDescription
+    </script>
+</head>
+
+<body text="#000000" bgcolor="#FFFFFF" link="#3333FF" vlink="#999999" alink="#FF0000">
+
+<center>
+
+<h2>MEME Tables</h2></center>
+
+<hr width="100%">
+
+<!-- Nav bar -->
+  <p><center>[ <a href="#overview">overview</a> | <a href="#details">details</a> | <a href="#references">references</a> ]</center></p>
+
+<!-- Image -->
+<p><center><tt><b>mrd_classes</b></tt><br>
+   <img src="/images/table.gif" alt="Table Icon"></center></p>
+
+<!-- Content section -->
+
+<blockquote>
+
+  <a name="overview"></a><h3>Overview/Objective</h3>
+  This document contains a description of <tt>mrd_classes</tt> 
+     and its various fields.  It also (may) include information
+  about how this table is used in the various stages of MID processing.
+<br>&nbsp;
+<a name="details"></a><h3>Details</h3>
+
+
+    <p>
+	
+	<!-- mrd_classes -->
+
+    <a name="mrd_classes"></a>
+    <center>
+      <table border="0" width="90%">
+        <tr><td valign="top" width="20%"><font size="-1"><b>Table name:</b></font></td><td valign="top" width="80%"><b><tt>mrd_classes</tt></b></td></tr>
+        <tr><td valign="top"><font size="-1"><b>Table Type:</b></font></td><td valign="top"><font size="-1">
+          <a href="javascript:openDescription('unknown','<p></p>')">unknown</a></font></td></tr>
+        <tr><td valign="top"><font size="-1"><b>Description:</b></font></td><td valign="top"><font size="-1">This table tracks mrd atom states. New states are derived from the <a href="classes.html"><tt>classes</tt></a> table.</font></td></tr>
+        <tr><td valign="top"><font size="-1"><b>Fields:</b></font></td><td valign="top">
+	    <table border="1" cellpadding="2" width="90%">
+
+	<tr><td width="20%" valign="top"><tt>aui</tt></td>
+	    <td width="20%" valign="top"><font size="-1"><b>VARCHAR2(10)</b></font></td>
+ 	    <td width="60%" valign="top"><font size="-1">must be in <a href="atoms_ui.html"><tt>atoms_ui.aui</tt></a>&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>cui</tt></td>
+	    <td width="20%" valign="top"><font size="-1"><b>VARCHAR2(10)</b></font></td>
+ 	    <td width="60%" valign="top"><font size="-1">a Concept Unique Identifier, e.g. <tt>C0000039</tt>&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>lui</tt></td>
+	    <td width="20%" valign="top"><font size="-1"><b>VARCHAR2(10)</b></font></td>
+ 	    <td width="60%" valign="top"><font size="-1">must be in <a href="string_ui.html"><tt>string_ui.lui</tt></a>&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>isui</tt></td>
+	    <td width="20%" valign="top"><font size="-1"><b>VARCHAR2(10)</b></font></td>
+ 	    <td width="60%" valign="top"><font size="-1">must be in <a href="string_ui.html"><tt>string_ui.isui</tt></a>&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>sui</tt></td>
+	    <td width="20%" valign="top"><font size="-1"><b>VARCHAR2(10)</b></font></td>
+ 	    <td width="60%" valign="top"><font size="-1">must be in <a href="string_ui.html"><tt>string_ui.sui</tt></a>&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>pflag_c</tt></td>
+	    <td width="20%" valign="top"><font size="-1"><b>VARCHAR2(1)</b></font></td>
+ 	    <td width="60%" valign="top"><font size="-1">&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>pflag_l</tt></td>
+	    <td width="20%" valign="top"><font size="-1"><b>VARCHAR2(1)</b></font></td>
+ 	    <td width="60%" valign="top"><font size="-1">&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>pflag_s</tt></td>
+	    <td width="20%" valign="top"><font size="-1"><b>VARCHAR2(1)</b></font></td>
+ 	    <td width="60%" valign="top"><font size="-1">&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>suppressible</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(10)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">must be in <a href="suppressible_rank.html"><tt>suppressible_rank.suppressible</tt></a>&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>language</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(10)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">the name of a language&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>root_source</tt></td>
+	    <td width="20%" valign="top"><font size="-1"><b>VARCHAR2(20)</b></font></td>
+ 	    <td width="60%" valign="top"><font size="-1">a value representing a source independent of version which can be used across time to mean the same source&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>tty</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(20)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">the term type, must be in <a href="termgroup_rank.html.html"><tt>termgroup_rank.tty</tt></a>&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>code</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(30)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">a value assigned to this atom/term by the source provider, this value has semantics specific to that source provider&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>source_aui</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(50)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">a source asserted unique id for each atom as it appears in the native source files (e.g. SNOMED DESCRIPTIONID)&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>source_cui</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(50)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">a source asserted unique id for each concept as it appears in the native source files (e.g. SNOMED CONCEPTID)&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>source_dui</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(50)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">a source asserted unique id for each descriptor as it appears in the native source files (e.g. MeSH D#)&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>insertion_date</tt></td>
+	    <td width="20%" valign="top"><font size="-1"><b>DATE</b></font></td>
+ 	    <td width="60%" valign="top"><font size="-1">indicates the date this row was inserted&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>expiration_date</tt></td>
+	    <td width="20%" valign="top"><font size="-1">DATE</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">&nbsp;</font></td>
+	</tr>
+	    </table>
+        </td></tr>
+        <tr><td valign="top"><font size="-1"><b>Indexes:</b></font></td><td valign="top">
+
+	     <li><tt>x_mc_cui ON cui, aui</tt></li>
+
+	     <li><tt>x_mc_d ON insertion_date, expiration_date</tt></li>
+
+	     <li><tt>x_mc_id ON aui, cui</tt></li>
+
+	     <li><tt>x_mc_sui ON sui</tt></li>
+
+        </td></tr>
+
+      </table>
+    </center>
+    </p>
+
+<p>
+<a name="references"></a><h3>References/Links</h3>
+Use the following references for related information.
+<ol>
+  <li><a href="../tables_all.html" alt="All Tables Info">All MEME tables</a></li>
+</ol>
+</p>
+</blockquote>
+
+<p><center>[ <a href="#overview">overview</a> | <a href="#details">details</a> | <a href="#references">references</a> ]</center></p>
+
+<hr WIDTH="100%">
+<table BORDER=0 COLS=2 WIDTH="100%" NOSAVE >
+<tr NOSAVE>
+<td ALIGN=LEFT VALIGN=TOP NOSAVE>
+<address>
+<a href="/MEME/">MEME Home</a></address>
+</td>
+
+<td ALIGN=RIGHT VALIGN=TOP NOSAVE>
+<address>
+<font size=-1>Contact: <a href="mailto:bcarlsen@apelon.com">Brian A. Carlsen</a></font></address>
+
+<address>
+<font size=-1>Created: 7/27/2001</font></address>
+
+<address>
+<font size=-1>Last Updated: 11/15/2004</font></address>
+
+</td>
+</tr>
+</table>
+
+</body>
+<!-- These comments are used by the What's new Generator -->
+<!-- Changed On: 2004/11/15 -->
+<!-- Changed by: Brian Carlsen -->
+<!-- Change Note: MEME Schema documentation - mrd_classes  -->
+<!-- Fresh for: 1 month -->
+</html>

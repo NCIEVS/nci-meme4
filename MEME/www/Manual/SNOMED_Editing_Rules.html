@@ -1,0 +1,410 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="content-type"
+ content="text/html; charset=ISO-8859-1">
+  <title>SNOMED Editing Rules</title>
+</head>
+<body>
+<div style="text-align: center; font-family: times new roman;"><span
+ style="font-weight: bold;">SNOMED Editing Rules</span><br>
+</div>
+<br style="font-family: times new roman;">
+<span style="font-family: times new roman; color: rgb(204, 0, 0);"><span
+ style="font-weight: bold;">10/31/2003 - SNOMED Codes</span><br>
+<br style="font-family: times new roman;">
+</span><font size="2" style="font-family: times new roman;">We merged
+SNOMED CT based on legacy codes from the old SNMI98 and RCD99. We</font><span
+ style="font-family: times new roman;">
+</span><font size="2" style="font-family: times new roman;">were told
+that the meanings did not change from the legacy code concepts to</font><span
+ style="font-family: times new roman;">
+</span><font size="2" style="font-family: times new roman;">the new
+SNOMED CT. We have discovered that this is not true in some cases.</font><span
+ style="font-family: times new roman;">
+</span><font size="2" style="font-family: times new roman;">So, there
+will be times when merging was done on legacy codes but it was not</font>
+<font size="2" style="font-family: times new roman;">correct. The old
+SNMI98 atoms do not mean the same as the new SNOMED CT</font><span
+ style="font-family: times new roman;">
+</span><font size="2" style="font-family: times new roman;">atoms and
+should not be in the same concept. Same with RCD99. We are keeping</font><span
+ style="font-family: times new roman;">
+</span><font size="2" style="font-family: times new roman;">the SNMI98
+and RCD99 sources around and they are considered separate sources</font><span
+ style="font-family: times new roman;">
+</span><font size="2" style="font-family: times new roman;">than SNOMED
+CT. We have found this to be particularly true with SNMI98 HT</font>
+<font size="2" style="font-family: times new roman;">and HX terms and
+with measurements vs. lab results.</font><span
+ style="font-family: times new roman;">&nbsp;
+</span><font size="2" style="font-family: times new roman;"></font><font
+ size="2" style="font-family: times new roman;"><br>
+<br>
+An example is (made up):</font><span
+ style="font-family: times new roman;">&nbsp;
+</span><font size="2" style="font-family: times new roman;"></font><font
+ size="2" style="font-family: times new roman;"><br>
+&nbsp;Incision of wall of atrium (SNOMED CT)</font><span
+ style="font-family: times new roman;">
+</span><br style="font-family: times new roman;">
+<font size="2" style="font-family: times new roman;">General operative
+procedures of heart (SNMI98/HT/D-34670)</font><span
+ style="font-family: times new roman;">
+</span><br style="font-family: times new roman;">
+<font size="2" style="font-family: times new roman;">&nbsp;</font><br
+ style="font-family: times new roman;">
+<font size="2" style="font-family: times new roman;">These are not the
+same even though the new SNOMED CT is linked to the legacy</font><span
+ style="font-family: times new roman;">
+</span><font size="2" style="font-family: times new roman;">code of the
+SNMI98 terms. They need to be split.</font><span
+ style="font-family: times new roman;">
+</span><br style="font-family: times new roman;">
+<font size="2" style="font-family: times new roman;"></font><font
+ size="2" style="font-family: times new roman;"><br>
+Now for synonymy and splitting.....if SNOMED CT has a bunch of atoms
+with</font><span style="font-family: times new roman;">
+</span><font size="2" style="font-family: times new roman;">the same
+code and the concept only has SNOMED CT atoms but you do not agree</font><span
+ style="font-family: times new roman;">
+</span><font size="2" style="font-family: times new roman;">with the
+synonymy, leave alone unless the synonymy is really, really really</font><span
+ style="font-family: times new roman;">
+</span><font size="2" style="font-family: times new roman;">wrong.</font><span
+ style="font-family: times new roman;">&nbsp;
+</span><font size="2" style="font-family: times new roman;"><br>
+<br>
+</font><font size="2" style="font-family: times new roman;">An example
+is below...the argument could be made that these are not the same</font><span
+ style="font-family: times new roman;">
+</span><font size="2" style="font-family: times new roman;">but we are
+leaving together since only SNOMED is involved and they have the</font><span
+ style="font-family: times new roman;">
+</span><font size="2" style="font-family: times new roman;">same code.</font><span
+ style="font-family: times new roman;">
+</span><br style="font-family: times new roman;">
+<font size="2" style="font-family: times new roman;">&nbsp;</font><br
+ style="font-family: times new roman;">
+<font size="2" style="font-family: times new roman;">Also, as
+mentioned, please pay particular attention to concepts where 2 or</font><span
+ style="font-family: times new roman;">
+</span><font size="2" style="font-family: times new roman;">more
+difference SNOMED CT codes are merged together. Make sure that is</font><span
+ style="font-family: times new roman;">
+</span><font size="2" style="font-family: times new roman;">correct.
+YOu can ignore cases of NOS and obsolete SNOMED CT codes. These</font><span
+ style="font-family: times new roman;">
+</span><font size="2" style="font-family: times new roman;">will have
+concepts that are correct but have different codes and that is</font><span
+ style="font-family: times new roman;">&nbsp;
+</span><font size="2" style="font-family: times new roman;">fine.</font><span
+ style="font-family: times new roman;">
+</span><br style="font-family: times new roman;">
+<br style="font-family: times new roman;">
+<font size="2" style="font-family: times new roman;">Example of leaving
+synonymy alone:</font><span style="font-family: times new roman;">
+</span><br style="font-family: times new roman;">
+<font size="2" style="font-family: times new roman;">CN# 101548&nbsp;
+injection of gas gangrene antitoxin (procedure)</font><span
+ style="font-family: times new roman;">
+</span><br style="font-family: times new roman;">
+<font size="2" style="font-family: times new roman;">CUI
+C0199790&nbsp;&nbsp;&nbsp; Concept Status needs Review</font><span
+ style="font-family: times new roman;">
+</span><br style="font-family: times new roman;">
+<font size="2" style="font-family: times new roman;">STY Therapeutic or
+Preventive Procedure&nbsp;&nbsp; R</font><span
+ style="font-family: times new roman;">
+</span><br style="font-family: times new roman;">
+<font size="2" style="font-family: times new roman;">ATOMS</font><span
+ style="font-family: times new roman;">
+</span><br style="font-family: times new roman;">
+<font size="2" style="font-family: times new roman;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+R []&nbsp; injection of gas gangrene antitoxin (procedure)</font><span
+ style="font-family: times new roman;">
+</span><font size="2" style="font-family: times new roman;">[SNOMEDCT_2003_07_31/FN/11728004]</font><span
+ style="font-family: times new roman;">
+</span><br style="font-family: times new roman;">
+<font size="2" style="font-family: times new roman;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+R []&nbsp; Administration of gas gangrene antitoxin</font><span
+ style="font-family: times new roman;">
+</span><font size="2" style="font-family: times new roman;">[SNOMEDCT_2003_07_31/PT/11728004]</font><span
+ style="font-family: times new roman;">
+</span><br style="font-family: times new roman;">
+<font size="2" style="font-family: times new roman;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+R&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Administration of gas
+gangrene antitoxin</font><span style="font-family: times new roman;">
+</span><font size="2" style="font-family: times new roman;">[SNMI98/PT/P2-45342]</font><span
+ style="font-family: times new roman;">
+</span><br style="font-family: times new roman;">
+<font size="2" style="font-family: times new roman;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+R&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Administration of gas
+gangrene antitoxin</font><span style="font-family: times new roman;">
+</span><font size="2" style="font-family: times new roman;">[MTHICD9_2004/ET/99.58]</font><span
+ style="font-family: times new roman;">
+</span><font size="2" style="font-family: times new roman;"><br>
+&nbsp;&nbsp; S&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; R
+[]&nbsp; Injection of gas gangrene antitoxin</font><span
+ style="font-family: times new roman;">
+</span><font size="2" style="font-family: times new roman;">[SNOMEDCT_2003_07_31/SY/11728004]</font><span
+ style="font-family: times new roman;">
+</span><br style="font-family: times new roman;">
+<font size="2" style="font-family: times new roman;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+R&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Injection of gas gangrene
+antitoxin</font><span style="font-family: times new roman;">
+</span><font size="2" style="font-family: times new roman;">[SNMI98/SY/P2-45342]</font><span
+ style="font-family: times new roman;">
+</span><br style="font-family: times new roman;">
+<font size="2" style="font-family: times new roman;">&nbsp;&nbsp;
+S&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; R []&nbsp;
+Infusion of gas gangrene antitoxin</font><span
+ style="font-family: times new roman;">
+</span><font size="2" style="font-family: times new roman;">[SNOMEDCT_2003_07_31/SY/11728004]</font><span
+ style="font-family: times new roman;">
+</span><br style="font-family: times new roman;">
+<font size="2" style="font-family: times new roman;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+R&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Infusion of gas gangrene
+antitoxin</font><span style="font-family: times new roman;">
+</span><font size="2" style="font-family: times new roman;">[SNMI98/SY/P2-45342]<br>
+<br>
+<br>
+<font size="+1" style="color: rgb(204, 0, 0);">10/29/2003 - Parentheses</font><br>
+</font><font size="2"><span style="font-family: times new roman;"><br>
+</span>Just a reminder, all the SNOMED CT FN atoms have
+words in parentheses that help explain what the meaning of the atom
+is....like procedure, device, finding, etc.</font>
+<p style="font-family: times new roman;"><font size="2">For clinical
+editing, there really should not be many
+if any cases were there are two SNOMED FN atoms in a concept and they
+have really divergent meanings in parentheses. What I mean is this:</font></p>
+<p style="font-family: times new roman;"><font size="2">disease X
+(finding)</font>
+<br>
+<font size="2">Disease X (disorder)</font>
+</p>
+<p style="font-family: times new roman;"><font size="2">This is fine
+because I sent you the merging rules and
+we are merging finding and disorders. Same with morph abnormality and
+disorder, etc.</font></p>
+<p style="font-family: times new roman;"><font size="2">But, if you see:</font>
+</p>
+<p style="font-family: times new roman;"><font size="2">Blah X
+(procedure)</font>
+<br>
+<font size="2">Blah X (device)</font>
+</p>
+<p style="font-family: times new roman;"><font size="2">or</font>
+</p>
+<p style="font-family: times new roman;"><font size="2">Blah X
+(disorder)</font>
+<br>
+<font size="2">Blah X (device)</font>
+</p>
+<p style="font-family: times new roman;"><font size="2">This is a big
+red flag that these two different SNOMED concepts should not be in the
+same concept.</font><br>
+</p>
+<p style="font-family: times new roman;"><span
+ style="color: rgb(204, 0, 0); font-weight: bold;">10/27/2003 -
+Organisms</span><br>
+</p>
+<p style="font-family: times new roman;"><font size="2">Only for SNOMED
+CT organisms....</font>
+</p>
+<p style="font-family: times new roman;"><font size="2">If you have a
+concept with 2 or more SNOMED CT codes
+in it, and they are merged because NCBI says that two or more organism
+names are the same (based on them having the same NCBI code), go ahead
+and respect NCBI for now. We will go over these again when we are done
+editing.</font></p>
+<p style="font-family: times new roman;"><font size="2">If 2 or more
+SNOMED CT codes are in the same concept, and there is no NCBI
+indicating synonymy, these need to be looked at. </font></p>
+<p style="font-family: times new roman;"><font size="2">We are trying
+to respect SNOMED CT as much as
+possible. So, if you want to merge or split some SNOMED CT codes and it
+is not because of NCBI, that needs to be checked out. Some simple
+google searches can usually confirm or deny synonymy.<br>
+</font></p>
+<p style="font-family: times new roman;"><font size="2"><font size="+1"
+ style="font-weight: bold; color: rgb(204, 0, 0);">Original SNOMED
+editing rules:</font><br>
+<br>
+The term types for SNOMED CT are:<br>
+<br>
+SNOMEDCT_2003_07_31/FN&nbsp; &nbsp;&nbsp;&nbsp; Fully-specified name<br>
+SNOMEDCT_2003_07_31/IS&nbsp; &nbsp;&nbsp;&nbsp; Obsolete synonym<br>
+SNOMEDCT_2003_07_31/OF&nbsp; &nbsp;&nbsp;&nbsp; Obsolete
+fully-specified name<br>
+SNOMEDCT_2003_07_31/OP&nbsp; &nbsp;&nbsp;&nbsp; Obsolete preferred term<br>
+SNOMEDCT_2003_07_31/PT&nbsp; &nbsp;&nbsp;&nbsp; Preferred term<br>
+SNOMEDCT_2003_07_31/PTGB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Preferred term (Great Britain)<br>
+SNOMEDCT_2003_07_31/SB&nbsp; &nbsp;&nbsp;&nbsp; Subset name<br>
+SNOMEDCT_2003_07_31/SY&nbsp; &nbsp;&nbsp;&nbsp; Synonym<br>
+SNOMEDCT_2003_07_31/SYGB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Synonym (Great Britain)<br>
+SNOMEDCT_2003_07_31/XM&nbsp; &nbsp;&nbsp;&nbsp; Crossmap set<br>
+<br>
+The FN term type has the highest precedence. Many will have something
+in brackets in the name...example: Gum Diseases (disorder) or Excision
+(Procedure). The description in <br>
+brackets helped with the merging below. The PT though is the preferred
+name and appears in the context in the reports.<br>
+<br>
+In the concept reports, you will see legacy codes from SNMI98 and RCD.
+These legacy codes were used to help in merging. The legacy codes
+should have the same meaning as the<br>
+concept that refers to it. IF there are several concepts merged
+together, you may need to check the Clue Browser to figure out what is
+going on. In rare cases that they don't have <br>
+the same meaning, we need to report these to SNOMED. Send Tammy and
+Laura an e-mail if&nbsp; you think the new codes did not retain the
+same meaning as the legacy codes.<br>
+<br>
+Rules for merging duplicate strings based on categories: These were the
+rules Apelon used when inserting SNOMED. In some cases, you may decide
+that the merges are incorrect and <br>
+need to be split. In almost all cases you want to keep everything with
+the same code together from SNOMED CT. If you decide you need to split,
+send Tammy and Laura an<br>
+email first.<br>
+<br>
+"Do Not Merge" means do not merge 2 Snomed PTs (and the SYs and fully
+specified terms associated with them) into the same concept<br>
+during the insertion. It does not mean, do not merge into existing
+concepts w/in the mid.<br>
+<br>
+1. body structure/body structure<br>
+do not merge, do not create a demotion<br>
+<br>
+For the concepts from SNOMED with the PT containin word "Entire" i.e.
+Entire Liver, only merge if the PT contains an exact or norm match to
+something already in the mid.<br>
+Do not use the SYs for merging.<br>
+If a multi-meaning occurs, a PN matching the PT should be created. In
+the case of liver, Snomed has a rela between the two concepts (is_a). <br>
+<br>
+The concept with the word "structure" can merge into existing concepts
+base on on PT, SY, or legacy code. If a PN doesn't already exist, we
+think the PN should be the same as the SY. We should probably sample
+those. So Liver Structure would merge into the Metathesaurus concept
+for Liver. This concept already has a PN.<br>
+<br>
+2. Product/Substance<br>
+Merge - We are not respecting Snomeds view that these are different
+concepts.<br>
+<br>
+3. Disorder/Disorder<br>
+Merging should only be done by PTs &amp; Legacy Codes, not SYs.<br>
+<br>
+4. Disease/Morphologic Abnormality<br>
+Merge<br>
+<br>
+5. Substance/Substance<br>
+Do not merge-demote<br>
+<br>
+6. Organism/Organism<br>
+Do not merge-Demote<br>
+<br>
+7. Procedure/Procedure<br>
+Merge<br>
+<br>
+8. Product/Product<br>
+Merge<br>
+<br>
+9. Disorder/Finding<br>
+Merge<br>
+<br>
+10. Finding/Procedure<br>
+Do not merge-demote<br>
+<br>
+11. Finding/Finding<br>
+Merge only based on PTs &amp; Legacy Codes. Not on SYs.<br>
+<br>
+12. Qualifier Value/Qualifier Value<br>
+Do not merge-demote<br>
+<br>
+13. Finding/Observable Entity<br>
+Do not merge-demote<br>
+<br>
+14. Morphologic Abnormality/Morphologic Abnormality<br>
+Merge only based on PTs &amp; Legacy Codes. Not on SYs.<br>
+<br>
+15 Organism/Substance<br>
+Do not Merge-demote<br>
+<br>
+16. Finding/Morphologic Abnormality<br>
+Merge<br>
+<br>
+17. Procedure/Qualifier Value<br>
+Do not Merge-demote<br>
+<br>
+18. Observable Entity/Observable Entiy<br>
+Merge only based on PTs &amp; Legacy Codes. Not on SYs.<br>
+<br>
+19. Finding/Qualifier Value<br>
+Merge<br>
+<br>
+The rest of the duplicate pairs should just demote and we will<br>
+edit them.<br>
+<br>
+<br>
+Leftover from RCD but still in SNOMED:<br>
+<br>
+[V] terms AND all ICD9 V codes AND all ICD10 codes under 'Factors
+influencing health status&nbsp; and contact with health services' MAY
+have DIFFERENT meanings from the apparent meaning and should be
+Multiple Meanings in those cases.<br>
+</font></p>
+<p style="font-family: times new roman;"><font size="2">The classic
+example is:<br>
+<br>
+'V01.0 Cholera'<br>
+which means <br>
+'V01&nbsp; Contact with or exposure to communicable diseases'<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>
+<br>
+Read [V] terms; ICD-9 V codes; <br>
+ICD10 'Factors influencing health status and contact with health
+services'<br>
+------------------------------------------------------------<br>
+[V] and all ICD V codes are 'Health Status and contact with health <br>
+services factors' in Read;&nbsp; the ICD-9-CM manual says:<br>
+<br>
+&nbsp; 'This classification is provided to deal with occasions when <br>
+&nbsp;&nbsp; circumstances other than a disease or injury classifiable <br>
+&nbsp;&nbsp; to categories 001-999 (the main part of ICD) are recorded
+as<br>
+&nbsp;&nbsp; "diagnoses or "problems." <br>
+<br>
+and goes on to list cases where a person not currently sick <br>
+needs: <br>
+<br>
+&nbsp; a) prohylactic vaccination, to discuss a problem which is not a <br>
+&nbsp;&nbsp;&nbsp;&nbsp; disease or injury, etc.;<br>
+&nbsp; b) when a person is receiving treatment (e.g. dialysis for <br>
+&nbsp;&nbsp;&nbsp;&nbsp; renal disease, chemotherapy for malignancy,
+cast change<br>
+&nbsp; c) circumstance which&nbsp; which influences health status<br>
+&nbsp;&nbsp;&nbsp;&nbsp; but is not a disease or injury.<br>
+<br>
+&nbsp;&nbsp;&nbsp; * Meaning of Read bracketed codes<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [V] - Health Status and contact with
+health services factors<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [D] - Symptoms, signs and ill defined
+conditions<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [M] - ICD neoplasms<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [Q] - Qualifiers<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [SO] - anatomy<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [X] -Concepts relate to their meaning in
+ICD 10<br>
+</font></p>
+<p style="font-family: times new roman;"><font size="2"><br>
+</font></p>
+<p style="font-family: times new roman;"></p>
+<br style="font-family: times new roman;">
+</body>
+</html>

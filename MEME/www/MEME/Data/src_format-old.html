@@ -1,0 +1,1384 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"><html><head>
+  
+  
+  
+  
+  
+  
+  <meta http-equiv="Content-Type" content="text/html; charset=utf8"><title>File Format: .src</title></head><body style="color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);" link="#3333ff" vlink="#999999" alink="#ff0000">
+<div style="text-align: left;">
+<center>                  
+<h2>Inversion: Source Insertion Input Format</h2>
+
+                 </center>
+
+
+
+<center><hr width="100%" style="margin-right: auto; margin-left: 0px;"><p>[ <a href="#overview">overview</a> | <a href="#details">details</a> | <a href="#references">references</a> ]</p>
+
+<p><img src="/images/texts.gif" title="" alt="SRC Files Icon" style="width: 167px; height: 201px;"><br>
+</p>
+<h3 style="text-align: left;"><a name="overview"></a> Overview/Objective</h3>
+<div>
+  </div>
+<div style="text-align: left; margin-left: 40px;">The SRC files are a collection of specially formatted files used as a standard source insertion input format for the <a href="/MEME/Training/glossary.html#mid">MID</a>.<br>
+</div>
+
+<div style="text-align: left;">
+  </div>
+<h3 style="text-align: left;"><a name="details"></a> Details</h3>
+<div style="text-align: left; margin-left: 40px;">
+  Following are the <span style="font-style: italic;">SRC Files</span>, including the .raw3 format:&nbsp;                        
+      </div>
+
+<p style="text-align: left;">
+</p>
+</center>
+
+
+
+
+<ul style="margin-left: 40px;">
+        <ul>
+                  <li> <b><a href="#attributes" onmouseover="window.status='Click to see attributes.'; return true;">attributes.src</a></b></li>
+                   <li> <b><a href="#classes" onmouseover="window.status='Click to see classes atoms.'; return true;">classes_atoms.src</a></b></li>
+                   <li> <b><a href="#contexts" onmouseover="window.status='Click to see mergefacts.'; return true;">contexts.src</a></b></li>
+                   <li> <b><a href="#mergefacts" onmouseover="window.status='Click to see mergefacts.'; return true;">mergefacts.src</a></b></li>
+                   <li> <b><a href="#raw">.raw3</a></b> (context
+    format)</li>
+                   <li> <b><a href="#relationships" onmouseover="window.status='Click to see relationships.'; return true;">relationships.src</a></b></li>
+                   <li> <b><a href="#strings" onmouseover="window.status='Click to see classes atoms.'; return true;">strings.src</a></b></li>
+                   <li> <b><a href="#stringtab" onmouseover="window.status='Click to see attributes.'; return true;">stringtab.src</a></b></li>
+                   <li> <a href="#ranks" onmouseover="window.status='Click to see source and termgroup ranks.'; return true;"><b>termgroups.src</b>,
+                     <b>sources.src</b></a>(check with operator to examine
+ current       ranks)</li>
+           
+        </ul>
+     </ul>
+<div style="margin-left: 40px;">
+                  The format of the input files is shown
+below.    Fields    are   separated by the vertical line character ("|").&nbsp; 
+As   of 1/5/2001,    the   decision was made that each line should be terminated 
+  by a "|" character.            <br>
+
+                 &nbsp;                                                 
+      </div>
+<center style="margin-left: 40px;">                                                          
+      <table cols="1" width="90%" nosave="">
+                  <tbody>
+                           <tr nosave="">
+                  <td nosave="">Source inverters are responsible
+    for   the               <font color="#cc0000">classes_atoms</font>, <font color="#cc0000">relationships</font>, <span style="color: rgb(204, 0, 0);">.raw3</span>,              <font color="#cc0000">attributes</font>, <font color="#cc0000">mergefacts<!--
+font-->,&nbsp;<font color="#cc0000">termgroups</font>,  and <font color="#cc0000">sources</font> .src files. The stringtab, strings,  and
+contexts .src files are created by the source insertion software.</font></td>
+                  </tr>
+        </tbody>                                                         
+      </table>
+</center>
+<div style="margin-left: 40px;">
+      </div>
+<p style="margin-left: 40px;"><a name="classes"></a><b>[<a href="#strings" onmouseover="window.status='Click to see concept status.'; return true;">Next</a>
+         / <a href="src_format.html" onmouseover="window.status='Click to return to the top.'; return true;">Top</a>]</b>
+               <br>
+                       Both classes_atoms.src and termgroups.src 
+   have   suppressible   fields so there can be a conflict.&nbsp; A suppressible_flag 
+  of 'Y' in one  file overrides a 'N' in the other.&nbsp; So if a  whole 
+ termgroup   is marked  suppressible in termgroups.src, even if those  rows 
+  in classes  are marked 'N', they are considered suppressible.&nbsp;  Similarly, 
+  a row marked as suppressible  in classes makes that row suppressible  even 
+  if the termgroup of that row is marked 'N' in the termgroups file. 
+          <br>
+                 &nbsp; </p>
+<div style="margin-left: 40px;">
+      </div>
+<center style="margin-left: 40px;">                                                          
+      <table border="1" cellpadding="2" width="90%" nosave="">
+                  <tbody>
+                           <tr nosave="">
+                  <td align="center" colspan="3" nosave=""><b>classes_atoms.src</b></td>
+                  </tr>
+                   <tr>
+                  <td>src_atom_id</td>
+                   <td>NUMBER(12)</td>
+                   <td>Range: Integer, unique across ALL
+classes     files</td>
+                  </tr>
+                   <tr nosave="">
+                  <td>source</td>
+                   <td>VARCHAR2(20)</td>
+                   <td nosave="">Range: <tt>source_rank</tt>
+  or  in              <tt>sources.src</tt>.</td>
+                  </tr>
+                   <tr>
+                  <td>termgroup</td>
+                   <td>VARCHAR2(40)</td>
+                   <td>Range: <tt>termgroup_rank</tt> or
+in              <tt>termgroups.src</tt>.</td>
+                  </tr>
+                   <tr>
+                  <td>code</td>
+                   <td>VARCHAR2(30)</td>
+                   <td>&nbsp;</td>
+                  </tr>
+                   <tr>
+                  <td>status</td>
+                   <td>VARCHAR2(1)</td>
+                   <td>Range: {R, U, N}</td>
+                  </tr>
+                   <tr>
+                  <td>tobereleased</td>
+                   <td>VARCHAR2(1)</td>
+                   <td>Range: {Y, y, n, N}</td>
+                  </tr>
+                   <tr>
+                  <td>released</td>
+                   <td>VARCHAR2(1)</td>
+                   <td>Range: {N, A, U}<br>
+                    </td>
+                  </tr>
+                   <tr>
+                  <td>atom_name</td>
+                   <td>VARCHAR2(3000)</td>
+                   <td>&nbsp;</td>
+                  </tr>
+                   <tr>
+                  <td>suppressible</td>
+                   <td>VARCHAR2(10)&nbsp;</td>
+                   <td>O, Y, N, null</td>
+                  </tr>
+                      <tr>
+                        <td valign="top">source_aui<br>
+                        </td>
+                        <td valign="top">VARCHAR2(50)<br>
+                        </td>
+                        <td valign="top">Range: unique in 
+file<br>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td valign="top">source_cui<br>
+                        </td>
+                        <td valign="top">VARCHAR2(50)<br>
+                        </td>
+                        <td valign="top">Range: unique in 
+file<br>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td valign="top">source_dui<br>
+                        </td>
+                        <td valign="top">VARCHAR2(50)<br>
+                        </td>
+                        <td valign="top">Range: unique in 
+file<br>
+                        </td>
+                      </tr>
+                    <tr>
+                    <td valign="top">language<br>
+                    </td>
+                    <td valign="top">VARCHAR2(3)<br>
+                    </td>
+                    <td valign="top">Range: in <tt>language.lat</tt><br>
+                    </td>
+                  </tr>
+                  <tr>
+                      <td valign="top">order_id<br>
+                      </td>
+                      <td valign="top">VARCHAR2(100)<br>
+                      </td>
+                      <td valign="top">Order id<br>
+                      </td>
+                    </tr><tr>
+      <td style="vertical-align: top;">last_release_cui<br>
+      </td>
+      <td style="vertical-align: top;">VARCHAR2(10)<br>
+      </td>
+      <td style="vertical-align: top;">OPTIONAL field, used to populate last_release_cui value.<br>
+      </td>
+    </tr>
+
+        </tbody>                                                         
+      </table>
+</center>
+<div style="margin-left: 40px;">
+     </div>
+<p style="margin-left: 40px;"><a name="strings"></a><b>[<a href="#relationships" onmouseover="window.status='Click to see concept status.'; return true;">Next</a>
+         / <a href="#classes" onmouseover="window.status='Click to return to the top.'; return true;">Previous</a>]</b>
+               <br>
+                       This file is created by <tt>$MEME_HOME/bin/classes_to_strings.csh</tt>
+         and is loaded into <tt>source_string_ui</tt>.&nbsp; The data here
+ is   used     to compute the LUI, ISUI, and SUI values for the <tt>atom_name</tt>s
+    in   the classes file. <br>
+                 &nbsp; </p>
+<div style="margin-left: 40px;">
+                                                                        
+                                                              
+      </div>
+<center style="margin-left: 40px;">                                                          
+                                                            
+      <table border="1" cellpadding="2" width="90%" nosave="">
+                  <tbody>
+                           <tr nosave="">
+                  <td align="center" colspan="3" nosave=""><b>strings.src</b></td>
+                  </tr>
+                   <tr>
+                  <td>string_pre</td>
+                   <td>VARCHAR2(10)</td>
+                   <td>Range: first 10 chars of <tt>string</tt></td>
+                  </tr>
+                   <tr nosave="">
+                  <td>string</td>
+                   <td>VARCHAR2(1200)</td>
+                   <td nosave="">Range: from <tt>atom_name</tt> 
+   field    of              <tt>classes_atoms.src</tt></td>
+                  </tr>
+                   <tr>
+                  <td>norm_string_pre</td>
+                   <td>VARCHAR2(10)</td>
+                   <td>Range: first 10 chars of <tt>normed
+ string</tt></td>
+                  </tr>
+                   <tr>
+                  <td>norm_string</td>
+                   <td>VARCHAR2(1200)</td>
+                   <td>Range: result of passing string through
+               <tt>luiNorm</tt></td>
+                  </tr>
+                   <tr>
+                  <td>lowercase_string_pre</td>
+                   <td>VARCHAR2(10)</td>
+                   <td>Range: lowercased first 10 chars of
+             <tt>string</tt></td>
+                  </tr>
+                   <tr>
+                  <td>language</td>
+                   <td>VARCHAR2(20)</td>
+                   <td>Range: <tt>lat</tt> field in <tt>language</tt> 
+      table</td>
+                  </tr>
+        </tbody>                                                         
+      </table>
+</center>
+<div style="margin-left: 40px;">
+      </div>
+<p style="margin-left: 40px;"><a name="relationships"></a><b>[<a href="#attributes" onmouseover="window.status='Click to return to see attributes.'; return true;">Next</a>
+         / <a href="#strings" onmouseover="window.status='Click to return to see concept_status.'; return true;">Previous</a>]</b>
+               <br>
+                       This format uses generic id fields 
+with   type   and   qualifier  fields indicating the nature of the id.&nbsp; 
+The   semantics   of   these fields  are processed in <tt>MEME_SOURCE_PROCESSING.map_sg_fields</tt>.&nbsp; 
+       This  procedure maps the generic id type to an <tt>(atom_id, concept_id)</tt>.
+               <br>
+                 &nbsp; </p>
+<div style="margin-left: 40px;">
+      </div>
+<center style="margin-left: 40px;">                                                          
+      <table border="1" cellpadding="2" style="width: 90%;" nosave="">
+                  <tbody>
+                           <tr nosave="">
+                  <td align="center" colspan="3" nosave=""><b>relationships.src</b></td>
+                  </tr>
+                   <tr>
+                  <td valign="top">src_relationship_id</td>
+                   <td>NUMBER(12)</td>
+                   <td>Range: Integer, Unique for this file</td>
+                  </tr>
+                   <tr>
+                  <td valign="top">level</td>
+                   <td>VARCHAR2(1)</td>
+                   <td>Range: {C, S, P}</td>
+                  </tr>
+                   <tr>
+                  <td valign="top">id_1</td>
+                   <td>VARCHAR2(50)</td>
+                   <td>Range:&nbsp; <br>
+<div style="font-family: monospace;">
+                             classes.atom_id if
+            id_type_1      ='ATOM_ID'                <br>
+            classes.concept_id
+if              id_type_1      ='CONCEPT_ID'               <br>
+                             classes.aui if
+            id_type_1      ='AUI' <br>
+
+            classes.code if id_type_1
+    like  'CODE%'                 <br>
+            classes.source_cui
+if              id_type_1 in ('SOURCE_CUI','ROOT_SOURCE_CUI')<br>
+            
+                        classes.source_aui 
+   if              id_type_1  = ('SOURCE_AUI','ROOT_SOURCE_AUI') <br>
+
+
+classes.source_dui 
+   if              id_type_1  = ('SOURCE_DUI','ROOT_SOURCE_DUI')<br>
+
+
+            relationships.source_rui if id_type_1 in ('SOURCE_RUI','ROOT_SOURCE_RUI')<br>
+            concept_status.cui
+if              id_type_1      like 'CUI%'<br>
+
+
+            source_id_map.source_row_id 
+    where                table_name='C'  if id_type_1 in ('SOURCE_ATOM_ID','SRC_ATOM_ID')<br>
+
+
+            
+        relationships.source_rui if id_type_1='SOURCE_RUI'</div>
+                  </td></tr><tr><td valign="top">relationship_name</td>
+                   <td>text10</td>
+                   <td>Range: <tt>inverse_relationships</tt></td>
+                  </tr>
+                   <tr>
+                  <td valign="top">relationship_attribute</td>
+                   <td>VARCHAR2(100)</td>
+                   <td>Range: <tt>inverse_rel_attributes</tt></td>
+                  </tr>
+                   <tr nosave="">
+                  <td valign="top">id_2</td>
+                   <td>VARCHAR2(50)</td>
+                   <td nosave="">same as id_1</td>
+                  </tr>
+                   <tr>
+                  <td valign="top">source</td>
+                   <td>VARCHAR2(20)</td>
+                   <td>Range: <tt>source_rank</tt></td>
+                  </tr>
+                   <tr>
+                  <td valign="top">source_of_label</td>
+                   <td>VARCHAR2(20)</td>
+                   <td>Range: <tt>source_rank</tt></td>
+                  </tr>
+                   <tr>
+                  <td valign="top">status</td>
+                   <td>text1</td>
+                   <td>Range: {R, U, N, D, S}<br>
+                    </td>
+                  </tr>
+                   <tr>
+                  <td valign="top">tobereleased</td>
+                   <td>text1</td>
+                   <td>Range: {Y, y, n, N}</td>
+                  </tr>
+                   <tr>
+                  <td valign="top">released</td>
+                   <td>text1</td>
+                   <td>Range: {N, A, U}</td>
+                  </tr>
+                   <tr>
+                  <td valign="top">suppressible</td>
+                   <td>VARCHAR2(10)</td>
+                   <td>Range: {O, Y, N, null}</td>
+                  </tr>
+                   <tr>
+                  <td valign="top">id_type_1</td>
+                   <td>VARCHAR2(20)</td>
+                   <td>Range: in (<span style="font-family: monospace;">SRC</span><tt>_ATOM_ID</tt>,
+             <tt>CUI</tt>, <tt>CUI_SOURCE</tt>,
+             <tt>CUI_ROOT_SOURCE</tt>,
+              <tt>CODE_SOURCE, CODE_TERMGROUP</tt>,
+              <tt>CODE_ROOT_TERMGROUP</tt>,               <tt>AUI,ATOM_ID</tt>,
+             <tt>CONCEPT_ID, SOURCE_AUI, ROOT_SOURCE_AUI, SOURCE_CUI, ROOT_SOURCE_CUI, SOURCE_DUI, ROOT_SOURCE_DUI, SOURCE_RUI, ROOT_SOURCE_RUI</tt>)</td>
+                  </tr>
+                   <tr>
+                  <td valign="top">id_qualifier_1</td>
+                   <td>VARCHAR2(50)</td>
+                   <td>Range:&nbsp; <br>
+<div style="font-family: monospace;">
+                             source_rank.source
+if              id_type_1 in ('CODE_SOURCE','SOURCE_AUI','SOURCE_CUI','SOURCE_RUI','SOURCE_DUI')<br>
+                             source_rank.stripped_source 
+    if              id_type_1    like '%_ROOT_SOURCE' 
+           <br>
+            source_rank.stripped_source 
+    if              id_type_1    like 'ROOT_SOURCE%' <br>
+                             termgroup_rank.termgroup
+   if<id_type_1 ="CODE_TERMGROUP"><br>
+      source_rank.stripped_source||'/'||termgroup_rank.tty if id_type_1 = 
+'CODE_ROOT_TERMGROUP'<br></id_type_1></div></td>
+                  </tr>
+                   <tr>
+                  <td valign="top">id_type_2</td>
+                   <td>VARCHAR2(20)</td>
+                   <td>same as id_type_1</td>
+                  </tr>
+                   <tr>
+                  <td valign="top">id_qualifier_2</td>
+                   <td>VARCHAR2(50)</td>
+                   <td>same as id_qualifier_1</td>
+                  </tr>
+                      <tr>
+                        <td valign="top">source_rui<br>
+                        </td>
+                        <td valign="top">VARCHAR2(50)<br>
+                        </td>
+                        <td valign="top">Range: unique in 
+file<br>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td valign="top">relationship_group<br>
+                        </td>
+                        <td valign="top">NUMBER<br>
+                        </td>
+                        <td valign="top">Range: Integer.<br>
+                        </td>
+                      </tr>
+        </tbody>                                                         
+      </table>
+</center>
+<div style="margin-left: 40px;">
+      </div>
+<p style="margin-left: 40px;"><a name="attributes"></a><b>[<a href="#stringtab" onmouseover="window.status='Click to return to see mergefacts.'; return true;">Next</a>
+         / <a href="#relationships" onmouseover="window.status='Click to return to see attributes.'; return true;">Previous</a>]</b>
+               <br>
+                       As with relationships, attributes
+can   be  connected      to generic ids whose type is given in the type/qualifier 
+  fields.           <br>
+                 &nbsp; </p>
+<div style="margin-left: 40px;">
+      </div>
+<center style="margin-left: 40px;">                                                          
+<table border="1" cellpadding="2" width="90%" nosave="">
+                  <tbody>
+                           <tr nosave="">
+                  <td align="center" colspan="3" nosave="" valign="top"><b>attributes.src</b></td>
+                  </tr>
+                   <tr>
+                  <td valign="top">source_attribute_id</td>
+                   <td>NUMBER(12)</td>
+                   <td>Range: Integer, unique for this file</td>
+                  </tr>
+                   <tr>
+                  <td valign="top">id</td>
+                   <td>VARCHAR2(50)</td>
+                   <td>Range:&nbsp; <br>
+
+            <div style="font-family: monospace;">
+                             classes.atom_id if id_type      ='ATOM_ID'                <br>
+classes.aui if
+            id_type_1      ='AUI'<br>
+            classes.concept_id
+if id_type ='CONCEPT_ID'               <br>
+            classes.code if id_type
+    like  'CODE%'                 <br>
+            classes.source_cui
+if              id_type in ('SOURCE_CUI','ROOT_SOURCE_CUI')<br>
+            
+                        classes.source_aui 
+   if              id_type  = ('SOURCE_AUI','ROOT_SOURCE_AUI') <br>
+
+
+classes.source_dui 
+   if              id_type  = ('SOURCE_DUI','ROOT_SOURCE_DUI')<br>
+
+
+            relationships.source_rui if id_type in ('SOURCE_RUI','ROOT_SOURCE_RUI')<br>
+            concept_status.cui
+if              id_type      like 'CUI%'<br>
+
+
+            source_id_map.source_row_id 
+    where                table_name='C'  if id_type in ('SOURCE_ATOM_ID','SRC_ATOM_ID')<br>
+
+
+            
+        relationships.source_rui if id_type='SOURCE_RUI'</div>
+                    </td>
+                  </tr>
+                   <tr>
+                  <td valign="top">attribute_level</td>
+                   <td>VARCHAR2(1)</td>
+                   <td>Range: {C, S}</td>
+                  </tr>
+                   <tr>
+                  <td valign="top">attribute_name</td>
+                   <td>VARCHAR2(50)</td>
+                   <td><br>
+                             </td>
+                  </tr>
+                   <tr>
+                  <td valign="top">attribute_value</td>
+                   <td>String</td>
+                   <td>No length limit</td>
+                  </tr>
+                   <tr>
+                  <td valign="top">source</td>
+                   <td>VARCHAR2(20)</td>
+                   <td>Range: <tt>source_rank</tt></td>
+                  </tr>
+                   <tr>
+                  <td valign="top">status</td>
+                   <td>VARCHAR2(1)</td>
+                   <td>Range: {R, N}</td>
+                  </tr>
+                   <tr>
+                  <td valign="top">tobereleased</td>
+                   <td>VARCHAR2(1)</td>
+                   <td>Range: {Y, y, n, N}</td>
+                  </tr>
+                   <tr>
+                  <td valign="top">released</td>
+                   <td>VARCHAR2(1)</td>
+                   <td>Range: {N, A, U}</td>
+                  </tr>
+                   <tr>
+                  <td valign="top">suppressible</td>
+                   <td>VARCHAR2(10)</td>
+                   <td>Range: {O, Y, N, null}</td>
+                  </tr>
+                   <tr>
+                  <td valign="top">id_type</td>
+                   <td>VARCHAR2(20)</td>
+                   <td>Range: in (<span style="font-family: monospace;">SRC</span><tt>_ATOM_ID</tt>,
+             <tt>CUI</tt>,                    <tt>CUI_SOURCE</tt>,
+             <tt>CUI_ROOT_SOURCE</tt>,
+              <tt>CODE_SOURCE, CODE_TERMGROUP</tt>,
+              <tt>CODE_ROOT_TERMGROUP</tt>,               <tt>AUI, ATOM_ID</tt>,
+             <tt>CONCEPT_ID, SOURCE_AUI, ROOT_SOURCE_AUI, SOURCE_CUI, ROOT_SOURCE_CUI, SOURCE_DUI, ROOT_SOURCE_DUI, SOURCE_RUI, ROOT_SOURCE_RUI</tt>)</td>
+                  </tr>
+                   <tr>
+                  <td valign="top">id_qualifier</td>
+                   <td>VARCHAR2(50)</td>
+                   <td>Range:&nbsp; <br>
+
+            <div style="font-family: monospace;">
+                             source_rank.source
+if              id_type in ('CODE_SOURCE','SOURCE_AUI','SOURCE_CUI','SOURCE_RUI','SOURCE_DUI')<br>
+                             source_rank.stripped_source 
+    if              id_type    like '%_ROOT_SOURCE' 
+           <br>
+            source_rank.stripped_source 
+    if              id_type    like 'ROOT_SOURCE%' <br>
+                             termgroup_rank.termgroup
+   if<id_type_1 ="CODE_TERMGROUP"><br>
+      source_rank.stripped_source||'/'||termgroup_rank.tty if id_type = 
+'CODE_ROOT_TERMGROUP'<br></id_type_1></div>
+                  </td>
+                  </tr>
+                      <tr>
+                        <td valign="top">source_atui<br>
+                        </td>
+                        <td valign="top">VARCHAR2(50)<br>
+                        </td>
+                        <td valign="top">Range: unique in 
+file_qualifier<br>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td valign="top">hashcode<br>
+                        </td>
+                        <td valign="top">VARCHAR2(50)<br>
+                        </td>
+                        <td valign="top">Range: valid md5 
+hash   of  attribute  value.<br>
+                        </td>
+                      </tr>
+        </tbody>                                                         
+      </table>
+</center>
+<div style="margin-left: 40px;">
+      </div>
+<p style="margin-left: 40px;"><a name="stringtab"></a><b>[<a href="#mergefacts" onmouseover="window.status='Click to see concept status.'; return true;">Next</a>
+         / <a href="#attributes" onmouseover="window.status='Click to return to the top.'; return true;">Previous</a>]</b>
+               <br>
+                       This file is generated by <tt>$MEME_HOME/bin/atts_to_stringtab.csh</tt>
+         and is loaded into <tt>source_stringtab</tt>.&nbsp; This data represents
+        attributes whose value is &gt; 100 characters.&nbsp; The data is
+broken       up  into strings of length 1784 and stored with a <tt>(string_id,
+row_sequence)</tt>.                <br>
+                 &nbsp; </p>
+<div style="margin-left: 40px;">
+      </div>
+<center style="margin-left: 40px;">                                                          
+      <table border="1" cellpadding="2" width="90%" nosave="">
+                  <tbody>
+                           <tr nosave="">
+                  <td align="center" colspan="3" nosave=""><b>stringtab.src</b></td>
+                  </tr>
+                   <tr>
+                  <td>string_id</td>
+                   <td>NUMBER(12)</td>
+                   <td>Range: sequence starting at 1</td>
+                  </tr>
+                   <tr nosave="">
+                  <td>row_sequence</td>
+                   <td>NUMBER(12)</td>
+                   <td nosave="">Range: sequence within a 
+            <tt>string_id</tt></td>
+                  </tr>
+                   <tr>
+                  <td>text_total</td>
+                   <td>NUMBER(12)</td>
+                   <td>Range: length of <tt>text_value</tt></td>
+                  </tr>
+                   <tr>
+                  <td>text_value</td>
+                   <td>VARCHAR2(1786)</td>
+                   <td>Range: value of this sequence of the 
+ string</td>
+                  </tr>
+        </tbody>                                                         
+      </table>
+</center>
+<div style="margin-left: 40px;">
+      </div>
+<p style="margin-left: 40px;"><a name="mergefacts"></a><b>[<a href="#contexts" onmouseover="window.status='Click to return to see ranks.'; return true;">Next</a>
+         / <a href="#stringtab" onmouseover="window.status='Click to return to see relationships.'; return true;">Previous</a>]</b>
+               <br>
+                       Like relationships, mergefacts can 
+represent     facts    between  generic ids that are specified by type and 
+qualifier  fields   and   mapped to atoms and concepts later. <br>
+                 &nbsp; <br>
+                 &nbsp; </p>
+<div style="margin-left: 40px;">
+      </div>
+<center style="margin-left: 40px;">                                                          
+      <table border="1" width="90%" nosave="">
+                  <tbody>
+                           <tr nosave="">
+                  <td colspan="3" nosave="">                            
+            <center><b>&nbsp;mergefacts.src</b></center>
+                  </td>
+                  </tr>
+                   <tr>
+                  <td>id_1</td>
+                   <td>VARCHAR2(50)</td>
+                   <td>Range:&nbsp; <br>
+            <div style="font-family: monospace;">
+                             classes.atom_id if id_type      ='ATOM_ID'                <br>
+            classes.concept_id
+if id_type ='CONCEPT_ID'               <br>
+classes.aui if
+            id_type_1      ='AUI'<br>
+            classes.code if id_type
+    like  'CODE%'                 <br>
+            classes.source_cui
+if              id_type in ('SOURCE_CUI','ROOT_SOURCE_CUI')<br>
+            
+                        classes.source_aui 
+   if              id_type  = ('SOURCE_AUI','ROOT_SOURCE_AUI') <br>
+
+
+classes.source_dui 
+   if              id_type  = ('SOURCE_DUI','ROOT_SOURCE_DUI')<br>
+
+
+            relationships.source_rui if id_type in ('SOURCE_RUI','ROOT_SOURCE_RUI')<br>
+            concept_status.cui
+if              id_type      like 'CUI%'<br>
+
+
+            source_id_map.source_row_id 
+    where                table_name='C'  if id_type in ('SOURCE_ATOM_ID','SRC_ATOM_ID')<br>
+
+
+            
+        relationships.source_rui if id_type='SOURCE_RUI'</div></td>
+                  </tr>
+                   <tr>
+                  <td>merge_level</td>
+                   <td>VARCHAR2(5)</td>
+                   <td>Range: <tt>code_map.code</tt> where
+             <tt>type     =  'merge_level'</tt></td>
+                  </tr>
+                   <tr>
+                  <td>id_2</td>
+                   <td>VARCHAR2(50)</td>
+                   <td>same as id_1</td>
+                  </tr>
+                   <tr>
+                  <td>source</td>
+                   <td>VARCHAR2(20)</td>
+                   <td>Range: <tt>source_rank&nbsp;</tt></td>
+                  </tr>
+                   <tr>
+                  <td>integrity_vector</td>
+                   <td>VARCHAR2(1500)</td>
+                   <td>leave blank for now, but do include
+ as  field.</td>
+                  </tr>
+                   <tr>
+                  <td>make_demotion</td>
+                   <td>VARCHAR2(1)</td>
+                   <td>Range:&nbsp; {Y,N}</td>
+                  </tr>
+                   <tr>
+                  <td>change_status</td>
+                   <td>VARCHAR2(1)</td>
+                   <td>Range: {Y,N}</td>
+                  </tr>
+                   <tr>
+                  <td>merge_set</td>
+                   <td>VARCHAR2(30)</td>
+                   <td>Give it some name; you must have different 
+    sets   for  different combinations of merge_level, integrity_vector, make_demotion
+      and  change_status.<br>
+            <br>
+Names should be root SAB name followed by one of the following merge set codes (e.g. MSH-SCUI).<br>
+            <ul>
+              <li>SRC -&nbsp; to be used for mergefacts assembling SRC concepts (no integrities)</li>
+              <li>SY - 
+to be used for source asserted synonymy (generally with integrities, unless we 
+trust source sy more than meta sy)</li>
+              <li>SCUI -special case of SY (based on 
+matching SCUI)</li>
+              <li>AB - special case of SY (based on abbreviations/expansions â€“ 
+no integrities)</li>
+              <li>AE - special case of SY (based on American/british forms â€“ no 
+integrities)</li>
+              <li>EX - special case of SY (based on expansions/short forms â€“ no 
+integrities)</li>
+              <li>LAT - special case of SY (based on translations/ENG atoms â€“ may 
+be integrities)</li>
+              <li>CODE - merging on code (usually with integrities)</li>
+              <li>CUI - 
+merge to UMLS CUI</li>
+            </ul>
+            <br>
+</td>
+                  </tr>
+                   <tr>
+                  <td>id_type_1</td>
+                   <td>VARCHAR2(20)</td>
+                   <td>Range: in (<span style="font-family: monospace;">SRC</span><tt>_ATOM_ID</tt>,
+             <tt>CUI</tt>,                    <tt>CUI_SOURCE</tt>,
+             <tt>CUI_ROOT_SOURCE</tt>,
+              <tt>CODE_SOURCE, CODE_TERMGROUP</tt>,
+              <tt>CODE_ROOT_TERMGROUP</tt>,               <tt>AUI, ATOM_ID</tt>,
+             <tt>CONCEPT_ID, SOURCE_AUI, ROOT_SOURCE_AUI, SOURCE_CUI, ROOT_SOURCE_CUI, SOURCE_DUI, ROOT_SOURCE_DUI, SOURCE_RUI, ROOT_SOURCE_RUI</tt>)</td>
+                  </tr>
+                   <tr nosave="">
+                  <td>id_qualifier_1</td>
+                   <td nosave="">VARCHAR2(50)</td>
+                   <td>Range:&nbsp; <br>
+
+
+            <div style="font-family: monospace;">
+                             source_rank.source
+if              id_type in ('CODE_SOURCE','SOURCE_AUI','SOURCE_CUI','SOURCE_RUI','SOURCE_DUI')<br>
+                             source_rank.stripped_source 
+    if              id_type    like '%_ROOT_SOURCE' 
+           <br>
+            source_rank.stripped_source 
+    if              id_type    like 'ROOT_SOURCE%' <br>
+                             termgroup_rank.termgroup
+   if<id_type_1 ="CODE_TERMGROUP"><br>
+      source_rank.stripped_source||'/'||termgroup_rank.tty if id_type = 
+'CODE_ROOT_TERMGROUP'</id_type_1></div>
+                 </td>
+                  </tr>
+                   <tr>
+                  <td>id_type_2</td>
+                   <td>VARCHAR2(20)</td>
+                   <td>same as id_type_1</td>
+                  </tr>
+                   <tr>
+                  <td>id_qualifier_2</td>
+                   <td>VARCHAR2(50)</td>
+                   <td>same as id_qualifier_1</td>
+                  </tr>
+        </tbody>                                                         
+      </table>
+</center>
+<div style="margin-left: 40px;">
+                   <br>
+
+                 &nbsp;                                                 
+      </div>
+<p style="margin-left: 40px;"><a name="contexts"></a><b>[<a href="#ranks" onmouseover="window.status='Click to see concept status.'; return true;">Next</a>
+         / <a href="#mergefacts" onmouseover="window.status='Click to return to the top.'; return true;">Previous</a>]</b>
+               <br>
+                       This file is generated by <tt>$MEME_HOME/bin/raw_to_contexts.csh</tt>
+         and is loaded into <tt>source_context_relationships</tt>.&nbsp;
+It   is   a  projection of the data in a .raw3 or .raw2 file. <br>
+                 &nbsp; </p>
+<div style="margin-left: 40px;">
+      </div>
+<center style="margin-left: 40px;">                                                          
+      <table border="1" cellpadding="2" width="90%" nosave="">
+                  <tbody>
+                           <tr nosave="">
+                  <td align="center" colspan="3" nosave=""><b>contexts.src</b></td>
+                  </tr>
+                   <tr>
+                  <td>source_atom_id_1</td>
+                   <td>NUMBER(12)</td>
+                   <td>Range: <tt>classes_atoms.src</tt></td>
+                  </tr>
+                   <tr nosave="">
+                  <td>relationship_name</td>
+                   <td>VARCHAR2(10)</td>
+                   <td nosave="">Range: <tt>inverse_relationships</tt></td>
+                  </tr>
+                   <tr>
+                  <td>relationship_attribute</td>
+                   <td>VARCHAR2(100)</td>
+                   <td>Range: <tt>inverse_rel_attributes </tt>(will be the inverse of the actual RELA, to be set correctly after loading into MID)<tt><br>
+      </tt></td>
+                  </tr>
+                   <tr>
+                  <td>source_atom_id_2</td>
+                   <td>NUMBER(12)</td>
+                   <td>Range: <tt>classes_atoms.src</tt></td>
+                  </tr>
+                   <tr>
+                  <td>source</td>
+                   <td>VARCHAR2(20)</td>
+                   <td>Range: <tt>source_rank</tt> or <tt>sources.src</tt></td>
+                  </tr>
+                   <tr>
+                  <td>source_of_label</td>
+                   <td>VARCHAR2(20)</td>
+                   <td>Range: <tt>source_rank</tt> or <tt>sources.src</tt></td>
+                  </tr>
+                   <tr>
+                  <td>hcd</td>
+                   <td>VARCHAR2(256)</td>
+                   <td>hierarhcical code<br>
+</td>
+                  </tr>
+                   <tr>
+                  <td>parent_treenum</td>
+                   <td>VARCHAR2(256)</td>
+                   <td>source atom id parent treenum. <br>
+      <span style="font-weight: bold;">MUST NOT BE NULL</span><br>
+</td>
+                  </tr>
+                   <tr>
+                  <td>release mode</td>
+                   <td>VARCHAR2(10)</td>
+                   <td>Indicates whether or not this tree 
+position should be assigned siblings in MRREL/MRCXT.<br>
+      <span style="font-weight: bold;">MUST NOT BE NULL</span><br>
+</td>
+                  </tr>
+              <tr>
+                <td valign="top">source_rui<br>
+                </td>
+                <td valign="top">VARCHAR2(50)<br>
+                </td>
+                <td valign="top">Range: unique in file<br>
+                </td>
+              </tr>
+              <tr>
+                <td valign="top">relationship_group<br>
+                </td>
+                <td valign="top">NUMBER<br>
+                </td>
+                <td valign="top">Range: Integer<br>
+                </td>
+              </tr><tr>
+      <td style="vertical-align: top;">sg_id_1<br>
+      </td>
+      <td style="vertical-align: top;">VARCHAR2(50)</td>
+      <td style="vertical-align: top;">Range:&nbsp; <br>
+
+            
+      <div style="font-family: monospace;">
+                             classes.atom_id if id_type      ='ATOM_ID'                <br>
+            classes.concept_id
+if id_type ='CONCEPT_ID'               <br>
+classes.aui if
+            id_type_1      ='AUI'<br>
+            classes.code if id_type
+    like  'CODE%'                 <br>
+            classes.source_cui
+if              id_type in ('SOURCE_CUI','ROOT_SOURCE_CUI')<br>
+            
+                        classes.source_aui 
+   if              id_type  = ('SOURCE_AUI','ROOT_SOURCE_AUI') <br>
+
+
+classes.source_dui 
+   if              id_type  = ('SOURCE_DUI','ROOT_SOURCE_DUI')<br>
+
+
+            relationships.source_rui if id_type in ('SOURCE_RUI','ROOT_SOURCE_RUI')<br>
+            concept_status.cui
+if              id_type      like 'CUI%'<br>
+
+
+            source_id_map.source_row_id 
+    where                table_name='C'  if id_type in ('SOURCE_ATOM_ID','SRC_ATOM_ID')<br>
+
+
+            
+        relationships.source_rui if id_type='SOURCE_RUI'</div>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">sg_type_1<br>
+      </td>
+      <td style="vertical-align: top;">VARCHAR2(50)</td>
+      <td style="vertical-align: top;">Range: in (<span style="font-family: monospace;">SRC</span><tt>_ATOM_ID</tt>,
+             <tt>CUI</tt>, <tt>CUI_SOURCE</tt>,
+             <tt>CUI_ROOT_SOURCE</tt>,
+              <tt>CODE_SOURCE, CODE_TERMGROUP</tt>,
+              <tt>CODE_ROOT_TERMGROUP</tt>,               <tt>AUI,ATOM_ID</tt>,
+             <tt>CONCEPT_ID, SOURCE_AUI, ROOT_SOURCE_AUI, SOURCE_CUI, ROOT_SOURCE_CUI, SOURCE_DUI, ROOT_SOURCE_DUI, SOURCE_RUI, ROOT_SOURCE_RUI</tt>)&nbsp; <br>
+      <span style="font-weight: bold;">MUST NOT BE NULL</span><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">sg_qualifier_1<br>
+      </td>
+      <td style="vertical-align: top;">VARCHAR2(50)</td>
+      <td style="vertical-align: top;">Range:&nbsp; <br>
+
+
+            
+                             source_rank.source
+if              id_type in ('CODE_SOURCE','SOURCE_AUI','SOURCE_CUI','SOURCE_RUI','SOURCE_DUI')<br>
+
+                             source_rank.stripped_source 
+    if              id_type    like '%_ROOT_SOURCE' 
+           <br>
+
+            source_rank.stripped_source 
+    if              id_type    like 'ROOT_SOURCE%' <br>
+
+                             termgroup_rank.termgroup
+   if<br>
+
+      source_rank.stripped_source||'/'||termgroup_rank.tty if id_type = 
+'CODE_ROOT_TERMGROUP'<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">sg_id_2<br>
+      </td>
+      <td style="vertical-align: top;">VARCHAR2(50)</td>
+      <td style="vertical-align: top;">same as id_id_1</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">sg_type_2<br>
+      </td>
+      <td style="vertical-align: top;">VARCHAR2(50)</td>
+      <td style="vertical-align: top;">same as id_type_1<br>
+      <span style="font-weight: bold;">MUST NOT BE NULL</span><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">sg_qualifier_2<br>
+      </td>
+      <td style="vertical-align: top;">VARCHAR2(50)</td>
+      <td style="vertical-align: top;">same as id_qualifier_1</td>
+    </tr>
+
+        </tbody>                                                         
+      </table>
+</center>
+<div style="margin-left: 40px;">
+      </div>
+<p style="margin-left: 40px;"><a name="ranks"></a><b>[<a href="#raw" onmouseover="window.status='Click to return to the top.'; return true;">Next</a>
+         / <a href="#contexts" onmouseover="window.status='Click to return to see mergefacts.'; return true;">Previous</a>]</b>
+               <br>
+                       This file provides the relative rankings 
+   of  termgroups     for a new/update source.&nbsp; The suppressible flag 
+ (if  'Y')  overrides   the suppressible flag in classes (if not 'O') for rows with that 
+ termgroup.&nbsp;           <br>
+                 &nbsp; </p>
+<div style="margin-left: 40px;">
+      </div>
+<center style="margin-left: 40px;">                                                          
+      <center><b>termgroups.src</b></center>
+                  
+                  <table border="1" width="90%" nosave="">
+                  <tbody>
+                           <tr nosave="">
+</tr>
+                   <tr>
+                  <td>termgroup_name</td>
+                   <td>VARCHAR2(40)</td>
+                   <td>Name of the termgroup being added.&nbsp;</td>
+                  </tr>
+                   <tr>
+                  <td>termgroup</td>
+                   <td>VARCHAR2(40)</td>
+                   <td>Termgroup above which to rank. Range:
+              <tt>termgroup_rank</tt>        or <tt>termgroups.src</tt> (termgroup
+  name)</td>
+                  </tr>
+                   <tr>
+                  <td>suppressible_flag</td>
+                   <td>VARCHAR2(1)</td>
+                   <td>Suppressibility of this termgroup. 
+Range:    {Y,N}.</td>
+                  </tr>
+                   <tr>
+                  <td>exclude_flag</td>
+                   <td>VARCHAR2(1)</td>
+                   <td>Whether or not this termgroup should 
+ be  excluded     when  (norm or exact) matching. Range: {Y,N}</td>
+                  </tr>
+                   <tr>
+                  <td>norm_exclude_flag</td>
+                   <td>VARCHAR2(1)</td>
+                   <td>Whether or not this termgroup should 
+ be  excluded     when  norm matching. <br>
+                             Range: {Y,N}.</td>
+                  </tr>
+                   <tr>
+                  <td>tty</td>
+                   <td>VARCHAR2(20)</td>
+                   <td>The term type (part after the slash
+ '/').&nbsp;       e.g.   MSH2001/MH, it is "MH".</td>
+                  </tr>
+        </tbody>                                                         
+      </table>
+                       </center>
+<div style="margin-left: 40px;">
+      </div>
+<p style="margin-left: 40px;">The sources.src file contains a lot of metadata about
+sources, including the relative ranking scheme.&nbsp; When inverting a source
+ALL source values used in any of the other .src files should have  entries
+here if they do not already exist in the database.&nbsp; The&nbsp;
+               <br>
+                 &nbsp; </p>
+<div style="margin-left: 40px;">
+      </div>
+<center style="margin-left: 40px;">                                                          
+      <table border="1" width="90%" nosave="">
+                  <tbody>
+                           <tr nosave="">
+                  <td colspan="3" nosave=""> 
+<center><b>sources.src</b></center>
+                  </td>
+                  </tr>
+                   <tr>
+                  <td>source_name</td>
+                   <td>VARCHAR2(20)</td>
+                   <td>Name of the source being added.</td>
+                  </tr>
+                   <tr>
+                  <td>low_source</td>
+                   <td>VARCHAR2(20)&nbsp;</td>
+                   <td>Name of the source above which to
+rank   this   one.   Range:              <tt>source_rank</tt> or <tt>sources.src</tt>
+   (source   name)</td>
+                  </tr>
+                   <tr>
+                  <td>restriction_level</td>
+                   <td>NUMBER(12)</td>
+                   <td>Restriction level of this source.
+Range:    {0,1,2,3}/</td>
+                  </tr>
+                   <tr>
+                  <td>normalized_source</td>
+                   <td>VARCHAR2(20)</td>
+                   <td>Base name of the source (e.g. SNMI98 
+ for   SNMI98XREF).      Range: <tt>source_rank</tt> or <tt>sources.src</tt> 
+ (source   name)</td>
+                  </tr>
+                   <tr>
+                  <td>stripped_source</td>
+                   <td>VARCHAR2(20)</td>
+                   <td>Version independent name of the source 
+  (e.g.    MSH   for  MSH2000).</td>
+                  </tr>
+                   <tr>
+                  <td>version</td>
+                   <td>VARCHAR2(20)</td>
+                   <td>The version of the source (e.g. 2000 
+ for   MSH2000).</td>
+                  </tr>
+                   <tr>
+                  <td>source_family</td>
+                   <td>VARCHAR2(20)</td>
+                   <td>The family of sources to which this
+ source    belongs     (MSH for MSH2000).&nbsp; This field is used to group
+ sources   that should    travel together (such as HCPCS and MTHHH).</td>
+                  </tr>
+                   <tr>
+                  <td>official_name</td>
+                   <td>VARCHAR2(1200)</td>
+                   <td>The official name of the source.&nbsp; 
+  Typically      this  will have the value of the SRC/PT but not necessarily.</td>
+                  </tr>
+                   <tr>
+                  <td>nlm_contact</td>
+                   <td>VARCHAR2(100)</td>
+                   <td>email address of the NLM contact for 
+ this   source.&nbsp;</td>
+                  </tr>
+                   <tr>
+                  <td>acquisition_contact</td>
+                   <td>VARCHAR2(1000)</td>
+                   <td>The full contact information obtaining 
+  the   source.</td>
+                  </tr>
+                   <tr>
+                  <td>content_contact</td>
+                   <td>VARCHAR2(1000)</td>
+                   <td>The full contact information for obtaining 
+    further     information about the content of the source.</td>
+                  </tr>
+                   <tr>
+                  <td>license_contact</td>
+                   <td>VARCHAR2(1000)</td>
+                   <td>The full contact information for obtaining 
+    license     info.</td>
+                  </tr>
+                   <tr>
+                  <td>inverter</td>
+                   <td>VARCHAR2(100)</td>
+                   <td>email address of the Apelon inverter</td>
+                  </tr>
+                   <tr>
+                  <td>context_type</td>
+                   <td>VARCHAR2(100)</td>
+                   <td>Valid context type value.&nbsp; Should 
+  be  one   of  FULL,  TITLE, MINI, FULL-MULTIPLE, FULL-NOSIB, FULL-NOSIB-MULTIPLE,
+    TITLE-MULTIPLE,     MINI-MULTIPLE.&nbsp; If the source has no contexts,
+  a  null value can be   used.</td>
+                  </tr>
+                   <tr>
+                  <td>url</td>
+                   <td>VARCHAR2(1000)</td>
+                   <td>One or more URLs providing more information
+     about    this  source.</td>
+                  </tr>
+                   <tr>
+                  <td>language</td>
+                   <td>VARCHAR2(10)</td>
+                   <td>Valid language (from <tt>languages</tt>)</td>
+                  </tr>
+                      <tr>
+                        <td valign="top">citation<br>
+                        </td>
+                        <td valign="top">VARCHAR2(4000)<br>
+                        </td>
+                        <td valign="top">Citation information<br>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td valign="top">license_info<br>
+                        </td>
+                        <td valign="top">VARCHAR2(4000)<br>
+                        </td>
+                        <td valign="top">Additional information 
+   about   the license agreement for this source<br>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td valign="top">character_set<br>
+                        </td>
+                        <td valign="top">VARCHAR2(50)<br>
+                        </td>
+                        <td valign="top">ISO character set
+ name   (e.g.  ISO646-US, UTF-8)<br>
+                        </td>
+                      </tr>
+                  <tr>
+                    <td valign="top">rel_directionality_flag<br>
+                    </td>
+                    <td valign="top">CHAR(1)<br>
+                    </td>
+                    <td valign="top">Range: {Y,N} Indicates 
+ whether   or not the directionality of relationships in this source is important
+  and   should be explicit in MRREL<br>
+                    </td>
+                  </tr>
+        </tbody>                                                         
+      </table>
+</center>
+<div style="margin-left: 40px;">
+                                                                        
+                                                                 
+      </div>
+<p style="margin-left: 40px;"><a name="raw"></a><b>[</b><b><a href="src_format.html" onmouseover="window.status='Click to return to see mergefacts.'; return true;">Top</a></b><b>
+         / <a href="#ranks" onmouseover="window.status='Click to return to see mergefacts.'; return true;">Previous</a>]</b>
+               <br>
+                       This is the starting file format for 
+ the   context     information.&nbsp;  It is similar to MRCXT.&nbsp; The 
+     <tt>$MEME_HOME/bin/raw_to_contexts.csh</tt>         script converts a
+file like this to the <tt>context.src</tt> format. &nbsp;The hcd field of
+this file has been overloaded to contain additional information, including: 
+source_rui, relationship_group, and the native identifiers (sg_id_1, sg_type_1, 
+sg_qualifier_1, etc.).<br>
+                 &nbsp; </p>
+<div style="margin-left: 40px;">
+      </div>
+<center style="margin-left: 40px;">                                                          
+      <table border="1" width="90%" nosave="">
+                  <tbody>
+                           <tr nosave="">
+                  <td colspan="3" nosave="">                            
+            <center><b>.raw3</b></center>
+                  </td>
+                  </tr>
+                   <tr>
+                  <td>source_atom_id_1</td>
+                   <td>NUMBER(12)</td>
+                   <td>A valid source atom id (in source_id_map)
+    for   this   concept.</td>
+                  </tr>
+                   <tr>
+                  <td>context_number</td>
+                   <td>NUMBER(12)</td>
+                   <td>Atoms can have multiple contexts,
+this   number    indicates    the n'th context.</td>
+                  </tr>
+                   <tr>
+                  <td>context_level</td>
+                   <td>NUMBER(12)</td>
+                   <td>Indicates ANC,CCP,CHD, or SIB row
+(with    respect     to  first field)</td>
+                  </tr>
+                   <tr>
+                  <td>sort_field</td>
+                   <td>NUMBER(12)</td>
+                   <td>Mechanism for imposing a sort ordering 
+  on  CHD,SIB     rows.</td>
+                  </tr>
+                   <tr>
+                  <td>atom_name</td>
+                   <td>VARCHAR2(1200)</td>
+                   <td>The string for field 1.</td>
+                  </tr>
+                   <tr>
+                  <td>source_atom_id_2</td>
+                   <td>NUMBER(12)</td>
+                   <td>source atom id for this row.</td>
+                  </tr>
+                   <tr>
+                  <td>scd</td>
+                   <td>VARCHAR2(30)</td>
+                   <td>The code of field1</td>
+                  </tr>
+                   <tr>
+                  <td>hcd</td>
+                   <td>VARCHAR2(100)</td>
+                   <td>Source asserted hierarchical code. <br><br>Or,<br><br>&lt;hcd&gt;:&lt;source_rui&gt;:&lt;relationship
+group&gt;~&lt;sg_id_1&gt;~&lt;sg_type_1&gt;~&lt;sg_qual_1&gt;~&lt;sg_id_2&gt;~&lt;sg_type_2&gt;~&lt;sg_qual_2&gt;</td>
+                  </tr>
+                   <tr>
+                  <td>rela</td>
+                   <td>VARCHAR2(100)</td>
+                   <td>? not clearly defined but likely relationship
+      of  this  row to its parent</td>
+                  </tr>
+                   <tr>
+                  <td>xc</td>
+                   <td>NUMBER(1)</td>
+                   <td>flag indication child/nochild (1,0)</td>
+                  </tr>
+                   <tr>
+                  <td>source</td>
+                   <td>VARCHAR2(20)</td>
+                   <td>The source of field 1</td>
+                  </tr>
+                   <tr>
+                  <td>source_of_context</td>
+                   <td>VARCHAR2(20)&nbsp;</td>
+                   <td>The source of this context (not necessarily
+     same   as  source)</td>
+                  </tr>
+                   <tr>
+                  <td>mrrel_flag</td>
+                   <td>NUMBER(1)</td>
+                   <td>flag indicating whether this row gets
+  into   MRREL    (1,0).&nbsp;  mostly for SIB rows.</td>
+                  </tr>
+                   <tr>
+                  <td>mrcxt_flag</td>
+                   <td>NUMBER(1)</td>
+                   <td>flag indicating whether this row gets
+  into   MRCXT    (1,0).&nbsp;  mostly for SIB rows.<br>
+
+                             </td>
+                  </tr>
+        </tbody>                                                         
+      </table>
+</center>
+<div style="margin-left: 40px;">
+                 <br>
+
+                  
+
+
+
+
+
+</div>
+</div>
+
+
+
+<h3><a name="references"></a> References/Links</h3>
+
+
+
+  
+<p style="margin-left: 40px;">Use the following references for more information.
+  </p>
+
+
+<ul>
+
+
+  <ul>
+    <li>No additional references.<br>
+    </li>
+  </ul>
+</ul>
+
+
+
+  
+
+&nbsp;<br>
+
+
+<div style="text-align: center;">
+[ <a href="#overview">overview</a> | <a href="#details">details</a> | <a href="#references">references</a> ]<br>
+</div>
+
+
+<br>
+
+
+<hr width="100%" style="margin-left: 0px; margin-right: auto;">
+<div style="text-align: left;">                  
+</div>
+
+
+
+<table border="0" cols="2" width="100%" nosave="" style="text-align: left; margin-left: 0px; margin-right: auto;">
+
+
+
+
+
+
+
+                   <tbody>
+                     <tr nosave="">
+                  <td align="left" valign="top" nosave="">              
+      <address> <a href="/MEME">MEME         Home</a></address>
+                  </td>
+                   <td align="right" valign="top" nosave="">            
+      <address> Contact: <a href="mailto:bcarlsen@apelon.com">Brian A. Carlsen</a></address>
+      <address> Created: 5/1/1998</address>
+      <address> Last Updated: 04/15/2005</address>
+                  </td>
+                  </tr>
+  </tbody>                 
+</table>
+
+
+
+<div style="text-align: left;"><!-- These comments are used by the What's new Generator --><!-- Changed On: 2005/04/15 --><!-- Changed by: MEME  --><!-- Change Note: Source Insertion (.src) data formats --><!-- Fresh for: 1 month -->
+
+
+
+
+
+
+
+
+</div>
+
+
+
+</body></html>

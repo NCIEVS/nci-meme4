@@ -1,0 +1,163 @@
+/d5/MEME4/java/gov/nih/nlm/meme/common/RxNormAtom.java:94: warning - @lin is an unknown tag.
+/d5/MEME4/java/gov/nih/nlm/swing/ChangeDataSourceAction.java:110: warning - The first sentence is interpreted to be:
+"Add a data source change listener."
+This sentence is different from what will be interpreted as the first sentence in the
+next major release (when that interpretation will be internationalized), which is:
+"Add a data source change listener.
+ ..etc.."
+To avoid this note, change the doc comment to make this a proper first sentence, then
+use -breakiterator from that point forward, which will output this new sentence.
+/d5/MEME4/java/gov/nih/nlm/swing/ChangeServerAction.java:141: warning - The first sentence is interpreted to be:
+"Add a server change listener."
+This sentence is different from what would be generated using -breakiterator: 
+"Add a server change listener.
+ ..etc.."
+/d5/MEME4/java/gov/nih/nlm/meme/common/AtomicChangeAtomAction.java:55: warning - Tag @link: reference not found: AtomicChangeAtomAcion
+/d5/MEME4/java/gov/nih/nlm/meme/common/AuxiliaryDataAction.java:290: warning - Tag @link: reference not found: Field
+/d5/MEME4/java/gov/nih/nlm/meme/common/Concept.java:200: warning - Tag @link: reference not found: Attributes
+/d5/MEME4/java/gov/nih/nlm/meme/common/IdentifierCluster.java:67: warning - Missing closing } character for inline tag: "{@link Identifier."
+/d5/MEME4/java/gov/nih/nlm/meme/common/Concept.java:268: warning - Tag @link: reference not found: ContextRelationships
+/d5/MEME4/java/gov/nih/nlm/meme/common/Concept.java:242: warning - Tag @link: reference not found: Relationships
+/d5/MEME4/java/gov/nih/nlm/meme/common/Concept.java:223: warning - Tag @link: reference not found: Attributes
+/d5/MEME4/java/gov/nih/nlm/meme/common/CoreData.java:376: warning - Tag @link: reference not found: Sdentifier
+/d5/MEME4/java/gov/nih/nlm/meme/common/MolecularAction.java:403: warning - Missing closing } character for inline tag: "{@link Concept."
+/d5/MEME4/java/gov/nih/nlm/meme/common/Identifier.java:134: warning - Tag @link: can't find hashCode() in gov.nih.nlm.meme.common.Identifier
+/d5/MEME4/java/gov/nih/nlm/meme/MEMEToolkit.java:112: warning - The first sentence is interpreted to be:
+"Intializes properties mentioned in
+ {@link MEMEConstants#ALLOWABLE_PROPERTIES}, in the array
+ <code>app_specific_prop</code>, and any system properties
+ starting with <code>meme.app.</code>."
+This sentence is different from what would be generated using -breakiterator: 
+"Intializes properties mentioned in
+ {@link MEMEConstants#ALLOWABLE_PROPERTIES}, in the array
+ <code>app_specific_prop</code>, and any system properties
+ starting with <code>meme.app."
+/d5/MEME4/java/gov/nih/nlm/swing/ChangeDataSourceAction.java:119: warning - The first sentence is interpreted to be:
+"Remove a data source listener."
+This sentence is different from what would be generated using -breakiterator: 
+"Remove a data source listener.
+ ..etc.."
+/d5/MEME4/java/gov/nih/nlm/swing/ChangeServerAction.java:150: warning - The first sentence is interpreted to be:
+"Remove a server listener."
+This sentence is different from what would be generated using -breakiterator: 
+"Remove a server listener.
+ ..etc.."
+/d5/MEME4/java/gov/nih/nlm/meme/common/Atom.java:90: warning - Tag @link: reference not found: Cui
+/d5/MEME4/java/gov/nih/nlm/meme/common/Atom.java:78: warning - Tag @link: reference not found: Cui
+/d5/MEME4/java/gov/nih/nlm/meme/common/MolecularAction.java:245: warning - Tag @link: reference not found: dentifier
+/d5/MEME4/java/gov/nih/nlm/meme/MEMEToolkit.java:112: warning - The first sentence is interpreted to be:
+"Intializes properties mentioned in
+ {@link MEMEConstants#ALLOWABLE_PROPERTIES}, in the array
+ <code>app_specific_prop</code>, and any system properties
+ starting with <code>meme.app.</code>."
+This sentence is different from what would be generated using -breakiterator: 
+"Intializes properties mentioned in
+ {@link MEMEConstants#ALLOWABLE_PROPERTIES}, in the array
+ <code>app_specific_prop</code>, and any system properties
+ starting with <code>meme.app."
+Generating /d5/MEME4/doc/javadoc/gov/nih/nlm/meme/MIDServices.html...
+Generating /d5/MEME4/doc/javadoc/gov/nih/nlm/meme/Version.html...
+/d5/MEME4/java/gov/nih/nlm/meme/Version.java:144: warning - Tag @link: reference not found: gov.nih.nlm.meme.service.AdminService
+
+/d5/MEME4/java/gov/nih/nlm/swing/ChangeDataSourceAction.java:110: warning - The first sentence is interpreted to be:
+"Add a data source change listener."
+This sentence is different from what would be generated using -breakiterator: 
+"Add a data source change listener.
+ ..etc.."
+/d5/MEME4/java/gov/nih/nlm/swing/ChangeDataSourceAction.java:119: warning - The first sentence is interpreted to be:
+"Remove a data source listener."
+This sentence is different from what would be generated using -breakiterator: 
+"Remove a data source listener.
+ ..etc.."
+Generating /d5/MEME4/doc/javadoc/gov/nih/nlm/swing/ChangeServerAction.html...
+/d5/MEME4/java/gov/nih/nlm/swing/ChangeServerAction.java:141: warning - The first sentence is interpreted to be:
+"Add a server change listener."
+This sentence is different from what would be generated using -breakiterator: 
+"Add a server change listener.
+ ..etc.."
+/d5/MEME4/java/gov/nih/nlm/swing/ChangeServerAction.java:150: warning - The first sentence is interpreted to be:
+"Remove a server listener."
+This sentence is different from what would be generated using -breakiterator: 
+"Remove a server listener.
+ ..etc.."
+
+
+/d5/MEME4/java/gov/nih/nlm/meme/client/ActionClient.java:507: warning - Tag @link: reference not found: macroMolecularAction
+
+/d5/MEME4/java/gov/nih/nlm/meme/client/EditingClient.java:627: warning - Tag @link: reference not found: CoreData
+
+
+/d5/MEME4/java/gov/nih/nlm/meme/client/Version.java:96: warning - Tag @link: reference not found: AcitonClient
+
+
+/d5/MEME4/java/gov/nih/nlm/meme/common/Atom.java:90: warning - Tag @link: reference not found: Cui
+/d5/MEME4/java/gov/nih/nlm/meme/common/Atom.java:78: warning - Tag @link: reference not found: Cui
+/d5/MEME4/java/gov/nih/nlm/meme/common/Atom.java:78: warning - Tag @link: reference not found: Cui
+/d5/MEME4/java/gov/nih/nlm/meme/common/Atom.java:90: warning - Tag @link: reference not found: Cui
+
+/d5/MEME4/java/gov/nih/nlm/meme/common/Concept.java:200: warning - Tag @link: reference not found: Attributes
+/d5/MEME4/java/gov/nih/nlm/meme/common/Concept.java:268: warning - Tag @link: reference not found: ContextRelationships
+/d5/MEME4/java/gov/nih/nlm/meme/common/Concept.java:242: warning - Tag @link: reference not found: Relationships
+/d5/MEME4/java/gov/nih/nlm/meme/common/Concept.java:223: warning - Tag @link: reference not found: Attributes
+/d5/MEME4/java/gov/nih/nlm/meme/common/Concept.java:200: warning - Tag @link: reference not found: Attributes
+/d5/MEME4/java/gov/nih/nlm/meme/common/Concept.java:223: warning - Tag @link: reference not found: Attributes
+/d5/MEME4/java/gov/nih/nlm/meme/common/Concept.java:223: warning - Tag @link: reference not found: Attributes
+/d5/MEME4/java/gov/nih/nlm/meme/common/Concept.java:242: warning - Tag @link: reference not found: Relationships
+/d5/MEME4/java/gov/nih/nlm/meme/common/Concept.java:268: warning - Tag @link: reference not found: ContextRelationships
+
+/d5/MEME4/java/gov/nih/nlm/meme/common/CoreData.java:376: warning - Tag @link: reference not found: Sdentifier
+/d5/MEME4/java/gov/nih/nlm/meme/common/CoreData.java:376: warning - Tag @link: reference not found: Sdentifier
+
+/d5/MEME4/java/gov/nih/nlm/meme/common/AtomicChangeAtomAction.java:55: warning - Tag @link: reference not found: AtomicChangeAtomAcion
+/d5/MEME4/java/gov/nih/nlm/meme/common/AtomicChangeAtomAction.java:55: warning - Tag @link: reference not found: AtomicChangeAtomAcion
+
+/d5/MEME4/java/gov/nih/nlm/meme/common/AuxiliaryDataAction.java:235: warning - @List is an unknown tag.
+
+/d5/MEME4/java/gov/nih/nlm/meme/common/AuxiliaryDataAction.java:290: warning - Tag @link: reference not found: Field
+/d5/MEME4/java/gov/nih/nlm/meme/common/AuxiliaryDataAction.java:290: warning - Tag @link: reference not found: Field
+/d5/MEME4/java/gov/nih/nlm/meme/common/AuxiliaryDataAction.java:325: warning - Tag @link: reference not found: Field
+
+/d5/MEME4/java/gov/nih/nlm/meme/common/Concept.java:223: warning - Tag @link: reference not found: Attributes
+
+
+/d5/MEME4/java/gov/nih/nlm/meme/common/Identifier.java:134: warning - Tag @link: can't find hashCode() in gov.nih.nlm.meme.common.Identifier
+/d5/MEME4/java/gov/nih/nlm/meme/common/Identifier.java:134: warning - Tag @link: can't find hashCode() in gov.nih.nlm.meme.common.Identifier
+/d5/MEME4/java/gov/nih/nlm/meme/common/Identifier.java:134: warning - Tag @link: can't find hashCode() in gov.nih.nlm.meme.common.Identifier
+/d5/MEME4/java/gov/nih/nlm/meme/common/Identifier.java:134: warning - Tag @link: can't find hashCode() in gov.nih.nlm.meme.common.Identifier
+/d5/MEME4/java/gov/nih/nlm/meme/common/Identifier.java:134: warning - Tag @link: can't find hashCode() in gov.nih.nlm.meme.common.Identifier
+/d5/MEME4/java/gov/nih/nlm/meme/common/Identifier.java:169: warning - Tag @link: reference not found: Identiifer
+Generating /d5/MEME4/doc/javadoc/gov/nih/nlm/meme/common/IdentifierCluster.html...
+/d5/MEME4/java/gov/nih/nlm/meme/common/IdentifierCluster.java:67: warning - Missing closing } character for inline tag: "{@link Identifier."
+/d5/MEME4/java/gov/nih/nlm/meme/common/IdentifierCluster.java:67: warning - Missing closing } character for inline tag: "{@link Identifier."
+/d5/MEME4/java/gov/nih/nlm/meme/common/IdentifierCluster.java:67: warning - Missing closing } character for inline tag: "{@link Identifier."
+/d5/MEME4/java/gov/nih/nlm/meme/common/IdentifierCluster.java:67: warning - Missing closing } character for inline tag: "{@link Identifier."
+/d5/MEME4/java/gov/nih/nlm/meme/common/IdentifierCluster.java:67: warning - Missing closing } character for inline tag: "{@link Identifier."
+
+
+/d5/MEME4/java/gov/nih/nlm/meme/common/MergeFact.java:286: warning - Tag @link: reference not found: MergeFAct
+
+
+/d5/MEME4/java/gov/nih/nlm/meme/common/MolecularAction.java:403: warning - Missing closing } character for inline tag: "{@link Concept."
+/d5/MEME4/java/gov/nih/nlm/meme/common/MolecularAction.java:403: warning - Missing closing } character for inline tag: "{@link Concept."
+/d5/MEME4/java/gov/nih/nlm/meme/common/MolecularAction.java:245: warning - Tag @link: reference not found: dentifier
+/d5/MEME4/java/gov/nih/nlm/meme/common/MolecularAction.java:245: warning - Tag @link: reference not found: dentifier
+/d5/MEME4/java/gov/nih/nlm/meme/common/MolecularAction.java:403: warning - Missing closing } character for inline tag: "{@link Concept."
+/d5/MEME4/java/gov/nih/nlm/meme/common/MolecularAction.java:403: warning - Missing closing } character for inline tag: "{@link Concept."
+/d5/MEME4/java/gov/nih/nlm/meme/common/MolecularAction.java:403: warning - Missing closing } character for inline tag: "{@link Concept."
+
+/d5/MEME4/java/gov/nih/nlm/meme/common/ReportStyle.java:548: warning - @parameter is an unknown tag.
+
+
+/d5/MEME4/java/gov/nih/nlm/meme/common/RxNormAtom.java:94: warning - @lin is an unknown tag.
+/d5/MEME4/java/gov/nih/nlm/meme/common/RxNormAtom.java:94: warning - @lin is an unknown tag.
+/d5/MEME4/java/gov/nih/nlm/meme/common/RxNormAtom.java:94: warning - @lin is an unknown tag.
+
+
+/d5/MEME4/java/gov/nih/nlm/meme/common/SingleRelationshipRestrictor.java:29: warning - Tag @link: malformed: "Concept#getRestrictedRelationships(CoreDataRestrictor"
+/d5/MEME4/java/gov/nih/nlm/meme/common/SingleRelationshipRestrictor.java:29: warning - Tag @link: malformed: "Concept#getRestrictedRelationships(CoreDataRestrictor"
+/d5/MEME4/java/gov/nih/nlm/meme/common/SingleRelationshipRestrictor.java:29: Tag @link: Malformed: Concept#getRestrictedRelationships(CoreDataRestrictor
+/d5/MEME4/java/gov/nih/nlm/meme/common/SingleRelationshipRestrictor.java:29: warning - Tag @link: malformed: "Concept#getRestrictedRelationships(CoreDataRestrictor"
+
+/d5/MEME4/java/gov/nih/nlm/meme/common/WorkLog.java:68: warning - @loggedAction is an unknown tag.
+
+/d5/MEME4/java/gov/nih/nlm/meme/sql/Ticket.java:693: warning - Tag @link: reference not found: CoreDataMapper

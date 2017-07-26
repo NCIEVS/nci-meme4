@@ -1,0 +1,30 @@
+T020|Acquired Abnormality|A1.2.2.2|An abnormal structure, or one that is abnormal in size or location, found in or deriving from a previously normal structure.  Acquired abnormalities are distinguished from diseases even though they may result in pathological functioning (e.g., "hernias incarcerate").|
+T190|Anatomical Abnormality|A1.2.2|An abnormal structure, or one that is abnormal in size or location.|
+T017|Anatomical Structure|A1.2|A normal or pathological part of the anatomy or structural organization of an organism.|
+T053|Behavior|B1.1|Any of the psycho-social activities of humans or animals that can be observed directly by others or can be made systematically observable by the use of special strategies.|
+T038|Biologic Function|B2.2.1|A state, activity or process of the body or one of its systems or parts.|
+T023|Body Part, Organ, or Organ Component|A1.2.3.1|A collection of cells and tissues which are localized to a specific area or combine and carry out one or more specialized functions of an organism. This ranges from gross structures to small components of complex organs. These structures are relatively localized in comparison to tissues.|
+T031|Body Substance|A1.4.2|Extracellular material, or mixtures of cells and extracellular material, produced, excreted, or accreted by the body. Included here are substances such as saliva, dental enamel, sweat, and gastric acid.|
+T025|Cell|A1.2.3.3|The fundamental structural and functional unit of living organisms.|
+T026|Cell Component|A1.2.3.4|A part of a cell or the intercellular matrix, generally visible by light microscopy.|
+T043|Cell Function|B2.2.1.1.3|A physiologic function inherent to cells or cell components.|
+T049|Cell or Molecular Dysfunction|B2.2.1.2.2|A pathologic function inherent to cells, parts of cells, or molecules.|
+T019|Congenital Abnormality|A1.2.2.1|An abnormal structure, or one that is abnormal in size or location, present at birth or evolving over time as a result of a defect in embryogenesis.|
+T047|Disease or Syndrome|B2.2.1.2.1|A condition which alters or interferes with a normal process, state, or activity of an organism.  It is usually characterized by the abnormal functioning of one or more of the host's systems, parts, or organs.  Included here is a complex of symptoms descriptive of a disorder.|
+T018|Embryonic Structure|A1.2.1|An anatomical structure that exists only before the organism is fully formed; in mammals, for example, a structure that exists only prior to the birth of the organism.  This structure may be normal or abnormal.|
+T050|Experimental Model of Disease|B2.2.1.2.3|A representation in a non-human organism of a human disease for the purpose of research into its mechanism or treatment.|
+T021|Fully Formed Anatomical Structure|A1.2.3|An anatomical structure in a fully formed organism; in mammals, for example, a structure in the body after the birth of the organism.|
+T028|Gene or Genome|A1.2.3.5|A specific sequence, or in the case of the genome the complete sequence, of nucleotides along a molecule of DNA or RNA (in the case of some viruses) which represent the functional units of heredity.|
+T045|Genetic Function|B2.2.1.1.4.1|Functions of or related to the maintenance, translation or expression of the genetic material.|
+T055|Individual Behavior|B1.1.2|Behavior exhibited by a human or an animal that is not a direct result of interaction with other members of the species, but which may have an effect on others.|
+T041|Mental Process|B2.2.1.1.1.1|A physiologic function involving the mind or cognitive processing.|
+T048|Mental or Behavioral Dysfunction|B2.2.1.2.1.1|A clinically significant dysfunction whose major manifestation is behavioral or psychological.  These dysfunctions may have identified or presumed biological etiologies or manifestations.|
+T044|Molecular Function|B2.2.1.1.4|A physiologic function occurring at the molecular level.|
+T070|Natural Phenomenon or Process|B2.2|A phenomenon or process that occurs irrespective of the activities of human beings.|
+T191|Neoplastic Process|B2.2.1.2.1.2|A new and abnormal growth of tissue in which the growth is uncontrolled and progressive.  The growths may be malignant or benign.|
+T042|Organ or Tissue Function|B2.2.1.1.2|A physiologic function of a particular organ, organ system, or tissue.|
+T040|Organism Function|B2.2.1.1.1|A physiologic function of the organism as a whole, of multiple organ systems, or of multiple organs or tissues.|
+T046|Pathologic Function|B2.2.1.2|A disordered process, activity, or state of the organism as a whole, of a body system or systems, or of multiple organs or tissues.  Included here are normal responses to a negative stimulus as well as patholologic conditions or states that are less specific than a disease.  Pathologic functions frequently have systemic effects.|
+T039|Physiologic Function|B2.2.1.1|A normal process, activity, or state of the body.|
+T054|Social Behavior|B1.1.1|Behavior that is a direct result or function of the interaction of humans or animals with their fellows.  This includes behavior that may be considered anti-social.|
+T024|Tissue|A1.2.3.2|An aggregation of similarly specialized cells and the associated intercellular substance.  Tissues are relatively non-localized in comparison to body parts, organs or organ components.|

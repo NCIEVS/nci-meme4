@@ -1,0 +1,52 @@
+#
+# The properties file is a releasable MEME4 component
+# Here is its version information.
+# 02/15/2005 (2.3.0): add AuxiliaryDataService
+# 09/16/2004 (2.2.0): CGIShutdownServer added
+# 09/30/2003 (2.1.0): mail.apelon.com -> lhc.nlm.nih.gov
+#
+meme.properties.file.release=2.0
+meme.properties.file.version=3.0
+meme.properties.file.version.date=15-Feb-2005
+meme.properties.file.version.authority=MRD Group
+
+#
+# Server Properties
+# 
+
+#
+# The midsvcs service host and port
+# Generally these properites are not overridden and should 
+# not be changed once they are set correctly
+#
+env.MIDSVCS_HOST=midns.nlm.nih.gov
+env.MIDSVCS_PORT=5125
+
+#
+# The midsvcs service names that the server connects to by default
+# when initializing its data source pool.  This property is
+# commonly overridden when the server is started
+#
+meme.mid.service.default=mrd
+meme.mrd.service.default=mrd
+
+
+# 
+# Client parameters (MUST BE USED BY CLIENT)
+#
+
+#
+# The host/port on which the client expects the server to be running 
+# by default.  Once running, Client APIs can interactively change
+# these settings.
+#
+meme.client.server.host=localhost
+meme.client.server.port=8081
+meme.server.port=8081
+
+#
+# The class implementing the network protocol for connecting to
+# the server.  Generally, this property is not overridden and
+# should not change unless a new protocol class is implemented.
+#
+meme.client.protocol.class=gov.nih.nlm.meme.client.HTTPRequestClient

@@ -1,0 +1,21 @@
+INSTALL
+-------
+1. Choose $ARCHIVE_HOME
+2. Unzip dist_archive*.zip into $ARCHIVE_HOME
+
+Dependencies
+-----------------------
+Subsystem Dependencies
+  $ENV_HOME
+  $MIDSVCS_HOME
+
+Network Dependencies
+  MIDSVCS Server - host/port specified in etc/meme.prop
+
+Required Perl Libraries
+  DBI
+  DBD::Oracle
+   
+UPDATE
+------
+Same as install.

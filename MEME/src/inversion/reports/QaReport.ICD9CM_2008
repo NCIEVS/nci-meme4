@@ -1,0 +1,688 @@
+
+File: Source	Field: SrcName <1>
+    Field Stats:<recs, min, max, avg, NF> = <1, 11, 11, 11.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	ICD9CM_2008 => 1
+
+
+File: Source	Field: LowSrc <2>
+    Field Stats:<recs, min, max, avg, NF> = <1, 11, 11, 11.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	ICD9CM_2007 => 1
+
+
+File: Source	Field: RestrictionLvl <3>
+    Field Stats:<recs, min, max, avg, NF> = <1, 1, 1, 1.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	0 => 1
+
+
+File: Source	Field: NormSrc <4>
+    Field Stats:<recs, min, max, avg, NF> = <1, 11, 11, 11.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	ICD9CM_2008 => 1
+
+
+File: Source	Field: StrpSrc <5>
+    Field Stats:<recs, min, max, avg, NF> = <1, 6, 6, 6.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	ICD9CM => 1
+
+
+File: Source	Field: Version <6>
+    Field Stats:<recs, min, max, avg, NF> = <1, 4, 4, 4.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	2008 => 1
+
+
+File: Source	Field: SrcFamily <7>
+    Field Stats:<recs, min, max, avg, NF> = <1, 6, 6, 6.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	ICD9CM => 1
+
+
+File: Source	Field: OffcialName <8>
+    Field Stats:<recs, min, max, avg, NF> = <1, 8, 8, 8.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	ICD-9-CM => 1
+
+
+File: Source	Field: NLMContact <9>
+    Field Stats:<recs, min, max, avg, NF> = <1, 31, 31, 31.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	Jan Willis, jwillis@nlm.nih.gov => 1
+
+
+File: Source	Field: AcqContact <10>
+    Field Stats:<recs, min, max, avg, NF> = <1, 202, 202, 202.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	Contact for Diseases: Donna Pickett, National Center for Health Statistics; e-mail: dfp4@cdc.gov; Contact for Procedures: Patricia Brooks, Health Care Financing Administration; e-mail: pbrooks@hcfa.gov; => 1
+
+
+File: Source	Field: ContentContact <11>
+    Field Stats:<recs, min, max, avg, NF> = <1, 208, 208, 208.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	Contact for Diseases: Donna Pickett, National Center for Health Statistics;e-mail: dfp4@cdc.gov;Contact for Procedures: Patricia Brooks, Health Care Financing Administration;e-mail: pbrooks@hcfa.gov;;;;;;;;;; => 1
+
+
+File: Source	Field: LicContact <12>
+    Field Stats:<recs, min, max, avg, NF> = <1, 208, 208, 208.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	Contact for Diseases: Donna Pickett, National Center for Health Statistics;e-mail: dfp4@cdc.gov;Contact for Procedures: Patricia Brooks, Health Care Financing Administration;e-mail: pbrooks@hcfa.gov;;;;;;;;;; => 1
+
+
+File: Source	Field: Inverter <13>
+    Field Stats:<recs, min, max, avg, NF> = <1, 26, 26, 26.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	stephanie.s.lipow@lmco.com => 1
+
+
+File: Source	Field: ContextType <14>
+    Field Stats:<recs, min, max, avg, NF> = <1, 4, 4, 4.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	FULL => 1
+
+
+File: Source	Field: URL <15>
+    Field Stats:<recs, min, max, avg, NF> = <1, 44, 44, 44.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	http://www.hcfa.gov, http://www.cdc.gov/nchs => 1
+
+
+File: Source	Field: Language <16>
+    Field Stats:<recs, min, max, avg, NF> = <1, 3, 3, 3.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	ENG => 1
+
+
+File: Source	Field: Citation <17>
+    Field Stats:<recs, min, max, avg, NF> = <1, 250, 250, 250.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <1, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	ICD-9-CM [computer file]: international classification of diseases, ninth revision, clinical modification.  Baltimore, MD: U.S. Department of Health and Human Services, Centers for Medicare & Medicaid Services, effective October 1, 2007.;;;;;;;;;;;;; => 1
+
+
+File: Source	Field: LicInfo <18>
+    Field Stats:<recs, min, max, avg, NF> = <1, 0, 0, 0.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	 => 1
+
+
+File: Source	Field: CharSet <19>
+    Field Stats:<recs, min, max, avg, NF> = <1, 5, 5, 5.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	UTF-8 => 1
+
+
+File: Source	Field: RelDirFlag <20>
+    Field Stats:<recs, min, max, avg, NF> = <1, 0, 0, 0.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	 => 1
+
+End of Sources check
+=======================
+
+
+File: Termgroup	Field: Source <1>
+    Field Stats:<recs, min, max, avg, NF> = <4, 14, 15, 14.250, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	ICD9CM_2008/AB => 1
+	ICD9CM_2008/HT => 1
+	ICD9CM_2008/PT => 1
+	MTHICD9_2008/ET => 1
+
+
+    Errors:
+	**** VBadSource_3 => MTHICD9_2008
+End of Termgroups check
+=======================
+
+
+File: Atom	Field: SrcAtomId <1>
+    Field Stats:<recs, min, max, avg, NF> = <57864, 9, 9, 9.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+
+File: Atom	Field: Source <2>
+    Field Stats:<recs, min, max, avg, NF> = <57864, 3, 12, 11.332, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	ICD9CM_2008 => 38608
+	MTHICD9_2008 => 19254
+	SRC => 2
+
+
+File: Atom	Field: TermGroup <3>
+    Field Stats:<recs, min, max, avg, NF> = <57864, 7, 15, 14.333, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	ICD9CM_2008/AB => 17445
+	ICD9CM_2008/HT => 3718
+	ICD9CM_2008/PT => 17445
+	MTHICD9_2008/ET => 19254
+	SRC/VAB => 1
+	SRC/VPT => 1
+
+
+File: Atom	Field: Code <4>
+    Field Stats:<recs, min, max, avg, NF> = <57864, 2, 13, 5.338, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+
+File: Atom	Field: Status <5>
+    Field Stats:<recs, min, max, avg, NF> = <57864, 1, 1, 1.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	N => 40419
+	R => 17445
+
+
+File: Atom	Field: TobeReleased <6>
+    Field Stats:<recs, min, max, avg, NF> = <57864, 1, 1, 1.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	Y => 57864
+
+
+File: Atom	Field: Released <7>
+    Field Stats:<recs, min, max, avg, NF> = <57864, 1, 1, 1.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	N => 57864
+
+
+File: Atom	Field: Name <8>
+    Field Stats:<recs, min, max, avg, NF> = <57864, 3, 326, 38.212, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+
+File: Atom	Field: Suppressible <9>
+    Field Stats:<recs, min, max, avg, NF> = <57864, 1, 1, 1.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	N => 40419
+	Y => 17445
+
+
+File: Atom	Field: SAUI <10>
+    Field Stats:<recs, min, max, avg, NF> = <57864, 0, 0, 0.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+
+File: Atom	Field: SCUI <11>
+    Field Stats:<recs, min, max, avg, NF> = <57864, 0, 0, 0.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+
+File: Atom	Field: SDUI <12>
+    Field Stats:<recs, min, max, avg, NF> = <57864, 0, 11, 5.337, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+
+File: Atom	Field: Lang <13>
+    Field Stats:<recs, min, max, avg, NF> = <57864, 3, 3, 3.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	ENG => 57864
+
+
+File: Atom	Field: OrderId <14>
+    Field Stats:<recs, min, max, avg, NF> = <57864, 1, 7, 6.092, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+
+File: Atom	Field: LRCUI <15>
+    Field Stats:<recs, min, max, avg, NF> = <57864, 0, 0, 0.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+
+Valid sources are :
+	SRC
+	ICD9CM_2008
+Valid termgroups are :
+	ICD9CM_2008/AB
+	MTHICD9_2008/ET
+	SRC/VPT
+	SRC/RAB
+	SRC/SSN
+	SRC/RSY
+	SRC/VAB
+	SRC/VSY
+	ICD9CM_2008/HT
+	SRC/RHT
+	ICD9CM_2008/PT
+	SRC/RPT
+File: Atoms
+
+    Errors
+	badSource = 19254
+	**** VbadSource_120817607 => MTHICD9_2008
+	**** VbadSource_120817608 => MTHICD9_2008
+	**** VbadSource_120817610 => MTHICD9_2008
+	**** VbadSource_120817611 => MTHICD9_2008
+	**** VbadSource_120817613 => MTHICD9_2008
+	**** VbadSource_120817614 => MTHICD9_2008
+	**** VbadSource_120817617 => MTHICD9_2008
+	**** VbadSource_120817619 => MTHICD9_2008
+	**** VbadSource_120817620 => MTHICD9_2008
+	**** VbadSource_120817622 => MTHICD9_2008
+UTF Counts:
+
+	Min/Max saids: <120817601, 120875464>
+End of Atoms check
+#=================
+
+
+File: Attribute	Field: SrcAttrId <1>
+    Field Stats:<recs, min, max, avg, NF> = <70216, 1, 5, 4.842, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+
+File: Attribute	Field: Id <2>
+    Field Stats:<recs, min, max, avg, NF> = <70216, 2, 10, 8.466, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+
+File: Attribute	Field: AttrLevel <3>
+    Field Stats:<recs, min, max, avg, NF> = <70216, 1, 1, 1.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+
+File: Attribute	Field: Name <4>
+    Field Stats:<recs, min, max, avg, NF> = <70216, 3, 13, 9.887, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	CONTEXT => 21164
+	ICA => 355
+	ICC => 192
+	ICE => 4916
+	ICF => 76
+	ICN => 347
+	SEMANTIC_TYPE => 39893
+	SOS => 3273
+
+
+File: Attribute	Field: Value <5>
+    Field Stats:<recs, min, max, avg, NF> = <70216, 3, 3075, 223.573, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <17446, 0, 0, 0, 0, 0, 0>
+    Errors
+
+File: Attribute	Field: Source <6>
+    Field Stats:<recs, min, max, avg, NF> = <70216, 3, 13, 12.136, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	E-ICD9CM_2008 => 39892
+	ICD9CM_2008 => 30323
+	SRC => 1
+
+
+File: Attribute	Field: Status <7>
+    Field Stats:<recs, min, max, avg, NF> = <70216, 1, 1, 1.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	N => 39892
+	R => 30324
+
+
+File: Attribute	Field: ToBeReleased <8>
+    Field Stats:<recs, min, max, avg, NF> = <70216, 1, 1, 1.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	Y => 49052
+	n => 21164
+
+
+File: Attribute	Field: Released <9>
+    Field Stats:<recs, min, max, avg, NF> = <70216, 1, 1, 1.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	N => 70216
+
+
+File: Attribute	Field: Suppressible <10>
+    Field Stats:<recs, min, max, avg, NF> = <70216, 1, 1, 1.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	N => 70216
+
+
+File: Attribute	Field: IdType <11>
+    Field Stats:<recs, min, max, avg, NF> = <70216, 10, 11, 10.870, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	SOURCE_DUI => 9159
+	SRC_ATOM_ID => 61057
+
+
+File: Attribute	Field: IdQualifier <12>
+    Field Stats:<recs, min, max, avg, NF> = <70216, 0, 11, 7.684, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	 => 21165
+	ICD9CM_2008 => 49051
+
+
+File: Attribute	Field: ATUI <13>
+    Field Stats:<recs, min, max, avg, NF> = <70216, 0, 0, 0.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+
+File: Attribute	Field: HashCode <14>
+    Field Stats:<recs, min, max, avg, NF> = <70216, 32, 32, 32.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+File: Attributes
+
+    Errors:
+	badSaids = 1
+UTF Counts:
+
+
+	**** VBadSaids_49053 => idt: SRC_ATOM_ID, id: 1500165
+End of Attributes check
+=======================
+
+
+File: Relation	Field: SrcRelId <1>
+    Field Stats:<recs, min, max, avg, NF> = <36700, 1, 5, 4.697, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+
+File: Relation	Field: RelLevel <2>
+    Field Stats:<recs, min, max, avg, NF> = <36700, 1, 1, 1.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	S => 36700
+
+
+File: Relation	Field: Id1 <3>
+    Field Stats:<recs, min, max, avg, NF> = <36700, 9, 13, 9.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+
+File: Relation	Field: RelName <4>
+    Field Stats:<recs, min, max, avg, NF> = <36700, 2, 7, 4.901, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	BT => 1
+	RT? => 19254
+	SFO/LFO => 17445
+
+
+File: Relation	Field: RelAttr <5>
+    Field Stats:<recs, min, max, avg, NF> = <36700, 0, 16, 7.606, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	 => 19254
+	expanded_form_of => 17445
+	has_version => 1
+
+
+File: Relation	Field: Id2 <6>
+    Field Stats:<recs, min, max, avg, NF> = <36700, 2, 9, 7.015, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+
+File: Relation	Field: Source <7>
+    Field Stats:<recs, min, max, avg, NF> = <36700, 3, 12, 11.524, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	ICD9CM_2008 => 17445
+	MTHICD9_2008 => 19254
+	SRC => 1
+
+
+File: Relation	Field: SourceOfLabel <8>
+    Field Stats:<recs, min, max, avg, NF> = <36700, 3, 12, 11.524, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	ICD9CM_2008 => 17445
+	MTHICD9_2008 => 19254
+	SRC => 1
+
+
+File: Relation	Field: Status <9>
+    Field Stats:<recs, min, max, avg, NF> = <36700, 1, 1, 1.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	R => 36700
+
+
+File: Relation	Field: ToBeReleased <10>
+    Field Stats:<recs, min, max, avg, NF> = <36700, 1, 1, 1.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	Y => 36700
+
+
+File: Relation	Field: Released <11>
+    Field Stats:<recs, min, max, avg, NF> = <36700, 1, 1, 1.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	N => 36700
+
+
+File: Relation	Field: Suppressible <12>
+    Field Stats:<recs, min, max, avg, NF> = <36700, 1, 1, 1.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	N => 36700
+
+
+File: Relation	Field: IdType1 <13>
+    Field Stats:<recs, min, max, avg, NF> = <36700, 11, 14, 11.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	CODE_TERMGROUP => 1
+	SRC_ATOM_ID => 36699
+
+
+File: Relation	Field: IdQaulifier1 <14>
+    Field Stats:<recs, min, max, avg, NF> = <36700, 0, 7, 0.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	 => 36699
+	SRC/VPT => 1
+
+
+File: Relation	Field: IdType2 <15>
+    Field Stats:<recs, min, max, avg, NF> = <36700, 10, 14, 10.475, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	CODE_TERMGROUP => 1
+	SOURCE_DUI => 19254
+	SRC_ATOM_ID => 17445
+
+
+File: Relation	Field: IdQaulifier2 <16>
+    Field Stats:<recs, min, max, avg, NF> = <36700, 0, 11, 5.771, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	 => 17445
+	ICD9CM_2008 => 19254
+	SRC/RPT => 1
+
+
+File: Relation	Field: SourceRui <17>
+    Field Stats:<recs, min, max, avg, NF> = <36700, 0, 0, 0.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+
+File: Relation	Field: RelGroup <18>
+    Field Stats:<recs, min, max, avg, NF> = <36700, 0, 0, 0.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+File: Relations
+
+    Errors:
+End of Relationships check
+==========================
+
+
+File: Merge	Field: Id1 <1>
+    Field Stats:<recs, min, max, avg, NF> = <17446, 9, 9, 9.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+
+File: Merge	Field: MergeLevel <2>
+    Field Stats:<recs, min, max, avg, NF> = <17446, 2, 2, 2.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	SY => 17446
+
+
+File: Merge	Field: Id2 <3>
+    Field Stats:<recs, min, max, avg, NF> = <17446, 3, 9, 5.497, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+
+File: Merge	Field: Source <4>
+    Field Stats:<recs, min, max, avg, NF> = <17446, 3, 11, 11.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	ICD9CM_2008 => 17445
+	SRC => 1
+
+
+File: Merge	Field: IntegrityVector <5>
+    Field Stats:<recs, min, max, avg, NF> = <17446, 0, 0, 0.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+
+File: Merge	Field: MakeDemotion <6>
+    Field Stats:<recs, min, max, avg, NF> = <17446, 1, 1, 1.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	N => 1
+	Y => 17445
+
+
+File: Merge	Field: ChangeStatus <7>
+    Field Stats:<recs, min, max, avg, NF> = <17446, 1, 1, 1.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	N => 1
+	Y => 17445
+
+
+File: Merge	Field: MergeSet <8>
+    Field Stats:<recs, min, max, avg, NF> = <17446, 9, 10, 9.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	ICD9CM-AB => 17445
+	ICD9CM-SRC => 1
+
+
+File: Merge	Field: IdType1 <9>
+    Field Stats:<recs, min, max, avg, NF> = <17446, 11, 11, 11.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	SRC_ATOM_ID => 17446
+
+
+File: Merge	Field: IdQual1 <10>
+    Field Stats:<recs, min, max, avg, NF> = <17446, 0, 0, 0.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	 => 17446
+
+
+File: Merge	Field: IdType2 <11>
+    Field Stats:<recs, min, max, avg, NF> = <17446, 10, 11, 10.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	SOURCE_DUI => 17445
+	SRC_ATOM_ID => 1
+
+
+File: Merge	Field: IdQual2 <12>
+    Field Stats:<recs, min, max, avg, NF> = <17446, 0, 11, 10.999, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	 => 1
+	ICD9CM_2008 => 17445
+
+File: Merges
+
+    Errors:
+End of Merges check
+==========================
+

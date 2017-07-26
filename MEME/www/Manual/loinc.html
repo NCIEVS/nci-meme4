@@ -1,0 +1,173 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.51 [en] (X11; I; SunOS 5.6 sun4u) [Netscape]">
+   <title>LOINC Editing Tips</title>
+</head>
+<body>
+
+<center>
+<h3>
+LOINC Editing Tips</h3></center>
+
+<pre>Logical Observation Identifier Names and Codes (LOINC)
+==============================================================================
+The LOINC database provides a set of formal names and standardized codes for
+identifying laboratory and clinical observations. The purpose is to facilitate
+the exchange and pooling of clinical or laboratory results, such as blood
+hemoglobin or serum potassium, for clinical care, outcomes management, claims
+attachment, and research.&nbsp;
+
+A fully-specified LOINC name consists of 5 or 6 colon(:)-delimited elements:
+
+&nbsp;&nbsp;&nbsp; :::::
+
+The component/analyte element of the fully-specified name may have up to 3
+subelements separated by carets (^).&nbsp; The system (sample type/site) element of
+the fully-specified name can have up to 2 subelements separated by carets (^).
+Refer the LOINC User's Manual for detailed explanations of names and elements
+at http://www.regenstrief.org/loinc/loinc.htm
+
+LOINC contains laboratory, clinical, and claims attachment "observation" names.
+The Meta LCN attribute denotes whether a LOINC code pertains to laboratory (1),
+clinical (2), or claims attachment (3).
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Termgroups&nbsp;&nbsp;&nbsp; Description
+===============================================================================
+LN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Official Fully Specified Name
+LO&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Obsolete Fully Specified Name
+LX&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Official Fully Specified Name with EXpanded Abbrevs
+
+CN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Official Component/Analyte Name
+CX&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Mixed-Case Component/Analyte Name with EXpanded Abbrevs
+
+SN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Official Component/Analyte Synonym
+SX&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Mixed-Case Component/Analyte Synonym with EXpanded Abbrevs
+
+RN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Official Component/Analyte Related Name
+RX&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Mixed-Case Component/Analyte Related Name with EXpanded Abbrevs
+
+LS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; System/Specimen/Sample Type/Site/Location
+
+Term types are related as follows:
+
+LN &lt;--{SY}- LX
+LO&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ^
+^&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |
+|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {RT}|analyzed_by
+measured_by|{RT}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |
+|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; LS
+|
+SN --{SY}--> CN &lt;--{RT?}-- RN
+^&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ^&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ^
+|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |
+{SY}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {SY}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {SY}
+|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |
+SX&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; CX&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; RX
+
+Only LN, LO, and LX terms have a LOINC code.&nbsp; Remaining termgroups are derived
+from an related to many LOINC code terms, hence have code=NOCODE.
+
+DEFINITION RN for&nbsp;
+CN:Component@Property@Time_Aspect@System@Scale_Typ@Method_Typ@Class If a LOINC&nbsp;
+record includes a Related Name (RN, in field #8), these related names&nbsp;
+become DEFINITION attributes with the notation "RN for CN:"
+with the Fully Specified LOINC name as the attribute value.&nbsp;
+
+This DEFINITION is intended to help the editors decide what the Related Name&nbsp;
+means. Related Names are used in LOINC primarily to permit matching of
+laboratory tests in the RELMA software and may be ambiguous and&nbsp;
+or acronyms. The Fully Specified Name should make the RN
+clear.</pre>
+<b>Specific Editing Tips for Editors:</b>
+<p>1. A concept that appears to be a ratio of two chemicals such as, 2-Aminoadipate/Creatine,
+should be typed as "Quantitative Concept. Aother example of a ratio would be "ALKALINE PHOSPHATASE.OTHER FRACTIONS/ALKALINE PHOSPHATASE.TOTAL".
+<p>2. If it appears to be an organism, take it on face value and apply
+the appropriate Organism STY such as "Plant".
+<pre>&nbsp;CN# 4133664&nbsp; Alopecurus pratensis
+> CUI&nbsp;&nbsp;&nbsp;&nbsp; Concept Status needs Review
+> DEF [Do not release]
+>&nbsp;&nbsp; LNC203/RN|15720-6^FOXTAIL MEADOW AB.IGE.RAST
+> CLASS@ACNC@PT@SER@ORD@@Alopecurus
+> pratensis;g16@ALLERGY
+> ATOMS
+>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; N []&nbsp; Alopecurus pratensis [LNC203/RN/NOCODE]
+>
+> REVIEWED RELATED CONCEPT(S)
+> [RT?]&nbsp; FOXTAIL MEADOW ANTIBODY.IMMUNOGLOBULIN E.RAST CLASS
+> [LNC203/CX||LNC203|LNC203] {2766973} S
+> [RT?]&nbsp; FOXTAIL MEADOW ANTIBODY.IMMUNOGLOBULIN E
+> [LNC203/CX||LNC203|LNC203]
+> {239806} S</pre>
+3. Rast Classes such as FOXTAIL MEADOW ANTIBODY.IMMUNOGLOBULIN E.RAST CLASS
+should be typed as "Qualitative Concept".
+<p>Something like FOXTAIL MEADOW ANTIBODY.IMMUNOGLOBULIN E is considered
+an immunoglobulin and should be typed as "Immunologic Factor" &amp; "Amino
+Acid, Peptide, or Protein".
+<p>4. A chemical with a modifier attached (other than FREE) such as, NEUTROPHIL
+CYTOPLASMIC ANTIBODY.ATYPICAL or ALKALINE PHOSPHATASE.TOTAL, should be typed as "Laboratory or Test Result".
+<p>5. A chemical with the word "Free" Attached such as, ANDROSTANOLONE.FREE,
+should be typed as "Clinical Attribute".
+<p>6. All the long strings from LOINC are "Clinical Attributes".
+<p>7.&nbsp; More Hints on Assigining STYs
+<p>Organism Attribute: Something that is going to be measured and applies
+to the organism as a whole or one of it's major parts. Things like height/body
+weight/body temperature.
+<p>Clinical Attribute: Something that is going to be measured and it doesn't
+apply to the entire organism then it is a clinical attribute. For example,
+ACCOMIDATION&nbsp;WIDTH. MEASURED. If you aren't sure if something is a
+"major part"&nbsp; or for some other reason can't decide between organism
+attribute and clinical attribute, lean towards using clinical attribute.
+<p>Pathologic Function: If the concept includes a finding as a result of
+a pathologic function, for example Increased Intraocular Pressure, then
+assign Path Function. Also: Ineffective airway clearance due to inflammation.
+<p>Disease or Syndrome: If the concept includes a finding as a result of
+a disease, then it should be typed as disease or syndrome.&nbsp; Ineffective
+airway clearance due to chronic obstructive pulmonary disease.
+<p>If you are having trouble deciding between one of the above or a STY
+has already been assigned that seems reasonable, you should not spend too
+much time worrying about it or trying to change it.
+<p>8.&nbsp; Pharmacia Test Codes
+<p>> CN# 4137924&nbsp; Rf265
+<br>> CUI&nbsp;&nbsp;&nbsp;&nbsp; Concept Status needs Review
+<br>> STY Immunologic Factor&nbsp;&nbsp; N
+<br>> DEF [Do not release]
+<br>>&nbsp;&nbsp; LNC203/RN|7178-7^CARAWAY AB.IGE@ACNC@PT@SER@QN@@Carum
+<br>> carvi;Rf265@ALLERGY
+<br>> ATOMS
+<br>>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+N []&nbsp; Rf265 [LNC203/RN/NOCODE]
+<br>>
+<br>> REVIEWED RELATED CONCEPT(S)
+<br>> [RT?]&nbsp; CARAWAY ANTIBODY.IMMUNOGLOBULIN E.RAST CLASS
+<br>> [LNC203/CX||LNC203|LNC203]
+<br>> {2764820} S
+<br>> [RT?]&nbsp; CARAWAY ANTIBODY.IMMUNOGLOBULIN E
+<br>> [LNC203/CX||LNC203|LNC203]
+<br>> {4121091} S
+<p>Rf265 is a code that corresponds to the Caraway Antibody. IGE. It should
+be typed as Indicator, Reagent, or Diagnostic Aid, &amp; Amino Acid, Peptide
+or Protein &amp; Immunologic Factor. You may also see other similar concepts
+such as
+<br>C70 that appear in the same field in the definition. These are also
+test codes that correspond to antibodies.
+<p>
+<p>9. Anything that is written or created by medical staff like DIALYSIS RECORDS, DISCHARGE
+NOTES, patient records, etc. should get the STY of "Intellectual Product".
+<hr>
+<address>
+Contact: <a href="mailto:lad@nlm.nih.gov">Laura Roth</a></address>
+
+<address>
+Created: August 23, 2001</address>
+
+<address>
+Last Updated: August 23, 2001</address>
+
+<br><!-- These comments are used by
+the What's new Generator --><!-- Changed On: 1998/05/14--><!-- Changed by: Laura
+Roth --><!-- Change Note: Information added on reporting source problems in the
+Metathesaurus. --><!-- Fresh for: 2 week -->
+</body>
+</html>

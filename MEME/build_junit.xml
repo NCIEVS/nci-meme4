@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="MEME" basedir="." default="make_junit">
+
+
+	<!-- These settings should be edited -->
+
+	<!-- Set environment container -->
+	<property environment="env"/>
+
+	<!-- Top-level directories -->
+	<property name="build.dir" value="build"/>
+	<property name="class.dir" value="build/classes"/>
+	<property name="junitclass.dir" value="build/junitclasses"/>
+	<property name="src.dir" value="src/junit"/>
+	<property name="extlib.dir" value="extlib"/>
+
+	<!-- Java configuration -->
+	<path id="classpath.compile">
+		<fileset dir="${env.JAVA_HOME}/jre/lib">
+			<include name="*.jar"/>
+		</fileset>
+		<fileset dir="${env.JAVA_HOME}/jre/lib/ext">
+			<include name="*.jar"/>
+		</fileset>
+		<fileset dir="${extlib.dir}">
+			<include name="*.jar"/>
+		</fileset>
+		<pathelement path="${class.dir}"/>
+		<pathelement path="${junitclass.dir}"/>
+	</path>
+	<property name="cmpclp" refid="classpath.compile"/>
+	<echo message="base directory is ${basedir}"/>
+	<echo message="build directory is ${build.dir}"/>
+	<tstamp>
+		<format property="cur.date" pattern="yyyyMMdd"/>
+		<format property="cur.time" pattern="hhmmss"/>
+	</tstamp>
+
+	<!-- Create initial Directories -->
+	<target name="init" description="Initialize directory structure">
+		<property name="dist.suffix" value=""/>
+		<mkdir dir="${junitclass.dir}"/>
+		<echo message="compile class path is ${cmpclp}"/>
+		<echo message="java home is set to ${env.JAVA_HOME}"/>
+	</target>
+	
+	<!-- Make Junit -->
+    <target name="make_junit" depends="init">
+
+		<!-- Copy files to build in order to perform filtering -->
+		<javac destdir="${junitclass.dir}" debug="true" srcdir="${src.dir}">
+			<classpath refid="classpath.compile"/>
+			<include name="**/*.java" />
+		</javac>
+
+    	<junit printsummary="yes" haltonfailure="no">
+
+    	  <classpath>
+    	    <pathelement location="${junitclass.dir}"/>
+    	    <pathelement location="${class.dir}"/>
+    	    <pathelement path="${java.class.path}"/>
+    	  </classpath>
+
+    	  <formatter type="plain"/>
+
+   		  <batchtest fork="yes" todir="${junitclass.dir}">
+   		    <fileset dir="${src.dir}">
+   		      <include name="**/*Test*.java"/>
+   		      <exclude name="**/AllTests.java"/>
+   		    </fileset>
+   		  </batchtest>
+
+    	</junit>
+
+    </target>
+
+</project>

@@ -1,0 +1,362 @@
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf8">
+   <title>MEME4 - Properties File</title>
+</head>
+<body text="#000000" bgcolor="#FFFFFF" link="#3333FF" vlink="#999999" alink="#FF0000">
+
+<center>
+<h3>
+<font size=+0>MEME4 Properties File</font></h3></center>
+
+<hr><i>Following is documentation on the properties contained in the Java
+properties file used by MEME.</i>
+<br>&nbsp;
+<center><table CELLPADDING=3 WIDTH="90%" NOSAVE >
+<tr NOSAVE>
+<td VALIGN=TOP NOSAVE><b>General Information</b></td>
+
+<td VALIGN=TOP NOSAVE><font size=-1>The default properties file used by
+the <i>MEME</i> can typically be found in <tt>$MEME_HOME/bin/meme.prop</tt>.&nbsp;
+Most <i>MEME</i> applications will support an alternative properties file
+via the <tt>-prop=&lt;file></tt> switch.&nbsp; This file is so important
+<i>MEME
+application server </i>operation that the default properties file is a
+releasable component&nbsp;</font></td>
+</tr>
+
+<tr>
+<td><font size=-1>&nbsp;</font></td>
+
+<td><font size=-1>&nbsp;</font></td>
+</tr>
+
+<tr BGCOLOR="#FFFFCC" NOSAVE>
+<td COLSPAN="2" NOSAVE><b><font size=-1>Server Properties</font></b></td>
+</tr>
+
+<tr NOSAVE>
+<td COLSPAN="2" NOSAVE>
+<dl>
+<dt>
+<tt><font size=-1>meme.server.port</font></tt></dt>
+
+<dd>
+<font size=-1>Specifies the port on which the server should run.</font></dd>
+
+<dt>
+<tt><font size=-1>meme.server.bootstrap.classes</font></tt></dt>
+
+<dd>
+<font size=-1>A list of <tt><a href="/javadoc/gov/nih/nlm/meme/Initializable.html">Initializable</a></tt>
+classes that are used to bootstrap the server.</font></dd>
+
+<dt>
+<tt><font size=-1>meme.server.services.classes</font></tt></dt>
+
+<dd>
+<font size=-1>A list of <tt><a href="/MEME/Docyumentation/javadoc/gov/nih/nlm/meme/server/MEMEApplicationService.html">MEMEApplicationService</a></tt>
+classes that provide server functionality once it is started.&nbsp; If
+this list changes, the server must be shut down and restarted.</font></dd>
+
+<dt>
+<tt><font size=-1>meme.server.session.timeout</font></tt></dt>
+
+<dd>
+<font size=-1>If a timeout is not specified by a request, the default time
+(in milliseconds) of inactivity before a session is programatically timed
+out.</font></dd>
+
+<dt>
+<tt><font size=-1>meme.threadpool.size.optimal</font></tt></dt>
+
+<dd>
+<font size=-1>Optimal size of the <tt><a href="/javadoc/gov/nih/nlm/meme/server/ThreadPool.html">ThreadPool</a></tt>
+used by the server.</font></dd>
+
+<dt>
+<tt><font size=-1>meme.threadpool.size.max</font></tt></dt>
+
+<dd>
+<font size=-1>Maximum size of the <tt><a href="/javadoc/gov/nih/nlm/meme/server/ThreadPool.html">ThreadPool</a></tt>
+used by the server.</font></dd>
+
+<dt>
+<tt><font size=-1>meme.theadpool.autoextend</font></tt></dt>
+
+<dd>
+<font size=-1>Indicates whether or not the thread pool should be allowed
+to auto-extend.</font></dd>
+
+<dt>
+<tt><font size=-1>meme.datasourcepool.size.optimal</font></tt></dt>
+
+<dd>
+<font size=-1>Optimal size of the <tt><a href="/javadoc/gov/nih/nlm/meme/server/MIDDataSourcePool.html">MIDDataSourcePool</a></tt>
+used by the server.</font></dd>
+
+<dt>
+<tt><font size=-1>meme.datasourcepool.size.max</font></tt></dt>
+
+<dd>
+<font size=-1>Maximum size of the <tt><a href="/javadoc/gov/nih/nlm/meme/server/MIDDataSourcePool.html">MIDDataSourcePool</a></tt>
+used by the server.</font></dd>
+
+<dt>
+<tt><font size=-1>meme.datasourcepool.autoextend</font></tt></dt>
+
+<dd>
+<font size=-1>Indicates whether or not the data source pool should be allowed
+to auto-extend.</font></dd>
+
+<dt>
+<tt><font size=-1>meme.validate.actions.atomic</font></tt></dt>
+
+<dd>
+<font size=-1>Flag indicating whether or not the server is validating atomic
+actions.</font></dd>
+
+<dt>
+<tt><font size=-1>meme.validate.actions.molecular</font></tt></dt>
+
+<dd>
+<font size=-1>Flag indicating whether or not the server is validating molecular
+actions.</font></dd>
+</dl>
+</td>
+</tr>
+
+<tr BGCOLOR="#FFFFCC" NOSAVE>
+<td COLSPAN="2" NOSAVE><b><font size=-1>Client Properties</font></b></td>
+</tr>
+
+<tr NOSAVE>
+<td COLSPAN="2" NOSAVE>
+<dl>
+<dt>
+<tt><font size=-1>meme.client.server.host, meme.client.server.port</font></tt></dt>
+
+<dd>
+<font size=-1>Used by the client indicate the host and port running the
+application server. The default values if these are not specified come
+from the <tt>meme-server-host</tt> and <tt>meme-server-port</tt> <i>mid
+services</i> keys.</font></dd>
+
+<dt>
+<tt><font size=-1>meme.client.protocol.class</font></tt></dt>
+
+<dd>
+<font size=-1>The implementation of <tt><a href="/javadoc/gov/nih/nlm/meme/client/MEMERequestClient.html">MEMERequestClient</a></tt>
+used to talk to the server.&nbsp; The class used here must match the <tt><a href="/javadoc/gov/nih/nlm/meme/server/MEMERequestListener.html">MEMERequestListener</a></tt>
+used by the server.</font></dd>
+</dl>
+</td>
+</tr>
+
+<tr BGCOLOR="#FFFFCC" NOSAVE>
+<td COLSPAN="2" NOSAVE><b><font size=-1>Mail Properties</font></b></td>
+</tr>
+
+<tr NOSAVE>
+<td COLSPAN="2" NOSAVE>
+<dl>
+<dt>
+<tt><font size=-1>meme.admin.midsvcs</font></tt></dt>
+
+<dd>
+<font size=-1>Email address of the <i>mid services</i> administrator.</font></dd>
+
+<dt>
+<tt><font size=-1>meme.admin.database</font></tt></dt>
+
+<dd>
+<font size=-1>Email address of the database administrator.</font></dd>
+
+<dt>
+<tt><font size=-1>meme.admin.system</font></tt></dt>
+
+<dd>
+<font size=-1>Email address of the system administrator.</font></dd>
+
+<dt>
+<tt><font size=-1>meme.admin.meme</font></tt></dt>
+
+<dd>
+<font size=-1>Email address of the <i>MEME</i> application server administrator.</font></dd>
+
+<dt>
+<tt><font size=-1>meme.smtp.host</font></tt></dt>
+
+<dd>
+<font size=-1>The mail server used by <tt><a href="/javadoc/gov/nih/nlm/meme/MEMEMail.html">MEMEMail</a></tt>.</font></dd>
+</dl>
+</td>
+</tr>
+
+<tr BGCOLOR="#FFFFCC" NOSAVE>
+<td COLSPAN="2" NOSAVE><b><font size=-1>Data Source Properties</font></b></td>
+</tr>
+
+<tr NOSAVE>
+<td COLSPAN="2" NOSAVE>
+<dt>
+<tt><font size=-1>meme.mid.connection.class</font></tt></dt>
+
+<dd>
+<font size=-1>Specifies the class that the <tt><a href="/javadoc/gov/nih/nlm/meme/sql/MEMEDataSourceFactory.html">MEMEDataSourceFactory</a></tt>
+should use to create a connection to a <tt><a href="/javadoc/gov/nih/nlm/meme/sql/MIDDataSource.html">MIDDataSource</a></tt>.</font></dd>
+
+<dt>
+<tt><font size=-1>meme.mid.driver.class</font></tt></dt>
+
+<dd>
+<font size=-1>The JDBC driver class used to connect to the <i>MID</i> database.</font></dd>
+
+<dt>
+<tt><font size=-1>meme.mid.service.default</font></tt></dt>
+
+<dd>
+<font size=-1>The <i>mid services</i> name used to represent the <i>MID</i>
+database that will be used. Typically this is expressed as a <i>mid services</i>
+name sans the <tt>-tns</tt> or <tt>-jdbc</tt> suffix (e.g. <tt>current-editing</tt>).</font></dd>
+
+<dt>
+<tt><font size=-1>meme.mid.user.default</font></tt></dt>
+
+<dd>
+<font size=-1>The username with which to connect to the <i>MID</i> database.</font></dd>
+
+<dt>
+<tt><font size=-1>meme.mid.password.default</font></tt></dt>
+
+<dd>
+<font size=-1>The password accompanying the username with which to connect
+to the <i>MID</i> database.</font></dd>
+
+<dt>
+<tt><font size=-1>meme.server.schedule.service</font></tt></dt>
+
+<dd>
+<font size=-1>A flag indicating which data source the <i>MEME</i> schedule
+should be connected to (if any). The two valid values are <tt>MID</tt>
+and <tt>MRD</tt>.</font></dd>
+
+<br>&nbsp;</td>
+</tr>
+
+<tr NOSAVE>
+<td COLSPAN="2" BGCOLOR="#FFFFCC" NOSAVE><b><font size=-1>LVG/MID Services
+Properties</font></b></td>
+</tr>
+
+<tr NOSAVE>
+<td COLSPAN="2" NOSAVE>
+<dl>
+<dt>
+<tt><font size=-1>meme.mid.service.host, meme.mid.service.port</font></tt></dt>
+
+<dd>
+<font size=-1>The host and port of the <i>mid services</i> socket server.</font></dd>
+
+<dt>
+<tt><font size=-1>meme.lvg.host</font></tt></dt>
+
+<dd>
+<font size=-1>The host of the LVG socket server.&nbsp; This server supports
+<tt>norm</tt>,
+<tt>luiNorm</tt>,
+and <tt>wordind</tt> functions.</font></dd>
+</dl>
+</td>
+</tr>
+
+<tr BGCOLOR="#FFFFCC" NOSAVE>
+<td COLSPAN="2" NOSAVE><b><font size=-1>General Properties</font></b></td>
+</tr>
+
+<tr NOSAVE>
+<td COLSPAN="2" NOSAVE>
+<dl>
+<dt>
+<tt><font size=-1>meme.view</font></tt></dt>
+
+<dd>
+<font size=-1>A flag indicating whether or not the application should open
+windows or run on the command line. Valid values are <tt>true</tt> and
+<tt>false</tt>.</font></dd>
+
+<dt>
+<tt><font size=-1>meme.debug</font></tt></dt>
+
+<dd>
+<font size=-1>A flag indicating whether or not the application should run
+in debug mode (meaning that it will print out lots of extra trace information).
+Valid values are <tt>true</tt> and <tt>false</tt>.</font></dd>
+
+<dt>
+<tt><font size=-1>meme.log.path</font></tt></dt>
+
+<dd>
+<font size=-1>The name of the file to which logging information should
+be written. If left blank or unset, <tt>STDOUT</tt> is used instead.</font></dd>
+
+<dt>
+<tt><font size=-1>meme.env.MEME_HOME, meme.env.ORACLE_HOME</font></tt></dt>
+
+<dd>
+<font size=-1>These are used to represent the environment variables <tt>$MEME_HOME</tt>
+and <tt>$ORACLE_HOME</tt>. This is typically set by the perl wrapper scripts
+so it is probably not necessary to set it in the log file.</font></dd>
+
+<dt>
+<tt><font size=-1>meme.tmp.directory</font></tt></dt>
+
+<dd>
+<font size=-1>The name of a directory where temporary files can be created.
+Typically this is just <tt>/tmp</tt>.</font></dd>
+
+<dt>
+<tt><font size=-1>meme.dtd.directory</font></tt></dt>
+
+<dd>
+<font size=-1>The name of a directory containing document type definitions.</font></dd>
+
+<dt>
+<tt><font size=-1>meme.properties.file</font></tt></dt>
+
+<dd>
+<font size=-1>The path to the properties file to use.</font></dd>
+</dl>
+</td>
+</tr>
+</table></center>
+
+<p>
+<hr WIDTH="100%">
+<table BORDER=0 COLS=2 WIDTH="100%" NOSAVE >
+<tr NOSAVE>
+<td ALIGN=LEFT VALIGN=TOP NOSAVE>
+<address>
+<a href="/MEME">MEME Home</a></address>
+</td>
+
+<td ALIGN=RIGHT VALIGN=TOP NOSAVE>
+<address>
+<font size=-1>Contact: <a href="mailto:bcarlsen@apelon.com">Brian Carlsen</a></font></address>
+
+<address>
+<font size=-1>Created: 01/05/2002</font></address>
+
+<address>
+<font size=-1>Last Updated: 07/25/2002</font></address>
+</td>
+</tr>
+</table>
+
+</body>
+<!-- These comments are used by the What's new Generator -->
+<!-- Changed On: 2002/07/25 -->
+<!-- Changed by: BAC -->
+<!-- Change Note: MEME - Properties File. -->
+<!-- Fresh for: 1 month -->
+</html>

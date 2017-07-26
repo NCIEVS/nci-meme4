@@ -1,0 +1,914 @@
+
+File: Source	Field: SrcName <1>
+    Field Stats:<recs, min, max, avg, NF> = <4, 6, 18, 13.750, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	LNC221 => 1
+	LNC_MDS20_221 => 1
+	LNC_OASIS_2002_221 => 1
+	LNC_PHQ_9_1999_221 => 1
+
+
+File: Source	Field: LowSrc <2>
+    Field Stats:<recs, min, max, avg, NF> = <4, 6, 14, 10.750, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	LNC219 => 1
+	LNC_MDS20 => 1
+	LNC_OASIS_2002 => 1
+	LNC_PHQ_9_1999 => 1
+
+
+File: Source	Field: RestrictionLvl <3>
+    Field Stats:<recs, min, max, avg, NF> = <4, 1, 1, 1.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	0 => 1
+	3 => 1
+	4 => 2
+
+
+File: Source	Field: NormSrc <4>
+    Field Stats:<recs, min, max, avg, NF> = <4, 6, 18, 13.750, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	LNC221 => 1
+	LNC_MDS20_221 => 1
+	LNC_OASIS_2002_221 => 1
+	LNC_PHQ_9_1999_221 => 1
+
+
+File: Source	Field: StrpSrc <5>
+    Field Stats:<recs, min, max, avg, NF> = <4, 3, 9, 7.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	LNC => 1
+	LNC_MDS => 1
+	LNC_OASIS => 1
+	LNC_PHQ_9 => 1
+
+
+File: Source	Field: Version <6>
+    Field Stats:<recs, min, max, avg, NF> = <4, 2, 4, 3.250, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	1999 => 1
+	20 => 1
+	2002 => 1
+	221 => 1
+
+
+File: Source	Field: SrcFamily <7>
+    Field Stats:<recs, min, max, avg, NF> = <4, 3, 3, 3.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	LNC => 4
+
+
+File: Source	Field: OffcialName <8>
+    Field Stats:<recs, min, max, avg, NF> = <4, 16, 46, 32.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	Logical Observation Identifier Names and Codes => 1
+	Minimum Data Set => 1
+	Outcome and Assessment Information Set => 1
+	Patient Health Questionnaire => 1
+
+
+File: Source	Field: NLMContact <9>
+    Field Stats:<recs, min, max, avg, NF> = <4, 15, 19, 18.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+
+File: Source	Field: AcqContact <10>
+    Field Stats:<recs, min, max, avg, NF> = <4, 0, 253, 96.250, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 2, 0, 0, 0, 0, 0>
+    Errors
+	**** Vmin_3_10 => 
+	**** Vmin_4_10 => 
+	**** VnullFlds_3_10 => 
+    Tally Field:
+	 => 2
+	Brant E. Fries, Ph.D. Institute of Gerontology, University of Michigan, 300 North Ingalls, Ann Arbor, Michigan USA. bfries@umich.edu => 1
+	LOINC c/o Medical Informatics, The Regenstrief Institute, Inc., Health Information and Translational Sciences Bldg. (HITS), 410 West 10th Street, Suite 2000, Indianapolis IN 46202; telephone: 317-423-5558; fax: 317-423-5695; email: loinc@regenstrief.org => 1
+
+
+File: Source	Field: ContentContact <11>
+    Field Stats:<recs, min, max, avg, NF> = <4, 0, 141, 55.500, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+	**** VnullFlds_3_11 => 
+    Tally Field:
+	 => 1
+	;;;;;;;;;;;loinc@regenstrief.org; => 1
+	Andrew Kramer;MD;;;;;;;;;;andy.kramer@uchsc.edu; => 1
+	Brant E. Fries;Ph.D;University of Michigan, Institute of Gerontology;300 North Ingalls;;Ann Arbor;Michigan;United States;;;;bfries@umich.edu; => 1
+
+
+File: Source	Field: LicContact <12>
+    Field Stats:<recs, min, max, avg, NF> = <4, 48, 247, 123.750, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	;;;;;;;;;;212-573-2273;requestsforpermission@pfizer.com; => 1
+	Andrew Kramer;MD;;;;;;;;;;andy.kramer@uchsc.edu; => 1
+	Brant E. Fries ;Ph.D;University of Michigan, Institute of Gerontology;300 North Ingalls;;Ann Arbor ;Michigan ;United States;;;;bfries@umich.edu; => 1
+	LOINC c/o Medical Informatics;;The Regenstrief Institute, Inc ;Health Information and Translational Sciences Bldg (HITS), 410 West 10th Street;Suite 2000;Indianapolis;Indiana;United States;46202;1-317-423-5558;1-317-423-5695;loinc@regenstrief.org; => 1
+
+
+File: Source	Field: Inverter <13>
+    Field Stats:<recs, min, max, avg, NF> = <4, 22, 22, 22.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	chanr@mail.nlm.nih.gov => 4
+
+
+File: Source	Field: ContextType <14>
+    Field Stats:<recs, min, max, avg, NF> = <4, 0, 10, 2.500, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	 => 3
+	FULL-NOSIB => 1
+
+
+File: Source	Field: URL <15>
+    Field Stats:<recs, min, max, avg, NF> = <4, 21, 28, 25.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	http://www.interrai.org/ => 1
+	http://www.loinc.org/ => 1
+	http://www.pfizer.com/phq-9 => 1
+	https://www2.uchsc.edu/chsr/ => 1
+
+
+File: Source	Field: Language <16>
+    Field Stats:<recs, min, max, avg, NF> = <4, 3, 3, 3.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	ENG => 4
+
+
+File: Source	Field: Citation <17>
+    Field Stats:<recs, min, max, avg, NF> = <4, 68, 139, 108.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	;;;;The Outcome and Assessment Information Set (OASIS);;;;Center for Health Services Research, UCHSC;;2002;;Denver, CO;;;;; => 1
+	;;Institute of Gerontology;;Minimum Data Set;;;2.0;University of Michigan;;;;Ann Arbor, Michigan ;;;;; => 1
+	;;Pfizer Inc.;;Patient Health Questionnaire (PHQ-9);;;;;;1999;;;;;;; => 1
+	;;The Regenstrief Institute;;Logical Observation Identifier Names and Codes (LOINC);;;Version 2.21.;;;June 15, 2007;;Indianapolis (IN);;;;; => 1
+
+
+File: Source	Field: LicInfo <18>
+    Field Stats:<recs, min, max, avg, NF> = <4, 0, 0, 0.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+	**** VnullFlds_1_18 => 
+    Tally Field:
+	 => 4
+
+
+File: Source	Field: CharSet <19>
+    Field Stats:<recs, min, max, avg, NF> = <4, 5, 5, 5.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	UTF-8 => 4
+
+
+File: Source	Field: RelDirFlag <20>
+    Field Stats:<recs, min, max, avg, NF> = <4, 1, 1, 1.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	N => 4
+
+End of Sources check
+=======================
+
+
+File: Termgroup	Field: Source <1>
+    Field Stats:<recs, min, max, avg, NF> = <24, 9, 22, 12.917, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	LNC221/CN => 1
+	LNC221/CX => 1
+	LNC221/HC => 1
+	LNC221/HS => 1
+	LNC221/LN => 1
+	LNC221/LO => 1
+	LNC221/LPDN => 1
+	LNC221/LPN => 1
+	LNC221/LS => 1
+	LNC221/LX => 1
+	LNC221/OLX => 1
+	LNC221/OOSN => 1
+	LNC221/OSN => 1
+	LNC221/SN => 1
+	LNC221/SX => 1
+	LNC221/XM => 1
+	LNC_MDS20_221/LN => 1
+	LNC_MDS20_221/LX => 1
+	LNC_OASIS_2002_221/LN => 1
+	LNC_OASIS_2002_221/LX => 1
+	LNC_PHQ_9_1999_221/LN => 1
+	LNC_PHQ_9_1999_221/LO => 1
+	LNC_PHQ_9_1999_221/LX => 1
+	LNC_PHQ_9_1999_221/OLX => 1
+
+
+    Errors:
+End of Termgroups check
+=======================
+
+
+File: Atom	Field: SrcAtomId <1>
+    Field Stats:<recs, min, max, avg, NF> = <181358, 9, 9, 9.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+
+File: Atom	Field: Source <2>
+    Field Stats:<recs, min, max, avg, NF> = <181358, 3, 18, 6.077, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	LNC221 => 179590
+	LNC_MDS20_221 => 1422
+	LNC_OASIS_2002_221 => 310
+	LNC_PHQ_9_1999_221 => 28
+	SRC => 8
+
+
+File: Atom	Field: TermGroup <3>
+    Field Stats:<recs, min, max, avg, NF> = <181358, 7, 22, 9.416, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	LNC221/CN => 17214
+	LNC221/CX => 5625
+	LNC221/HC => 182
+	LNC221/HS => 182
+	LNC221/LN => 46396
+	LNC221/LO => 1324
+	LNC221/LPDN => 103
+	LNC221/LPN => 17996
+	LNC221/LS => 1664
+	LNC221/LX => 46395
+	LNC221/OLX => 1323
+	LNC221/OOSN => 1271
+	LNC221/OSN => 39427
+	LNC221/SN => 319
+	LNC221/SX => 168
+	LNC221/XM => 1
+	LNC_MDS20_221/LN => 711
+	LNC_MDS20_221/LX => 711
+	LNC_OASIS_2002_221/LN => 155
+	LNC_OASIS_2002_221/LX => 155
+	LNC_PHQ_9_1999_221/LN => 13
+	LNC_PHQ_9_1999_221/LO => 1
+	LNC_PHQ_9_1999_221/LX => 13
+	LNC_PHQ_9_1999_221/OLX => 1
+	SRC/VAB => 4
+	SRC/VPT => 4
+
+
+File: Atom	Field: Code <4>
+    Field Stats:<recs, min, max, avg, NF> = <181358, 3, 20, 7.235, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 27, 0, 0, 0, 0, 0>
+    Errors
+	**** Vmin_120600355_4 => 1-8
+	**** Vmin_120600356_4 => 1-8
+	**** Vmin_120600357_4 => 1-8
+	**** Vmin_120629389_4 => 2-6
+	**** Vmin_120629390_4 => 2-6
+	**** Vmin_120629391_4 => 2-6
+	**** Vmin_120657289_4 => 3-4
+	**** Vmin_120657290_4 => 3-4
+	**** Vmin_120657291_4 => 3-4
+	**** Vmin_120685989_4 => 4-2
+
+File: Atom	Field: Status <5>
+    Field Stats:<recs, min, max, avg, NF> = <181358, 1, 1, 1.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	N => 181358
+
+
+File: Atom	Field: TobeReleased <6>
+    Field Stats:<recs, min, max, avg, NF> = <181358, 1, 1, 1.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	Y => 181358
+
+
+File: Atom	Field: Released <7>
+    Field Stats:<recs, min, max, avg, NF> = <181358, 1, 1, 1.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	N => 181358
+
+
+File: Atom	Field: Name <8>
+    Field Stats:<recs, min, max, avg, NF> = <181358, 1, 231, 47.513, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 314, 0, 0, 0, 0, 0>
+    Errors
+	**** Vmin_120567608_8 => 1
+	**** Vmin_120567610_8 => 2
+	**** Vmin_120567612_8 => 3
+	**** Vmin_120567614_8 => 4
+	**** Vmin_120567646_8 => ED
+	**** Vmin_120567656_8 => HLA
+	**** Vmin_120567680_8 => UA
+	**** Vmin_120567708_8 => RAD
+	**** Vmin_120567936_8 => EYE
+	**** Vmin_120567937_8 => Eye
+
+File: Atom	Field: Suppressible <9>
+    Field Stats:<recs, min, max, avg, NF> = <181358, 1, 1, 1.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	N => 177438
+	O => 3920
+
+
+File: Atom	Field: SAUI <10>
+    Field Stats:<recs, min, max, avg, NF> = <181358, 0, 0, 0.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+
+File: Atom	Field: SCUI <11>
+    Field Stats:<recs, min, max, avg, NF> = <181358, 0, 0, 0.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+
+File: Atom	Field: SDUI <12>
+    Field Stats:<recs, min, max, avg, NF> = <181358, 0, 0, 0.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+
+File: Atom	Field: Lang <13>
+    Field Stats:<recs, min, max, avg, NF> = <181358, 3, 3, 3.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	ENG => 181358
+
+
+File: Atom	Field: OrderId <14>
+    Field Stats:<recs, min, max, avg, NF> = <181358, 0, 9, 9.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+	**** VnullFlds_120567600_14 => 
+
+File: Atom	Field: LRCUI <15>
+    Field Stats:<recs, min, max, avg, NF> = <181358, 0, 0, 0.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+
+Valid sources are :
+	SRC
+	LNC221
+	LNC_PHQ_9_1999_221
+	LNC_MDS20_221
+	LNC_OASIS_2002_221
+Valid termgroups are :
+	LNC_MDS20_221/LX
+	LNC_OASIS_2002_221/LX
+	LNC_PHQ_9_1999_221/OLX
+	SRC/RAB
+	SRC/SSN
+	SRC/VSY
+	LNC221/LN
+	LNC221/CX
+	LNC221/LX
+	SRC/RHT
+	LNC_PHQ_9_1999_221/LX
+	LNC221/LS
+	LNC221/LPDN
+	SRC/RPT
+	LNC221/HS
+	LNC221/XM
+	LNC221/OOSN
+	LNC221/OSN
+	LNC_PHQ_9_1999_221/LN
+	SRC/VPT
+	LNC221/HC
+	LNC221/OLX
+	SRC/RSY
+	SRC/VAB
+	LNC_MDS20_221/LN
+	LNC_OASIS_2002_221/LN
+	LNC221/LPN
+	LNC221/SX
+	LNC221/LO
+	LNC_PHQ_9_1999_221/LO
+	LNC221/SN
+	LNC221/CN
+File: Atoms
+
+    Errors
+UTF Counts:
+
+	Min/Max saids: <120567600, 120748957>
+End of Atoms check
+#=================
+
+
+File: Attribute	Field: SrcAttrId <1>
+    Field Stats:<recs, min, max, avg, NF> = <915395, 1, 6, 5.879, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+
+File: Attribute	Field: Id <2>
+    Field Stats:<recs, min, max, avg, NF> = <915395, 0, 10, 8.959, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 13, 0, 0, 0, 0, 0>
+    Errors
+	**** Vmin_911013_2 => 
+	**** Vmin_911014_2 => 
+	**** Vmin_911015_2 => 
+	**** Vmin_911016_2 => 
+	**** Vmin_911017_2 => 
+	**** Vmin_911018_2 => 
+	**** Vmin_911019_2 => 
+	**** Vmin_911020_2 => 
+	**** Vmin_911021_2 => 
+	**** Vmin_911022_2 => 
+	**** VnullFlds_911013_2 => 
+
+File: Attribute	Field: AttrLevel <3>
+    Field Stats:<recs, min, max, avg, NF> = <915395, 1, 1, 1.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+
+File: Attribute	Field: Name <4>
+    Field Stats:<recs, min, max, avg, NF> = <915395, 3, 21, 7.505, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	CONTEXT => 48782
+	COPYRIGHT => 887
+	DEFINITION => 882
+	FROMRSAB => 1
+	FROMVSAB => 1
+	HL7_FIELD_SUBFIELD => 5
+	LAC => 507
+	LAL => 14
+	LCA => 52399
+	LCB => 31
+	LCC => 938
+	LCD => 830
+	LCI => 4115
+	LCL => 48600
+	LCN => 48600
+	LCR => 33078
+	LCS => 1325
+	LCT => 47990
+	LDE => 280
+	LEA => 2320
+	LEC => 4030
+	LFO => 240
+	LGC => 1351
+	LIC => 1297
+	LIU => 2160
+	LLR => 48387
+	LMC => 274
+	LMM => 1881
+	LMP => 1122
+	LMT => 1458
+	LNC => 349
+	LNE => 79
+	LOINC_COMPONENT => 48600
+	LOINC_METHOD_TYP => 20869
+	LOINC_PROPERTY => 48576
+	LOINC_SCALE_TYP => 48574
+	LOINC_SYSTEM => 48577
+	LOINC_TIME_ASPECT => 48599
+	LOR => 41657
+	LPL => 56
+	LQS => 595
+	LQT => 84
+	LRF => 503
+	LRN => 16460
+	LRN2 => 43146
+	LSC => 61
+	LSP => 262
+	LSR => 48600
+	LUN => 9661
+	LUR => 35110
+	MAPSETRSAB => 1
+	MAPSETTYPE => 1
+	MAPSETVERSION => 1
+	MAPSETVSAB => 1
+	MTH_MAPFROMCOMPLEXITY => 1
+	MTH_MAPFROMEXHAUSTIVE => 1
+	MTH_MAPSETCOMPLEXITY => 1
+	MTH_MAPTOCOMPLEXITY => 1
+	MTH_MAPTOEXHAUSTIVE => 1
+	SEMANTIC_TYPE => 77121
+	SOS => 19690
+	TORSAB => 1
+	TOVSAB => 1
+	XMAP => 2018
+	XMAPFROM => 2018
+	XMAPTO => 334
+
+
+File: Attribute	Field: Value <5>
+    Field Stats:<recs, min, max, avg, NF> = <915395, 1, 4204, 26.985, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <48782, 0, 0, 0, 0, 0, 0>
+    Errors
+
+File: Attribute	Field: Source <6>
+    Field Stats:<recs, min, max, avg, NF> = <915395, 3, 20, 6.286, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	E-LNC221 => 76237
+	E-LNC_MDS20_221 => 711
+	E-LNC_OASIS_2002_221 => 155
+	E-LNC_PHQ_9_1999_221 => 14
+	LNC221 => 825734
+	LNC_MDS20_221 => 10022
+	LNC_OASIS_2002_221 => 2281
+	LNC_PHQ_9_1999_221 => 237
+	SRC => 4
+
+
+File: Attribute	Field: Status <7>
+    Field Stats:<recs, min, max, avg, NF> = <915395, 1, 1, 1.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	N => 94540
+	R => 820855
+
+
+File: Attribute	Field: ToBeReleased <8>
+    Field Stats:<recs, min, max, avg, NF> = <915395, 1, 1, 1.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	Y => 848308
+	n => 67087
+
+
+File: Attribute	Field: Released <9>
+    Field Stats:<recs, min, max, avg, NF> = <915395, 1, 1, 1.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	N => 915395
+
+
+File: Attribute	Field: Suppressible <10>
+    Field Stats:<recs, min, max, avg, NF> = <915395, 1, 1, 1.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	N => 915395
+
+
+File: Attribute	Field: IdType <11>
+    Field Stats:<recs, min, max, avg, NF> = <915395, 11, 14, 11.079, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	CODE_TERMGROUP => 24172
+	SRC_ATOM_ID => 891223
+
+
+File: Attribute	Field: IdQualifier <12>
+    Field Stats:<recs, min, max, avg, NF> = <915395, 0, 10, 0.259, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	 => 891223
+	LNC221/LPN => 19789
+	LNC221/XM => 4383
+
+
+File: Attribute	Field: ATUI <13>
+    Field Stats:<recs, min, max, avg, NF> = <915395, 0, 0, 0.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+
+File: Attribute	Field: HashCode <14>
+    Field Stats:<recs, min, max, avg, NF> = <915395, 32, 32, 32.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+File: Attributes
+
+    Errors:
+End of Attributes check
+=======================
+
+
+File: Relation	Field: SrcRelId <1>
+    Field Stats:<recs, min, max, avg, NF> = <562319, 1, 6, 5.802, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+
+File: Relation	Field: RelLevel <2>
+    Field Stats:<recs, min, max, avg, NF> = <562319, 1, 1, 1.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	S => 562319
+
+
+File: Relation	Field: Id1 <3>
+    Field Stats:<recs, min, max, avg, NF> = <562319, 3, 20, 7.533, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+
+File: Relation	Field: RelName <4>
+    Field Stats:<recs, min, max, avg, NF> = <562319, 2, 7, 2.848, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	BT => 4
+	RT => 466104
+	RT? => 1122
+	SFO/LFO => 95089
+
+
+File: Relation	Field: RelAttr <5>
+    Field Stats:<recs, min, max, avg, NF> = <562319, 9, 17, 12.403, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	analyzed_by => 45522
+	associated_with => 921
+	expanded_form_of => 54391
+	has_adjustment => 90
+	has_challenge => 11052
+	has_component => 97400
+	has_divisor => 2489
+	has_evaluation => 1664
+	has_expanded_form => 40698
+	has_method => 24399
+	has_property => 48015
+	has_scale => 48371
+	has_suffix => 23329
+	has_supersystem => 3665
+	has_system => 64829
+	has_time_aspect => 48339
+	has_time_modifier => 4
+	has_version => 4
+	mapped_from => 1122
+	measured_by => 46015
+
+
+File: Relation	Field: Id2 <6>
+    Field Stats:<recs, min, max, avg, NF> = <562319, 5, 11, 7.283, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+
+File: Relation	Field: Source <7>
+    Field Stats:<recs, min, max, avg, NF> = <562319, 3, 18, 6.025, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	LNC221 => 560524
+	LNC_MDS20_221 => 1444
+	LNC_OASIS_2002_221 => 317
+	LNC_PHQ_9_1999_221 => 30
+	SRC => 4
+
+
+File: Relation	Field: SourceOfLabel <8>
+    Field Stats:<recs, min, max, avg, NF> = <562319, 3, 18, 6.025, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	LNC221 => 560524
+	LNC_MDS20_221 => 1444
+	LNC_OASIS_2002_221 => 317
+	LNC_PHQ_9_1999_221 => 30
+	SRC => 4
+
+
+File: Relation	Field: Status <9>
+    Field Stats:<recs, min, max, avg, NF> = <562319, 1, 1, 1.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	R => 562319
+
+
+File: Relation	Field: ToBeReleased <10>
+    Field Stats:<recs, min, max, avg, NF> = <562319, 1, 1, 1.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	Y => 562319
+
+
+File: Relation	Field: Released <11>
+    Field Stats:<recs, min, max, avg, NF> = <562319, 1, 1, 1.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	N => 562319
+
+
+File: Relation	Field: Suppressible <12>
+    Field Stats:<recs, min, max, avg, NF> = <562319, 1, 1, 1.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	N => 562319
+
+
+File: Relation	Field: IdType1 <13>
+    Field Stats:<recs, min, max, avg, NF> = <562319, 11, 14, 12.985, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	CODE_TERMGROUP => 371986
+	SRC_ATOM_ID => 190333
+
+
+File: Relation	Field: IdQaulifier1 <14>
+    Field Stats:<recs, min, max, avg, NF> = <562319, 0, 21, 6.004, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 371986, 0, 0, 0>
+    Errors
+	**** VvalPat_190338_14 => LNC221/LN
+	**** VvalPat_190339_14 => LNC221/LN
+	**** VvalPat_190340_14 => LNC221/LN
+	**** VvalPat_190341_14 => LNC221/LN
+	**** VvalPat_190342_14 => LNC221/LN
+	**** VvalPat_190343_14 => LNC221/LN
+	**** VvalPat_1_14 => SRC/VPT
+	**** VvalPat_2_14 => SRC/VPT
+	**** VvalPat_3_14 => SRC/VPT
+	**** VvalPat_4_14 => SRC/VPT
+    Tally Field:
+	 => 190333
+	LNC221/LN => 358717
+	LNC221/LO => 9798
+	LNC_MDS20_221/LN => 2674
+	LNC_OASIS_2002_221/LN => 726
+	LNC_PHQ_9_1999_221/LN => 62
+	LNC_PHQ_9_1999_221/LO => 5
+	SRC/VPT => 4
+
+
+File: Relation	Field: IdType2 <15>
+    Field Stats:<recs, min, max, avg, NF> = <562319, 11, 14, 12.985, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	CODE_TERMGROUP => 371986
+	SRC_ATOM_ID => 190333
+
+
+File: Relation	Field: IdQaulifier2 <16>
+    Field Stats:<recs, min, max, avg, NF> = <562319, 0, 10, 6.615, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	 => 190333
+	LNC221/LPN => 371982
+	SRC/RPT => 4
+
+
+File: Relation	Field: SourceRui <17>
+    Field Stats:<recs, min, max, avg, NF> = <562319, 0, 0, 0.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+
+File: Relation	Field: RelGroup <18>
+    Field Stats:<recs, min, max, avg, NF> = <562319, 0, 0, 0.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+File: Relations
+
+    Errors:
+End of Relationships check
+==========================
+
+
+File: Merge	Field: Id1 <1>
+    Field Stats:<recs, min, max, avg, NF> = <95702, 7, 9, 8.998, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+
+File: Merge	Field: MergeLevel <2>
+    Field Stats:<recs, min, max, avg, NF> = <95702, 2, 2, 2.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	SY => 95702
+
+
+File: Merge	Field: Id2 <3>
+    Field Stats:<recs, min, max, avg, NF> = <95702, 7, 9, 8.998, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+
+File: Merge	Field: Source <4>
+    Field Stats:<recs, min, max, avg, NF> = <95702, 3, 18, 6.073, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	LNC221 => 94818
+	LNC_MDS20_221 => 711
+	LNC_OASIS_2002_221 => 155
+	LNC_PHQ_9_1999_221 => 14
+	SRC => 4
+
+
+File: Merge	Field: IntegrityVector <5>
+    Field Stats:<recs, min, max, avg, NF> = <95702, 0, 0, 0.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+
+File: Merge	Field: MakeDemotion <6>
+    Field Stats:<recs, min, max, avg, NF> = <95702, 1, 1, 1.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	N => 95599
+	Y => 103
+
+
+File: Merge	Field: ChangeStatus <7>
+    Field Stats:<recs, min, max, avg, NF> = <95702, 1, 1, 1.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	N => 95702
+
+
+File: Merge	Field: MergeSet <8>
+    Field Stats:<recs, min, max, avg, NF> = <95702, 6, 13, 6.000, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	LNC-EX => 46776
+	LNC-SRC => 1
+	LNC-SY => 48922
+	LNC_MDS-SRC => 1
+	LNC_OASIS-SRC => 1
+	LNC_PHQ_9-SRC => 1
+
+
+File: Merge	Field: IdType1 <9>
+    Field Stats:<recs, min, max, avg, NF> = <95702, 11, 14, 11.003, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	CODE_TERMGROUP => 103
+	SRC_ATOM_ID => 95599
+
+
+File: Merge	Field: IdQual1 <10>
+    Field Stats:<recs, min, max, avg, NF> = <95702, 0, 10, 0.011, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	 => 95599
+	LNC221/LPN => 103
+
+
+File: Merge	Field: IdType2 <11>
+    Field Stats:<recs, min, max, avg, NF> = <95702, 11, 14, 11.003, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	CODE_TERMGROUP => 103
+	SRC_ATOM_ID => 95599
+
+
+File: Merge	Field: IdQual2 <12>
+    Field Stats:<recs, min, max, avg, NF> = <95702, 0, 11, 0.012, 0>
+    Violations: <WS,Min,Max,valP,invP,NF, Unq> = <0, 0, 0, 0, 0, 0, 0>
+    Errors
+    Tally Field:
+	 => 95599
+	LNC221/LPDN => 103
+
+File: Merges
+
+    Errors:
+End of Merges check
+==========================
+

@@ -1,0 +1,528 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf8">
+  <title>MEME Boot Camp Schedule - &lt;session name here&gt;</title>
+</head>
+<body style="background-color: rgb(255, 255, 255); color: rgb(0, 0, 0);"
+ alink="#ff0000" link="#3333ff" vlink="#999999">
+<center>
+<h2>The Current RxNorm Inversion Proposal<br>
+</h2>
+</center>
+<hr width="100%">
+<blockquote> <b style=""><span
+ style="font-size: 14pt; font-family: &quot;Courier New&quot;;"></span></b><b
+ style=""><span style="font-size: 14pt; font-family: &quot;Courier New&quot;;"></span></b><b
+ style=""><span style="font-size: 14pt; font-family: &quot;Courier New&quot;;">Source
+inversion proposal for RXNORM_06AA_060120F<br>
+  <br>
+I.&nbsp; General<br>
+  <br>
+A.&nbsp; Outstanding issues<br>
+  <br>
+B.&nbsp; New/changed since last inversion.<br>
+  <br>
+Starting with this inversion, all updated sources (RXNORM and NDDF,
+this time) will be inverted together in one set of *.src files rather
+than having separate sets of *.src files for each source.<br>
+  <br>
+C.&nbsp; Estimate of new/changed concepts<br>
+  <br>
+This release has 362 more RXNORM concepts and 205 more NDDF concepts
+than the previous versions.<br>
+  <br>
+D.&nbsp; Notes for insertion<br>
+  <br>
+  <br>
+II.&nbsp; Format of input files:<br>
+  <br>
+A.&nbsp; Pointer to source documentation<br>
+  <br>
+Documentation: README_Full_01202006.txt<br>
+  <br>
+B.&nbsp; File format:<br>
+  <br>
+The file format is the Metathesaurus RRF format.<br>
+  <br>
+III.&nbsp; Inversion plan:<br>
+  <br>
+A.&nbsp; General notes/comments<br>
+  <br>
+Three sources were updated this time: RXNORM, NDDF and SNOMEDCT.
+However, the updated version of SNOMEDCT is already included in the
+Metathesaurus, so only RXNORM and NDDF were fully inverted as "updated
+sources".&nbsp; However, the attributes RXNORM attaches to other
+sources, including SNOMEDCT, are inverted.<br>
+  <br>
+B.&nbsp; Mapping of source data:<br>
+  <br>
+For each field/piece of data in the source files, explain where it will<br>
+end up in the inversion.&nbsp;&nbsp; Note any data that is being
+ignored.<br>
+  <br>
+RXNATOMARCHIVE.RRF: ignored<br>
+  <br>
+RXNCONSO.RRF:<br>
+&nbsp;&nbsp;&nbsp; All atoms from updated sources are inverted except
+for SNOMEDCT, for<br>
+&nbsp;&nbsp;&nbsp; which the current version (2005_07_31) is already in
+the Metathesaurus<br>
+&nbsp;CUI: inverted as ATN=RXCUI for all sources<br>
+&nbsp;LAT: ignored - currently always ENG<br>
+&nbsp;TS: ignored<br>
+&nbsp;LUI: ignored - currently always blank<br>
+&nbsp;STT: ignored<br>
+&nbsp;SUI: ignored - currently always blank<br>
+&nbsp;ISPREF: ignored<br>
+&nbsp;AUI: inverted as ATN=RXAUI for all sources<br>
+&nbsp;SAUI: used as source_aui (currently blank for non-RXNORM sources)<br>
+&nbsp;SCUI: used as source_cui (currently blank for non-RXNORM sources)<br>
+&nbsp;SDUI: used as source_dui (currently blank for all sources)<br>
+&nbsp;SAB: used as atom's source after mapping to RXNSAB.VSAB<br>
+&nbsp;TTY: used as termgroup<br>
+&nbsp;CODE: used as code<br>
+&nbsp;STR: used (with multiple/leading/trailing blanks removed) as
+atom_name<br>
+&nbsp;SRL: ignored - currently always blank<br>
+&nbsp;SUPPRESS: used as suppressible flag after mapping blank to "N"<br>
+&nbsp;CVF: ignored - currently always blank<br>
+  <br>
+RXNDOC.RRF: EXPL giving expanded_form of new ATNs copied to MRDOC.RRF<br>
+  <br>
+RXNREL.RRF:<br>
+&nbsp;&nbsp;&nbsp; Relationships whose SAB is an updated source (other
+than SNOMEDCT) are<br>
+&nbsp;&nbsp;&nbsp; inverted<br>
+&nbsp;CUI1: used as id_1 where STYPE1="CUI"<br>
+&nbsp;AUI1: used as id_1 where STYPE1="AUI"<br>
+&nbsp;REL: used as relationship_name<br>
+&nbsp;CUI2: used as id_2 where STYPE1="CUI"<br>
+&nbsp;AUI2: used as id_2 where STYPE1="AUI"<br>
+&nbsp;RELA: used as relationship_attribute<br>
+&nbsp;RUI: ignored - currently always blank<br>
+&nbsp;SRUI: used as source_rui (currently always blank)<br>
+&nbsp;SAB: used as both relationship source and source_of_label<br>
+&nbsp;SL: ignored - currently always blank<br>
+&nbsp;RG: ignored - currently always blank<br>
+&nbsp;DIR: ignored - currently always blank<br>
+&nbsp;SUPPRESS: used as suppressible flag after mapping blank to "N"<br>
+&nbsp;CVF: ignored - currently always blank<br>
+  <br>
+RXNSAB.RRF:<br>
+&nbsp;VCUI: ignored<br>
+&nbsp;RCUI: ignored<br>
+&nbsp;VSAB: used as VSAB for updated sources<br>
+&nbsp;RSAB: matched to RXNCONSO.SAB to find VSAB<br>
+&nbsp;SON: used as official_name<br>
+&nbsp;SF: used as source_family<br>
+&nbsp;SVER: ignored (instead, version is taken from the part of VSAB
+after "RXNORM_")<br>
+&nbsp;VSTART: ignored<br>
+&nbsp;VEND: ignored<br>
+&nbsp;IMETA: ignored<br>
+&nbsp;RMETA: ignored<br>
+&nbsp;SLC: used as license_contact<br>
+&nbsp;SCC: used as content_contact<br>
+&nbsp;SRL: used as restriction_level<br>
+&nbsp;TFR: ignored<br>
+&nbsp;CFR: ignored<br>
+&nbsp;CXTY: used as context_type<br>
+&nbsp;TTYL: ignored<br>
+&nbsp;ATNL: ignored<br>
+&nbsp;LAT: used as language<br>
+&nbsp;CENC: used as character_set<br>
+&nbsp;CURVER: ignored<br>
+&nbsp;SABIN: ignored<br>
+&nbsp;SSN: ignored<br>
+&nbsp;SCIT: used as citation<br>
+  <br>
+RXNSAT.RRF:<br>
+&nbsp;&nbsp;&nbsp; Attributes whose SAB is an updated source (other
+than SNOMEDCT) are<br>
+&nbsp;&nbsp;&nbsp; inverted.&nbsp; Attributes are attached in three
+ways, depending on the<br>
+&nbsp;&nbsp;&nbsp; source of the atom they're attached to.&nbsp; For
+RXNORM atoms, they're<br>
+&nbsp;&nbsp;&nbsp; attached to the RXAUI (ROOT_SOURCE_AUI|RXNORM); for
+other updated<br>
+&nbsp;&nbsp;&nbsp; sources whose atoms are inverted in
+classes_atoms.src, they're<br>
+&nbsp;&nbsp;&nbsp; attached to the SOURCE_ATOM_ID; and for other,
+non-updated sources,<br>
+&nbsp;&nbsp;&nbsp; they're attached to the UMLS AUI.<br>
+  <br>
+RXNSTY.RRF:<br>
+&nbsp;&nbsp;&nbsp; All STYs are inverted with source=RXNORM and
+attached the same three<br>
+&nbsp;&nbsp;&nbsp; ways as the attributes in RXNSAT.<br>
+  <br>
+C.&nbsp; META UI fields:<br>
+  <br>
+Indicate what source data (if any) is being used to populate the
+following fields:<br>
+  <br>
+CODE: RXNCONSO.CODE<br>
+SAUI: RXNCONSO.RXAUI for RXNORM atoms, RXNCONSO.SAUI for other sources<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (but for other sources, SAUI is
+currently always blank)<br>
+SCUI: RXNCONSO.RXCUI for RXNORM atoms, RXNCONSO.SCUI for other sources<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (but for other sources, SCUI is
+currently always blank)<br>
+SDUI: RXNCONSO.SDUI (currently always blank)<br>
+  <br>
+D.&nbsp; Additional data added during Meta construction<br>
+  <br>
+1.&nbsp; Semantic types.&nbsp; Document how defaults are assigned<br>
+  <br>
+No STYs were added.<br>
+  <br>
+2....&nbsp; Other stuff, e.g. SFO/LFO rels, suppressibility,
+Americanizations, stripping of UTF-8, etc.<br>
+  <br>
+Suppressibility is now taken directly from the SUPPRESS field of
+RXNCONSO.RRF (after translating blank to "N") rather than being mapped
+based on TTY, setting RXNORM/OBD and RXNORM/OCD to "O" and other TTYs
+to "N".<br>
+  <br>
+IV.&nbsp; Data problems<br>
+  <br>
+Describe any problems you have encountered with the data or
+documentation. If the list is very long, you can just make this a
+pointer to a separate file.<br>
+  <br>
+It would be nice if "N" was used instead of blank in the
+RXNCONSO.SUPPRESS field.<br>
+  <br>
+V.&nbsp; SRC and Metadata:<br>
+  <br>
+&nbsp; ------ SRC Atoms ------<br>
+Termgroup&nbsp;&nbsp;&nbsp;
+SRC/VPT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <br>
+Code&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+V-NDDF_2005_12_28&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <br>
+Term&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; National Drug Data
+File Plus Source Vocabulary, December 2005, 2005_12_28<br>
+------------------------------------------------------------<br>
+Termgroup&nbsp;&nbsp;&nbsp;
+SRC/VAB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <br>
+Code&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+V-NDDF_2005_12_28&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <br>
+Term&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+NDDF_2005_12_28&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <br>
+------------------------------------------------------------<br>
+Termgroup&nbsp;&nbsp;&nbsp;
+SRC/VSY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <br>
+Code&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+V-NDDF_2005_12_28&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <br>
+Term&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; National Drug Data
+File Plus,
+2005_12_28&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <br>
+------------------------------------------------------------<br>
+Termgroup&nbsp;&nbsp;&nbsp;
+SRC/VSY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <br>
+Code&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+V-NDDF_2005_12_28&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <br>
+Term&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; NDDF,
+2005_12_28&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <br>
+------------------------------------------------------------<br>
+Termgroup&nbsp;&nbsp;&nbsp;
+SRC/VPT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <br>
+Code&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+V-RXNORM_06AA_060120F&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <br>
+Term&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; RXNORM Project,
+META2006AA Full Update 2006_01_20, 06AA_060120F<br>
+------------------------------------------------------------<br>
+Termgroup&nbsp;&nbsp;&nbsp;
+SRC/VAB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <br>
+Code&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+V-RXNORM_06AA_060120F&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <br>
+Term&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+RXNORM_06AA_060120F&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <br>
+------------------------------------------------------------<br>
+------------------------------------------------------------<br>
+  <br>
+&nbsp; ------ sources.src -------<br>
+Field
+Name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Field No.&nbsp;&nbsp;&nbsp;&nbsp; Length&nbsp;&nbsp; Size Limit<br>
+------------------------------------------------------------<br>
+================== NDDF_2005_12_28 ==============================<br>
+Field
+Name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Field No.&nbsp;&nbsp;&nbsp;&nbsp; Length&nbsp;&nbsp; Size Limit<br>
+------------------------------------------------------------<br>
+Source
+Name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+15&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 20<br>
+NDDF_2005_12_28<br>
+  <br>
+Low
+Source&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+15&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 20<br>
+NDDF_2005_10_19<br>
+  <br>
+Restriction
+Level&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 12<br>
+3<br>
+  <br>
+Normalized
+Source&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+15&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 20<br>
+NDDF_2005_12_28<br>
+  <br>
+Stripped
+Source&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 20<br>
+NDDF<br>
+  <br>
+Version&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+6&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+10&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 20<br>
+2005_12_28<br>
+  <br>
+Source
+Family&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+7&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 20<br>
+NDDF<br>
+  <br>
+Official
+Name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+8&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+61&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1200<br>
+National Drug Data File Plus Source Vocabulary, December 2005<br>
+  <br>
+NLM
+contact&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+9&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+15&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 100<br>
+wth@nlm.nih.gov<br>
+  <br>
+Acquisition
+Contact&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+10&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1000<br>
+&nbsp;- BLANK -<br>
+  <br>
+Content
+Contact&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+11&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+123&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1000<br>
+First DataBank Customer Support, 1111 Bayhill Drive, San Bruno, CA
+94066; phone: 800-633-3453; e-mail: cs@firstdatabank.com<br>
+  <br>
+License
+Contact&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+12&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+123&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1000<br>
+First DataBank Customer Support, 1111 Bayhill Drive, San Bruno, CA
+94066; phone: 800-633-3453; e-mail: cs@firstdatabank.com<br>
+  <br>
+Inverter&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+13&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+16&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 100<br>
+olson@apelon.com<br>
+  <br>
+Context
+Type&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+14&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 100<br>
+&nbsp;- BLANK -<br>
+  <br>
+URL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+15&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 4000<br>
+&nbsp;- BLANK -<br>
+  <br>
+Language&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+16&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 10<br>
+ENG<br>
+  <br>
+Citation&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+17&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+102&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 4000<br>
+National Drug Data File Plus Source Vocabulary 2005. San Bruno, CA:
+First DataBank, December 28, 2005.<br>
+  <br>
+License
+Info&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+18&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 4000<br>
+&nbsp;- BLANK -<br>
+  <br>
+Char
+Set&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+19&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 50<br>
+UTF-8<br>
+  <br>
+Rel Direction
+Flag&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+20&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1<br>
+&nbsp;- BLANK -<br>
+  <br>
+================== RXNORM_06AA_060120F ==============================<br>
+Field
+Name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Field No.&nbsp;&nbsp;&nbsp;&nbsp; Length&nbsp;&nbsp; Size Limit<br>
+------------------------------------------------------------<br>
+Source
+Name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+19&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 20<br>
+RXNORM_06AA_060120F<br>
+  <br>
+Low
+Source&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+13&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 20<br>
+RXNORM_2006AA<br>
+  <br>
+Restriction
+Level&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 12<br>
+0<br>
+  <br>
+Normalized
+Source&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+19&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 20<br>
+RXNORM_06AA_060120F<br>
+  <br>
+Stripped
+Source&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+6&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 20<br>
+RXNORM<br>
+  <br>
+Version&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+6&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+12&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 20<br>
+06AA_060120F<br>
+  <br>
+Source
+Family&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+7&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+6&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 20<br>
+RXNORM<br>
+  <br>
+Official
+Name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+8&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+49&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1200<br>
+RXNORM Project, META2006AA Full Update 2006_01_20<br>
+  <br>
+NLM
+contact&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+9&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 100<br>
+&nbsp;- BLANK -<br>
+  <br>
+Acquisition
+Contact&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+10&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1000<br>
+&nbsp;- BLANK -<br>
+  <br>
+Content
+Contact&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+11&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+67&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1000<br>
+Stuart Nelson, M.D., Head, MeSH Section; e-mail: nelson@nlm.nih.gov<br>
+  <br>
+License
+Contact&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+12&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+67&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1000<br>
+Stuart Nelson, M.D., Head, MeSH Section; e-mail: nelson@nlm.nih.gov<br>
+  <br>
+Inverter&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+13&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+16&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 100<br>
+olson@apelon.com<br>
+  <br>
+Context
+Type&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+14&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 100<br>
+&nbsp;- BLANK -<br>
+  <br>
+URL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+15&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 4000<br>
+&nbsp;- BLANK -<br>
+  <br>
+Language&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+16&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 10<br>
+ENG<br>
+  <br>
+Citation&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+17&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+139&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 4000<br>
+RxNorm work done by NLM. National Library of Medicine (NLM). Bethesda
+(MD): National Library of Medicine, META2006AA Full Update 2006_01_20<br>
+  <br>
+License
+Info&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+18&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 4000<br>
+&nbsp;- BLANK -<br>
+  <br>
+Char
+Set&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+19&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 50<br>
+UTF-8<br>
+  <br>
+Rel Direction
+Flag&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+20&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1<br>
+&nbsp;- BLANK -<br>
+  </span></b><b style=""><span
+ style="font-size: 14pt; font-family: &quot;Courier New&quot;;"><br>
+  </span></b></blockquote>
+<hr width="100%">
+<table border="0" cols="2" width="100%">
+  <tbody>
+    <tr>
+      <td style="font-style: italic;" align="left" valign="top"><a
+ href="boot_camp_schedule.html">MEME Boot Camp Schedule</a></td>
+      <td align="right" valign="top">
+      <address> <font size="-1"> Contact: David D. Sherertz </font> </address>
+      <address><font size="-1">Created: 02/17/2006</font></address>
+      <address><font size="-1">Last Updated: 02/21/2006</font></address>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<!-- These comments are used by the What's new Generator --><!-- Changed On: 2006/02/02 --><!-- Changed by: Brian Carlsen --><!-- Change Note: MEME - Category - Topic --><!-- Fresh for: 1 month -->
+</body>
+</html>

@@ -1,0 +1,162 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"><html><head><title>MEME Boot Camp: MRD_HOME Code Hierarchy</title>
+  
+
+  
+
+  
+
+  
+  
+  
+  
+  <script language="JavaScript">
+    <!--
+
+	function newImage(arg) {
+	  if (document.images) {
+	    rslt = new Image();
+	    rslt.src = arg;
+	    return rslt;
+	  }
+	}
+
+	function changeImages() {
+	  if (document.images && (preloadFlag == true)) {
+	    for (var i=0; i<changeImages.arguments.length; i+=2) {
+	      document[changeImages.arguments[i]].src = changeImages.arguments[i+1];
+	    }
+	  }
+	}
+
+	var preloadFlag = false;
+	function preloadImages() {
+	  if (document.images) {
+	    inversion_sims_over = newImage("images/inversion-sims_over.gif");
+	    inversion_srcqa_over = newImage("images/inversion-srcqa_over.gif");
+	    inversion_inversion_over = newImage("images/inversion-inversion_over.gif");
+	    inversion_src_over = newImage("images/inversion-src_over.gif");
+	    inversion_contexts_over = newImage("images/inversion-contexts_over.gif");
+	    inversion_raw3_over = newImage("images/inversion-raw3_over.gif");
+	    preloadFlag = true;
+	  }
+	}
+
+	// -->
+  </script></head><body style="background-color: rgb(255, 255, 255);" onload="preloadImages();">
+
+<h2 align="center">MRD_HOME Code Hierarchy<br>
+</h2>
+<hr><blockquote><span style="font-weight: bold;"><a name="code"></a>Code Hierarchy<br>
+  <br>
+</span>Following is a brief description of $MRD_HOME and associated important code locations:<br>
+  <br>
+  <table nosave="" border="1" style="width: 100%;">
+<tbody><tr><th style="vertical-align: top; background-color: rgb(255, 255, 204);">Location<br>
+        </th>
+        <th style="vertical-align: top; background-color: rgb(255, 255, 204);">Description<br>
+        </th>
+      </tr>
+<tr><td style="vertical-align: top;">$MRD_HOME</td>
+            <td>This is the base directory for the MRD
+system.</td>
+          </tr>
+          <tr>
+            <td style="vertical-align: top;">$MRD_HOME/bin</td>
+            <td>Useful
+executables for starting/stopping the server as well as managing some
+release processes.&nbsp; Also the location of the server properties
+file.<br>
+        <br>
+Note: some of these scripts are ONLY called by MRD server components via java Runtime.exec() methods.<br>
+</td>
+          </tr>
+          <tr>
+        <td style="vertical-align: top;">$MRD_HOME/cgi-bin<br>
+        </td>
+        <td style="vertical-align: top;">CGI applications and log directories used by CGI applications<br>
+        </td>
+      </tr>
+<tr>
+            <td style="vertical-align: top;">$MRD_HOME/doc</td>
+            <td>Local javadoc and tables documentation<br>
+</td>
+          </tr>
+          <tr>
+            <td style="vertical-align: top;">$MRD_HOME/log</td>
+            <td>Location for logs.</td>
+          </tr>
+          <tr>
+            <td style="vertical-align: top;">$MRD_HOME/java</td>
+            <td>Contains the class files (in a .jar) and the source files expanded in the subdirectories. A <span style="font-family: monospace;">lvgapi.jar</span> file should be linked to the current&nbsp; <span style="font-family: monospace;">/site/package/lvg/current/lib/lvg*api.jar</span> file<br>
+</td>
+          </tr>
+          
+          <tr>
+            <td style="vertical-align: top;">$MRD_HOME/qa</td>
+            <td>QA scripts (for validation)<br>
+</td>
+          </tr>
+          <tr>
+            <td style="vertical-align: top;">$MRD_HOME/sql</td>
+            <td>Schema scripts for tables, indexes, and PL/SQL packages</td>
+          </tr>
+          
+          <tr nosave="">
+            <td nosave="" style="vertical-align: top;">$MRD_HOME/webapps-mrd</td>
+            <td>Web applications<br>
+</td>
+          </tr>
+          <tr nosave="">
+            <td nosave="" style="vertical-align: top;">/site/package/lvg/current</td>
+            <td>Location of current LVG version.</td></tr><tr nosave=""><td nosave="" style="vertical-align: top;">/etc/umls/oracle.passwd</td>
+            <td>Oracle password file (used for default connections)<br>
+</td></tr><tr>
+        <td style="vertical-align: top;">/etc/umls/mid-services<br>
+        </td>
+        <td style="vertical-align: top;">MID Services file</td></tr></tbody>
+  </table>
+<ul></ul>
+
+
+  <p>
+  </p>
+
+
+
+  </blockquote><hr width="100%">
+<div align="center"><br></div>
+
+
+
+
+<table nosave="" border="0" cols="2" width="100%">
+
+
+
+   <tbody>
+      <tr nosave="">
+   <td nosave="" align="left" valign="top">
+      <address> <a href="/Transition/"><br>
+</a></address>
+   </td>
+    <td nosave="" align="right" valign="top">
+      <address> <font size="-1">Contact:
+  <a href="mailto:bcarlsen@apelon.com">Brian A. Carlsen</a></font></address>
+
+      <address> <font size="-1">Created: 10/27/2003</font></address>
+
+      <address> <font size="-1">Last Updated: 03/22/2005</font></address>
+   </td>
+   </tr>
+
+  </tbody>
+</table>
+<!-- These comments are used by the What's new Generator --><!-- Changed On: 2005/03/22 --><!-- Changed by: Brian Carlsen --><!-- Change Note: MIDS - Metathesaurus Life Cycle: Inversion --><!-- Fresh for: 1 month -->
+
+
+
+
+
+
+
+</body></html>

@@ -1,0 +1,61 @@
+<HTML>
+<HEAD>
+<TITLE>LVG in MEME</TITLE>
+</HEAD>
+
+<BODY>
+
+<H1>LVG in the Metathesaurus</H1>
+
+The NLS group releases the LVG (Lexical Variant Generator) program
+suite with the UMLS.  LVG is part of the SPECIALIST system.
+The LVG release cycle is annual (around August) while the UMLS
+is released more frequently.
+
+<P>
+
+LVG's <EM>norm</EM> program is used to precompute index entries for
+English language strings and words in the Metathesaurus.  These are
+distributed in the MRXNS_ENG.RRF and MRXNW_ENG.RRF files respectively.
+The <EM>luiNorm</EM> program (a variant of norm), is used to compute
+the LUI class, i.e., strings that share a luiNorm form will be
+assigned the same LUI.  No guarantees are made regarding LUI
+maintenance, that is if a string has a certain LUI in one release of
+the Metathesaurus, it may or may not have the same LUI in other
+versions.
+
+<P>
+
+Obviously, the version of norm and luiNorm used to generate the index
+files must match the version distributed with the UMLS in the LEX
+directory.
+
+<H1>LVG in the Editing System</H1>
+
+The <EM>luiNorm</EM> program is used extensively in the Metathesaurus
+editing and maintenance system (MEME).  Many quality assurance queries
+in the database are lexical in nature and use luiNorm internally.
+Our editors also have access to luiNorm in their tools (Web, Jekyll, etc)
+to flexibly look for matching strings in the database.  In rare cases,
+new atoms are created at NLM and added to the database.  The normalized
+forms of these atoms are generated using LVG.
+
+<P>
+
+The tables in the MID that contain the normalized data are: normstr, normwrd
+and word_index (lowercased words).
+
+<H1>Tools</H1>
+
+Simple access to the LVG tools via the LVG server:
+
+<UL>
+<LI><A HREF="/cgi-bin/lvgcgi.pl?version=lvg2004">lvg2004</A>
+<LI><A HREF="/cgi-bin/lvgcgi.pl?version=lv_1.84h">lv_1.84h</A>
+</UL>
+
+<P><HR>
+<ADDRESS>
+</ADDRESS>
+</BODY>
+</HTML>

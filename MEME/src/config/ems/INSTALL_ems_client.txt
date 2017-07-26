@@ -1,0 +1,13 @@
+NSTALL
+-------
+1. Unzip dist_ems*zip into $MEME_HOME.
+2. The $ENV_FILE on the machine should have these variables correctly set.
+   EMS_HOME
+   WMS_HOME
+   MIDSVCS_HOME 
+   MIDSVCS_HOST
+   MIDSVCS_PORT
+
+UPDATE
+------
+Same as install
