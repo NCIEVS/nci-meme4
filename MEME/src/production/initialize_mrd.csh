@@ -21,12 +21,9 @@
 # tables that contain data to be kept (e.g. coc tables, release_history, etc)
 #
 # Changes
-# 08/31/2010 BAC (1-RDJQ1): added "Optimization" release handler
-# 05/25/2006 TTN (1-BACBH): remove the restrictions for coc_headings and coc_subheadings 
-#					 		to generate auxiliary data states
 # 05/03/2006 BAC (1-B2U36): Changed order of MRMAP in "registered_handlers" table.
 #
-set release="2"
+dset release="2"
 set version="0.1"
 set version_authority="BBAC"
 set version_date="04/22/2005"
@@ -84,7 +81,7 @@ endif
 #
 if ($#argv == 1) then
     set mrd_db = $1;
-    set user=`$MIDSVCS_HOME/bin/get-oracle-pwd.pl -d $mrd_db`
+    set user=`$MIDSVCS_HOME/bin/get-oracle-pwd.pl`
 else
    echo "Usage: initialize_mrd.csh <mrd_database>"
     exit 1
@@ -131,14 +128,13 @@ if ($status != 0) then
 endif
 /bin/rm -f meme_tables.{dat,log,ctl}
 
-
 #
 # truncate tables which should be empty for a new MRD but get used later. 
 # initialize MRD-only tables
 #
 $ORACLE_HOME/bin/sqlplus $user@$mrd_db <<EOF >! /tmp/t.$$.log
     WHENEVER SQLERROR EXIT -2
-    SET SERVEROUTPUT ON SIZE unlimited
+    SET SERVEROUTPUT ON SIZE 100000
 
     -- The following tables should always be empty in the MRD.
     TRUNCATE TABLE extraction_history;
@@ -229,17 +225,22 @@ $ORACLE_HOME/bin/sqlplus $user@$mrd_db <<EOF >! /tmp/t.$$.log
       (handler_name, process, type, row_sequence, 
        activated, dependencies, authority, timestamp) VALUES
     ('FullMRCOCReleaseHandler', 'RELEASE', 'Full', 12, 
-     'Y', 'MRCONSO,MRSAB,MRDOC,MRSAT', 'L-BAC', sysdate);  
+     'Y', 'MRCONSO,MRSAB,MRDOC,MRSAT', 'L-BAC', sysdate);
+    INSERT INTO registered_handlers 
+      (handler_name, process, type, row_sequence, 
+       activated, dependencies, authority, timestamp) VALUES
+    ('FullMRCXTReleaseHandler', 'RELEASE', 'Full', 13, 
+     'Y', 'MRCONSO,MRSAB,MRDOC', 'L-BAC', sysdate);
     INSERT INTO registered_handlers 
       (handler_name, process, type, row_sequence, 
        activated, dependencies, authority, timestamp) VALUES
     ('FullMRHIERReleaseHandler', 'RELEASE', 'Full', 14, 
-     'Y', 'MRCONSO,MRSAB,MRDOC', 'L-BAC', sysdate);
+     'Y', 'MRCONSO,MRSAB,MRDOC,MRCXT', 'L-BAC', sysdate);
     INSERT INTO registered_handlers 
       (handler_name, process, type, row_sequence, 
        activated, dependencies, authority, timestamp) VALUES
     ('FullMRRELReleaseHandler', 'RELEASE', 'Full', 15, 
-     'Y', 'MRCONSO,MRSAB,MRDOC', 'L-BAC', sysdate);
+     'Y', 'MRCONSO,MRSAB,MRDOC,MRCXT', 'L-BAC', sysdate);
     INSERT INTO registered_handlers 
       (handler_name, process, type, row_sequence, 
        activated, dependencies, authority, timestamp) VALUES
@@ -250,18 +251,16 @@ $ORACLE_HOME/bin/sqlplus $user@$mrd_db <<EOF >! /tmp/t.$$.log
        activated, dependencies, authority, timestamp) VALUES
     ('FullMRMAPReleaseHandler', 'RELEASE', 'Full', 17, 
      'Y', 'MRCONSO,MRSAB,MRDOC,MRSTY,MRSAT,MRREL', 'L-BAC', sysdate);
-
     INSERT INTO registered_handlers 
       (handler_name, process, type, row_sequence, 
        activated, dependencies, authority, timestamp) VALUES
-    ('FullMetaMorphoSysReleaseHandler', 'RELEASE', 'Full', 18, 
+    ('FullMRFILESCOLSReleaseHandler', 'RELEASE', 'Full', 18, 
      'Y', 'MRMAP,MRCUI,MRX,MRHIER', 'L-BAC', sysdate);
-     
-         INSERT INTO registered_handlers 
+    INSERT INTO registered_handlers 
       (handler_name, process, type, row_sequence, 
        activated, dependencies, authority, timestamp) VALUES
-    ('FullMRFILESCOLSReleaseHandler', 'RELEASE', 'Full', 19, 
-     'Y', 'MRMAP', 'L-BAC', sysdate);
+    ('FullMetaMorphoSysReleaseHandler', 'RELEASE', 'Full', 19, 
+     'Y', 'MRFILESCOLS', 'L-BAC', sysdate);
     INSERT INTO registered_handlers 
       (handler_name, process, type, row_sequence, 
        activated, dependencies, authority, timestamp) VALUES
@@ -272,16 +271,6 @@ $ORACLE_HOME/bin/sqlplus $user@$mrd_db <<EOF >! /tmp/t.$$.log
        activated, dependencies, authority, timestamp) VALUES
     ('FullDOCReleaseHandler', 'RELEASE', 'Full', 21, 
      'Y', 'ORF', 'L-BAC', sysdate);
-    INSERT INTO registered_handlers 
-      (handler_name, process, type, row_sequence, 
-       activated, dependencies, authority, timestamp) VALUES
-    ('FullActiveSubsetReleaseHandler', 'RELEASE', 'Full', 22, 
-     'N', 'ORF', 'L-BAC', sysdate);
-    INSERT INTO registered_handlers 
-      (handler_name, process, type, row_sequence, 
-       activated, dependencies, authority, timestamp) VALUES
-    ('FullOptimizationReleaseHandler', 'RELEASE', 'Full', 23, 
-     'N', 'ORF', 'L-BAC', sysdate);
 
 EOF
 if ($status != 0) then
@@ -296,7 +285,7 @@ endif
 echo "Reindex MRD ... `/bin/date`"
 $ORACLE_HOME/bin/sqlplus $user@$mrd_db <<EOF
     WHENEVER SQLERROR EXIT -2
-    SET SERVEROUTPUT ON SIZE unlimited
+    SET SERVEROUTPUT ON SIZE 100000
     ALTER SESSION SET sort_area_size=400000000;
     ALTER SESSION SET hash_area_size=400000000;
 
@@ -334,7 +323,7 @@ endif
 echo "Initialize mrd states ... `/bin/date`"
 $ORACLE_HOME/bin/sqlplus $user@$mrd_db <<EOF >! /tmp/t.$$.log
     WHENEVER SQLERROR EXIT -2
-    SET SERVEROUTPUT ON SIZE unlimited
+    SET SERVEROUTPUT ON SIZE 100000
     SET AUTOCOMMIT ON
     ALTER session SET sort_area_size=400000000;
     ALTER session SET hash_area_size=400000000;
@@ -382,7 +371,7 @@ endif
 echo "     Generate MRD_CONCEPTS states ... `/bin/date`"
 $ORACLE_HOME/bin/sqlplus $user@$mrd_db <<EOF >! /tmp/t.$$.log
     WHENEVER SQLERROR EXIT -2
-    SET SERVEROUTPUT ON SIZE unlimited
+    SET SERVEROUTPUT ON SIZE 100000
     SET AUTOCOMMIT ON
     ALTER session SET sort_area_size=400000000;
     ALTER session SET hash_area_size=400000000;
@@ -404,7 +393,7 @@ endif
 echo "     Generate MRD_classes states ... `/bin/date`"
 $ORACLE_HOME/bin/sqlplus $user@$mrd_db <<EOF >! /tmp/t.$$.log
     WHENEVER SQLERROR EXIT -2
-    SET SERVEROUTPUT ON SIZE unlimited
+    SET SERVEROUTPUT ON SIZE 100000
     SET AUTOCOMMIT ON
     ALTER session SET sort_area_size=400000000;
     ALTER session SET hash_area_size=400000000;
@@ -426,7 +415,7 @@ endif
 echo "     Generate MRD_relationships states ... `/bin/date`"
 $ORACLE_HOME/bin/sqlplus $user@$mrd_db <<EOF >! /tmp/t.$$.log
     WHENEVER SQLERROR EXIT -2
-    SET SERVEROUTPUT ON SIZE unlimited
+    SET SERVEROUTPUT ON SIZE 100000
     SET AUTOCOMMIT ON
     ALTER session SET sort_area_size=400000000;
     ALTER session SET hash_area_size=400000000;
@@ -448,7 +437,7 @@ endif
 echo "     Generate MRD_attributes states ... `/bin/date`"
 $ORACLE_HOME/bin/sqlplus $user@$mrd_db <<EOF >! /tmp/t.$$.log
     WHENEVER SQLERROR EXIT -2
-    SET SERVEROUTPUT ON SIZE unlimited
+    SET SERVEROUTPUT ON SIZE 100000
     SET AUTOCOMMIT ON
     ALTER session SET sort_area_size=400000000;
     ALTER session SET hash_area_size=400000000;
@@ -470,7 +459,7 @@ endif
 echo "     Generate auxiliary MRD states ... `/bin/date`"
 $ORACLE_HOME/bin/sqlplus $user@$mrd_db <<EOF >! /tmp/t.$$.log
     WHENEVER SQLERROR EXIT -2
-    SET SERVEROUTPUT ON SIZE unlimited
+    SET SERVEROUTPUT ON SIZE 100000
     SET AUTOCOMMIT ON
     ALTER session SET sort_area_size=400000000;
     ALTER session SET hash_area_size=400000000;
@@ -485,8 +474,10 @@ $ORACLE_HOME/bin/sqlplus $user@$mrd_db <<EOF >! /tmp/t.$$.log
             FETCH cur INTO cvar;
             EXIT WHEN cur%NOTFOUND;
                IF upper(cvar.table_name) != 'FOREIGN_CLASSES' AND
-                upper(cvar.table_name) not like '%COC%' THEN
-                DBMS_OUTPUT.PUT_LINE('Processing Table =' || cvar.table_name); 
+               upper(cvar.table_name) != 'COC_SUBHEADINGS' AND
+               upper(cvar.table_name) != 'SOURCE_COC_HEADINGS' AND
+               upper(cvar.table_name) != 'SOURCE_COC_SUBHEADINGS' AND
+               upper(cvar.table_name) != 'COC_HEADINGS' THEN
                 MRD_OPERATIONS.generate_auxiliary_data_states(
                     cvar.table_name);
             END IF;
@@ -508,18 +499,6 @@ if ($status != 0) then
     exit 1
 endif
 
-$ORACLE_HOME/bin/sqlplus $user@$mrd_db <<EOF >! /tmp/t.$$.log
-	WHENEVER SQLERROR EXIT -2
-	PURGE RECYCLEBIN
-	exec umlsdbstats.enable
-	COMMIT;
-
-EOF
-if ($status != 0) then
-    cat /tmp/t.$$.log
-    echo "Error initializing MRD Purging the recylebin ...`/bin/date`"
-    exit 1
-endif
 /bin/rm -f /tmp/t.$$.log
 
 echo "------------------------------------------------------------------------"

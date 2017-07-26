@@ -55,7 +55,7 @@ EOD
     $html .= $query->p;
     $html .= $query->hr;
 
-    $html .= $query->start_form(-method=>'POST', -action=>$query->url(-absolute=>1));
+    $html .= $query->start_form(-method=>'POST', -action=>$query->url());
     $html .= $DBpost;
     $html .= "Select a source (alphabetic order): ";
     $html .= $query->popup_menu({-name=>'source', -values=>\@alphavsabs, -labels=>\%labels});
@@ -67,7 +67,7 @@ EOD
     $html .= $query->p;
     $html .= "or," . $query->p . $query->hr;
 
-    $html .= $query->start_form(-method=>'POST', -action=>$query->url(-absolute=>1));
+    $html .= $query->start_form(-method=>'POST', -action=>$query->url());
     $html .= $DBpost;
     $html .= "Select a source (chronological order): ";
     $html .= $query->popup_menu({-name=>'source', -values=>\@timevsabs, -labels=>\%labels});

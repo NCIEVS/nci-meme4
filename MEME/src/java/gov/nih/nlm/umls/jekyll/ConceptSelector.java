@@ -1,8 +1,6 @@
 /*
  * ConceptSelector.java
  * Modified: Soma Lanka : 12/06/2005: Modified the method refresh concepts to fire the rows inserted. 
- * * Version Information
- * 03/06/2007 3.12.4 SL (1-DNO15) : Adding a new function find_concepts_by_ndc to retrieve the NDC Concepts
  */
 
 package gov.nih.nlm.umls.jekyll;
@@ -123,8 +121,6 @@ public class ConceptSelector extends JFrame implements Reportable,
     private final String ADD_BY_CODE = "add.by.code";
 
     private final String ADD_BY_CUI = "add.by.cui";
-    
-    private final String ADD_BY_NDC = "add.by.ndc";
 
     // Components
     private GlassComponent glass_comp = null;
@@ -148,14 +144,10 @@ public class ConceptSelector extends JFrame implements Reportable,
     private JTextField codeTF = null;
 
     private JTextField cuiTF = null;
-    
-    private JTextField ndcTF = null;
 
     private JPopupMenu popup = null;
 
     private JButton apprNextButton = null;
-    
-    private JButton apprNextClusterButton = null;
 
     private JButton apprButton = null;
 
@@ -194,7 +186,6 @@ public class ConceptSelector extends JFrame implements Reportable,
     private void initResources() {
         resources = ResourceBundle
                 .getBundle("bundles.ConceptSelectorResources");
-        
     }
 
     private void initValues() {
@@ -322,7 +313,8 @@ public class ConceptSelector extends JFrame implements Reportable,
         // box container
         b = Box.createHorizontalBox();
         b.add(actionBtn);
-        
+        b.add(Box.createHorizontalGlue());
+        b.add(nextClusterBtn);
         b.add(Box.createHorizontalStrut(5));
         b.add(editor_lbl);
         b.add(Box.createHorizontalStrut(5));
@@ -444,7 +436,6 @@ public class ConceptSelector extends JFrame implements Reportable,
         // Approve/Next button
         apprNextButton = GUIToolkit.getButton(new ApproveNextAction(this));
 
-        apprNextClusterButton = GUIToolkit.getButton(new ApproveNextClusterAction(this));
         // Concept button
         JButton conceptButton = GUIToolkit.getButton(new ConceptFrameAction(
                 this));
@@ -461,11 +452,8 @@ public class ConceptSelector extends JFrame implements Reportable,
                 .add(
                         "gridx=0,gridy=6,gridwidth=2,fill=NONE,anchor=WEST,insets=[12,12,0,0]",
                         b);
-       // b.add(Box.createHorizontalBox());
-        //b.add(nextClusterBtn);
+
         b = Box.createHorizontalBox();
-        b.add(nextClusterBtn);
-        b.add(Box.createHorizontalStrut(5));
         b.add(apprNextButton);
         b.add(Box.createHorizontalStrut(5));
         b.add(conceptButton);
@@ -515,8 +503,6 @@ public class ConceptSelector extends JFrame implements Reportable,
                         b);
 
         b = Box.createHorizontalBox();
-        b.add(apprNextClusterButton);
-        b.add(Box.createHorizontalStrut(5));
         b.add(apprButton);
         b.add(Box.createHorizontalStrut(5));
         b.add(classButton);
@@ -585,7 +571,7 @@ public class ConceptSelector extends JFrame implements Reportable,
                         "gridx=2,gridy=8,gridwidth=2,fill=NONE,anchor=EAST,insets=[5,12,0,11]",
                         b);
 
-//      -------------------------------
+        // -------------------------------
         // 4rd row of buttons, textfields
         // -------------------------------
 
@@ -616,42 +602,7 @@ public class ConceptSelector extends JFrame implements Reportable,
                 .add(
                         "gridx=0,gridy=9,gridwidth=2,fill=NONE,anchor=WEST,insets=[5,12,12,0]",
                         b);
-      
-         // ------------- 5th row  ----------------------
-        
 
-        // label for ndc textfield
-        JLabel ndcLabel = new JLabel();
-        ndcLabel.setText(resources.getString("ndc.label"));
-        ndcLabel.setDisplayedMnemonic(resources.getString("ndc.mnemonic")
-                .charAt(0));
-
-        // ndc textfield
-        ndcTF = new JTextField(10);
-        ndcLabel.setLabelFor(ndcTF);
-        ndcTF.setMinimumSize(ndcTF.getPreferredSize());
-
-        // an add button
-        addButton = GUIToolkit.getButton(addAction);
-        addButton.setActionCommand(ADD_BY_NDC);
-      
-          
-        // box container
-        b = Box.createHorizontalBox();
-        b.add(ndcLabel);
-        b.add(Box.createHorizontalStrut(12));
-        b.add(ndcTF);
-        b.add(Box.createHorizontalStrut(5));
-        b.add(addButton);
-         
-        contents
-        .add(
-                "gridx=0,gridy=10,gridwidth=2,fill=NONE,anchor=WEST,insets=[5,12,12,0]",
-                b);
-     
-        //---------- 5th Row is over   -----------
-   
-  
         // popup menu
         popup = new JPopupMenu();
         editListTable.addMouseListener(new PopupListener(popup));
@@ -662,8 +613,7 @@ public class ConceptSelector extends JFrame implements Reportable,
         setJMenuBar(buildMenuBar());
 
     } // initComponents()
-    
-    
+
     private JMenuBar buildMenuBar() {
         JMenuBar menuBar = new JMenuBar();
 
@@ -1404,7 +1354,6 @@ public class ConceptSelector extends JFrame implements Reportable,
                 try {
                     JekyllKit.getFinderClient().clearRestrictions();
                     JekyllKit.getFinderClient().setMaxResultCount(1000000);
-                    
                     concepts = JekyllKit.getFinderClient().findConceptsByCode(
                             Code.newCode(string));
                     for (int i = 0; i < concepts.length; i++) {
@@ -1443,11 +1392,10 @@ public class ConceptSelector extends JFrame implements Reportable,
 
                 logger = new ActionLogger(this.getClass().getName() + ".addByCUI",
                         true);
-                
+
                 try {
                     Concept concept = JekyllKit.getCoreDataClient().getConcept(
                             new CUI(string));
-                                        
                     addConcept(concept);
                 } catch (MissingDataException ex) {
                     MEMEToolkit.notifyUser(target, "Concept was not found: "
@@ -1473,64 +1421,8 @@ public class ConceptSelector extends JFrame implements Reportable,
                     }
                     ex.printStackTrace(JekyllKit.getLogWriter());
                 }
-             }else if (action_cmd.equals(ADD_BY_NDC)) {
-
-                string = ndcTF.getText().trim();
-                if (string.equals("")) {
-                    break add_actions;
-                }
-
-                logger = new ActionLogger(this.getClass().getName() + ".addByNDC",
-                        true);
-
-                try {
-                       //-------- ACTION NEED TO BE CODE HERE ---------
-                	 Concept[] concepts = null;
-                	
-                	
-                        JekyllKit.getFinderClient().clearRestrictions();
-                        JekyllKit.getFinderClient().setMaxResultCount(1000000);
-                       
-                        concepts = JekyllKit.getFinderClient().findConceptsByNDC(
-                                Code.newCode(string));
-                        for (int i = 0; i < concepts.length; i++) {
-                            addConcept(concepts[i]);
-                        }
-
-                        if (concepts.length == 0) {
-                            MEMEToolkit.notifyUser(target,
-                                    "Either invalid NDC was entered or"
-                                            + "\nno concepts exist by this NDC.");
-                        }
-                    
-                	
-                } 
-                catch (Exception ex) {
-                    String msg = ex.getMessage();
-                    MEMEToolkit.notifyUser(target,
-                    "Error  : "+msg);
-                    
-                    
-                    if (msg.startsWith("Illegal NDC value")) {
-                        MEMEToolkit.notifyUser(target, msg);
-                    } else if (ex instanceof MEMEException
-                            && ((MEMEException) ex).getEnclosedException() instanceof SocketException) {
-                        MEMEToolkit.reportError(target,
-                                "There was a network error."
-                                        + "\nPlease try the action again.",
-                                false);
-                    } else {
-                        MEMEToolkit
-                                .notifyUser(
-                                        target,
-                                        "Failed to retrieve a concept for NDC: "
-                                                + string
-                                                + "\nConsole/Log file may contain more information.");
-                    }
-                    ex.printStackTrace(JekyllKit.getLogWriter());
-                }
             }
- 
+
             glass_comp.setVisible(false);
             target.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
             JekyllKit.enableFrames();

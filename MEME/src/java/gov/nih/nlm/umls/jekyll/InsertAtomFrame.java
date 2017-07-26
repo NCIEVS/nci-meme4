@@ -29,7 +29,6 @@ import java.util.Arrays;
 import java.util.ResourceBundle;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.ArrayList;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -109,7 +108,7 @@ public class InsertAtomFrame extends JFrame implements JekyllConstants,
     private String[] supp_values = new String[] { "Y", "N" };
 
     private static final Termgroup DEFAULT_TERMGROUP = new Termgroup.Default(
-            "NCIMTH/PN");
+            "MTH/PN");
 
     private static final char DEFAULT_GENERATED = 'Y';
 
@@ -297,19 +296,8 @@ public class InsertAtomFrame extends JFrame implements JekyllConstants,
     private void initValues() {
         try {
 
-            // Termgroup values - only MTH/PN and SRC/XXX
-			Termgroup[] alltermgroups = JekyllKit.getAuxDataClient().getTermgroups();
-
-			ArrayList lst = new ArrayList();
-
-			for (int i = 0; i < alltermgroups.length; i++) {
-				if ((alltermgroups[i].equals(DEFAULT_TERMGROUP))
-						|| (alltermgroups[i].getSource().toString().trim()
-								.equals("SRC")))
-					lst.add(alltermgroups[i]);
-			}
-
-			termgroups = (Termgroup[]) lst.toArray(new Termgroup[lst.size()]);
+            // Termgroup values
+            termgroups = JekyllKit.getAuxDataClient().getTermgroups();
             Arrays.sort(termgroups);
             tgList.setListData(termgroups);
 

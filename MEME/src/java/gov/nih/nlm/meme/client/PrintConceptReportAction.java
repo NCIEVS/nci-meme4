@@ -27,7 +27,7 @@ import javax.swing.KeyStroke;
  * to print a concept report.  The code could be easily adapted to
  * print other HTML docs.
  *
- * @author  Brian Carlsen (bcarlsen@msdinc.com)
+ * @author  Brian Carlsen (bcarlsen@apelon.com)
  */
 public class PrintConceptReportAction extends AbstractAction {
 

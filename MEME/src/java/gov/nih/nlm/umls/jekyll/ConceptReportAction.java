@@ -1,13 +1,12 @@
 /*
  * ConceptReportAction.java
- *  * Modfied: Soma Lanka : Changes related to Attribute printing
  */
 
 package gov.nih.nlm.umls.jekyll;
 
 import gov.nih.nlm.meme.MEMEToolkit;
 import gov.nih.nlm.meme.client.ReportsClient;
-import gov.nih.nlm.umls.jekyll.swing.TestReportFrame;
+import gov.nih.nlm.meme.client.TestReportFrame;
 import gov.nih.nlm.meme.exception.MEMEException;
 import gov.nih.nlm.swing.GlassComponent;
 import gov.nih.nlm.util.HTMLDocumentRenderer;

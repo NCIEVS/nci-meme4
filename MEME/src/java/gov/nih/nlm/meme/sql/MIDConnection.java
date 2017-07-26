@@ -4,11 +4,9 @@
  * Object:  MIDConnection
  *
  * Changes
- *  12/28/2006 BAC (1-D5400): Full support for merge_level
- *  06/19/2006 RBE (1-BIC23): Bug fixes
- *  06/05/2006 BAC (1-BECAZ): clear integrity_cache before populating it.
- *  04/10/2006 TTN (1-AV6X1): do not need to set keys map when using MultiMap
- *  02/07/2006 RBE (1-763IU): Changes to addApplicationVector and
+ *
+ * 04/10/2006 TTN (1-AV6X1) : do not need to set keys map when using MultiMap
+ * 02/07/2006 RBE (1-763IU): Changes to addApplicationVector and
  * 													 addOverrideVector() to allow new entry.
  *
  *****************************************************************************/
@@ -58,6 +56,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -219,7 +218,6 @@ public class MIDConnection extends MEMEConnection implements MIDDataSource {
     MEMEToolkit.logComment("  Cache integrities", true);
 
     // Cache integrity check
-    integrity_cache.clear(getDataSourceName());
     IntegrityCheck[] ics = getIntegrityChecks();
     for (int i = 0; i < ics.length; i++) {
       integrity_cache.put(getDataSourceName(), ics[i].getName(), ics[i]);
@@ -227,7 +225,6 @@ public class MIDConnection extends MEMEConnection implements MIDDataSource {
 
     // Cache application vector
     String[] aps = getApplicationsWithVectors();
-    av_cache.clear(getDataSourceName());
     for (int i = 0; i < aps.length; i++) {
       EnforcableIntegrityVector eiv = getApplicationVector(aps[i]);
       av_cache.put(getDataSourceName(), aps[i], eiv);
@@ -235,7 +232,6 @@ public class MIDConnection extends MEMEConnection implements MIDDataSource {
 
     // Cache override vector
     int[] ovs = getLevelsWithOverrideVectors();
-    ov_cache.clear(getDataSourceName());
     for (int i = 0; i < ovs.length; i++) {
       IntegrityVector iv = getOverrideVector(ovs[i]);
       ov_cache.put(getDataSourceName(), new Integer(ovs[i]), iv);
@@ -1637,7 +1633,7 @@ public class MIDConnection extends MEMEConnection implements MIDDataSource {
     QueryBuilder builder = new QueryBuilder();
     builder.build(query, params, list);
 
-    query.append(" ORDER BY DECODE(merge_level,'SY',0,'MTY',1,'MAT',2,'NTY',3,'NRM',4,'TTY',5,6) ASC");
+    query.append(" ORDER BY DECODE(merge_level,'SY',0,'MAT',1,'NRM',2,3) ASC");
 
     MEMEToolkit.trace("MIDConnection.query=" + query);
 
@@ -1866,19 +1862,13 @@ public class MIDConnection extends MEMEConnection implements MIDDataSource {
         fact.setAtom(getAtomWithName(rs.getInt("ATOM_ID_1"), null));
         String merge_level = rs.getString("MERGE_LEVEL");
         if (merge_level.equals("SY")) {
-        fact.setRank(new Rank.Default(0));
-        } else if (merge_level.equals("MTY")) {
-        fact.setRank(new Rank.Default(1));
+          fact.setRank(new Rank.Default(0));
         } else if (merge_level.equals("MAT")) {
-        fact.setRank(new Rank.Default(2));
-        } else if (merge_level.equals("NTY")) {
-        fact.setRank(new Rank.Default(3));
+          fact.setRank(new Rank.Default(1));
         } else if (merge_level.equals("NRM")) {
-        fact.setRank(new Rank.Default(4));
-        } else if (merge_level.equals("TTY")) {
-        fact.setRank(new Rank.Default(5));
+          fact.setRank(new Rank.Default(2));
         } else {
-        fact.setRank(new Rank.Default(9));
+          fact.setRank(new Rank.Default(9));
         }
         fact.setConnectedAtom(getAtomWithName(rs.getInt("ATOM_ID_2"), null));
         fact.setSource(getSource(rs.getString("SOURCE")));
@@ -2272,7 +2262,6 @@ public class MIDConnection extends MEMEConnection implements MIDDataSource {
     }
 
     // Update the cache
-    editor_pref_i_cache.clear(getDataSourceName());    
     cacheEditorPreferences();
 
   }

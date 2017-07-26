@@ -3,7 +3,6 @@
  * Package: gov.nih.nlm.meme.qa.client
  * Object:  ReportsClientTest
  * 
- * 03/22/2007 BAC (1-D0BIJ): Changes to avoid using hard-coded action identifiers.
  * 02/14/2006 RBE (1-79GGX): File created
  *
  *****************************************************************************/
@@ -12,10 +11,8 @@ package gov.nih.nlm.meme.qa.client;
 
 import gov.nih.nlm.meme.action.ActionReport;
 import gov.nih.nlm.meme.action.AtomicAction;
-import gov.nih.nlm.meme.action.MolecularAction;
 //import gov.nih.nlm.meme.client.AdminClient;
 //import gov.nih.nlm.meme.client.AuxiliaryDataClient;
-import gov.nih.nlm.meme.client.FinderClient;
 import gov.nih.nlm.meme.client.ReportsClient;
 import gov.nih.nlm.meme.common.Atom;
 import gov.nih.nlm.meme.common.Attribute;
@@ -57,7 +54,7 @@ public class ReportsClientTest extends TestSuite {
     ReportsClient client = null;
 
     try {
-      client = new ReportsClient("");
+      client = new ReportsClient("apelon");
 
       //
       // 1.1. Test getReport(int)
@@ -165,7 +162,7 @@ public class ReportsClientTest extends TestSuite {
       addToLog("    8.1. Test setMidService(String) ... "
         + date_format.format(timestamp));
 
-      client.setMidService("");
+      client.setMidService("apelon");
       
       //
       // 9.1. Test includeOrExcludeLanguages()
@@ -261,9 +258,8 @@ public class ReportsClientTest extends TestSuite {
       //
       addToLog("    18.1. Test getActionReport(int) ... "
         + date_format.format(timestamp));
-      FinderClient finder_client = new FinderClient("");
-      MolecularAction[] mas = finder_client.findMolecularActions();
-      int molecule_id = mas[0].getIdentifier().intValue();
+
+      int molecule_id = 45173814;
 
       ActionReport ar = client.getActionReport(molecule_id);
       addToLog("            Molecular Action Name: " + ar.getMolecularAction().getActionName());
@@ -333,7 +329,7 @@ public class ReportsClientTest extends TestSuite {
 
       // For 20.1 & 21.1
       // Test this through the Action Harvester web application
-      // Click on "Report of Editor Actions for Today"
+      // Click on “Report of Editor Actions for Today”
       
       //
       // 22.1. Test getEditingReportData(int)

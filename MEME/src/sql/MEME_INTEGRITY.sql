@@ -6,24 +6,8 @@ CREATE OR REPLACE PACKAGE MEME_INTEGRITY AS
  * This package contains procedures
  * to perform MEME integrity checkings
  *
- * Changes:
- * 02/24/2009 BAC (1-GCLNT): Improve performance of matrix init procedures.
- * 05/12/2008 TK () : Remove fake inverse relationships from sampling algorithm.
- * 02/28/2008 TK (1-GMAC4) : Remove src_mid_qa_diff, mid_mid_qa_diff, and src_qa_diff procedures
- *                           and replaced them with views.
- * 01/22/2008 TK (1-G9SHX) : Added src_qa_sampling procedure to sample SRC data during the
- *                           insertion process and store the data to src_qa_samples.
- * 12/04/2007 TK (1-FWYOL) : Changes to mid_mid_qa_diff to use qa_adjustment instead of
- *                           qa_diff_adjustment
- * 10/18/2007 BAC (1-FJGW9): Updated comments and changed UNION to UNION ALL
- * 07/06/2007 TK (1-EP3MX) : increase query field in monster_qa_help to 4000.
- * 06/20/2007 TK (1-EK3H7) : allow new sources in src-src obsolete comparison.
- * 06/04/2007 TK (1-EE0IP) : src-mid comparison does not compare mid only results.
- * 05/08/2007 TK (1-E730H) : Use new released_source_version view, restrict MID comparisons
- *        to mid_ check names, etc.
- * 04/17/2007 BAC (1-E0JWZ): Added to code to properly incorporate adjustments
- *   into src_obsolete_qa_results when moving data from src_qa_results. Note:
- *   this logic assumes that qa result values start with versioned SABs.
+ * Version Information
+ *
  * 06/01/2005 4.18.0: Released
  * 05/24/2005 4.17.1: Slighlty improved logic for managing obsolete SRC counts
  * 05/23/2005 4.17.0: Released
@@ -193,7 +177,11 @@ CREATE OR REPLACE PACKAGE MEME_INTEGRITY AS
 
     PROCEDURE src_monster_qa;
 
-    PROCEDURE src_qa_sampling;
+    PROCEDURE src_mid_qa_diff;
+
+    PROCEDURE src_obsolete_qa_diff;
+
+    PROCEDURE mid_mid_qa_diff(history_qa_id IN INTEGER);
 
 END MEME_INTEGRITY;
 /
@@ -576,7 +564,6 @@ PROCEDURE set_em_status (
 )
 IS
     location		VARCHAR2(5);
-    tmp             VARCHAR2(50);
 BEGIN
 
     MEME_UTILITY.PUT_MESSAGE(LPAD('Set classes_status in EM',45,'. '));
@@ -607,9 +594,7 @@ BEGIN
     	 WHERE concept_id IN
      	  (SELECT  /*+ parallel(a) */ concept_id FROM attributes a
      	   WHERE tobereleased IN (''Y'',''y'')
-             AND attribute_name = ''SEMANTIC_TYPE''
-             AND attribute_level = ''C''
-             AND status = ''N'') '
+	     AND status = ''N'') '
 	);
 
     MEME_UTILITY.PUT_MESSAGE(LPAD('Set relationship_status in EM',45,'. '));
@@ -619,18 +604,6 @@ BEGIN
     -- status 'N' rels to trigger editing
     --
 
-    location := '169.0';
-    tmp := MEME_UTILITY.get_unique_tablename;
-
-    location := '169.1';    
-    EXECUTE IMMEDIATE
-       'CREATE TABLE ' || tmp || '  AS 
-        SELECT /*+ PARALLEL(r) */ concept_id_1, concept_id_2
-        FROM relationships r
-        WHERE tobereleased IN (''Y'',''y'')
-          AND status IN  (''N'',''D'') 
-          AND relationship_level != ''S''';
-
     --
     -- Set for needs review relationships (id1)
     --
@@ -638,10 +611,49 @@ BEGIN
     local_exec (
 	'UPDATE ' || table_name || ' em
 	 SET relationships_status = ''N''
-     WHERE concept_id IN
-         (SELECT concept_id_1 from ' || tmp || '
-          UNION ALL
-          SELECT concept_id_2 from ' || tmp || ')'
+    	 WHERE concept_id IN
+     	  (SELECT /*+ parallel(r) */ concept_id_1 FROM relationships r
+     	   WHERE tobereleased IN (''Y'',''y'')
+	     AND status = ''N'' AND relationship_level != ''S'') '
+	);
+
+    --
+    -- Set for needs review relationships (id2)
+    --
+    location := '180';
+    local_exec (
+	'UPDATE ' || table_name || ' em
+	 SET relationships_status = ''N''
+    	 WHERE concept_id IN
+     	  (SELECT /*+ parallel(r) */ concept_id_2 FROM relationships r
+     	   WHERE tobereleased IN (''Y'',''y'')
+	     AND status = ''N'' AND relationship_level != ''S'') '
+	);
+
+    --
+    -- Set for demotions (id1)
+    --
+    location := '190';
+    local_exec (
+	'UPDATE ' || table_name || ' em
+	 SET relationships_status = ''D''
+    	 WHERE concept_id IN
+     	  (SELECT /*+ parallel(r) */ concept_id_1 FROM relationships r
+     	   WHERE tobereleased IN (''Y'',''y'')
+	   AND status = ''D'' AND relationship_level != ''S'') '
+	);
+
+    --
+    -- Set for demotions (id2)
+    --
+    location := '200';
+    local_exec (
+	'UPDATE ' || table_name || ' em
+	 SET relationships_status = ''D''
+    	 WHERE concept_id IN
+     	  (SELECT /*+ parallel(r) */ concept_id_2 FROM relationships r
+     	   WHERE tobereleased IN (''Y'',''y'')
+	     AND status = ''D'' AND relationship_level != ''S'') '
 	);
 
     MEME_UTILITY.sub_timing_stop;
@@ -736,8 +748,8 @@ IS
     local_work_id	INTEGER;
     retval		INTEGER;
     mi_exception	EXCEPTION;
-    current_msh		VARCHAR2(40);
-    previous_msh	VARCHAR2(40);
+    current_msh		VARCHAR2(20);
+    previous_msh	VARCHAR2(20);
 
 BEGIN
 
@@ -1067,10 +1079,10 @@ IS
     empty_concept	VARCHAR2(50);
     t_pure_u_only	VARCHAR2(50);
     t_non_pure_u_only	VARCHAR2(50);
-    current_msh		VARCHAR2(40);
-    previous_msh	VARCHAR2(40);
+    current_msh		VARCHAR2(20);
+    previous_msh	VARCHAR2(20);
     restrict_table	VARCHAR2(50);
-    tmp_editing_matrix  VARCHAR2(50);
+    tmp_editing_matrix	VARCHAR2(50);
 
 BEGIN
 
@@ -1965,19 +1977,19 @@ PROCEDURE monster_qa_help(
 )
 IS
    qa_count		 INTEGER;
-   qa_value		 VARCHAR2(150);
+   qa_value		 VARCHAR2(100);
    qa_timestamp 	 DATE := SYSDATE;
 
    separator_count	 INTEGER;
    separator_block	 INTEGER;
    instr_occurrence	 INTEGER;
    next_position	 INTEGER;
-   qry_mapped		 VARCHAR2(4000);
+   qry_mapped		 VARCHAR2(1000);
    tbl_qa_results	 VARCHAR2(50);
 
    TYPE mqa_rec_type IS RECORD(
       name		 VARCHAR2(100),
-      query		 VARCHAR2(4000));
+      query		 VARCHAR2(1000));
    mqa_record mqa_rec_type;
 
    TYPE mqa_type IS REF CURSOR;
@@ -2164,23 +2176,11 @@ BEGIN
 	(qa_id, name, value ,qa_count, timestamp)
 	SELECT qa_id, name, value, qa_count, timestamp
 	FROM src_qa_results
-        WHERE (value like l_source || ',%' or value = l_source);
-
-    -- Incorporate any qa_adjustments
-    UPDATE src_obsolete_qa_results a
-    SET qa_count =
-      (SELECT a.qa_count + sum(b.qa_count)
-       FROM qa_adjustment b
-       WHERE a.name = b.name and a.qa_id=b.qa_id
-         AND a.value = b.value
-       GROUP BY b.name, b.qa_id, b.value)
-    WHERE (qa_id, name, value) IN
-      (SELECT qa_id, name, value FROM qa_adjustment)
-      AND (value like l_source || ',%' or value = l_source);
+        WHERE value like l_source || ',%';
 
     	location := '20b';
 	DELETE FROM src_qa_results
-        WHERE (value like l_source || ',%' or value = l_source);
+        WHERE value like l_source||',%';
 
     END LOOP;
 
@@ -2198,130 +2198,308 @@ BEGIN
 
 END src_monster_qa;
 
-/* PROCEDURE src_qa_sampling ***************************************************
- * This procedure will sample SRC tables during the insertion process and store the results
- * to src_qa_samples.
+/* PROCEDURE src_mid_qa_diff ***************************************************
+ * This procedure compare mid_qa_results to src_qa_results, and record results
+ * into qa_diff_results.
  */
-PROCEDURE src_qa_sampling
+PROCEDURE src_mid_qa_diff
 IS
 BEGIN
 
+    location := '05';
+    MEME_SYSTEM.truncate('qa_diff_results');
+
+    --
+    -- Handle the 2 cases
+    --
+    -- 1. src != mid
+    -- 2. src not mid
+    --
     location := '10';
-    INSERT INTO src_qa_samples (name,value,sample_id,id_type,timestamp)
-SELECT 'sab_lat_tty_tally',value , atom_id, 'C',sysdate from ( 
-select atom_id, source || ',' || language || ',' || tty as value, row_number() over (partition by source, language, tty order by dbms_random.value) rn
-from source_classes_atoms 
-where tobereleased in ('Y','y') 
-and source != 'SRC') 
-where rn < 101;
-
-INSERT INTO src_qa_samples (name,value,sample_id,id_type,timestamp)
-SELECT 'sab_rel_rela_stype1_stype2_tally',value , relationship_id, 'CR',sysdate from ( 
-select relationship_id, value, row_number() over (partition by value order by dbms_random.value) rn
-from
-(select source || ',' || relationship_name || ',' || relationship_attribute || ',' || 
-decode(sg_type_1,'','','CODE_SOURCE','CODE_ROOT_SOURCE','CODE_TERMGROUP','CODE_ROOT_TERMGROUP','SOURCE_DUI','ROOT_SOURCE_DUI','SOURCE_CUI','ROOT_SOURCE_CUI','SOURCE_AUI','ROOT_SOURCE_AUI','SRC_ATOM_ID','AUI',sg_type_1) || ',' ||
-decode(sg_type_2,'','','CODE_SOURCE','CODE_ROOT_SOURCE','CODE_TERMGROUP','CODE_ROOT_TERMGROUP','SOURCE_DUI','ROOT_SOURCE_DUI','SOURCE_CUI','ROOT_SOURCE_CUI','SOURCE_AUI','ROOT_SOURCE_AUI','SRC_ATOM_ID','AUI',sg_type_2) as value, relationship_id
-from source_context_relationships 
-where tobereleased in ('Y','y') 
-and relationship_level = 'S' 
-and source != 'SRC' 
-))
-where rn < 101;
-
-INSERT INTO src_qa_samples (name,value,sample_id,id_type,timestamp)
-SELECT 'sab_atn_stype_tally',value , attribute_id, 'A',sysdate from ( 
-select source || ',' || attribute_name || ',' || 
-decode(sg_type,'','','CODE_SOURCE','CODE_ROOT_SOURCE', 'CODE_TERMGROUP','CODE_ROOT_TERMGROUP', 'SOURCE_DUI','ROOT_SOURCE_DUI','SOURCE_CUI','ROOT_SOURCE_CUI', 
-'SOURCE_RUI','ROOT_SOURCE_RUI','SOURCE_AUI','ROOT_SOURCE_AUI', 
-'SRC_ATOM_ID','AUI','SRC_REL_ID','RUI',sg_type) as value, attribute_id, 
-row_number() over (partition by source, attribute_name, sg_type order by dbms_random.value) rn
-from source_attributes 
-where attribute_name not in ('DEFINITION','COMPONENTHISTORY','XMAPFROM','XMAP','XMAPTO') 
-and source != 'SRC' 
-and attribute_level = 'S' 
-and tobereleased in ('Y','y'))
-where rn < 101;
-
-INSERT INTO src_qa_samples (name,value,sample_id,id_type,timestamp)
-SELECT 'sab_hist_tally',value , attribute_id, 'A',sysdate from ( 
-select source as value, attribute_id,  row_number() over (partition by source order by dbms_random.value) rn
-from source_attributes 
-where attribute_name='COMPONENTHISTORY' 
-and tobereleased in ('Y','y') 
-and source != 'SRC')
-where rn < 101;
-
-INSERT INTO src_qa_samples (name,value,sample_id,id_type,timestamp)
-SELECT 'sab_xmapfrom_tally',value , attribute_id, 'A', sysdate from ( 
-select source as value, attribute_id,  row_number() over (partition by source order by dbms_random.value) rn
-from source_attributes 
-where attribute_name='XMAPFROM'
-and source != 'SRC' 
-and tobereleased in ('Y','y'))
-where rn < 101;
-
-INSERT INTO src_qa_samples (name,value,sample_id,id_type,timestamp)
-SELECT 'sab_xmap_tally',value , attribute_id, 'A',sysdate from ( 
-select source as value, attribute_id,  row_number() over (partition by source order by dbms_random.value) rn
-from source_attributes 
-where attribute_name='XMAP'
-and source != 'SRC' 
-and tobereleased in ('Y','y'))
-where rn < 101;
-
-INSERT INTO src_qa_samples (name,value,sample_id,id_type,timestamp)
-SELECT 'sab_xmapto_tally',value , attribute_id, 'A',sysdate from ( 
-select source as value, attribute_id,  row_number() over (partition by source order by dbms_random.value) rn
-from source_attributes 
-where attribute_name='XMAPTO'
-and source != 'SRC' 
-and tobereleased in ('Y','y'))
-where rn < 101;
-
-INSERT INTO src_qa_samples (name,value,sample_id,id_type,timestamp)
-SELECT 'sab_def_tally',value , attribute_id, 'A',sysdate from ( 
-select source as value, attribute_id,  row_number() over (partition by source order by dbms_random.value) rn
-from source_attributes 
-where attribute_name='DEFINITION'
-and source != 'SRC' 
-and tobereleased in ('Y','y'))
-where rn < 101;
-
-
-INSERT INTO src_qa_samples (name,value,sample_id,id_type,timestamp)
-SELECT 'sab_rela_par_tally',value , relationship_id, 'CR', sysdate from ( 
-select source || ',' || inverse_rel_attribute || ',' as value, relationship_id, 
-row_number() over (partition by source, inverse_rel_attribute order by dbms_random.value) rn
-from source_context_relationships a, inverse_rel_attributes b 
-where relationship_name='PAR' 
-and tobereleased in ('Y','y') 
-and nvl(a.relationship_attribute,'null') = nvl(b.relationship_attribute,'null') 
-and source != 'SRC')
-where rn < 101;
-
-INSERT INTO src_qa_samples (name,value,sample_id,id_type,timestamp)
-SELECT 'sab_rel_rela_stype1_stype2_tally',value , relationship_id, 'R',sysdate from ( 
-select relationship_id, value, row_number() over (partition by value order by dbms_random.value) rn
-from
-(select source || ',' || relationship_name || ',' || relationship_attribute || ',' || 
-decode(sg_type_1,'','','CODE_SOURCE','CODE_ROOT_SOURCE','CODE_TERMGROUP','CODE_ROOT_TERMGROUP','SOURCE_DUI','ROOT_SOURCE_DUI','SOURCE_CUI','ROOT_SOURCE_CUI','SOURCE_AUI','ROOT_SOURCE_AUI','SRC_ATOM_ID','AUI',sg_type_1) || ',' ||
-decode(sg_type_2,'','','CODE_SOURCE','CODE_ROOT_SOURCE','CODE_TERMGROUP','CODE_ROOT_TERMGROUP','SOURCE_DUI','ROOT_SOURCE_DUI','SOURCE_CUI','ROOT_SOURCE_CUI','SOURCE_AUI','ROOT_SOURCE_AUI','SRC_ATOM_ID','AUI',sg_type_2) as value, relationship_id
-from source_relationships 
-where tobereleased in ('Y','y') 
-and relationship_level = 'S' 
-and source != 'SRC'
-))
-where rn < 101;
+    INSERT INTO qa_diff_results
+      (name, value, qa_id_1, count_1, qa_id_2, count_2, timestamp)
+    SELECT DISTINCT
+ 	mid.name, mid.value, src.qa_id, 
+        (src.qa_count+nvl(adj.qa_count,0)) count_1, 
+	mid.qa_id, mid.qa_count count_2, sysdate
+    FROM 
+      (SELECT qa_id, name, value, sum(qa_count) qa_count
+       FROM src_qa_results a
+       GROUP BY qa_id, name, value) src,
+      (SELECT qa_id, name, value, sum(qa_count) qa_count
+       FROM qa_adjustment
+       GROUP BY qa_id, name, value) adj,
+      (SELECT qa_id, name, value,
+		sum(qa_count) qa_count
+       FROM mid_qa_results a
+       GROUP BY qa_id, name, value) mid
+    WHERE src.qa_id = adj.qa_id (+)
+      AND src.name = adj.name (+)
+      AND src.value = adj.value (+)
+      AND src.name = mid.name
+      AND src.value = mid.value
+      AND (src.qa_count+nvl(adj.qa_count,0))-mid.qa_count != 0
+    UNION ALL
+    SELECT DISTINCT 
+	src.name, src.value,
+	src.qa_id, src.qa_count + NVL(adj.qa_count,0) count_1, 
+	src.qa_id, 0 count_2, sysdate
+    FROM 
+      (SELECT qa_id, name, value,
+		sum(qa_count) qa_count
+       FROM src_qa_results a
+       GROUP BY qa_id, name, value) src,
+      (SELECT qa_id, name, value, sum(qa_count) qa_count
+       FROM qa_adjustment
+       GROUP BY qa_id, name, value) adj
+    WHERE src.qa_id = adj.qa_id (+)
+      AND src.name = adj.name (+)
+      AND src.value = adj.value (+)
+      AND src.qa_count+NVL(adj.qa_count,0) != 0
+      AND (src.name, src.value) IN
+    (SELECT name, value
+     FROM src_qa_results
+     MINUS
+     SELECT name, value
+     FROM mid_qa_results);
 
     COMMIT;
-    
+
+EXCEPTION
+   WHEN OTHERS THEN
+      meme_integrity_error('src_mid_qa_diff',location,1,SQLERRM);
+      RAISE meme_integrity_exc;
+END src_mid_qa_diff;
+
+/* PROCEDURE src_obsolete_qa_diff ******************************************
+ * 
+ * Compares src_qa_results to src_obsolete_qa_results
+ * 1. The src_qa_results will have current version data
+ *     e.g. CPT2005,CPT2005,S,PAR,
+ * 2. The src_obsolete_qa_results will have previous version data
+ *     qa_id is negative
+ *     e.g. CPT2004,CPT2004,S,PAR,
+ * 3. The qa_adjustment table will have previous version data
+ *     qa_id is negative
+ *     e.g. CPT2004,CPT2004,S,PAR,
+ *
+ */
+PROCEDURE src_obsolete_qa_diff
+IS
+
+    -- Count from the src_qa_results table
+    src_count		 INTEGER := 0;
+
+BEGIN
+    --
+    -- Truncate the reports table
+    --
+    location := '05';
+    MEME_SYSTEM.truncate('qa_diff_results');
+
+    --
+    -- Handle the 3 cases
+    --
+    -- 1. obs != cur
+    -- 2. obs not cur
+    -- 3. cur not obs
+    INSERT INTO qa_diff_results
+      (name, value, qa_id_1, count_1, qa_id_2, count_2, timestamp)
+    SELECT DISTINCT
+ 	obs.name, obs.value, obs.qa_id, 
+        (obs.qa_count+nvl(adj.qa_count,0)) count_1, 
+	src.qa_id, src.qa_count count_2, sysdate
+    FROM 
+      (SELECT qa_id, name, REPLACE(value,current_name,previous_name) value,
+		sum(qa_count) qa_count
+       FROM src_qa_results, source_version
+       WHERE value like current_name || ',%'
+         AND current_name IS NOT NULL
+         AND previous_name IS NOT NULL
+       GROUP BY qa_id, name, value, current_name, previous_name) src,
+      (SELECT qa_id_1, name, value, sum(qa_count) qa_count
+       FROM qa_diff_adjustment
+       GROUP BY qa_id_1, name, value) adj, 
+      (SELECT qa_id, name, value,
+		sum(qa_count) qa_count
+       FROM src_obsolete_qa_results, source_version
+       WHERE value like previous_name || ',%'
+         AND current_name IS NOT NULL
+         AND previous_name IS NOT NULL
+       GROUP BY qa_id, name, value) obs
+    WHERE obs.qa_id = adj.qa_id_1 (+)
+      AND obs.name = adj.name (+)
+      AND obs.value = adj.value (+)
+      AND src.qa_id = obs.qa_id
+      AND src.name = obs.name
+      AND src.value = obs.value
+      AND (src.qa_count+nvl(adj.qa_count,0))-obs.qa_count != 0
+    UNION ALL
+    SELECT DISTINCT 
+	obs.name, obs.value, obs.qa_id, 
+ 	obs.qa_count + NVL(adj.qa_count,0) count_1,
+	obs.qa_id, 0 count_2, sysdate
+    FROM 
+      (SELECT qa_id, name, value, sum(qa_count) qa_count
+       FROM src_obsolete_qa_results, source_version
+       WHERE value like previous_name || ',%'
+         AND current_name IS NOT NULL
+         AND previous_name IS NOT NULL
+       GROUP BY qa_id, name, value) obs, 
+      (SELECT qa_id_1, name, value, sum(qa_count) qa_count
+       FROM qa_diff_adjustment
+       GROUP BY qa_id_1, name, value) adj
+    WHERE obs.qa_id = qa_id_1 (+)
+      AND obs.name = adj.name (+)
+      AND obs.value = adj.value (+)
+      AND obs.qa_count + NVL(adj.qa_count,0) != 0
+      AND (obs.qa_id, obs.name, obs.value) IN
+    (SELECT qa_id, name, value
+     FROM src_obsolete_qa_results
+     MINUS
+     SELECT qa_id, name, REPLACE(value,current_name,previous_name)
+     FROM src_qa_results, source_version
+     WHERE value like current_name || ',%'
+       AND current_name IS NOT NULL
+       AND previous_name IS NOT NULL)
+    UNION ALL
+    SELECT DISTINCT 
+	src.name, src.value,
+	src.qa_id, 0 count_1, 
+	src.qa_id, src.qa_count - NVL(adj.qa_count,0) count_2, sysdate
+    FROM 
+      (SELECT qa_id, name, REPLACE(value,current_name,previous_name) value,
+		sum(qa_count) qa_count
+       FROM src_qa_results, source_version
+       WHERE value like current_name || ',%'
+         AND current_name IS NOT NULL
+         AND previous_name IS NOT NULL
+       GROUP BY qa_id, name, value, current_name, previous_name) src,
+      (SELECT qa_id_1, name, value, sum(qa_count) qa_count
+       FROM qa_diff_adjustment
+       GROUP BY qa_id_1, name, value) adj
+    WHERE src.qa_id = qa_id_1 (+)
+      AND src.name = adj.name (+)
+      AND src.value = adj.value (+)
+      AND src.qa_count - NVL(adj.qa_count,0) != 0
+      AND (src.qa_id, src.name, src.value) IN
+    (SELECT DISTINCT qa_id, name, REPLACE(value,current_name,previous_name)
+     FROM src_qa_results, source_version
+     WHERE value like current_name || ',%'
+       AND current_name IS NOT NULL
+       AND previous_name IS NOT NULL
+     MINUS
+     SELECT qa_id, name, value
+     FROM src_obsolete_qa_results);
+
+    COMMIT;
+
+EXCEPTION
+   WHEN OTHERS THEN
+      meme_integrity_error('src_obsolete_qa_diff',location,1,SQLERRM);
+      RAISE meme_integrity_exc;
+END src_obsolete_qa_diff;
+
+/* PROCEDURE mid_mid_qa_diff ***************************************************
+ * This procedure will bi-directional compare mid_qa_results to mid_qa_history
+ * and record results into qa_diff_results.
+ */
+PROCEDURE mid_mid_qa_diff(
+    history_qa_id	 IN INTEGER)
+IS
+BEGIN
+    --
+    -- Truncate the reports table
+    --
+    location := '05';
+    MEME_SYSTEM.truncate('qa_diff_results');
+
+    --
+    -- Handle the 3 cases
+    --
+    -- 1. cur != hist
+    -- 2. cur not hist
+    -- 3. cur not hist
+    INSERT INTO qa_diff_results
+      (name, value, qa_id_1, count_1, qa_id_2, count_2, timestamp)
+    SELECT DISTINCT
+ 	hist.name, hist.value, mid.qa_id, 
+        (mid.qa_count+nvl(adj.qa_count,0)) count_1, 
+	hist.qa_id, hist.qa_count count_2, sysdate
+    FROM 
+      (SELECT qa_id, name, value, sum(qa_count) qa_count
+       FROM mid_qa_results a
+       GROUP BY qa_id, name, value) mid,
+      (SELECT qa_id_1, name, value, sum(qa_count) qa_count
+       FROM qa_diff_adjustment
+       WHERE qa_id_2 = mid_mid_qa_diff.history_qa_id
+       GROUP BY qa_id_1, name, value) adj, 
+      (SELECT qa_id, name, value, sum(qa_count) qa_count
+       FROM mid_qa_history
+       WHERE qa_id = mid_mid_qa_diff.history_qa_id
+       GROUP BY qa_id, name, value) hist
+    WHERE mid.qa_id = adj.qa_id_1 (+)
+      AND mid.name = adj.name (+)
+      AND mid.value = adj.value (+)
+      AND mid.name = hist.name
+      AND mid.value = hist.value
+      AND (mid.qa_count+nvl(adj.qa_count,0))-hist.qa_count != 0
+    UNION ALL
+    SELECT DISTINCT 
+	mid.name, mid.value,
+	mid.qa_id, mid.qa_count + NVL(adj.qa_count,0) count_1, 
+	mid.qa_id, 0 count_2, sysdate
+    FROM 
+      (SELECT qa_id, name, value, sum(qa_count) qa_count
+       FROM mid_qa_results
+       GROUP BY qa_id, name, value) mid,
+      (SELECT qa_id_1, name, value, sum(qa_count) qa_count
+       FROM qa_diff_adjustment
+       WHERE qa_id_2 = mid_mid_qa_diff.history_qa_id
+       GROUP BY qa_id_1, name, value) adj
+    WHERE mid.qa_id = qa_id_1 (+)
+      AND mid.name = adj.name (+)
+      AND mid.value = adj.value (+)
+      AND mid.qa_count+NVL(adj.qa_count,0) != 0
+      AND (mid.name, mid.value) IN
+    (SELECT name, value
+     FROM mid_qa_results a
+     MINUS
+     SELECT  name, value
+     FROM mid_qa_history
+     WHERE qa_id = mid_mid_qa_diff.history_qa_id)
+    UNION ALL
+    SELECT DISTINCT 
+	hist.name, hist.value, hist.qa_id, 0 count_1,
+	hist.qa_id, hist.qa_count - NVL(adj.qa_count,0) count_2, sysdate
+    FROM 
+      (SELECT qa_id, name, value, sum(qa_count) qa_count
+       FROM mid_qa_history
+       WHERE qa_id = mid_mid_qa_diff.history_qa_id
+       GROUP BY qa_id, name, value) hist, 
+      (SELECT qa_id_2, name, value, sum(qa_count) qa_count
+       FROM qa_diff_adjustment
+       WHERE qa_id_1 in (select qa_id from mid_qa_results)
+       GROUP BY qa_id_2, name, value) adj
+    WHERE hist.qa_id = qa_id_2 (+)
+      AND hist.name = adj.name (+)
+      AND hist.value = adj.value (+)
+      AND hist.qa_count-NVL(adj.qa_count,0) != 0
+      AND (hist.name, hist.value) IN
+    (SELECT name, value
+     FROM mid_qa_history
+     WHERE qa_id = mid_mid_qa_diff.history_qa_id
+     MINUS
+     SELECT name, value
+     FROM mid_qa_results);
+
+    COMMIT;
+
 EXCEPTION
     WHEN OTHERS THEN
-        meme_integrity_error('src_qa_sampling',location,1,SQLERRM);
+        meme_integrity_error('mid_mid_qa_diff',location,1,SQLERRM);
         RAISE meme_integrity_exc;
-END src_qa_sampling;
-
+END mid_mid_qa_diff;
 
 END MEME_INTEGRITY;
 /

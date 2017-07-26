@@ -261,7 +261,7 @@ public abstract class MEMEToolkit extends SwingToolkit implements MEMEConstants 
     Iterator iprop = sortednames.iterator();
     while (iprop.hasNext()) {
       name = (String) iprop.next();
-      SwingToolkit.setProperty(name, load_props.getProperty(name));
+      properties.setProperty(name, load_props.getProperty(name));
     }
 
     // Check required properties
@@ -269,7 +269,7 @@ public abstract class MEMEToolkit extends SwingToolkit implements MEMEConstants 
     trace("MEMEToolkit::initializeProperties - check required properties");
     for (int i = 0; i < REQUIRED_PROPERTIES.length; i++) {
       String req_prop =
-          getProperty(REQUIRED_PROPERTIES[i]);
+          properties.getProperty(REQUIRED_PROPERTIES[i]);
       if (req_prop == null || req_prop.equals("")) {
         InitializationException ie = new InitializationException(
             "Required property is missing.");
@@ -278,7 +278,7 @@ public abstract class MEMEToolkit extends SwingToolkit implements MEMEConstants 
       } else {
         trace("\tRequired property " +
               REQUIRED_PROPERTIES[i] + " = " +
-              getProperty(REQUIRED_PROPERTIES[i]));
+              properties.getProperty(REQUIRED_PROPERTIES[i]));
         // why is this here?: Exit(0);
       }
     }
@@ -288,7 +288,7 @@ public abstract class MEMEToolkit extends SwingToolkit implements MEMEConstants 
           "check application specific required properties");
     if (app_specific_req_props != null) {
       for (int i = 0; i < app_specific_req_props.length; i++) {
-        String req_prop = getProperty(app_specific_req_props[i]);
+        String req_prop = properties.getProperty(app_specific_req_props[i]);
         if (req_prop == null || req_prop.equals("")) {
           InitializationException ie = new InitializationException(
               "Application specific required property is missing.");
@@ -296,7 +296,7 @@ public abstract class MEMEToolkit extends SwingToolkit implements MEMEConstants 
           throw ie;
         } else {
           trace("\tRequired property " + app_specific_req_props[i] + " = " +
-                getProperty(app_specific_req_props[i]));
+                properties.getProperty(app_specific_req_props[i]));
         }
       }
     }
@@ -383,7 +383,7 @@ public abstract class MEMEToolkit extends SwingToolkit implements MEMEConstants 
    * @param value the property value
    */
   public static void setProperty(String name, String value) {
-    SwingToolkit.setProperty(name, value);
+    properties.setProperty(name, value);
     // If logfile is set, close existing logfile open another one
     if (name.equals(LOG_FILE)) {
       initializeLog();
@@ -970,14 +970,10 @@ public static void logXmlComment(String pre, String comment){
       trace("MEMEToolkit::exec - " + cmdarray);
       String line;
       run = Runtime.getRuntime();
-      String[] new_env = new String[2 + (env == null ? 0 : env.length)];
-      new_env[0] = "ENV_FILE="+getProperty(ENV_FILE);
-      new_env[1] = "ENV_HOME="+getProperty(ENV_HOME);
-      if (env != null) {
-      	int i = 2;
-      	for (String e : env)
-      		new_env[i++] = e;
-      }
+      String[] new_env = {
+          "ENV_FILE="+getProperty(ENV_FILE),
+          "ENV_HOME="+getProperty(ENV_HOME)
+      };
       proc = run.exec(cmdarray, new_env, dir);
       BufferedReader in = null;
 
@@ -1025,15 +1021,8 @@ public static void logXmlComment(String pre, String comment){
           }
           sb.append("--------------------------------------------\n");
           ExecException ee = new ExecException("Command failed.");
-          StringBuffer cmdBuffer = new StringBuffer();
-          for (String cmdarg : cmdarray)
-          	cmdBuffer.append(cmdarg).append(" ");
-          ee.setDetail("cmdarray", cmdBuffer.toString());
+          ee.setDetail("cmdarray", cmdarray);
           ee.setDetail("exit_value", Integer.toString(proc.exitValue()));
-          StringBuffer envBuffer = new StringBuffer();
-          for (String envarg : new_env)
-          	envBuffer.append(envarg).append(" ");
-          ee.setDetail("env", envBuffer.toString());
           ee.setDetail("stderr", sb.toString());
           throw ee;
         }
@@ -1129,7 +1118,7 @@ public static void logXmlComment(String pre, String comment){
       	meme_mail.from =
       	  MIDServices.getService("meme-from");
         if (meme_mail.from.equals("")) {
-          meme_mail.from = "meme@mail.nlm.nih.gov";        	
+          meme_mail.from = "meme@apelon.com";        	
         }
 
         meme_mail.to = FieldedStringTokenizer.split(

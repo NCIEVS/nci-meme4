@@ -4,8 +4,6 @@
  * Object:  MedlineHandler
  *
  * Changes:
- *   09/28/2011 PM : Changes made to the constructor: 1. Added language filter to the first query. 
- *   				2. Changed the third qery to get the qualifier name from atoms instead of attributes.
  *   01/20/2006 TTN (1-74OL9): bug fix for update
  *       checking the wrong number of args for update
  *   01/06/2006 TTN (1-72FM6):
@@ -107,7 +105,7 @@ public class MedlineHandler
   private int start_year;
   private Date releaseDate;
 
-  private static String user, password, host, sid;
+  private static String user, password, host, sid, xml;
   private static PrintWriter coc_heading, coc_subheading, todel;
 
   // Patterns for matching days, months, years, and seasones
@@ -266,8 +264,7 @@ public class MedlineHandler
           "and a.tty in ('MH','TQ') " +
           "and b.tty in ('MH','TQ') " +
           "and a.sui != b.sui " +
-          "and a.code = b.code " +
-          "and b.language = 'ENG'   ");
+          "and a.code = b.code");
       while (r1.next()) {
         Map ht = new Hashtable();
         ht.put("id", new Integer(r1.getInt("atom_id")));
@@ -289,30 +286,17 @@ public class MedlineHandler
         hid.put(r1.getString("atom_name"), ht);
       }
       r1 = readConn.createStatement().
-/*          executeQuery("select atom_name, a.atom_id, attribute_value " +
+          executeQuery("select atom_name, a.atom_id, attribute_value " +
                        "from atoms a, classes b, attributes c, source_version d " +
                        "where a.atom_id=b.atom_id and b.atom_id=c.atom_id " +
                        "and d.source='MSH' " +
                        "and current_name = b.source " +
                        "and b.termgroup like 'MSH%/TQ' " +
                        "and attribute_name='QA' ");
-*/
-          executeQuery("  select c.atom_name, a.atom_id, d.atom_name as qualifier "
-			    	  + " from atoms c, classes a, classes b, atoms d,source_version e "
-			    	  + " where a.source = b.source "
-			    	  + " and e.source = 'MSH' "
-			    	  + " and a.source = e.current_name "
-			    	  + " and a.tty = 'TQ' "
-			    	  + " and b.tty = 'QAB' "
-			    	  + " and a.code = b.code "
-			    	  + " and a.concept_id = b.concept_id "
-			    	  + " and a.atom_id = c.atom_id "
-			    	  + " and d.atom_id = b.atom_id ");
-
       while (r1.next()) {
         Map ht = new Hashtable();
         ht.put("id", new Integer(r1.getInt("atom_id")));
-        ht.put("qa", r1.getString("qualifier"));
+        ht.put("qa", r1.getString("attribute_value"));
         qa.put(r1.getString("atom_name"), ht);
       }
       r1 = readConn.createStatement().
@@ -1086,7 +1070,7 @@ public class MedlineHandler
       SAXParser saxParser = factory.newSAXParser();
       for (int i = 7; i < args.length; i++) {
         System.out.println("    processing " + args[i] + "    " + new Date());
-        //xml = args[i];
+        xml = args[i];
         saxParser.parse(new File(args[i]), handler);
       }
     }

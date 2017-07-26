@@ -57,7 +57,7 @@ sub do_ah_bins {
     $binnum++;
     $binconfig = EMSUtils->getBinconfig($dbh, $AHCONFIGTABLE, $bin);
     $bininfo = EMSUtils->getBininfo($dbh, $bin);
-    $rowspan = (uc($binconfig->{content_type}) eq "MIXED" ? 4 : 1);
+    $rowspan = (uc($binconfig->{content_type}) eq "MIXED" ? 3 : 1);
 
     if ($query->param('bin_name') && $query->param('bin_name') eq $bin) {
       $row .= $query->td({-rowspan=>$rowspan, bgcolor=>'#F6F6C4', align=>'right'}, $binnum);
@@ -82,7 +82,7 @@ sub do_ah_bins {
       $row .= $query->td({-align=>'right'}, defined($bininfo->{totalUneditableClusters}) ? $bininfo->{totalUneditableClusters} : "n/a");
       $row .= $query->td({-align=>'right'}, defined($bininfo->{totalClusters}) ? $bininfo->{totalClusters}-$bininfo->{totalUneditableClusters} : "n/a");
 
-      $row .= $query->td({rowspan=>4, valign=>'top'}, &stats_table($bininfo));
+      $row .= $query->td({rowspan=>3, valign=>'top'}, &stats_table($bininfo));
       $row .= $query->td(&action_table($binconfig, $bininfo, "all"));
       push @rows, $row;
 
@@ -96,21 +96,12 @@ sub do_ah_bins {
       push @rows, $row;
 
       $row = "";
-      $row .= $query->td($query->strong("Clinical"));
-      $row .= $query->td({-align=>'right'}, defined($bininfo->{clinicalClusters}) ? $bininfo->{clinicalClusters} : "n/a");
-      $row .= $query->td({-align=>'right'}, defined($bininfo->{clinicalUneditableClusters}) ? $bininfo->{clinicalUneditableClusters} : "n/a");
-      $row .= $query->td({-align=>'right'}, defined($bininfo->{clinicalClusters}) ? $bininfo->{clinicalClusters}-$bininfo->{clinicalUneditableClusters} : "n/a");
+      $row .= $query->td($query->strong("Nonchem"));
+      $row .= $query->td({-align=>'right'}, defined($bininfo->{nonchemClusters}) ? $bininfo->{nonchemClusters} : "n/a");
+      $row .= $query->td({-align=>'right'}, defined($bininfo->{nonchemUneditableClusters}) ? $bininfo->{nonchemUneditableClusters} : "n/a");
+      $row .= $query->td({-align=>'right'}, defined($bininfo->{nonchemClusters}) ? $bininfo->{nonchemClusters}-$bininfo->{nonchemUneditableClusters} : "n/a");
 
-      $row .= $query->td(&action_table($binconfig, $bininfo, "clinical"));
-      push @rows, $row;
-
-      $row = "";
-      $row .= $query->td($query->strong("Other"));
-      $row .= $query->td({-align=>'right'}, defined($bininfo->{otherClusters}) ? $bininfo->{otherClusters} : "n/a");
-      $row .= $query->td({-align=>'right'}, defined($bininfo->{otherUneditableClusters}) ? $bininfo->{otherUneditableClusters} : "n/a");
-      $row .= $query->td({-align=>'right'}, defined($bininfo->{otherClusters}) ? $bininfo->{otherClusters}-$bininfo->{otherUneditableClusters} : "n/a");
-
-      $row .= $query->td(&action_table($binconfig, $bininfo, "other"));
+      $row .= $query->td(&action_table($binconfig, $bininfo, "nonchem"));
       push @rows, $row;
 
     } else {
@@ -150,7 +141,6 @@ sub action_table {
   if (!$content_type || lc($content_type) eq "all") {
     push @d, [$query->a({href=>$query->url() . "?action=ah_generate&$DBget&order_by=$order_by&bin_name=" . $binconfig->{bin_name}}, "Generate")];
     push @d, [$query->a({href=>$query->url() . "?action=update_counts&$DBget&order_by=$order_by&bin_name=" . $binconfig->{bin_name}}, "Refresh counts")];
-    push @d, [$query->a({href=>'https://wiki.nlm.nih.gov/confluence/display/UE/Unimed+Bin+Comments#UnimedBinComments-'.$binconfig->{bin_name}}, "Comments")];
   }
 
   if (

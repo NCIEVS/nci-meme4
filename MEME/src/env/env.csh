@@ -9,8 +9,8 @@ if ($?ENV_FILE != 1) then
    echo '$ENV_FILE must be set'
    exit 1
 endif
-foreach f (`grep = $ENV_FILE | grep -v '^#'`)
+foreach f (`grep = $ENV_FILE`)
   set var = `echo $f | sed 's/=.*//'`
   set val = `echo $f | sed 's/.*=//'`
-  eval setenv $var `echo $val`
+  setenv $var $val
 end

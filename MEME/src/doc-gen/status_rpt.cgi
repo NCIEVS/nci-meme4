@@ -238,7 +238,7 @@ sub PrintFooter {
 	      <address><a href="$cgi">Back to Index</a></address>
             </td>
 	    <td ALIGN=RIGHT VALIGN=TOP NOSAVE>
-	      <font size="-1"><address>Contact: <a href="mailto:bcarlsen\@msdinc.com">Brian A. Carlsen</a></address>
+	      <font size="-1"><address>Contact: <a href="mailto:carlsen\@apelon.com">Brian A. Carlsen</a></address>
 	      <address>Generated on:},scalar(localtime),qq{</address>
               <address>This page took $elapsed_time seconds to generate.</address>
 	      <address>};

@@ -5,18 +5,12 @@
 *
 * Remarks:  This script is used to create the MRD tables
 *
-* CHANGES
-* 7/31/2007 BAC (1-EUZV1): mrd_stringtab.text_value varchar2(3000)
-* 08/08/2006 BAC (1-BVC8P): mrd_coc_headings no longer uses partitions.
-*
-* Old Version Information
+* Version Information
 *
 * Release: 2
 * Version: 0.4
 * Authority: BAC
 *  Date: 01/11/2006
-*   07/17/2007 2.2   SL (1-EG3G3) : Changed the attribute value column to 350 varchar2
-*   02/22/2007 2.1   TTN (1-DKB57) : Move qa_result_reasons, qa_comparison_reasons to meme_tables
 *   02/27/2006 2.0.6 TTN (1-AHNAL) : add code and cascade field to mrd_content_view_members schema
 *   02/03/2006 2.0.5 TTN (1-76Y8V) : change code to varchar2(50)
 *   01/24/2006 BAC (1-7558C): remove classes_feedback references
@@ -167,8 +161,6 @@ CREATE TABLE NORMWRD
 CREATE TABLE QA_ADJUSTMENT
 CREATE TABLE QA_DIFF_ADJUSTMENT
 CREATE TABLE QA_DIFF_RESULTS
-CREATE TABLE QA_COMPARISON_REASONS
-CREATE TABLE QA_RESULT_REASONS
 CREATE TABLE RELATIONSHIPS
 CREATE TABLE INVERSE_RELATIONSHIPS_UI
 CREATE TABLE RELATIONSHIPS_UI
@@ -384,6 +376,58 @@ CREATE TABLE registered_handlers (
 PCTFREE 10 PCTUSED 80 MONITORING
 TABLESPACE MRD;
 
+--
+-- Used by the ReleaseManager application to mark up
+-- a QA report with known reasons for differences that
+-- appear in the comparison section of a QA report
+--
+-- The test_value can be a regular_expression
+--
+DROP TABLE qa_comparison_reasons;
+CREATE TABLE qa_comparison_reasons (
+	release_name		VARCHAR2(100) NOT NULL,
+	comparison_name		VARCHAR2(100) NOT NULL,
+	target_name		VARCHAR2(100) NOT NULL,
+  	test_name		VARCHAR2(100) NOT NULL,
+  	test_name_operator	VARCHAR2(100),
+	test_value		VARCHAR2(4000),
+  	test_value_operator	VARCHAR2(100),
+	test_count_1		NUMBER(12),
+  	test_count_1_operator	VARCHAR2(100),
+	test_count_2		NUMBER(12),
+  	test_count_2_operator	VARCHAR2(100),
+	count_diff		NUMBER(12),
+  	test_diff_operator	VARCHAR2(100),
+	reason			VARCHAR2(4000) NOT NULL
+)
+PCTFREE 10 PCTUSED 80 MONITORING
+TABLESPACE MRD;
+
+--
+-- Used by the ReleaseManager application to mark up
+-- a QA report with known reasons for entries that appear
+-- in one QA report (e.g. Gold script) but not in another
+-- (e.g. current META).
+--
+-- The test_value can be a regular_expression
+--
+DROP TABLE qa_result_reasons;
+CREATE TABLE qa_result_reasons (
+	release_name		VARCHAR2(100) NOT NULL,
+	comparison_name		VARCHAR2(100) NOT NULL,
+	target_name		VARCHAR2(100) NOT NULL,
+  	test_name		VARCHAR2(100) NOT NULL,
+  	test_name_operator	VARCHAR2(100),
+	test_value		VARCHAR2(4000),
+  	test_value_operator	VARCHAR2(100),
+	test_count		NUMBER(12),
+  	test_count_operator	VARCHAR2(100),
+	reason			VARCHAR2(4000) NOT NULL
+)
+PCTFREE 10 PCTUSED 80 MONITORING
+TABLESPACE MRD;
+
+
 -- This table contains a history of releases made by the MRD
 -- It tracks data akin to the 'release.dat' file created by Suresh
 --
@@ -466,10 +510,10 @@ CREATE TABLE mrd_attributes(
 	sui			VARCHAR2(10),
 	sg_type 		VARCHAR2(50) NOT NULL,
 	suppressible		VARCHAR2(10) NOT NULL,
-	attribute_name 		VARCHAR2(100) NOT NULL,
-	attribute_value 	VARCHAR2(350),
-	code			VARCHAR2(100),
-	root_source		VARCHAR2(40) NOT NULL,
+	attribute_name 		VARCHAR2(50) NOT NULL,
+	attribute_value 	VARCHAR2(200),
+	code			VARCHAR2(50),
+	root_source		VARCHAR2(20) NOT NULL,
 	atui 			VARCHAR2(12) NOT NULL,
 	source_atui 		VARCHAR2(50),
 	hashcode 		VARCHAR2(100),
@@ -510,13 +554,12 @@ CREATE TABLE mrd_classes(
 	sui 			VARCHAR2(10) NOT NULL,
 	suppressible		VARCHAR2(10),
 	language		VARCHAR2(10),
-	root_source 		VARCHAR2(40) NOT NULL,
+	root_source 		VARCHAR2(20) NOT NULL,
 	tty	 		VARCHAR2(20),
-	code 			VARCHAR2(100),
-	last_release_rank	NUMBER(12) DEFAULT 0,
-	source_aui		VARCHAR2(100),
-	source_cui		VARCHAR2(100),
-	source_dui		VARCHAR2(100),
+	code 			VARCHAR2(50),
+	source_aui		VARCHAR2(50),
+	source_cui		VARCHAR2(50),
+	source_dui		VARCHAR2(50),
 	insertion_date 		DATE NOT NULL,
 	expiration_date		DATE
 )
@@ -537,37 +580,35 @@ CREATE TABLE mrd_coc_headings (
  	heading_aui	        VARCHAR2(10) NOT NULL,
  	major_topic		VARCHAR2(1) NOT NULL,
  	subheading_set_id       NUMBER(10),
- 	root_source		VARCHAR2(40) NOT NULL,
+ 	root_source		VARCHAR2(20) NOT NULL,
  	coc_type                VARCHAR2(10) NOT NULL,
 	insertion_date		DATE NOT NULL,
 	expiration_date		DATE
 ) MONITORING
-PCTFREE 10 PCTUSED 85 MONITORING
-STORAGE (INITIAL 500M NEXT 100M)
-TABLESPACE MRD;
---PARTITION BY RANGE (publication_date)
--- (
---   PARTITION mrd_coc_headings_1965 VALUES LESS THAN ('01-jan-1965 00:00:00')
---	PCTFREE 5 PCTUSED 90 STORAGE (INITIAL 100M NEXT 100M ) TABLESPACE MRD,
---  PARTITION mrd_coc_headings_1970 VALUES LESS THAN ('01-jan-1970 00:00:00')
---	PCTFREE 5 PCTUSED 90 STORAGE (INITIAL 100M NEXT 100M ) TABLESPACE MRD,
---   PARTITION mrd_coc_headings_1975 VALUES LESS THAN ('01-jan-1975 00:00:00')
---	PCTFREE 5 PCTUSED 90 STORAGE (INITIAL 100M NEXT 100M ) TABLESPACE MRD,
---   PARTITION mrd_coc_headings_1980 VALUES LESS THAN ('01-jan-1980 00:00:00')
---	PCTFREE 5 PCTUSED 90 STORAGE (INITIAL 100M NEXT 100M ) TABLESPACE MRD,
---   PARTITION mrd_coc_headings_1985 VALUES LESS THAN ('01-jan-1985 00:00:00')
---	PCTFREE 5 PCTUSED 90 STORAGE (INITIAL 100M NEXT 100M ) TABLESPACE MRD,
---   PARTITION mrd_coc_headings_1990 VALUES LESS THAN ('01-jan-1990 00:00:00')
---	PCTFREE 5 PCTUSED 90 STORAGE (INITIAL 100M NEXT 100M ) TABLESPACE MRD,
---   PARTITION mrd_coc_headings_1995 VALUES LESS THAN ('01-jan-1995 00:00:00')
---	PCTFREE 5 PCTUSED 90 STORAGE (INITIAL 100M NEXT 100M ) TABLESPACE MRD,
---   PARTITION mrd_coc_headings_2000 VALUES LESS THAN ('01-jan-2000 00:00:00')
---	PCTFREE 5 PCTUSED 90 STORAGE (INITIAL 100M NEXT 100M ) TABLESPACE MRD,
---   PARTITION mrd_coc_headings_2005 VALUES LESS THAN ('01-jan-2005 00:00:00')
---	PCTFREE 5 PCTUSED 90 STORAGE (INITIAL 100M NEXT 100M ) TABLESPACE MRD,
---   PARTITION mrd_coc_headings_2010 VALUES LESS THAN ('01-jan-2010 00:00:00')
---	PCTFREE 5 PCTUSED 90 STORAGE (INITIAL 100M NEXT 100M ) TABLESPACE MRD
---  );
+TABLESPACE MRD
+PARTITION BY RANGE (publication_date)
+  (
+   PARTITION mrd_coc_headings_1965 VALUES LESS THAN ('01-jan-1965 00:00:00')
+	PCTFREE 5 PCTUSED 90 STORAGE (INITIAL 100M NEXT 100M ) TABLESPACE MRD,
+   PARTITION mrd_coc_headings_1970 VALUES LESS THAN ('01-jan-1970 00:00:00')
+	PCTFREE 5 PCTUSED 90 STORAGE (INITIAL 100M NEXT 100M ) TABLESPACE MRD,
+   PARTITION mrd_coc_headings_1975 VALUES LESS THAN ('01-jan-1975 00:00:00')
+	PCTFREE 5 PCTUSED 90 STORAGE (INITIAL 100M NEXT 100M ) TABLESPACE MRD,
+   PARTITION mrd_coc_headings_1980 VALUES LESS THAN ('01-jan-1980 00:00:00')
+	PCTFREE 5 PCTUSED 90 STORAGE (INITIAL 100M NEXT 100M ) TABLESPACE MRD,
+   PARTITION mrd_coc_headings_1985 VALUES LESS THAN ('01-jan-1985 00:00:00')
+	PCTFREE 5 PCTUSED 90 STORAGE (INITIAL 100M NEXT 100M ) TABLESPACE MRD,
+   PARTITION mrd_coc_headings_1990 VALUES LESS THAN ('01-jan-1990 00:00:00')
+	PCTFREE 5 PCTUSED 90 STORAGE (INITIAL 100M NEXT 100M ) TABLESPACE MRD,
+   PARTITION mrd_coc_headings_1995 VALUES LESS THAN ('01-jan-1995 00:00:00')
+	PCTFREE 5 PCTUSED 90 STORAGE (INITIAL 100M NEXT 100M ) TABLESPACE MRD,
+   PARTITION mrd_coc_headings_2000 VALUES LESS THAN ('01-jan-2000 00:00:00')
+	PCTFREE 5 PCTUSED 90 STORAGE (INITIAL 100M NEXT 100M ) TABLESPACE MRD,
+   PARTITION mrd_coc_headings_2005 VALUES LESS THAN ('01-jan-2005 00:00:00')
+	PCTFREE 5 PCTUSED 90 STORAGE (INITIAL 100M NEXT 100M ) TABLESPACE MRD,
+   PARTITION mrd_coc_headings_2010 VALUES LESS THAN ('01-jan-2010 00:00:00')
+	PCTFREE 5 PCTUSED 90 STORAGE (INITIAL 100M NEXT 100M ) TABLESPACE MRD
+  );
 
 
 -- This table is the second part of the representation of
@@ -642,7 +683,7 @@ DROP TABLE mrd_contexts;
 CREATE TABLE mrd_contexts(
 	aui			VARCHAR2(10) NOT NULL,
 	parent_treenum	       	VARCHAR2(1000),
-	root_source		VARCHAR2(40),
+	root_source		VARCHAR2(20),
 	hierarchical_code	VARCHAR2(1000),
         relationship_attribute  VARCHAR2(100),
 	release_mode		VARCHAR2(10) NOT NULL,
@@ -767,8 +808,8 @@ CREATE TABLE mrd_relationships(
 	relationship_name 	VARCHAR2(10),
 	relationship_attribute 	VARCHAR2(100),
 	suppressible		VARCHAR2(10) NOT NULL,
-	root_source	 	VARCHAR2(40) NOT NULL,
-	root_source_of_label	VARCHAR2(40) NOT NULL,
+	root_source	 	VARCHAR2(20) NOT NULL,
+	root_source_of_label	VARCHAR2(20) NOT NULL,
 	rui 			VARCHAR2(12) NOT NULL,
 	source_rui 		VARCHAR2(50),
 	relationship_group 	VARCHAR2(10),
@@ -783,16 +824,16 @@ STORAGE (INITIAL 200M) TABLESPACE MRD;
 -- comes from source_rank.
 DROP TABLE mrd_source_rank;
 CREATE TABLE mrd_source_rank(
-	source			VARCHAR2(40) NOT NULL,
+	source			VARCHAR2(20) NOT NULL,
 	rank			NUMBER(12) DEFAULT 0 NOT NULL,
 	restriction_level	NUMBER(12) DEFAULT 0 NOT NULL,
-	normalized_source	VARCHAR2(40) NOT NULL,
-	root_source		VARCHAR2(40),
+	normalized_source	VARCHAR2(20) NOT NULL,
+	root_source		VARCHAR2(20),
 	source_official_name	VARCHAR2(4000),
 	source_short_name	VARCHAR2(4000),
 	citation		VARCHAR2(4000),
 	character_Set		VARCHAR2(50),
-	source_family		VARCHAR2(40),
+	source_family		VARCHAR2(20),
 	version			VARCHAR2(20),
 	valid_start_date	DATE,
 	valid_end_date		DATE,
@@ -827,7 +868,7 @@ CREATE TABLE mrd_stringtab(
 	hashcode 		VARCHAR2(100),
 	row_sequence 		NUMBER(12) NOT NULL,
 	text_total 		NUMBER(12) NOT NULL,
-	text_value 		VARCHAR2(3000),
+	text_value 		VARCHAR2(1786),
 	insertion_date		DATE NOT NULL,
 	expiration_date		DATE
 )
@@ -840,8 +881,8 @@ STORAGE (INITIAL 50M) TABLESPACE MRD;
 DROP TABLE mrd_termgroup_rank;
 CREATE TABLE mrd_termgroup_rank(
 	rank			NUMBER(12) NOT NULL,
-	termgroup		VARCHAR2(60) NOT NULL,
-	normalized_termgroup	VARCHAR2(60) NOT NULL,
+	termgroup		VARCHAR2(40) NOT NULL,
+	normalized_termgroup	VARCHAR2(40) NOT NULL,
 	tty			VARCHAR2(20),
 	suppressible		VARCHAR2(20) NOT NULL,
 	insertion_date		DATE NOT NULL,
@@ -870,13 +911,12 @@ CREATE TABLE tmp_classes(
 	sui 			VARCHAR2(10) NOT NULL,
 	suppressible		VARCHAR2(10),
 	language		VARCHAR2(10),
-	root_source 		VARCHAR2(40) NOT NULL,
+	root_source 		VARCHAR2(20) NOT NULL,
 	tty	 		VARCHAR2(20),
-	code 			VARCHAR2(100),
-	last_release_rank	NUMBER(12) DEFAULT 0,
-	source_aui		VARCHAR2(100),
-	source_cui		VARCHAR2(100),
-	source_dui		VARCHAR2(100)
+	code 			VARCHAR2(50),
+	source_aui		VARCHAR2(50),
+	source_cui		VARCHAR2(50),
+	source_dui		VARCHAR2(50)
 )
 PCTFREE 10 PCTUSED 80 MONITORING
 STORAGE (INITIAL 100M) TABLESPACE MRD;
@@ -895,8 +935,8 @@ CREATE TABLE tmp_relationships(
 	relationship_name 	VARCHAR2(10),
 	relationship_attribute 	VARCHAR2(100),
 	suppressible		VARCHAR2(10) NOT NULL,
-	root_source	 	VARCHAR2(40) NOT NULL,
-	root_source_of_label	VARCHAR2(40) NOT NULL,
+	root_source	 	VARCHAR2(20) NOT NULL,
+	root_source_of_label	VARCHAR2(20) NOT NULL,
 	rui 			VARCHAR2(12),
 			-- CONSTRAINT tmp_relationships_pk PRIMARY KEY,
 	source_rui 		VARCHAR2(50),
@@ -916,10 +956,10 @@ CREATE TABLE tmp_attributes(
 	sui			VARCHAR2(10),
 	sg_type 		VARCHAR2(50) NOT NULL,
 	suppressible		VARCHAR2(10) NOT NULL,
-	attribute_name 		VARCHAR2(100) NOT NULL,
-	attribute_value 	VARCHAR2(350),
-	code			VARCHAR2(100),
-	root_source		VARCHAR2(40) NOT NULL,
+	attribute_name 		VARCHAR2(50) NOT NULL,
+	attribute_value 	VARCHAR2(200),
+	code			VARCHAR2(50),
+	root_source		VARCHAR2(20) NOT NULL,
 	atui 			VARCHAR2(12),
 			--CONSTRAINT tmp_attributes_pk PRIMARY KEY,
 	source_atui 		VARCHAR2(50),

@@ -60,7 +60,7 @@ EOF
     exit 0
     endif
 endif
-
+set user=`${MIDSVCS_HOME}/bin/get-oracle-pwd.pl`;
 if ($#argv == 2) then
     set database=$1
     set days_ago=$2
@@ -91,7 +91,7 @@ endif
 
 # get subset of actions in which we are interested
 #cat <<EOF
-set user=`${MIDSVCS_HOME}/bin/get-oracle-pwd.pl -d $database`;
+
 $ORACLE_HOME/bin/sqlplus $user@$database <<EOF
 set autocommit on
 set pages 5000
@@ -138,7 +138,7 @@ select m.authority, count(distinct m.molecule_id)
 from t_ma_$$ m, atomic_actions aa, attributes a 
 WHERE m.molecule_id=aa.molecule_id 
 and aa.row_id = a.attribute_id and m.molecular_action like '%INSERT%' 
-AND aa.action='I' and a.attribute_name='SEMANTIC_TYPE' AND aa.table_name='A'
+AND aa.action='I' and a.attribute_name||''='SEMANTIC_TYPE' AND aa.table_name='A'
 group by m.authority;
 
 /* Total counts */

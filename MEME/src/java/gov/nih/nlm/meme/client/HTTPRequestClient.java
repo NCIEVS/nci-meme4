@@ -26,7 +26,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.StringReader;
 import java.io.Writer;
-import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketException;
 
@@ -415,7 +414,7 @@ public class HTTPRequestClient implements MEMERequestClient {
     //
     Socket socket = null;
     try {
-      socket = new Socket(InetAddress.getByName(host), port);
+      socket = new Socket(host, port);
     } catch (IOException ioe) {
       final FailedToConnectException ere = new FailedToConnectException(
           "Failed to connect to server.  The most likely reason is that the server is " +

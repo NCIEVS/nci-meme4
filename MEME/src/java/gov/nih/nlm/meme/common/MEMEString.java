@@ -39,7 +39,7 @@ package gov.nih.nlm.meme.common;
  *  <code>true</code>.
  *
  * @see StringIdentifier
- *  Update: SL: For LVG2009 updated the return value for Default.getBaseString
+ *
  * @author MEME Group
  */
 
@@ -300,7 +300,7 @@ public interface MEMEString {
 
           // set gt_found
           gt_found = true;
-        } else if (gt_found && chars[i] >= '0' && chars[i] <= '9') {
+        } else if (gt_found && chars[i] > '0' && chars[i] < '9') {
 
           // set digit_found
           digit_found = true;
@@ -358,7 +358,7 @@ public interface MEMEString {
 
           // set gt_found
           gt_found = true;
-        } else if (gt_found && chars[i] >= '0' && chars[i] <= '9') {
+        } else if (gt_found && chars[i] > '0' && chars[i] < '9') {
           // '>' was found and the current character is a digit
           // add the digit to bracket_num and increase the multiplier
           bracket_num += (chars[i] - '0') * multiplier;

@@ -18,7 +18,7 @@ public class RearrangeWindowLayoutManager {
   // Fields
   //
   private static ArrayList containers = new ArrayList();
-  //private static int size = 0;
+  private static int size = 0;
   
   /**
    * Privately instantiates a {@link RearrangeWindowLayoutManager}.

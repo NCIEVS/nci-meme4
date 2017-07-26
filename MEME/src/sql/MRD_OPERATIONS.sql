@@ -3,12 +3,7 @@ CREATE OR REPLACE PACKAGE MRD_OPERATIONS AS
 /*******************************************************************
 *
 * PL/SQL File: MRD_OPERATIONS.sql
-* 09/27/2011 PM: Blanking out the relationship_group value for the inverse relationships.
-** 05/05/2009  SL: Adding the MRDOC changes removing LINKEDID and MEMBERSTATUS  attributes from MRDOC.
-* 03/03/2998  SL: SL:Adding the NDFRT SRUI, Modifying the SRUI to RUI and SAUI to AUI
-* 01/24/2008 TTN (1-GAF41): STY ATUI changes - assign ATUIs for STY and NON_HUMAN attributes 
-* 03/02/2007 TTN (1-D3BQF): add SRC_REL_ID sg_type
-* 06/09/2006 TTN (1-BFPC3): remove medline_info entries from tmp_properties 
+*
 * 03/28/2006 BAC (1-7B9EP): added attribute_level to DA,MR,ST lookups
 * 03/27/2006 BAC (1-7B9EP): Fix to MR lookups
 * 03/01/2006 BAC (1-7B9EP): DA, MR, ST ATUI lookups match new maintenance algorithm.
@@ -374,9 +369,9 @@ BEGIN
 	location := '20.2';
         INSERT INTO mrd_classes
 	    (aui, cui, lui, isui, sui, suppressible, language, root_source,
-             tty, code, last_release_rank, insertion_date,  expiration_date)
+             tty, code, insertion_date, expiration_date)
         SELECT DISTINCT aui, cui, cr.lui, isui, sui,
-		suppressible, language, root_source, tty, code,last_release_rank,
+		suppressible, language, root_source, tty, code,
                st_timestamp, null
         FROM mrd_classes
         WHERE aui = cr.aui
@@ -789,33 +784,31 @@ BEGIN
     location := '10';
     SELECT SYSDATE INTO st_timestamp FROM dual;
 
-
+    --
+    -- Set CUIs in connected_set
+    --
+    location := '15';
+    UPDATE connected_set a SET cui =
+     (SELECT cui FROM concept_status b
+      WHERE a.concept_id = b.concept_id);
 
     --
     -- Handle Concepts
     --
     IF table_name = 'ALL' OR table_name = 'CS' THEN
-            --
-       -- Set CUIs in connected_set
-       --
-       location := '15';
-       UPDATE connected_set a SET cui =
-        (SELECT cui FROM concept_status b
-          WHERE a.concept_id = b.concept_id);
-      
         MEME_UTILITY.put_message(LPAD('Process concept states.',45,' .'));
         location := '40.1';
         MEME_SYSTEM.truncate('tmp_concepts');
         location := '40.2';
         INSERT INTO tmp_concepts (concept_id, cui, status, major_revision_date)
-        SELECT 
+        SELECT /*+ PARALLEL(cst) */
 	    DISTINCT cst.concept_id, cst.cui, cst.status, cst.timestamp
         FROM concept_status cst, classes cl
         WHERE cst.concept_id = cl.concept_id
           AND cl.tobereleased NOT IN ('n','N')
 	  AND cl.termgroup NOT IN ('MTH/MM','MTH/TM');
 
-  /**      -- Expire mrd concepts states
+        -- Expire mrd concepts states
         location := '40.3';
         UPDATE mrd_concepts
         SET expiration_date = st_timestamp
@@ -827,15 +820,21 @@ BEGIN
     	     SELECT concept_id, cui, status, major_revision_date
     	     FROM tmp_concepts)
           AND expiration_date IS NULL;
-**/ 
+
         -- Insert new mrd concepts states
         location := '40.4';
         INSERT /*+ append */ INTO mrd_concepts
              (concept_id, cui, status, major_revision_date,
     	      insertion_date, expiration_date)
-        SELECT distinct concept_id, cui, status, major_revision_date,
+        SELECT concept_id, cui, status, major_revision_date,
 	       st_timestamp, null
-        FROM tmp_concepts;
+        FROM
+    	(SELECT concept_id, cui, status, major_revision_date
+	 FROM tmp_concepts
+    	 MINUS
+         SELECT a.concept_id, a.cui, a.status, major_revision_date
+         FROM mrd_concepts a
+         WHERE expiration_date IS NULL);
 
     END IF;
 
@@ -861,12 +860,12 @@ BEGIN
     location := '70.3';
     INSERT INTO tmp_classes
 	(atom_id,aui,cui,lui,isui,sui,
-	 suppressible, language, root_source, tty, code,last_release_rank,
+	 suppressible, language, root_source, tty, code,
 	 source_aui, source_cui, source_dui)
     SELECT DISTINCT cl.atom_id, cl.aui, cl.last_assigned_cui, cl.lui,
 	   cl.isui, cl.sui,
 	   cl.suppressible, cl.language, b.root_source,
-	   cl.tty, cl.code, cl.last_release_rank,
+	   cl.tty, cl.code,
 	   cl.source_aui, cl.source_cui, cl.source_dui
     FROM classes cl,
 	 mrd_source_rank ms, mrd_source_rank b
@@ -881,7 +880,7 @@ BEGIN
     -- Fix the NLM02 codes, strip off anything before the RX
     --
     location := '70.3';
-    UPDATE  tmp_classes a
+    UPDATE /*+ PARALLEL(a) */ tmp_classes a
     SET code = SUBSTR(code,INSTR(code,':')+1)
     WHERE root_source='RXNORM';
 
@@ -898,11 +897,11 @@ BEGIN
     location := '70.4';
     INSERT INTO tmp_classes
         (atom_id,aui,cui,lui,isui,sui,
-         suppressible, language, root_source, tty, code,last_release_rank,
+         suppressible, language, root_source, tty, code,
 	 source_aui, source_cui, source_dui)
     SELECT DISTINCT f.atom_id, f.aui, tc.cui, f.lui, f.isui, f.sui,
            f.suppressible, f.language, b.root_source,
-           f.tty, f.code,f.last_release_rank,
+           f.tty, f.code,
  	   f.source_aui, f.source_cui, f.source_dui
     FROM foreign_classes f, tmp_classes tc,
 	 mrd_source_rank ms, mrd_source_rank b
@@ -919,7 +918,7 @@ BEGIN
     -- Fix disambiguating codes (e.g. WHOFRE)
     --
     location := '70.b';
-    UPDATE  tmp_classes a
+    UPDATE /*+ PARALLEL(a) */ tmp_classes a
     SET code = SUBSTR(code,1,INSTR(code,'~DA:')-1)
     WHERE code like '%~DA:%';
 
@@ -945,7 +944,7 @@ BEGIN
     --
     -- AUI is now a primary key (where expiration date is null)
     --
-/**    location := '110.1';
+    location := '110.1';
     UPDATE mrd_classes
     SET expiration_date = st_timestamp
     WHERE aui IN
@@ -963,23 +962,39 @@ BEGIN
 	     FROM tmp_classes)
  	)
        AND expiration_date IS NULL;
-*/
+
     --
     -- Insert new MRD classes states
     --
     location := '110.2';
     INSERT /*+ append */ INTO mrd_classes
 	(aui,cui,lui,isui,sui,
-	 suppressible,language,root_source,tty,code,last_release_rank,
+	 suppressible,language,root_source,tty,code,
 	 source_aui, source_cui, source_dui,
 	 insertion_date,expiration_date)
-    SELECT distinct aui, cui, lui, isui, sui,
-	   suppressible, language, root_source,  tty, code,last_release_rank,
+    SELECT aui, cui, lui, isui, sui,
+	   suppressible, language, root_source,  tty, code,
 	   source_aui, source_cui, source_dui,
 	   st_timestamp, null
-	 FROM tmp_classes;
+    FROM
+	(SELECT DISTINCT aui, cui, lui, isui, sui,
+		suppressible, language, root_source, tty, code,
+	        source_aui, source_cui, source_dui
+	 FROM tmp_classes
+    	 MINUS
+    	 SELECT aui, cui, lui, isui, sui,
+		suppressible, language, root_source, tty, code,
+	        source_aui, source_cui, source_dui
+    	 FROM mrd_classes
+    	 WHERE expiration_date IS NULL);
 
     END IF;
+
+    --
+    -- Rebuild mrd_classes
+    --
+    location := '120';
+    MEME_SYSTEM.rebuild_table('mrd_classes','N',' ');
 
     --
     -- Handle Relationships
@@ -1001,7 +1016,7 @@ BEGIN
 	 relationship_attribute, suppressible,
 	 root_source, root_source_of_label, rui, source_rui,
 	 relationship_group, rel_directionality_flag)
-    SELECT 
+    SELECT /*+ parallel(r) */
 	DISTINCT r.relationship_level, tc1.aui, tc2.aui,
         tc1.cui, tc2.cui,  r.sg_type_1, r.sg_type_2, r.relationship_name,
         r.relationship_attribute, r.suppressible,
@@ -1035,14 +1050,14 @@ BEGIN
 	 relationship_attribute, suppressible,
 	 root_source, root_source_of_label, rui, source_rui,
 	 relationship_group, rel_directionality_flag)
-    SELECT  DISTINCT 'C', null, null,
+    SELECT /*+ parallel(r) */ DISTINCT 'C', null, null,
         tc1.cui, tc2.cui, 'CUI','CUI', r.relationship_name,
         DECODE(r.source,'NLM03',r.relationship_attribute,
 		        'MTHRELA',r.relationship_attribute,''),
 	       r.suppressible,
 	DECODE(r.source,'NLM03','RXNORM','MTH'),
 	DECODE(r.source_of_label,'NLM03','RXNORM','MTH'), r.rui, r.source_rui,
-	r.relationship_group, null
+	r.relationship_group, 'N'
     FROM relationships r, tmp_concepts tc1, tmp_concepts tc2
     WHERE r.relationship_level = 'C'
       AND r.concept_id_1 = tc1.concept_id
@@ -1065,7 +1080,7 @@ BEGIN
 	 relationship_attribute, suppressible,
 	 root_source, root_source_of_label, rui, source_rui,
 	 relationship_group, rel_directionality_flag)
-    SELECT  DISTINCT 'S', tc1.aui, tc2.aui,
+    SELECT /*+ PARALLEL (r) */ DISTINCT 'S', tc1.aui, tc2.aui,
         tc1.cui, tc2.cui, r.sg_type_1, r.sg_type_2, r.relationship_name,
         r.relationship_attribute, r.suppressible,
 	a.root_source, b.root_source, r.rui, r.source_rui,
@@ -1102,11 +1117,11 @@ BEGIN
 	 relationship_attribute, suppressible,
 	 root_source, root_source_of_label, rui, source_rui,
 	 relationship_group, rel_directionality_flag)
-    SELECT DISTINCT tr.relationship_level, aui_2, aui_1,
+    SELECT /*+ PARALLEL(tr) */ DISTINCT tr.relationship_level, aui_2, aui_1,
 	 cui_2, cui_1, sg_type_2, sg_type_1, inverse_name,
 	 inverse_rel_attribute, suppressible,
    	 root_source, root_source_of_label, ru.inverse_rui, source_rui,
-	 null,
+	 relationship_group,
    decode(nvl(rel_directionality_flag,'X'),'y','Y','n','Y','Y','N','N','N','')
     FROM tmp_relationships tr, inverse_relationships_ui ru,
  	 inverse_relationships ir, inverse_rel_attributes ira
@@ -1130,7 +1145,7 @@ BEGIN
 	 relationship_attribute, suppressible,
 	 root_source, root_source_of_label, rui, source_rui,
 	 relationship_group, rel_directionality_flag)
-     SELECT 'C', null, null, last_release_cui as cui1,
+     SELECT /*+ USE_NL(r,a)* / 'C', null, null, last_release_cui as cui1,
            b.cui as cui2, 'CUI', 'CUI', relationship_name,
          relationship_attribute, 'N',
          'MTH', 'MTH', rui, null,
@@ -1144,7 +1159,7 @@ BEGIN
        AND last_release_cui IS NOT NULL
        AND last_release_cui NOT IN (SELECT cui FROM tmp_concepts)
      UNION
-     SELECT 'C', null, null, last_release_cui as cui1,
+     SELECT /*+ USE_NL(r,a)* /  'C', null, null, last_release_cui as cui1,
            b.cui as cui2, 'CUI', 'CUI', inverse_name as relationship_name,
          relationship_attribute, 'N',
          'MTH', 'MTH', rui, null,
@@ -1161,13 +1176,12 @@ BEGIN
        AND last_release_cui NOT IN (SELECT cui FROM tmp_concepts);
 
     COMMIT;
-    **********************************************************************
-    **/
+    ***********************************************************************/
     --
     -- Set rel directionality flag
     --
     location := '120.6';
-    UPDATE 
+    UPDATE /*+ PARALLEL(tr) */
 	tmp_relationships tr
     SET rel_directionality_flag = 'N'
     WHERE rel_directionality_flag = 'n';
@@ -1178,7 +1192,7 @@ BEGIN
     -- Set rel directionality flag
     --
     location := '120.7';
-    UPDATE 
+    UPDATE /*+ PARALLEL(tr) */
 	tmp_relationships tr
     SET rel_directionality_flag = 'Y'
     WHERE rel_directionality_flag = 'y';
@@ -1188,7 +1202,7 @@ BEGIN
     --
     -- Don't do this anymore
     --
-    --UPDATE
+    --UPDATE /*+ PARALLEL(tr) */
     --	tmp_relationships tr
     --SET relationship_attribute =
     --	DECODE(relationship_attribute,
@@ -1206,7 +1220,7 @@ BEGIN
     -- any that were inversed above...
     --
     location := '120.8';
-    UPDATE tmp_relationships tr
+    UPDATE /*+ PARALLEL(tr) */tmp_relationships tr
     SET relationship_attribute =
        DECODE(relationship_attribute,
 	'part_of', 'sib_in_part_of', 'has_part','sib_in_part_of',
@@ -1220,7 +1234,7 @@ BEGIN
 
     COMMIT;
 
-    UPDATE tmp_relationships tr
+    UPDATE /*+ PARALLEL(tr) */tmp_relationships tr
     SET relationship_attribute = null
     WHERE relationship_name = 'SIB'
       AND root_source != 'UWDA'
@@ -1232,7 +1246,7 @@ BEGIN
     -- Compute release names
     --
     location := '120.9';
-    UPDATE tmp_relationships tr
+    UPDATE /*+ PARALLEL(tr) */tmp_relationships tr
     SET relationship_name =
 	(SELECT release_name FROM inverse_relationships
 	 WHERE relationship_name = tr.relationship_name)
@@ -1242,20 +1256,12 @@ BEGIN
       AND relationship_name NOT IN ('BBT','BNT','BRT');
 
     COMMIT;
-    --
-    -- Fix disambiguating SRUI (e.g. NDFRT)
 
-    location := '130.0';
-    UPDATE tmp_relationships a
-    SET source_rui = null
-    WHERE source_rui like '~DA:%';
-
-    COMMIT;
     --
     -- STYPE1
     --
     location := '130.1';
-    UPDATE tmp_relationships tr
+    UPDATE /*+ PARALLEL(tr) */tmp_relationships tr
        SET sg_type_1 =
        DECODE(NVL(sg_type_1,'null'),
 	   'null','AUI',
@@ -1270,13 +1276,13 @@ BEGIN
 	   'CUI_STRIPPED_SOURCE','CUI',
 	   'CUI_ROOT_SOURCE','CUI',
 	   'SOURCE_CUI','SCUI',
-	   'SOURCE_AUI','AUI',
+	   'SOURCE_AUI','SAUI',
 	   'SOURCE_DUI','SDUI',
- 	   'SOURCE_RUI','RUI',
-	   'ROOT_SOURCE_AUI','AUI',
+ 	   'SOURCE_RUI','SRUI',
+	   'ROOT_SOURCE_AUI','SAUI',
 	   'ROOT_SOURCE_CUI','SCUI',
 	   'ROOT_SOURCE_DUI','SDUI',
-	   'ROOT_SOURCE_RUI','RUI', sg_type_1)
+	   'ROOT_SOURCE_RUI','SRUI')
     WHERE relationship_level = 'S'
       AND NVL(sg_type_1,'null') not in ('AUI','CUI');
 
@@ -1286,7 +1292,7 @@ BEGIN
     -- STYPE2
     --
     location := '130.2';
-    UPDATE tmp_relationships tr
+    UPDATE /*+ PARALLEL(tr) */tmp_relationships tr
        SET sg_type_2 =
        DECODE(NVL(sg_type_2,'null'),
 	   'null','AUI',
@@ -1302,13 +1308,13 @@ BEGIN
 	   'CUI_STRIPPED_SOURCE','CUI',
 	   'CUI_ROOT_SOURCE','CUI',
 	   'SOURCE_CUI','SCUI',
-	   'SOURCE_AUI','AUI',
+	   'SOURCE_AUI','SAUI',
 	   'SOURCE_DUI','SDUI',
- 	   'SOURCE_RUI','RUI',
-	   'ROOT_SOURCE_AUI','AUI',
+ 	   'SOURCE_RUI','SRUI',
+	   'ROOT_SOURCE_AUI','SAUI',
 	   'ROOT_SOURCE_CUI','SCUI',
 	   'ROOT_SOURCE_DUI','SDUI',
-	   'ROOT_SOURCE_RUI','RUI', sg_type_2)
+	   'ROOT_SOURCE_RUI','SRUI')
     WHERE relationship_level = 'S'
       AND NVL(sg_type_2,'null') NOT IN ('CUI','AUI');
 
@@ -1334,9 +1340,7 @@ BEGIN
     --
     -- Expire old MRD relationship states
     --
-/*
- * 
-     location := '130.4';
+    location := '130.4';
     UPDATE mrd_relationships
     SET expiration_date = st_timestamp
     WHERE rui IN
@@ -1360,7 +1364,7 @@ BEGIN
 	    FROM tmp_relationships)
 	)
       AND expiration_date IS NULL;
-*/
+
     --
     -- Insert new MRD relationship states
     --
@@ -1372,13 +1376,28 @@ BEGIN
 	 root_source, root_source_of_label, rui,
 	 source_rui, relationship_group,
 	 rel_directionality_flag, insertion_date, expiration_date)
-    SELECT distinct  relationship_level, aui_1, aui_2,
+    SELECT /*+ parallel(r) */ relationship_level, aui_1, aui_2,
 	   cui_1, cui_2, sg_type_1, sg_type_2, relationship_name,
 	   relationship_attribute, suppressible,
 	   root_source, root_source_of_label, rui,
 	   source_rui, relationship_group,
 	   rel_directionality_flag, st_timestamp, null
-    FROM tmp_relationships;
+    FROM tmp_relationships
+    MINUS
+    SELECT /*+ parallel(m) */ relationship_level, aui_1, aui_2,
+	   cui_1, cui_2, sg_type_1, sg_type_2, relationship_name,
+	   relationship_attribute, suppressible,
+	   root_source, root_source_of_label, rui,
+	   source_rui, relationship_group,
+	   rel_directionality_flag, st_timestamp, null
+    FROM mrd_relationships m
+    WHERE expiration_date IS NULL;
+
+    --
+    -- Rebuild mrd_relationships
+    --
+    location := '120';
+    MEME_SYSTEM.rebuild_table('mrd_relationships','N',' ');
 
     END IF;
 
@@ -1407,8 +1426,7 @@ BEGIN
 	(attribute_level, ui, cui, lui, sui, sg_type,
 	 suppressible, attribute_name, attribute_value,
 	 code, root_source, atui, source_atui, hashcode)
-	 -- Haining, Siebel C17ND, remove USE_HASH for 10g
-    SELECT DISTINCT
+    SELECT /*+ PARALLEL(a) USE_HASH(a,tc) */ DISTINCT
 	   a.attribute_level, tc.aui,
 	   tc.cui, tc.lui, tc.sui, a.sg_type, a.suppressible,
 	   a.attribute_name, a.attribute_value,
@@ -1417,7 +1435,7 @@ BEGIN
     FROM attributes a, tmp_classes tc,
 	 mrd_source_rank ms, mrd_source_rank ms2
     WHERE a.attribute_level = 'S'
-      AND sg_type not in ('SOURCE_RUI','RUI','ROOT_SOURCE_RUI')
+      AND sg_type not in ('SOURCE_RUI','ROOT_SOURCE_RUI')
       AND a.atom_id = tc.atom_id
       AND a.tobereleased NOT IN ('n','N')
       AND a.source = ms.source
@@ -1435,8 +1453,7 @@ BEGIN
 	(attribute_level, ui, cui, lui, sui, sg_type,
 	 suppressible, attribute_name, attribute_value,
 	 code, root_source, atui, source_atui, hashcode)
-	 -- Haining, Siebel C17ND, remove USE_HASH for 10g
-    SELECT DISTINCT
+    SELECT /*+ PARALLEL(a) USE_HASH(a,mr) */ DISTINCT
            a.attribute_level, rui,
 	   mr.cui_1, null, null, a.sg_type, a.suppressible, a.attribute_name,
 	   a.attribute_value, null, ms.root_source,
@@ -1457,31 +1474,6 @@ BEGIN
 
     COMMIT;
 
-    location := '140.3b';
-    INSERT /*+ APPEND */ INTO tmp_attributes
-	(attribute_level, ui, cui, lui, sui, sg_type,
-	 suppressible, attribute_name, attribute_value,
-	 code, root_source, atui, source_atui, hashcode)
-    SELECT DISTINCT
-           a.attribute_level, rui,
-	   mr.cui_1, null, null, a.sg_type, a.suppressible, a.attribute_name,
-	   a.attribute_value, null, ms.root_source,
-	   a.atui, a.source_atui, a.hashcode
-    FROM attributes a, mrd_relationships mr,
-         mrd_source_rank ms, mrd_source_rank ms2
-    WHERE a.attribute_level = 'S'
-      AND sg_type = 'RUI'
-      AND nvl(mr.rel_directionality_flag,'Y') = 'Y'
-      AND a.sg_id = mr.rui
-      AND a.tobereleased NOT IN ('n','N')
-      AND a.source = ms.source
-      AND mr.expiration_date IS NULL
-      AND ms.normalized_source = ms2.source
-      AND ms.expiration_date IS NULL
-      AND ms2.expiration_date IS NULL;
-
-    COMMIT;
-    
     --
     -- C level attributes
     --
@@ -1490,8 +1482,7 @@ BEGIN
 	(attribute_level, ui, cui, lui, sui, sg_type,
 	 suppressible, attribute_name, attribute_value,
 	 code, root_source, atui, source_atui, hashcode)
-	 -- Haining, Siebel C17ND, remove USE_HASH for 10g
-    SELECT  DISTINCT
+    SELECT /*+ PARALLEL(a) USE_HASH(a,tc) */ DISTINCT
            a.attribute_level, null, tc.cui,null, null, 'CUI',
 	   a.suppressible, a.attribute_name, a.attribute_value, null,
 	   a.source, a.atui, a.source_atui, a.hashcode
@@ -1511,19 +1502,15 @@ BEGIN
 	(attribute_level, ui, cui, lui, sui, sg_type,
 	 suppressible, attribute_name, attribute_value,
 	 code, root_source, atui, source_atui, hashcode)
-	 -- Haining, Siebel C17ND, remove USE_HASH for 10g
-    SELECT DISTINCT
+    SELECT /*+ PARALLEL(a) USE_HASH(a,tc) */ DISTINCT
            a.attribute_level, null, tc.cui,null, null, 'CUI',
 	   a.suppressible, a.attribute_name, a.attribute_value, null,
-	   'MTH', b.atui, a.source_atui, a.hashcode
-    FROM attributes a, tmp_concepts tc, attributes_ui b
+	   'MTH', a.atui, a.source_atui, a.hashcode
+    FROM attributes a, tmp_concepts tc
     WHERE a.attribute_level = 'C'
       AND a.concept_id = tc.concept_id
-      AND tc.cui = b.sg_id
-      AND a.hashcode = b.hashcode
-      AND b.sg_type = 'CUI'
       AND a.tobereleased NOT IN ('n','N')
-      AND a.attribute_name = 'SEMANTIC_TYPE';
+      AND attribute_name = 'SEMANTIC_TYPE';
 
     COMMIT;
 
@@ -1535,8 +1522,7 @@ BEGIN
 	(attribute_level, ui, cui, lui, sui, sg_type,
 	 suppressible, attribute_name, attribute_value,
 	 code, root_source, atui, source_atui, hashcode)
-	 -- Haining, Siebel C17ND, remove USE_HASH for 10g
-    SELECT DISTINCT
+    SELECT /*+ PARALLEL(a) USE_HASH(a,b) */ DISTINCT
     	    attribute_level, null, cui, null, null, sg_type,
 	    'N', attribute_name, status,
 	    null, root_source, atui, null, hashcode
@@ -1630,8 +1616,7 @@ BEGIN
 	(attribute_level, ui, cui, lui, sui, sg_type,
 	 suppressible, attribute_name, attribute_value,
 	 code, root_source, atui, source_atui, hashcode)
-	 -- Haining, Siebel C17ND, remove USE_HASH for 10g
-    SELECT DISTINCT
+    SELECT /*+ PARALLEL(a) USE_HASH(a,b) */  DISTINCT
     	    attribute_level, null, cui, null, null, sg_type,
 	    'N', attribute_name, TO_CHAR(major_revision_date, 'YYYYMMDD'),
 	    null, root_source, atui, null, hashcode
@@ -1654,8 +1639,7 @@ BEGIN
 	(attribute_level, ui, cui, lui, sui, sg_type,
 	 suppressible, attribute_name, attribute_value,
 	 code, root_source, atui, source_atui, hashcode)
-	 -- Haining, Siebel C17ND, remove USE_HASH for 10g
-    SELECT DISTINCT
+    SELECT /*+ PARALLEL(a) USE_HASH(a,b) */  DISTINCT
     	    attribute_level, null, cui, null, null, sg_type,
 	    'N', attribute_name, '00000000',
 	    null, root_source, atui, null, hashcode
@@ -1675,7 +1659,7 @@ BEGIN
     -- Fix long attribute pointers to use hashcode
     --
     location := '140.2b';
-    UPDATE tmp_attributes a
+    UPDATE /*+ PARALLEL(a) */ tmp_attributes a
     SET attribute_value = '<>Long_Attribute<>:'||hashcode
     WHERE attribute_value like '<>Long_Attribute<>:%';
 
@@ -1685,7 +1669,7 @@ BEGIN
     -- STYPE
     --
     location := '140.9';
-    UPDATE tmp_attributes a
+    UPDATE /*+ PARALLEL(a) */ tmp_attributes a
     SET sg_type =
        DECODE(NVL(sg_type,'null'),
 	   'null','AUI',
@@ -1700,19 +1684,19 @@ BEGIN
 	   'CUI_STRIPPED_SOURCE','CUI',
 	   'CUI_ROOT_SOURCE','CUI',
 	   'SOURCE_CUI','SCUI',
-	   'SOURCE_AUI','AUI',
+	   'SOURCE_AUI','SAUI',
 	   'SOURCE_DUI','SDUI',
- 	   'SOURCE_RUI','RUI',
-	   'ROOT_SOURCE_AUI','AUI',
+ 	   'SOURCE_RUI','SRUI',
+	   'ROOT_SOURCE_AUI','SAUI',
 	   'ROOT_SOURCE_CUI','SCUI',
 	   'ROOT_SOURCE_DUI','SDUI',
-	   'ROOT_SOURCE_RUI','RUI',sg_type)
+	   'ROOT_SOURCE_RUI','SRUI')
     WHERE attribute_level = 'S'
       AND nvl(sg_type,'null') not in ('AUI','CUI');
 
     COMMIT;
 
-    UPDATE tmp_attributes a
+    UPDATE /*+ PARALLEL(a) */ tmp_attributes a
     SET sg_type = 'CUI'
     WHERE attribute_level = 'C'
       AND nvl(sg_type,'null') != 'CUI';
@@ -1737,7 +1721,7 @@ BEGIN
     --
     -- Expire old MRD attributes states
     --
- /*   location := '160';
+    location := '160';
     UPDATE mrd_attributes
     SET expiration_date = sysdate
     WHERE atui IN
@@ -1756,7 +1740,7 @@ BEGIN
 	     FROM tmp_attributes)
 	)
       AND expiration_date IS NULL;
-*/
+
     --
     -- Insert new MRD attributes states
     --
@@ -1769,8 +1753,20 @@ BEGIN
     SELECT DISTINCT attribute_level, ui,cui, lui, sui, sg_type,
  	suppressible, attribute_name, attribute_value, code, root_source,
 	atui, source_atui, hashcode,	st_timestamp, null
-    FROM tmp_attributes a;
+    FROM tmp_attributes a
+    MINUS
+    SELECT attribute_level, ui, cui, lui, sui, sg_type,
+	suppressible, attribute_name, attribute_value, code, root_source,
+	atui, source_atui, hashcode, st_timestamp, null
+    FROM mrd_attributes m
+    WHERE expiration_date IS NULL;
 
+
+    --
+    -- Rebuild mrd_relationships
+    --
+    location := '120';
+    MEME_SYSTEM.rebuild_table('mrd_attributes','N',' ');
 
     END IF;
 
@@ -2006,7 +2002,7 @@ BEGIN
 	     MINUS
 	     SELECT b.hashcode, row_sequence, text_total, text_value
 	     FROM stringtab a,
-	        (SELECT hashcode,
+	        (SELECT /*+ PARALLEL(a) */ hashcode,
 	 	   to_number(substr(attribute_value,20)) as string_id
 	         FROM attributes a WHERE tobereleased in ('Y','y')
 	 	 AND attribute_value like '<>Long_Attribute<>:%') b
@@ -2024,7 +2020,7 @@ BEGIN
   	FROM
 	 (SELECT b.hashcode, row_sequence, text_total, text_value
 	     FROM stringtab a,
-	        (SELECT hashcode,
+	        (SELECT /*+ parallel(a) */hashcode,
 		    to_number(substr(attribute_value,20)) as string_id
 	         FROM attributes a WHERE tobereleased in ('Y','y')
 	 	 AND attribute_value like '<>Long_Attribute<>:%') b
@@ -2035,7 +2031,62 @@ BEGIN
 
     -- Process contexts changes
     ELSIF LOWER(table_name) = 'context_relationships' THEN
-	
+
+	-- Expire old MRD contexts states
+	-- Elapsed: 00:29:09.17
+	location := '80.1';
+	UPDATE mrd_contexts
+	SET expiration_date = st_timestamp
+	WHERE (aui, NVL(parent_treenum, 'null'),root_source,
+	       NVL(hierarchical_code, 'null'),
+	       NVL(relationship_attribute, 'null'), release_mode,
+	       NVL(rui,'null'), NVL(source_rui,'null'),
+	       NVL(relationship_group,'null')) IN
+	    (SELECT aui, NVL(parent_treenum, 'null'), root_source,
+		    NVL(hierarchical_code, 'null'),
+  		    NVL(relationship_attribute, 'null'), release_mode,
+		    NVL(rui,'null'), NVL(source_rui,'null'),
+	            NVL(relationship_group,'null')
+	     FROM
+	     (SELECT aui, parent_treenum, root_source, hierarchical_code,
+		     relationship_attribute, release_mode,
+		     rui, source_rui, relationship_group
+	      FROM mrd_contexts
+              WHERE expiration_date IS NULL
+  	      MINUS
+  	      (SELECT /*+ parallel(a) */
+		     aui, parent_treenum, r.root_source, hierarchical_code,
+  		     b.relationship_attribute, release_mode,
+		     rui, source_rui, relationship_group
+  	       FROM context_relationships a, inverse_rel_attributes b, classes,
+				mrd_source_rank ms, mrd_source_rank r
+	       WHERE relationship_name='PAR'
+	 	 AND a.tobereleased in ('Y','y')
+		 AND a.source = ms.source
+		 AND ms.normalized_source = r.source
+		 AND ms.expiration_date IS NULL
+		 AND r.expiration_date IS NULL
+	 	 AND NVL(a.relationship_attribute,'null') = NVL(b.inverse_rel_attribute,'null')
+		 AND atom_id = atom_id_1
+    	       UNION ALL
+	        -- highest level parents (not in context_relationships
+	        --by themselves)
+  	       SELECT /*+ parallel(a) */
+		      b.aui, null, r.root_source, null, null, '11',
+		      null, null, null
+  	       FROM context_relationships a, classes b,
+		    mrd_source_rank ms, mrd_source_rank r
+  	       WHERE aui = parent_treenum
+		 AND relationship_name='PAR'
+		 AND a.tobereleased in ('Y','y')
+		 AND a.source = ms.source
+		 AND ms.normalized_source = r.source
+		 AND ms.expiration_date IS NULL
+		 AND r.expiration_date IS NULL
+		 AND atom_id_2 = atom_id)
+	     ) )
+	  AND expiration_date IS NULL;
+
 	-- Insert new MRD contexts states
 	location := '80.2';
 	INSERT INTO mrd_contexts
@@ -2047,7 +2098,7 @@ BEGIN
              relationship_attribute, release_mode,
 	     rui, source_rui, relationship_group, st_timestamp, null
         FROM
-        (SELECT 
+        ((SELECT /*+ PARALLEL(a) */
 		aui, parent_treenum, r.root_source, hierarchical_code,
 		b.relationship_attribute, release_mode,
 		rui, source_rui, relationship_group
@@ -2064,7 +2115,7 @@ BEGIN
 	  AND r.expiration_date IS NULL
 	  AND c.atom_id = atom_id_1
     	UNION ALL
-  	SELECT 
+  	SELECT /*+ parallel(a) */
 		aui, null, r.root_source, null, null, '11',
 		null, null, null
   	FROM context_relationships a, classes b,
@@ -2077,7 +2128,13 @@ BEGIN
 	  AND ms.normalized_source = r.source
 	  AND ms.expiration_date IS NULL
 	  AND r.expiration_date IS NULL
-	  AND atom_id_2 = atom_id);
+	  AND atom_id_2 = atom_id)
+        MINUS
+  	SELECT aui, parent_treenum, root_source, hierarchical_code,
+		relationship_attribute,	release_mode,
+		rui, source_rui, relationship_group
+  	FROM mrd_contexts
+  	WHERE expiration_date IS NULL);
 
     -- Process meme_properties changes
     ELSIF LOWER(table_name) = 'meme_properties' THEN
@@ -2102,61 +2159,20 @@ BEGIN
 	   SELECT DISTINCT tty FROM mrd_classes WHERE expiration_date IS NULL);
 
 	--
-    -- Remove unused MRDOC TTY rows
-	--
-    location := '90.215';
-	DELETE FROM tmp_properties
-	WHERE key_qualifier = 'LAT'
-	  AND value IN
-	  (SELECT value FROM tmp_properties
-	   WHERE key_qualifier='LAT'
-	   MINUS
-	   SELECT DISTINCT language FROM mrd_classes WHERE expiration_date IS NULL);
-	   
-	   
-	--
 	-- Remove unused MRDOC ATN rows
 	--
 	location := '90.22';
 	DELETE FROM tmp_properties
 	 WHERE key_qualifier='ATN'
+	   AND value NOT LIKE 'MED____'
 	   AND value IS NOT NULL
-	   AND value NOT IN ('DA','MR','ST','LT')
+	   AND value NOT IN ('DA','MR','ST','LT','NH')
 	   AND value IN
 	   (SELECT value FROM tmp_properties WHERE key_qualifier='ATN'
 	    MINUS
-	    (SELECT DISTINCT attribute_name
+	    SELECT /*+ parallel(a) */ DISTINCT attribute_name
 	     FROM mrd_attributes a
-	     WHERE expiration_date IS NULL
-	     UNION
-	     SELECT 'MEMBERSTATUS' from dual
-	     UNION
-	     SELECT DISTINCT substr(attribute_value, instr(attribute_value,'~') +1,
-                instr(attribute_value,'~',1,2)-
-                instr(attribute_value,'~')-1)
-     FROM attributes WHERE attribute_name='CV_MEMBER' 
-     AND attribute_value not like '<>Long_Attribute<>:%'
-     UNION
-     SELECT DISTINCT substr(text_value,instr(text_value,'~')+1,
-                instr(text_value,'~',1,2)-
-                instr(text_value,'~')-1)
-     FROM attributes a, stringtab b
-     WHERE to_number(substr(attribute_value,20)) = string_id
-       AND attribute_name='CV_MEMBER' 
-       AND attribute_value like '<>Long_Attribute<>:%'
-    UNION
-       SELECT DISTINCT SUBSTR(attribute_value, INSTR(attribute_value,'~', 1, 1)+1,
-       INSTR(attribute_value,'~',1,2)-INSTR(attribute_value,'~',1,1)-1) atn
-       FROM attributes where attribute_name='SUBSET_MEMBER' and tobereleased in ('Y','y')
-     AND attribute_value not like '<>Long_Attribute<>:%'
-     UNION
-     SELECT DISTINCT substr(text_value,instr(text_value,'~')+1,
-                instr(text_value,'~',1,2)-instr(text_value,'~')-1)
-     FROM attributes a, stringtab b
-     WHERE to_number(substr(attribute_value,20)) = string_id
-       AND attribute_name='SUBSET_MEMBER' 
-       AND attribute_value like '<>Long_Attribute<>:%'
-	     ));
+	     WHERE expiration_date IS NULL);
 
 	--
 	-- Remove unused MRDOC RELA rows
@@ -2179,38 +2195,10 @@ BEGIN
                      (INSTR(attribute_value, '~', 1, 5) -
                      INSTR(attribute_value, '~', 1, 4)) - 1)
 	     FROM mrd_attributes
-  	     WHERE attribute_name='XMAP' AND expiration_date IS NULL
-  	     UNION
-         SELECT inverse_rel_attribute FROM inverse_rel_attributes
-                      WHERE relationship_attribute IN (SELECT 
-                      SUBSTR (attribute_value, INSTR (attribute_value, '~', 1, 4)  + 1,
-                                                                   (  INSTR (attribute_value,'~',1,5)
-                                                                    - INSTR (attribute_value,'~',1,4))- 1)
-                       FROM mrd_attributes
-                       WHERE     attribute_name ='XMAP'
-                       AND expiration_date IS NULL
-                       AND SUBSTR (attribute_value,INSTR (attribute_value,'~',1,4)+ 1,
-                                                                       (  INSTR (attribute_value,'~',1,5)
-                                                                        - INSTR (attribute_value,'~',1,4))- 1)
-                                                                     IS NOT NULL)
-      ));
+  	     WHERE attribute_name='XMAP' AND expiration_date IS NULL));
 
 	--
-	-- Remove unused MEDLINE_INFO rows
-	--
-	location := '90.23';
-    	DELETE FROM tmp_properties
-	 WHERE key_qualifier='MEDLINE_INFO';
-	DELETE FROM tmp_properties
-       WHERE key_qualifier='ATN'
-         AND value LIKE 'MED____'
-         AND value NOT IN
-         (SELECT DISTINCT 'MED'||TO_CHAR(publication_date,'YYYY') as atn
-          FROM coc_headings
-          WHERE source = 'NLM-MED');
-
-	--
-    -- Expire old MRD properties states
+        -- Expire old MRD properties states
 	--
         location := '90.1';
         UPDATE mrd_properties
@@ -2385,11 +2373,11 @@ BEGIN
         location := '120.1';
         INSERT INTO tmp_classes
             (atom_id,aui,cui,lui,isui,sui,
-             suppressible, language, root_source, tty, code,last_release_rank,
+             suppressible, language, root_source, tty, code,
 	     source_aui, source_cui, source_dui)
         SELECT DISTINCT f.atom_id, f.aui, tc.cui, f.lui, f.isui, f.sui,
            f.suppressible, f.language, b.root_source,
-           f.tty, NVL(f.tty,SUBSTR(f.termgroup,INSTR(f.termgroup,'/')+1)),f.last_release_rank,
+           f.tty, NVL(f.tty,SUBSTR(f.termgroup,INSTR(f.termgroup,'/')+1)),
  	   f.source_aui, f.source_cui, f.source_dui
         FROM foreign_classes f, mrd_classes tc,
 	     mrd_source_rank ms, mrd_source_rank b
@@ -2426,17 +2414,17 @@ BEGIN
         location := '120.3';
         INSERT INTO mrd_classes
             (aui,cui,lui,isui,sui,
-             suppressible,language,root_source,tty,code,last_release_rank,
+             suppressible,language,root_source,tty,code,
 	     source_aui, source_cui, source_dui,
              insertion_date,expiration_date)
         SELECT aui, cui, lui, isui, sui,
-	   suppressible, language, root_source, tty, code,last_release_rank,
+	   suppressible, language, root_source, tty, code,
 	   source_aui, source_cui, source_dui,
            st_timestamp, null
         FROM tmp_classes
         MINUS
         SELECT aui, cui, lui, isui, sui,
-	   suppressible, language, root_source, tty, code,last_release_rank,
+	   suppressible, language, root_source, tty, code,
 	   source_aui, source_cui, source_dui,
            st_timestamp, null
         FROM mrd_classes
@@ -2461,10 +2449,6 @@ BEGIN
         	   AND publication_date BETWEEN
     		       to_date(''01-jan-'||start_year||''',''DD-mon-YYYY'')
     		   AND to_date(''01-jan-'||end_year||''',''DD-mon-YYYY'')');
-    		   
-            location := '130.11';
-            MEME_SYSTEM.analyze('t_mrd_coc_headings');
-            MEME_SYSTEM.analyze('mrd_coc_headings');
 
     	    location := '130.2';
     	    MEME_UTILITY.drop_it('table','t_coc_headings');
@@ -2481,10 +2465,6 @@ BEGIN
     		        to_date(''01-jan-'||start_year||''',''DD-mon-YYYY'') AND
     		 	to_date(''01-jan-'||end_year||''',''DD-mon-YYYY'')
           	   AND heading_id = atom_id');
-
-
-            location := '130.21';
-            MEME_SYSTEM.analyze('t_coc_headings');
 
             -- Expire old coc_headings states
     	    location := '130.3a';
@@ -2551,7 +2531,7 @@ BEGIN
 
         -- Expire where mrd does not match mid view
         location := '140.1';
-  /*      UPDATE mrd_coc_subheadings
+        UPDATE mrd_coc_subheadings
         SET expiration_date = st_timestamp
         WHERE (subheading_set_id,citation_set_id,
                subheading_qa,subheading_major_topic) IN
@@ -2564,7 +2544,7 @@ BEGIN
                     subheading_qa,subheading_major_topic
              FROM coc_subheadings)
           AND expiration_date IS NULL;
-*/
+
         -- Insert new MRD properties states
         location := '140.2';
         INSERT INTO mrd_coc_subheadings

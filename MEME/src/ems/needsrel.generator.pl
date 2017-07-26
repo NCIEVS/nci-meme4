@@ -14,13 +14,11 @@
 # -s sources
 # -b
 
-BEGIN
-{
 unshift @INC, "$ENV{ENV_HOME}/bin";
+
 require "env.pl";
-unshift @INC, "$ENV{EMS_HOME}/lib";
-unshift @INC, "$ENV{EMS_HOME}/bin";
-}
+
+use lib "$ENV{EMS_HOME}/lib";
 
 use OracleIF;
 use EMSUtils;
@@ -42,7 +40,7 @@ EMSUtils->loadConfig;
 
 $db = $opt_d || Midsvcs->get('editing-db');
 $user = $main::EMSCONFIG{ORACLE_USER};
-$password = GeneralUtils->getOraclePassword($user,$db);
+$password = GeneralUtils->getOraclePassword($user);
 $dbh = new OracleIF("db=$db&user=$user&password=$password");
 die "Cannot connect to $db" unless $dbh;
 
@@ -63,12 +61,11 @@ if ($opt_s) {
 
 $sql = <<"EOD";
 create table $needsrel AS
-select a.concept_id as concept_id_1, b.concept_id as concept_id_2, a.atom_id as a1, b.atom_id as a2 from classes a, classes b
+select a.concept_id as c1, b.concept_id as c2, a.atom_id as a1, b.atom_id as a2 from classes a, classes b
 where  a.lui = b.lui
 and    a.concept_id < b.concept_id
 and    a.tobereleased IN ('y', 'Y')
 and    b.tobereleased IN ('y', 'Y')
-and a.language='ENG' and b.language='ENG'
 $sourcesql
 EOD
 $dbh->executeStmt($sql);
@@ -84,12 +81,12 @@ delete from $needsrel where a2 in (select normstr_id from normstr where normstr 
 EOD
 $dbh->executeStmt($sql);
 
-$sql = "create table $needsrel2 as select distinct concept_id_1, concept_id_2 from $needsrel";
+$sql = "create table $needsrel2 as select distinct c1, c2 from $needsrel";
 $dbh->executeStmt($sql);
 
 # remove pairs that have rels
 $sql = <<"EOD";
-delete from $needsrel2 where (concept_id_1, concept_id_2) in
+delete from $needsrel2 where (c1, c2) in
 (
   select concept_id_1, concept_id_2 from relationships where  tobereleased in ('y', 'Y')
   union
@@ -98,23 +95,15 @@ delete from $needsrel2 where (concept_id_1, concept_id_2) in
 EOD
 $dbh->executeStmt($sql);
 
-$tmpfile = "/tmp/tmpneedsrel.$$";
-$dbh->selectToFile("select * from $needsrel2", $tmpfile);
+# make clusters (using pivot)
+$sql = <<"EOD";
+select c1, rownum as r from $needsrel2
+union all
+select c2, rownum as r from $needsrel2
+order by r
+EOD
+
+$dbh->selectToFile($sql, \*STDOUT);
 $dbh->dropTables([$needsrel, $needsrel2]);
 $dbh->disconnect;
-
-open(T, "$tmpfile") || die "Cannot open $tmpfile\n";
-while (<T>) {
-  chomp;
-  ($c1, $c2) = split /\|/, $_;
-
-  next if $done{"$c1|$c2"}++;
-    $cluster++;
-    print <<"EOD";
-$c1|$cluster
-$c2|$cluster
-EOD
-}
-close(T);
-unlink $tmpfile;
-exit 0
+exit 0;

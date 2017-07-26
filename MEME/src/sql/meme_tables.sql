@@ -25,32 +25,12 @@
 * SQL> select count(*),segment_name from user_extents
 *      group by segment_name order by 1;
 *
-* CHANGES
-* 08/03/2012 MA          : attribute_name => 100
-* 06/22/2009 BAC(1-MD4D9): resolve null vs not null for
-* fields in CRACR and dead_CRACR tables.
-* 06/22/2009 BAC (1-MD04R): meme_indexes has UNIQUENESS
-* 02/24/2009 BAC (1-GCLNT): source_rank and rank fields for r,cr,a should be nullable and default 0
-* 08-26-2008  SL        : Changing the RUI length to varchar(12)
-* 04-04-2008 TK (1-GZSMP): Added src_atom_id_range table for the assign_src_atom_id_range.cgi application.
-* 02/28/2008 TK (1-GMAC4): Removed qa_diff_results table. It's replaced with a view.
-* 11/07/2007 BAC (1-FP73L): meta_ver is NOT NULL.
-*   07/17/2007 2.2   SL (1-EG3G3) : Changed the attribute value column to 350 varchar2
-* 06/28/2007 JFW (1-EL38F): added obsoolete_ui
-* 06/04/2007 TK (1-EE0I5) increase src_qa_queries query field to varchar(1500)
-* 05/28/2007 BAC (1-ECA0Z): attribute_value fields changed to length 300
-* 04/26/2007 TK (1-E730H) : value fields changed to varchar2(150)
-* 08/29/2006 SL (1-C17ND)  Adding Oracle10g performance like analyze staments
-* 08/08/2006 BAC (1-BVC8P): coc_headings no longer uses partitions.
-*
-* Old Version Info:
+* Version Info:
 * Release: 4
 * Version: 40.1
 * Authority: BAC
 * Date: 06/23/2005
 *
-* 05/06/2013 3.41.2 BAC (UMLS-11) : change code to varchar2(100)
-* 02/22/2007 3.41   TTN (1-DKB57) : Added qa_result_reasons, qa_comparison_reasons
 * 02/27/2006 3.40.3 TTN (1-AHNAL) : add code and cascade field to content_view_members schema
 * 02/03/2006 3.40.2 TTN (1-76Y8V) : change code to varchar2(50)
 * 06/23/2005 3.40.1: Optimization to source_replacement table structure
@@ -269,7 +249,7 @@ CREATE TABLE allocated_ui_ranges (
 	type		VARCHAR2(50),
 	low_ui		VARCHAR2(10),
 	high_ui		VARCHAR2(10),
-	root_source 	VARCHAR2(40),
+	root_source 	VARCHAR2(20),
 	description	VARCHAR2(2000)
 )
 PCTFREE 10 PCTUSED 80 MONITORING;
@@ -373,12 +353,12 @@ CREATE TABLE atoms_ui (
 	aui			VARCHAR2(10) NOT NULL
 				  CONSTRAINT atoms_ui_pk PRIMARY KEY,
 	sui			VARCHAR2(10) NOT NULL,
-	stripped_source		VARCHAR2(40) NOT NULL,
+	stripped_source		VARCHAR2(20) NOT NULL,
 	tty			VARCHAR2(20) NOT NULL,
-	code			VARCHAR2(10),
-	source_aui		VARCHAR2(100),
-	source_cui		VARCHAR2(100),
-	source_dui		VARCHAR2(100)
+	code			VARCHAR2(50),
+	source_aui		VARCHAR2(50),
+	source_cui		VARCHAR2(50),
+	source_dui		VARCHAR2(50)
 )
 PCTFREE 10 PCTUSED 80 MONITORING
 STORAGE (INITIAL 200M);
@@ -394,10 +374,10 @@ CREATE TABLE attributes(
 	attribute_id 		NUMBER(12)
 		CONSTRAINT attributes_pk PRIMARY KEY,
 	attribute_level 	VARCHAR2(1) NOT NULL,
-	attribute_name 		VARCHAR2(100) NOT NULL,
-	attribute_value 	VARCHAR2(350),
+	attribute_name 		VARCHAR2(50) NOT NULL,
+	attribute_value 	VARCHAR2(200),
 	generated_status	VARCHAR2(1) NOT NULL,
-	source		 	VARCHAR2(40) NOT NULL,
+	source		 	VARCHAR2(20) NOT NULL,
 	dead 			VARCHAR2(1) NOT NULL,
 	status 			VARCHAR2(1) NOT NULL,
 	authority 		VARCHAR2(50) NOT NULL,
@@ -406,16 +386,16 @@ CREATE TABLE attributes(
 	concept_id 		NUMBER(12) NOT NULL,
 	released 		VARCHAR2(1) NOT NULL,
 	tobereleased 		VARCHAR2(1) NOT NULL,
-	source_rank 		NUMBER(12)  DEFAULT 0,
+	source_rank 		NUMBER(12)  DEFAULT 0 NOT NULL,
 	preferred_level 	VARCHAR2(1),
-	last_molecule_id 	NUMBER(12) DEFAULT 0,
-	last_atomic_action_id 	NUMBER(12) DEFAULT 0,
-	rank 			NUMBER DEFAULT 0,
+	last_molecule_id 	NUMBER(12) DEFAULT 0 NOT NULL,
+	last_atomic_action_id 	NUMBER(12) DEFAULT 0 NOT NULL,
+	rank 			NUMBER DEFAULT 0 NOT NULL,
 	suppressible		VARCHAR2(10) NOT NULL,
 	atui			VARCHAR2(12),
 	source_atui		VARCHAR2(50),
 	hashcode		VARCHAR2(100),
-	sg_id			VARCHAR2(100),
+	sg_id			VARCHAR2(50),
 	sg_type			VARCHAR2(50),
 	sg_qualifier		VARCHAR2(50),
 	sg_meme_data_type	VARCHAR2(10),
@@ -429,11 +409,11 @@ STORAGE (INITIAL 1000M);
 DROP TABLE attributes_ui;
 CREATE TABLE attributes_ui (
 	atui			VARCHAR2(12) NOT NULL,
-	root_source		VARCHAR2(40) NOT NULL,
+	root_source		VARCHAR2(20) NOT NULL,
 	attribute_level		VARCHAR2(1) NOT NULL,
-	attribute_name		VARCHAR2(100) NOT NULL,
+	attribute_name		VARCHAR2(50) NOT NULL,
 	hashcode		VARCHAR2(100),
-	sg_id			VARCHAR2(100) NOT NULL,
+	sg_id			VARCHAR2(50) NOT NULL,
 	sg_type			VARCHAR2(50) NOT NULL,
 	sg_qualifier		VARCHAR2(50),
 	source_atui		VARCHAR2(50)
@@ -466,11 +446,11 @@ DROP TABLE classes;
 CREATE TABLE classes(
 	atom_id 		NUMBER(12) NOT NULL,
 	version_id 		NUMBER(12) DEFAULT 0 NOT NULL,
-	source 			VARCHAR2(40) NOT NULL,
-	termgroup 		VARCHAR2(60) NOT NULL,
+	source 			VARCHAR2(20) NOT NULL,
+	termgroup 		VARCHAR2(40) NOT NULL,
 	tty	 		VARCHAR2(20),
 	termgroup_rank 		NUMBER(12) DEFAULT 0 NOT NULL,
-	code 			VARCHAR2(100),
+	code 			VARCHAR2(50),
 	sui 			VARCHAR2(10) NOT NULL,
 	lui 			VARCHAR2(10) NOT NULL,
 	generated_status	VARCHAR2(1) NOT NULL,
@@ -492,9 +472,9 @@ CREATE TABLE classes(
 	last_assigned_cui	VARCHAR2(10),
 	isui			VARCHAR2(10) NOT NULL,
 	aui			VARCHAR2(10),
-	source_aui		VARCHAR2(100),
-	source_cui		VARCHAR2(100),
-	source_dui		VARCHAR2(100),
+	source_aui		VARCHAR2(50),
+	source_cui		VARCHAR2(50),
+	source_dui		VARCHAR2(50),
 	language		VARCHAR2(10),
 	CONSTRAINT classes_pk PRIMARY KEY (atom_id)
 )
@@ -523,34 +503,32 @@ CREATE TABLE coc_headings (
         major_topic             VARCHAR2(1) NOT NULL ,
                 CHECK (major_topic in ('Y','N')),
         subheading_set_id       NUMBER(12),
-        source                  VARCHAR2(40) NOT NULL,
+        source                  VARCHAR2(20) NOT NULL,
         coc_type                VARCHAR2(10)
 )
-PCTFREE 10 PCTUSED 85 NOMONITORING
-STORAGE (INITIAL 500M NEXT 100M) TABLESPACE MID;
---PARTITION BY RANGE (publication_date)
---  (
---   PARTITION coc_headings_1965 VALUES LESS THAN ('01-jan-1965 00:00:00')
---        PCTFREE 5 PCTUSED 95 STORAGE (INITIAL 100M NEXT 100M ),
---   PARTITION coc_headings_1970 VALUES LESS THAN ('01-jan-1970 00:00:00')
---        PCTFREE 5 PCTUSED 95 STORAGE (INITIAL 100M NEXT 100M ),
---   PARTITION coc_headings_1975 VALUES LESS THAN ('01-jan-1975 00:00:00')
---        PCTFREE 5 PCTUSED 95 STORAGE (INITIAL 100M NEXT 100M ),
---   PARTITION coc_headings_1980 VALUES LESS THAN ('01-jan-1980 00:00:00')
---        PCTFREE 5 PCTUSED 95 STORAGE (INITIAL 100M NEXT 100M ),
---   PARTITION coc_headings_1985 VALUES LESS THAN ('01-jan-1985 00:00:00')
---        PCTFREE 5 PCTUSED 95 STORAGE (INITIAL 100M NEXT 100M ),
---   PARTITION coc_headings_1990 VALUES LESS THAN ('01-jan-1990 00:00:00')
---        PCTFREE 5 PCTUSED 95 STORAGE (INITIAL 100M NEXT 100M ),
---   PARTITION coc_headings_1995 VALUES LESS THAN ('01-jan-1995 00:00:00')
---        PCTFREE 5 PCTUSED 95 STORAGE (INITIAL 100M NEXT 100M ),
---   PARTITION coc_headings_2000 VALUES LESS THAN ('01-jan-2000 00:00:00')
---        PCTFREE 5 PCTUSED 95 STORAGE (INITIAL 100M NEXT 100M ),
---   PARTITION coc_headings_2005 VALUES LESS THAN ('01-jan-2005 00:00:00')
---        PCTFREE 5 PCTUSED 95 STORAGE (INITIAL 100M NEXT 100M ),
---   PARTITION coc_headings_2010 VALUES LESS THAN ('01-jan-2010 00:00:00')
---        PCTFREE 5 PCTUSED 95 STORAGE (INITIAL 100M NEXT 100M )
---  );
+PARTITION BY RANGE (publication_date)
+  (
+   PARTITION coc_headings_1965 VALUES LESS THAN ('01-jan-1965 00:00:00')
+        PCTFREE 5 PCTUSED 95 STORAGE (INITIAL 100M NEXT 100M ),
+   PARTITION coc_headings_1970 VALUES LESS THAN ('01-jan-1970 00:00:00')
+        PCTFREE 5 PCTUSED 95 STORAGE (INITIAL 100M NEXT 100M ),
+   PARTITION coc_headings_1975 VALUES LESS THAN ('01-jan-1975 00:00:00')
+        PCTFREE 5 PCTUSED 95 STORAGE (INITIAL 100M NEXT 100M ),
+   PARTITION coc_headings_1980 VALUES LESS THAN ('01-jan-1980 00:00:00')
+        PCTFREE 5 PCTUSED 95 STORAGE (INITIAL 100M NEXT 100M ),
+   PARTITION coc_headings_1985 VALUES LESS THAN ('01-jan-1985 00:00:00')
+        PCTFREE 5 PCTUSED 95 STORAGE (INITIAL 100M NEXT 100M ),
+   PARTITION coc_headings_1990 VALUES LESS THAN ('01-jan-1990 00:00:00')
+        PCTFREE 5 PCTUSED 95 STORAGE (INITIAL 100M NEXT 100M ),
+   PARTITION coc_headings_1995 VALUES LESS THAN ('01-jan-1995 00:00:00')
+        PCTFREE 5 PCTUSED 95 STORAGE (INITIAL 100M NEXT 100M ),
+   PARTITION coc_headings_2000 VALUES LESS THAN ('01-jan-2000 00:00:00')
+        PCTFREE 5 PCTUSED 95 STORAGE (INITIAL 100M NEXT 100M ),
+   PARTITION coc_headings_2005 VALUES LESS THAN ('01-jan-2005 00:00:00')
+        PCTFREE 5 PCTUSED 95 STORAGE (INITIAL 100M NEXT 100M ),
+   PARTITION coc_headings_2010 VALUES LESS THAN ('01-jan-2010 00:00:00')
+        PCTFREE 5 PCTUSED 95 STORAGE (INITIAL 100M NEXT 100M )
+  );
 
 -- This table tracks subheadings of the heading_ids in the
 -- coc_headings table above.
@@ -587,7 +565,7 @@ STORAGE (INITIAL 1200M);
 -- It groups codes together into categories
 DROP TABLE code_map;
 CREATE TABLE code_map(
-	code			VARCHAR2(100) NOT NULL,
+	code			VARCHAR2(50) NOT NULL,
  	type			VARCHAR2(50) NOT NULL,
  	value			VARCHAR2(4000) NOT NULL,
  	CONSTRAINT code_map_pk PRIMARY KEY (code,type)
@@ -637,7 +615,7 @@ CREATE TABLE context_relationships(
         relationship_name       VARCHAR2(10) NOT NULL,
         relationship_attribute  VARCHAR2(100),
         atom_id_2               NUMBER(12) DEFAULT 0 NOT NULL,
-        source		        VARCHAR2(40) NOT NULL,
+        source		        VARCHAR2(20) NOT NULL,
         generated_status        VARCHAR2(1) NOT NULL,
         dead                    VARCHAR2(1) NOT NULL,
         status                  VARCHAR2(1) NOT NULL,
@@ -646,14 +624,14 @@ CREATE TABLE context_relationships(
         insertion_date          DATE,
         concept_id_1            NUMBER(12) NOT NULL,
         concept_id_2            NUMBER(12) NOT NULL,
-        released                VARCHAR2(1) NOT NULL,
-        tobereleased            VARCHAR2(1) NOT NULL,
-        source_rank             NUMBER(12) DEFAULT 0,
+        released                VARCHAR2(1),
+        tobereleased            VARCHAR2(1),
+        source_rank             NUMBER(12) DEFAULT 0 NOT NULL,
         preferred_level         VARCHAR2(1),
         last_molecule_id        NUMBER(12) DEFAULT 0,
         last_atomic_action_id   NUMBER(12) DEFAULT 0,
         rank                    NUMBER DEFAULT 0,
-	source_of_label		VARCHAR2(40) NOT NULL,
+	source_of_label		VARCHAR2(20) NOT NULL,
 	suppressible		VARCHAR2(10) NOT NULL,
 	hierarchical_code	VARCHAR2(1000),
 	parent_treenum		VARCHAR2(1000),
@@ -661,12 +639,12 @@ CREATE TABLE context_relationships(
 	rui			VARCHAR2(12),
 	source_rui		VARCHAR2(50),
 	relationship_group	VARCHAR2(10),
-	sg_id_1			VARCHAR2(100),
+	sg_id_1			VARCHAR2(50),
 	sg_type_1		VARCHAR2(50),
 	sg_qualifier_1		VARCHAR2(50),
 	sg_meme_data_type_1	VARCHAR2(10),
 	sg_meme_id_1		NUMBER(12) DEFAULT 0,
-	sg_id_2			VARCHAR2(100),
+	sg_id_2			VARCHAR2(50),
 	sg_type_2		VARCHAR2(50),
 	sg_qualifier_2		VARCHAR2(50),
 	sg_meme_data_type_2	VARCHAR2(10),
@@ -807,10 +785,10 @@ CREATE TABLE dead_attributes(
 	attribute_id 		NUMBER(12)
 				   CONSTRAINT dead_attributes_pk PRIMARY KEY,
 	attribute_level 	VARCHAR2(1) NOT NULL,
-	attribute_name 		VARCHAR2(100) NOT NULL,
-	attribute_value 	VARCHAR2(350),
+	attribute_name 		VARCHAR2(50) NOT NULL,
+	attribute_value 	VARCHAR2(200),
 	generated_status	VARCHAR2(1) NOT NULL,
-	source		 	VARCHAR2(40) NOT NULL,
+	source		 	VARCHAR2(20) NOT NULL,
 	dead 			VARCHAR2(1) NOT NULL,
 	status 			VARCHAR2(1) NOT NULL,
 	authority 		VARCHAR2(50) NOT NULL,
@@ -819,16 +797,16 @@ CREATE TABLE dead_attributes(
 	concept_id 		NUMBER(12) NOT NULL,
 	released 		VARCHAR2(1) NOT NULL,
 	tobereleased 		VARCHAR2(1) NOT NULL,
-	source_rank 		NUMBER(12) DEFAULT 0,
+	source_rank 		NUMBER(12) DEFAULT 0 NOT NULL,
 	preferred_level 	VARCHAR2(1),
 	last_molecule_id 	NUMBER(12) DEFAULT 0,
 	last_atomic_action_id 	NUMBER(12) DEFAULT 0,
-	rank 			NUMBER DEFAULT 0,
+	rank 			NUMBER DEFAULT 0 NOT NULL,
 	suppressible		VARCHAR2(10) NOT NULL,
 	atui			VARCHAR2(12),
 	source_atui		VARCHAR2(50),
 	hashcode		VARCHAR2(100),
-	sg_id			VARCHAR2(100),
+	sg_id			VARCHAR2(50),
 	sg_type			VARCHAR2(50),
 	sg_qualifier		VARCHAR2(50),
 	sg_meme_data_type	VARCHAR2(10),
@@ -843,11 +821,11 @@ CREATE TABLE dead_classes(
 	atom_id 		NUMBER(12)
 		CONSTRAINT dead_classes_pk PRIMARY KEY,
 	version_id 		NUMBER(12) DEFAULT 0 NOT NULL,
-	source 			VARCHAR2(40) NOT NULL,
-	termgroup 		VARCHAR2(60) NOT NULL,
+	source 			VARCHAR2(20) NOT NULL,
+	termgroup 		VARCHAR2(40) NOT NULL,
 	tty	 		VARCHAR2(20),
 	termgroup_rank 		NUMBER(12) DEFAULT 0 NOT NULL,
-	code 			VARCHAR2(100),
+	code 			VARCHAR2(50),
 	sui 			VARCHAR2(10) NOT NULL,
 	lui 			VARCHAR2(10) NOT NULL,
 	generated_status	VARCHAR2(1) NOT NULL,
@@ -869,9 +847,9 @@ CREATE TABLE dead_classes(
 	last_assigned_cui	VARCHAR2(10),
 	isui			VARCHAR2(10) NOT NULL,
 	aui			VARCHAR2(10),
-	source_aui		VARCHAR2(100),
-	source_cui		VARCHAR2(100),
-	source_dui		VARCHAR2(100),
+	source_aui		VARCHAR2(50),
+	source_cui		VARCHAR2(50),
+	source_dui		VARCHAR2(50),
 	language		VARCHAR2(10)
 )
 PCTFREE 10 PCTUSED 80 MONITORING
@@ -913,7 +891,7 @@ CREATE TABLE dead_context_relationships(
         relationship_name       VARCHAR2(10) NOT NULL,
         relationship_attribute  VARCHAR2(100),
         atom_id_2               NUMBER(12) DEFAULT 0 NOT NULL,
-        source		        VARCHAR2(40) NOT NULL,
+        source		        VARCHAR2(20) NOT NULL,
         generated_status        VARCHAR2(1) NOT NULL,
         dead                    VARCHAR2(1) NOT NULL,
         status                  VARCHAR2(1) NOT NULL,
@@ -929,7 +907,7 @@ CREATE TABLE dead_context_relationships(
         last_molecule_id        NUMBER(12) DEFAULT 0,
         last_atomic_action_id   NUMBER(12) DEFAULT 0,
         rank                    NUMBER DEFAULT 0,
-	source_of_label		VARCHAR2(40) NOT NULL,
+	source_of_label		VARCHAR2(20) NOT NULL,
 	suppressible		VARCHAR2(10) NOT NULL,
 	hierarchical_code	VARCHAR2(1000),
 	parent_treenum		VARCHAR2(1000),
@@ -937,12 +915,12 @@ CREATE TABLE dead_context_relationships(
 	rui			VARCHAR2(12),
 	source_rui		VARCHAR2(50),
 	relationship_group	VARCHAR2(10),
-	sg_id_1			VARCHAR2(100),
+	sg_id_1			VARCHAR2(50),
 	sg_type_1		VARCHAR2(50),
 	sg_qualifier_1		VARCHAR2(50),
 	sg_meme_data_type_1	VARCHAR2(10),
 	sg_meme_id_1		NUMBER(12) DEFAULT 0,
-	sg_id_2			VARCHAR2(100),
+	sg_id_2			VARCHAR2(50),
 	sg_type_2		VARCHAR2(50),
 	sg_qualifier_2		VARCHAR2(50),
 	sg_meme_data_type_2	VARCHAR2(10),
@@ -966,11 +944,11 @@ CREATE TABLE dead_foreign_classes(
 	eng_aui 		VARCHAR2(10),
 	language		VARCHAR2(10) NOT NULL,
 	version_id 		NUMBER(12) DEFAULT 0 NOT NULL,
-	source 			VARCHAR2(40) NOT NULL,
-	termgroup 		VARCHAR2(60) NOT NULL,
+	source 			VARCHAR2(20) NOT NULL,
+	termgroup 		VARCHAR2(40) NOT NULL,
 	tty	 		VARCHAR2(20),
 	termgroup_rank 		NUMBER(12) DEFAULT 0 NOT NULL,
-	code 			VARCHAR2(100),
+	code 			VARCHAR2(50),
 	sui 			VARCHAR2(10) NOT NULL,
 	lui 			VARCHAR2(10) NOT NULL,
 	generated_status	VARCHAR2(1) NOT NULL,
@@ -992,9 +970,9 @@ CREATE TABLE dead_foreign_classes(
 	last_assigned_cui	VARCHAR2(10),
 	isui			VARCHAR2(10) NOT NULL,
 	aui			VARCHAR2(10),
-	source_aui		VARCHAR2(100),
-	source_cui		VARCHAR2(100),
-	source_dui		VARCHAR2(100),
+	source_aui		VARCHAR2(50),
+	source_cui		VARCHAR2(50),
+	source_dui		VARCHAR2(50),
 	CONSTRAINT d_f_classes_pk PRIMARY KEY (atom_id)
 )
 PCTFREE 15 PCTUSED 75 MONITORING
@@ -1014,7 +992,7 @@ PCTFREE 10 PCTUSED 80 MONITORING;
 -- /cgi-lti-oracle/SIMS.cgi
 DROP TABLE dead_sims_info;
 CREATE TABLE dead_sims_info (
-	source      		VARCHAR2(40) NOT NULL,
+	source      		VARCHAR2(20) NOT NULL,
 	date_created		DATE,
 	meta_year               VARCHAR2(20),
 	init_rcpt_date          DATE,
@@ -1072,7 +1050,7 @@ CREATE TABLE dead_sims_info (
 	editing_end		DATE,
 	rel_directionality_flag	VARCHAR2(1),
 	whats_new		VARCHAR2(4000) NOT NULL,
-	meta_ver               NOT NULL VARCHAR2(20),
+	meta_ver               VARCHAR2(20),
 	nlm_editing_notes       VARCHAR2(4000)
 )
 PCTFREE 10 PCTUSED 80 MONITORING;
@@ -1094,10 +1072,10 @@ CREATE TABLE dead_relationships(
 	version_id 		NUMBER(12) DEFAULT 0 NOT NULL,
 	relationship_level 	VARCHAR2(1) NOT NULL,
 	atom_id_1 		NUMBER(12) DEFAULT 0 NOT NULL,
-	relationship_name 	VARCHAR2(10) NOT NULL,
+	relationship_name 	VARCHAR2(10),
 	relationship_attribute 	VARCHAR2(100),
 	atom_id_2 		NUMBER(12) DEFAULT 0 NOT NULL,
-	source	 		VARCHAR2(40) NOT NULL,
+	source	 		VARCHAR2(20) NOT NULL,
 	generated_status	VARCHAR2(1) NOT NULL,
 	dead 			VARCHAR2(1) NOT NULL,
 	status 			VARCHAR2(1) NOT NULL,
@@ -1108,22 +1086,22 @@ CREATE TABLE dead_relationships(
 	concept_id_2 		NUMBER(12) DEFAULT 0 NOT NULL,
 	released 		VARCHAR2(1) NOT NULL,
 	tobereleased 		VARCHAR2(1) NOT NULL,
-	source_rank 		NUMBER(12) DEFAULT 0,
+	source_rank 		NUMBER(12) DEFAULT 0 NOT NULL,
 	preferred_level 	VARCHAR2(1),
 	last_molecule_id 	NUMBER(12) DEFAULT 0,
 	last_atomic_action_id 	NUMBER(12) DEFAULT 0,
-	rank 			NUMBER DEFAULT 0,
-	source_of_label		VARCHAR2(40) NOT NULL,
+	rank 			NUMBER DEFAULT 0 NOT NULL,
+	source_of_label		VARCHAR2(20) NOT NULL,
 	suppressible		VARCHAR2(10) NOT NULL,
 	rui			VARCHAR2(12),
 	source_rui		VARCHAR2(50),
 	relationship_group	VARCHAR2(10),
-	sg_id_1			VARCHAR2(100),
+	sg_id_1			VARCHAR2(50),
 	sg_type_1		VARCHAR2(50),
 	sg_qualifier_1		VARCHAR2(50),
 	sg_meme_data_type_1	VARCHAR2(10),
 	sg_meme_id_1		NUMBER(12) DEFAULT 0,
-	sg_id_2			VARCHAR2(100),
+	sg_id_2			VARCHAR2(50),
 	sg_type_2		VARCHAR2(50),
 	sg_qualifier_2		VARCHAR2(50),
 	sg_meme_data_type_2	VARCHAR2(10),
@@ -1161,8 +1139,8 @@ CREATE TABLE deleted_cuis (
 	lui			VARCHAR2(10) NOT NULL,
 	isui			VARCHAR2(10) NOT NULL,
 	aui			VARCHAR2(10) NOT NULL,
-	root_source		VARCHAR2(40) NOT NULL,
-	code  			VARCHAR2(100) NOT NULL,
+	root_source		VARCHAR2(20) NOT NULL,
+	code  			VARCHAR2(50) NOT NULL,
 	timestamp		DATE NOT NULL
 )
 PCTFREE 10 PCTUSED 80 MONITORING;
@@ -1229,11 +1207,11 @@ CREATE TABLE foreign_classes(
 	eng_aui 		VARCHAR2(10),
 	language		VARCHAR2(10) NOT NULL,
 	version_id 		NUMBER(12) DEFAULT 0 NOT NULL,
-	source 			VARCHAR2(40) NOT NULL,
-	termgroup 		VARCHAR2(60) NOT NULL,
+	source 			VARCHAR2(20) NOT NULL,
+	termgroup 		VARCHAR2(40) NOT NULL,
 	tty	 		VARCHAR2(20),
 	termgroup_rank 		NUMBER(12) DEFAULT 0 NOT NULL,
-	code 			VARCHAR2(100),
+	code 			VARCHAR2(50),
 	sui 			VARCHAR2(10) NOT NULL,
 	lui 			VARCHAR2(10) NOT NULL,
 	generated_status	VARCHAR2(1) NOT NULL,
@@ -1255,9 +1233,9 @@ CREATE TABLE foreign_classes(
 	last_assigned_cui	VARCHAR2(10),
 	isui			VARCHAR2(10) NOT NULL,
 	aui			VARCHAR2(10),
-	source_aui		VARCHAR2(100),
-	source_cui		VARCHAR2(100),
-	source_dui		VARCHAR2(100),
+	source_aui		VARCHAR2(50),
+	source_cui		VARCHAR2(50),
+	source_dui		VARCHAR2(50),
 	CONSTRAINT f_classes_pk PRIMARY KEY (atom_id)
 )
 PCTFREE 15 PCTUSED 75 MONITORING
@@ -1446,7 +1424,7 @@ DROP TABLE meme_indexes;
 CREATE TABLE meme_indexes AS
 SELECT index_name, table_name,
  pct_free, pct_increase, initial_extent, next_extent,
- min_extents, max_extents, tablespace_name, index_type, uniqueness
+ min_extents, max_extents, tablespace_name, index_type
 FROM user_indexes WHERE 1=0;
 ALTER TABLE meme_indexes CACHE;
 
@@ -1531,33 +1509,6 @@ CREATE TABLE meme_schedule (
 DROP TABLE meme_tables ;
 CREATE TABLE meme_tables (
 	table_name	VARCHAR(50) NOT NULL)
-PCTFREE 10 PCTUSED 80 MONITORING CACHE;
-
---
--- This table is used to produce a report of UI cases
--- in atoms_ui, attributes_ui, relationships_ui that are
--- not expected to be used again
--- Cleanup should be performed when the inverter verifies a
--- substantial (and non reversible) change in the style of UI use.
--- Cleanup is manual.
---
-DROP TABLE obsolete_ui;
-CREATE TABLE obsolete_ui (
-    type                    VARCHAR2(10) NOT NULL,
-    ct                      NUMBER(12) NOT NULL,
-    root_source             VARCHAR2(40) NOT NULL,
-    tty                     VARCHAR2(20),
-    code_flag               VARCHAR2(4),
-    saui_flag               VARCHAR2(4),
-    scui_flag               VARCHAR2(4),
-    sdui_flag               VARCHAR2(4),
-    relationship_name       VARCHAR2(10),
-    relationship_attribute  VARCHAR2(100),
-    sg_type_1               VARCHAR2(50),
-    sg_type_2               VARCHAR2(50),
-    attribute_name          VARCHAR2(100),
-    sg_type                 VARCHAR2(50)
-)
 PCTFREE 10 PCTUSED 80 MONITORING CACHE;
 
 -- This table normalizes work_ids.  Each kind of "work" done inserts
@@ -1652,7 +1603,7 @@ CREATE TABLE mom_safe_replacement (
 	new_atom_id		NUMBER(12) NOT NULL,
 	last_release_cui	VARCHAR2(10),
  	rank			VARCHAR2(50) NOT NULL,
-	source			VARCHAR2(40) NOT NULL
+	source			VARCHAR2(20) NOT NULL
 )
 PCTFREE 10 PCTUSED 80 MONITORING
 STORAGE (INITIAL 150M);
@@ -1661,7 +1612,7 @@ STORAGE (INITIAL 150M);
 -- For the most part they are abbreviations/suppressible termgroups
 DROP TABLE mom_exclude_list;
 CREATE TABLE mom_exclude_list(
-	termgroup		VARCHAR2(60) NOT NULL
+	termgroup		VARCHAR2(40) NOT NULL
 )
 PCTFREE 10 PCTUSED 80 MONITORING CACHE;
 
@@ -1672,14 +1623,14 @@ CREATE TABLE mom_precomputed_facts (
 	status			VARCHAR2(1),
 	atom_id_1		NUMBER(12) NOT NULL,
 	atom_id_2		NUMBER(12) NOT NULL,
-	sg_id_1			VARCHAR2(100),
+	sg_id_1			VARCHAR2(50),
 	sg_type_1		VARCHAR2(50),
 	sg_qualifier_1		VARCHAR2(50),
-	sg_id_2			VARCHAR2(100),
+	sg_id_2			VARCHAR2(50),
 	sg_type_2		VARCHAR2(50),
 	sg_qualifier_2		VARCHAR2(50),
 	merge_level		VARCHAR2(3),
-	source			VARCHAR2(40),
+	source			VARCHAR2(20),
 	integrity_vector	VARCHAR2(1500),
 	make_demotion		VARCHAR2(1),
 	change_status		VARCHAR2(1),
@@ -1694,12 +1645,12 @@ DROP TABLE mom_candidate_facts;
 CREATE TABLE mom_candidate_facts(
 	ATOM_ID_1		NUMBER(12) NOT NULL,
  	ATOM_ID_2               NUMBER(12) NOT NULL,
- 	CODE1                   VARCHAR2(100),
- 	CODE2                   VARCHAR2(100),
- 	TERMGROUP1              VARCHAR2(60),
- 	TERMGROUP2              VARCHAR2(60),
- 	SOURCE1                 VARCHAR2(40),
- 	SOURCE2                 VARCHAR2(40),
+ 	CODE1                   VARCHAR2(50),
+ 	CODE2                   VARCHAR2(50),
+ 	TERMGROUP1              VARCHAR2(40),
+ 	TERMGROUP2              VARCHAR2(40),
+ 	SOURCE1                 VARCHAR2(20),
+ 	SOURCE2                 VARCHAR2(20),
  	MERGE_LEVEL             VARCHAR2(3),
  	STATUS                  VARCHAR2(1),
  	LUI_1             	VARCHAR2(10),
@@ -1709,7 +1660,7 @@ CREATE TABLE mom_candidate_facts(
  	SUI_1             	VARCHAR2(10),
  	SUI_2			VARCHAR2(10),
 	MERGE_SET		VARCHAR2(30) NOT NULL,
-	SOURCE			VARCHAR2(40) NOT NULL
+	SOURCE			VARCHAR2(20) NOT NULL
 )
 PCTFREE 10 PCTUSED 80 MONITORING
 STORAGE (INITIAL 30M);
@@ -1724,7 +1675,7 @@ CREATE TABLE mom_facts_processed(
 	atom_id_1		NUMBER(12) NOT NULL,
 	merge_level		VARCHAR2(3),
 	atom_id_2		NUMBER(12) NOT NULL,
-	source			VARCHAR2(40),
+	source			VARCHAR2(20),
 	integrity_vector	VARCHAR2(1500),
 	make_demotion		VARCHAR2(1),
 	change_status		VARCHAR2(1),
@@ -1748,7 +1699,7 @@ CREATE TABLE mom_merge_facts(
 	atom_id_1		NUMBER(12) NOT NULL,
 	merge_level		VARCHAR2(3),
 	atom_id_2		NUMBER(12) NOT NULL,
-	source			VARCHAR2(40),
+	source			VARCHAR2(20),
 	integrity_vector	VARCHAR2(1500),
 	make_demotion		VARCHAR2(1),
 	change_status		VARCHAR2(1),
@@ -1767,7 +1718,7 @@ STORAGE (INITIAL 10M);
 -- comparisons.  Typically they are chemical termgroups.
 DROP TABLE mom_norm_exclude_list;
 CREATE TABLE mom_norm_exclude_list(
-	termgroup		VARCHAR2(60) NOT NULL,
+	termgroup		VARCHAR2(40) NOT NULL,
 	code_prefix		VARCHAR2(1)
 )
 PCTFREE 10 PCTUSED 80 MONITORING CACHE;
@@ -1822,7 +1773,7 @@ CREATE TABLE relationships (
 	relationship_name 	VARCHAR2(10) NOT NULL,
 	relationship_attribute 	VARCHAR2(100),
 	atom_id_2 		NUMBER(12) DEFAULT 0 NOT NULL,
-	source		 	VARCHAR2(40) NOT NULL,
+	source		 	VARCHAR2(20) NOT NULL,
 	generated_status	VARCHAR2(1) NOT NULL,
 	dead 			VARCHAR2(1) NOT NULL,
 	status 			VARCHAR2(1) NOT NULL,
@@ -1833,22 +1784,22 @@ CREATE TABLE relationships (
 	concept_id_2 		NUMBER(12) DEFAULT 0 NOT NULL,
 	released 		VARCHAR2(1) NOT NULL,
 	tobereleased 		VARCHAR2(1) NOT NULL,
-	source_rank 		NUMBER(12) DEFAULT 0,
+	source_rank 		NUMBER(12) DEFAULT 0 NOT NULL,
 	preferred_level 	VARCHAR2(1),
 	last_molecule_id 	NUMBER(12) DEFAULT 0,
 	last_atomic_action_id 	NUMBER(12) DEFAULT 0,
-	rank 			NUMBER DEFAULT 0,
-	source_of_label		VARCHAR2(40) NOT NULL,
+	rank 			NUMBER DEFAULT 0 NOT NULL,
+	source_of_label		VARCHAR2(20) NOT NULL,
 	suppressible		VARCHAR2(10) NOT NULL,
 	rui			VARCHAR2(12),
 	source_rui		VARCHAR2(50),
 	relationship_group	VARCHAR2(10),
-	sg_id_1			VARCHAR2(100),
+	sg_id_1			VARCHAR2(50),
 	sg_type_1		VARCHAR2(50),
 	sg_qualifier_1		VARCHAR2(50),
 	sg_meme_data_type_1	VARCHAR2(10),
 	sg_meme_id_1		NUMBER(12) DEFAULT 0,
-	sg_id_2			VARCHAR2(100),
+	sg_id_2			VARCHAR2(50),
 	sg_type_2		VARCHAR2(50),
 	sg_qualifier_2		VARCHAR2(50),
 	sg_meme_data_type_2	VARCHAR2(10),
@@ -1861,15 +1812,15 @@ STORAGE (INITIAL 500M);
 -- Secondary indexes on sg_id_1, sg_id_2
 DROP TABLE relationships_ui;
 CREATE TABLE relationships_ui (
-	rui			VARCHAR2(12) NOT NULL,
-	root_source		VARCHAR2(40) NOT NULL,
+	rui			VARCHAR2(10) NOT NULL,
+	root_source		VARCHAR2(20) NOT NULL,
 	relationship_level	VARCHAR2(1) NOT NULL,
 	relationship_name	VARCHAR2(10) NOT NULL,
 	relationship_attribute	VARCHAR2(100),
-	sg_id_1			VARCHAR2(100) NOT NULL,
+	sg_id_1			VARCHAR2(50) NOT NULL,
 	sg_type_1		VARCHAR2(50) NOT NULL,
 	sg_qualifier_1		VARCHAR2(50),
-	sg_id_2			VARCHAR2(100) NOT NULL,
+	sg_id_2			VARCHAR2(50) NOT NULL,
 	sg_type_2		VARCHAR2(50) NOT NULL,
 	sg_qualifier_2		VARCHAR2(50),
 	source_rui		VARCHAR2(50)
@@ -1904,7 +1855,7 @@ PCTFREE 10 PCTUSED 80 MONITORING CACHE;
 -- /cgi-lti-oracle/SIMS.cgi
 DROP TABLE sims_info;
 CREATE TABLE sims_info (
-	source      		VARCHAR2(40) NOT NULL
+	source      		VARCHAR2(20) NOT NULL
 	    CONSTRAINT sims_info_pk PRIMARY KEY,
 	date_created		DATE,
 	meta_year               VARCHAR2(20),
@@ -1963,7 +1914,7 @@ CREATE TABLE sims_info (
 	editing_end		DATE,
 	rel_directionality_flag	VARCHAR2(1),
 	whats_new		VARCHAR2(4000) NOT NULL,
-	meta_ver                NOT NULL VARCHAR2(20) DEFAULT 'CURRENT',
+	meta_ver                VARCHAR2(20),
 	nlm_editing_notes       VARCHAR2(4000)
 )
 PCTFREE 10 PCTUSED 80 MONITORING;
@@ -1988,16 +1939,16 @@ CREATE TABLE source_attributes(
 	attribute_id		NUMBER(12) DEFAULT 0 NOT NULL,
 	atom_id			NUMBER(12) DEFAULT 0 NOT NULL,
 	concept_id		NUMBER(12) DEFAULT 0 NOT NULL,
-	sg_id			VARCHAR2(100),
+	sg_id			VARCHAR2(50),
 	sg_type			VARCHAR2(50),
 	sg_qualifier		VARCHAR2(50),
 	sg_meme_data_type	VARCHAR2(10),
 	sg_meme_id		NUMBER(12) DEFAULT 0,
 	attribute_level		VARCHAR2(1) NOT NULL,
-	attribute_name		VARCHAR2(100) NOT NULL,
-	attribute_value		VARCHAR2(350),
+	attribute_name		VARCHAR2(50) NOT NULL,
+	attribute_value		VARCHAR2(200),
 	generated_status	VARCHAR2(1) NOT NULL,
-	source			VARCHAR2(40) NOT NULL,
+	source			VARCHAR2(20) NOT NULL,
 	status			VARCHAR2(1) NOT NULL,
 	released		VARCHAR2(1) NOT NULL,
 	tobereleased		VARCHAR2(1) NOT NULL,
@@ -2016,11 +1967,11 @@ DROP TABLE source_classes_atoms;
 CREATE TABLE source_classes_atoms(
 	switch			VARCHAR2(1),
 	source_atom_id		NUMBER(12) DEFAULT 0 NOT NULL,
-	source			VARCHAR2(40) NOT NULL,
-	termgroup		VARCHAR2(60) NOT NULL,
+	source			VARCHAR2(20) NOT NULL,
+	termgroup		VARCHAR2(40) NOT NULL,
 	tty			VARCHAR2(20),
 	termgroup_rank		NUMBER(12) DEFAULT 0,
-	code			VARCHAR2(100),
+	code			VARCHAR2(50),
 	sui			VARCHAR2(10),
 	lui			VARCHAR2(10),
 	isui                    VARCHAR2(10),
@@ -2038,9 +1989,9 @@ CREATE TABLE source_classes_atoms(
 	last_release_rank       NUMBER(12) DEFAULT 0,
 	suppressible            VARCHAR2(10) NOT NULL,
 	last_assigned_cui       VARCHAR2(10),
-	source_aui		VARCHAR2(100),
-	source_cui		VARCHAR2(100),
-	source_dui		VARCHAR2(100),
+	source_aui		VARCHAR2(50),
+	source_cui		VARCHAR2(50),
+	source_dui		VARCHAR2(50),
 	language		VARCHAR2(10),
 	order_id		VARCHAR2(100)
 )
@@ -2058,7 +2009,7 @@ CREATE TABLE source_coc_headings (
  	heading_id		NUMBER(12) NOT NULL,
  	major_topic		VARCHAR2(1) NOT NULL,
  	subheading_set_id       NUMBER(10),
- 	source			VARCHAR2(40) NOT NULL,
+ 	source			VARCHAR2(20) NOT NULL,
  	coc_type                VARCHAR2(10)
 )
 PCTFREE 10 PCTUSED 80 MONITORING
@@ -2098,7 +2049,7 @@ CREATE TABLE source_concept_status(
 	switch			VARCHAR2(1),
 	source_concept_id	NUMBER(12) DEFAULT 0,
 	cui			VARCHAR2(10),
-	source			VARCHAR2(40) NOT NULL,
+	source			VARCHAR2(20) NOT NULL,
 	status			VARCHAR2(1) NOT NULL,
 	released		VARCHAR2(1) NOT NULL,
 	tobereleased		VARCHAR2(1) NOT NULL,
@@ -2119,18 +2070,18 @@ CREATE TABLE source_context_relationships(
 	atom_id_2		NUMBER(12) DEFAULT 0 NOT NULL,
 	concept_id_1		NUMBER(12) DEFAULT 0 NOT NULL,
 	concept_id_2		NUMBER(12) DEFAULT 0 NOT NULL,
-	sg_id_1			VARCHAR2(100),
+	sg_id_1			VARCHAR2(50),
 	sg_type_1		VARCHAR2(50),
 	sg_qualifier_1		VARCHAR2(50),
 	sg_meme_data_type_1	VARCHAR2(10),
 	sg_meme_id_1		NUMBER(12) DEFAULT 0,
-	sg_id_2			VARCHAR2(100),
+	sg_id_2			VARCHAR2(50),
 	sg_type_2		VARCHAR2(50),
 	sg_qualifier_2		VARCHAR2(50),
 	sg_meme_data_type_2	VARCHAR2(10),
 	sg_meme_id_2		NUMBER(12) DEFAULT 0,
-	source			VARCHAR2(40) NOT NULL,
-	source_of_label		VARCHAR2(40) NOT NULL,
+	source			VARCHAR2(20) NOT NULL,
+	source_of_label		VARCHAR2(20) NOT NULL,
 	relationship_level	VARCHAR2(1) NOT NULL,
 	relationship_name	VARCHAR2(10) NOT NULL,
 	relationship_attribute	VARCHAR2(100),
@@ -2158,7 +2109,7 @@ CREATE TABLE source_id_map(
 	local_row_id		NUMBER(12) NOT NULL,
 	table_name		VARCHAR2(2) NOT NULL,
 	origin			VARCHAR2(10) NOT NULL,
-	source			VARCHAR2(40) NOT NULL,
+	source			VARCHAR2(20) NOT NULL,
 	source_row_id		NUMBER(12) NOT NULL
 )
 PCTFREE 10 PCTUSED 80 MONITORING
@@ -2209,13 +2160,13 @@ CREATE TABLE source_rank(
  	language                VARCHAR2(10),
 	notes			VARCHAR2(1000)
 */
-	source			VARCHAR2(40)
+	source			VARCHAR2(20)
 				  CONSTRAINT source_rank_pk PRIMARY KEY,
 	rank			NUMBER(12) DEFAULT 0 NOT NULL,
 	restriction_level	NUMBER(12) DEFAULT 0 NOT NULL,
-	normalized_source	VARCHAR2(40) NOT NULL,
-	stripped_source		VARCHAR2(40),
-	source_family		VARCHAR2(40),
+	normalized_source	VARCHAR2(20) NOT NULL,
+	stripped_source		VARCHAR2(20),
+	source_family		VARCHAR2(20),
 	version			VARCHAR2(20),
 	notes			VARCHAR2(1000)
 )
@@ -2233,18 +2184,18 @@ CREATE TABLE source_relationships(
 	atom_id_2		NUMBER(12) DEFAULT 0 NOT NULL,
 	concept_id_1		NUMBER(12) DEFAULT 0 NOT NULL,
 	concept_id_2		NUMBER(12) DEFAULT 0 NOT NULL,
-	sg_id_1			VARCHAR2(100),
+	sg_id_1			VARCHAR2(50),
 	sg_type_1		VARCHAR2(50),
 	sg_qualifier_1		VARCHAR2(50),
 	sg_meme_data_type_1	VARCHAR2(10),
 	sg_meme_id_1		NUMBER(12) DEFAULT 0,
-	sg_id_2			VARCHAR2(100),
+	sg_id_2			VARCHAR2(50),
 	sg_type_2		VARCHAR2(50),
 	sg_qualifier_2		VARCHAR2(50),
 	sg_meme_data_type_2	VARCHAR2(10),
 	sg_meme_id_2		NUMBER(12) DEFAULT 0,
-	source			VARCHAR2(40) NOT NULL,
-	source_of_label		VARCHAR2(40) NOT NULL,
+	source			VARCHAR2(20) NOT NULL,
+	source_of_label		VARCHAR2(20) NOT NULL,
 	relationship_level	VARCHAR2(1) NOT NULL,
 	relationship_name	VARCHAR2(10) NOT NULL,
 	relationship_attribute	VARCHAR2(100),
@@ -2323,13 +2274,13 @@ STORAGE (INITIAL 80M);
 -- inferred from termgroups.src
 DROP TABLE source_source_rank;
 CREATE TABLE source_source_rank(
-	high_source		VARCHAR2(40) NOT NULL,
-	low_source		VARCHAR2(40) NOT NULL,
+	high_source		VARCHAR2(20) NOT NULL,
+	low_source		VARCHAR2(20) NOT NULL,
 	restriction_level	NUMBER(12) NOT NULL,
-	normalized_source	VARCHAR2(40),
-	stripped_source		VARCHAR2(40),
+	normalized_source	VARCHAR2(20),
+	stripped_source		VARCHAR2(20),
 	source_official_name    VARCHAR2(3000),
-	source_family		VARCHAR2(40),
+	source_family		VARCHAR2(20),
 	version			VARCHAR2(20),
  	valid_start_date        DATE,
  	valid_end_date          DATE,
@@ -2355,8 +2306,8 @@ PCTFREE 10 PCTUSED 80 MONITORING;
 -- It is pretty much a copy of the termgroups.src file
 DROP TABLE source_termgroup_rank;
 CREATE TABLE source_termgroup_rank(
-	high_termgroup		VARCHAR2(60) NOT NULL,
-	low_termgroup		VARCHAR2(60) NOT NULL,
+	high_termgroup		VARCHAR2(40) NOT NULL,
+	low_termgroup		VARCHAR2(40) NOT NULL,
 	suppressible		VARCHAR2(10) NOT NULL,
 	exclude			VARCHAR2(1) NOT NULL,
 	norm_exclude		VARCHAR2(1) NOT NULL,
@@ -2380,9 +2331,9 @@ PCTFREE 10 PCTUSED 80 MONITORING;
 --
 DROP TABLE source_version;
 CREATE TABLE source_version(
-	source			VARCHAR2(40),
-	current_name		VARCHAR2(40),
-	previous_name		VARCHAR2(40)
+	source			VARCHAR2(20),
+	current_name		VARCHAR2(20),
+	previous_name		VARCHAR2(20)
 )
 PCTFREE 10 PCTUSED 80 MONITORING CACHE;
 
@@ -2392,10 +2343,10 @@ PCTFREE 10 PCTUSED 80 MONITORING CACHE;
 -- involve looking through rows for a source in row_sequence order
 DROP TABLE sr_predicate;
 CREATE TABLE sr_predicate(
-	source			VARCHAR2(40) NOT NULL,
+	source			VARCHAR2(20) NOT NULL,
 	row_sequence		NUMBER(12) DEFAULT 0,
-	current_name		VARCHAR2(40) NOT NULL,
-	previous_name		VARCHAR2(40) NOT NULL,
+	current_name		VARCHAR2(20) NOT NULL,
+	previous_name		VARCHAR2(20) NOT NULL,
 	string_match		VARCHAR2(10) NOT NULL,
 	code_match		VARCHAR2(10) NOT NULL,
 	tty_match		VARCHAR2(10) NOT NULL,
@@ -2480,7 +2431,7 @@ PCTFREE 10 PCTUSED 80 MONITORING CACHE;
 -- This table tracks (and ranks) valid termgroups
 DROP TABLE termgroup_rank;
 CREATE TABLE termgroup_rank(
-	termgroup		VARCHAR2(60)
+	termgroup		VARCHAR2(40)
 				   CONSTRAINT termgroup_rank_pk PRIMARY KEY,
 	rank			NUMBER(12)  DEFAULT 0 NOT NULL,
 	release_rank		NUMBER(12)  DEFAULT 0 NOT NULL,
@@ -2550,7 +2501,7 @@ DROP TABLE src_qa_results;
 CREATE TABLE src_qa_results(
         qa_id                   NUMBER(12) NOT NULL,
         name                    VARCHAR2(100) NOT NULL,
-        value                   VARCHAR2(150),
+        value                   VARCHAR2(100),
         qa_count                NUMBER(12) NOT NULL,
         timestamp               DATE NOT NULL
 )
@@ -2566,7 +2517,7 @@ DROP TABLE src_obsolete_qa_results;
 CREATE TABLE src_obsolete_qa_results(
         qa_id                   NUMBER(12) NOT NULL,
         name                    VARCHAR2(100) NOT NULL,
-        value                   VARCHAR2(150),
+        value                   VARCHAR2(100),
         qa_count                NUMBER(12) NOT NULL,
         timestamp               DATE NOT NULL
 )
@@ -2578,7 +2529,7 @@ DROP TABLE mid_qa_results;
 CREATE TABLE mid_qa_results(
         qa_id                   NUMBER(12) NOT NULL,
         name                    VARCHAR2(100) NOT NULL,
-        value                   VARCHAR2(150),
+        value                   VARCHAR2(100),
         qa_count                NUMBER(12) NOT NULL,
         timestamp               DATE NOT NULL
 )
@@ -2590,7 +2541,7 @@ DROP TABLE mid_qa_history;
 CREATE TABLE mid_qa_history(
         qa_id                   NUMBER(12) NOT NULL,
         name                    VARCHAR2(100) NOT NULL,
-        value                   VARCHAR2(150),
+        value                   VARCHAR2(100),
         qa_count                NUMBER(12) NOT NULL,
         timestamp               DATE NOT NULL
 )
@@ -2611,7 +2562,7 @@ PCTFREE 10 PCTUSED 80 MONITORING;
 DROP TABLE src_qa_queries;
 CREATE TABLE src_qa_queries(
         name                    VARCHAR2(100) NOT NULL,
-        query                   VARCHAR2(1500) NOT NULL
+        query                   VARCHAR2(1000) NOT NULL
 )
 PCTFREE 10 PCTUSED 80 MONITORING;
 
@@ -2623,7 +2574,7 @@ DROP TABLE qa_adjustment;
 CREATE TABLE qa_adjustment(
         qa_id                   NUMBER(12) NOT NULL,
         name                    VARCHAR2(100) NOT NULL,
-        value                   VARCHAR2(150),
+        value                   VARCHAR2(100),
         qa_count                NUMBER(12) NOT NULL,
         timestamp               DATE NOT NULL,
         description             VARCHAR2(1000)
@@ -2638,97 +2589,23 @@ CREATE TABLE qa_diff_adjustment(
         qa_id_1                 NUMBER(12) NOT NULL,
         qa_id_2                 NUMBER(12) NOT NULL,
         name                    VARCHAR2(100) NOT NULL,
-        value                   VARCHAR2(150),
+        value                   VARCHAR2(100),
         qa_count                NUMBER(12) NOT NULL,
         timestamp               DATE NOT NULL,
         description             VARCHAR2(1000)
 )
 PCTFREE 10 PCTUSED 80 MONITORING;
 
---
--- Used by the ReleaseManager application to mark up
--- a QA report with known reasons for differences that
--- appear in the comparison section of a QA report
---
--- The test_value can be a regular_expression
---
-DROP TABLE qa_comparison_reasons;
-CREATE TABLE qa_comparison_reasons (
-	release_name		VARCHAR2(100) NOT NULL,
-	comparison_name		VARCHAR2(100) NOT NULL,
-	target_name		VARCHAR2(100) NOT NULL,
-  	test_name		VARCHAR2(100) NOT NULL,
-  	test_name_operator	VARCHAR2(100),
-	test_value		VARCHAR2(4000),
-  	test_value_operator	VARCHAR2(100),
-	test_count_1		NUMBER(12),
-  	test_count_1_operator	VARCHAR2(100),
-	test_count_2		NUMBER(12),
-  	test_count_2_operator	VARCHAR2(100),
-	count_diff		NUMBER(12),
-  	test_diff_operator	VARCHAR2(100),
-	reason			VARCHAR2(4000) NOT NULL
-)
-PCTFREE 10 PCTUSED 80 MONITORING;
-
---
--- Used by the ReleaseManager application to mark up
--- a QA report with known reasons for entries that appear
--- in one QA report (e.g. Gold script) but not in another
--- (e.g. current META).
---
--- The test_value can be a regular_expression
---
-DROP TABLE qa_result_reasons;
-CREATE TABLE qa_result_reasons (
-	release_name		VARCHAR2(100) NOT NULL,
-	comparison_name		VARCHAR2(100) NOT NULL,
-	target_name		VARCHAR2(100) NOT NULL,
-  	test_name		VARCHAR2(100) NOT NULL,
-  	test_name_operator	VARCHAR2(100),
-	test_value		VARCHAR2(4000),
-  	test_value_operator	VARCHAR2(100),
-	test_count		NUMBER(12),
-  	test_count_operator	VARCHAR2(100),
-	reason			VARCHAR2(4000) NOT NULL
-)
-PCTFREE 10 PCTUSED 80 MONITORING;
-
---
--- Used by the QA Sampling application to present
--- a random sampling of the inserted data.
---
---
-DROP TABLE src_qa_samples;
-CREATE TABLE src_qa_samples (
-	name		VARCHAR2(100) NOT NULL,
-	value		VARCHAR2(100) NOT NULL,
-	sample_id   NUMBER(12) NOT NULL,
-	id_type     VARCHAR2(10) NOT NULL,
-  	timestamp   DATE NOT NULL
-)
-PCTFREE 10 PCTUSED 80 MONITORING;
-
--- This table holds qa count results from the
--- inversion files.  A single QA_id represents a complete
--- set of data to compare against, and so can span
--- multiple sources.
-DROP TABLE inv_qa_results;
-CREATE TABLE inv_qa_results(
-        qa_id                   NUMBER(12) NOT NULL,
+-- This table keeps track of the results of the most recent
+-- QA run.
+DROP TABLE qa_diff_results;
+CREATE TABLE qa_diff_results(
         name                    VARCHAR2(100) NOT NULL,
-        value                   VARCHAR2(150),
-        qa_count                NUMBER(12) NOT NULL,
-        timestamp               DATE NOT NULL
-)
-PCTFREE 10 PCTUSED 80 MONITORING;
-
--- This table holds src_atom_id ranges.
-DROP TABLE src_atom_id_range;
-CREATE TABLE src_atom_id_range(
-        vsab                    VARCHAR2(1000) NOT NULL,
-        min                     NUMBER(12) NOT NULL,
-        max                     NUMBER(12) NOT NULL,
+        value                   VARCHAR2(100),
+        qa_id_1                 NUMBER(12) NOT NULL,
+        count_1                 NUMBER(12) NOT NULL,
+        qa_id_2                 NUMBER(12) NOT NULL,
+        count_2                 NUMBER(12) NOT NULL,
         timestamp               DATE NOT NULL
 )
 PCTFREE 10 PCTUSED 80 MONITORING;

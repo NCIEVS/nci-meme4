@@ -13,13 +13,11 @@
 
 # -r <alternative list of recipients - debug>
 # -b <alternative subject line>
-BEGIN
-{
 unshift @INC, "$ENV{ENV_HOME}/bin";
+
 require "env.pl";
-unshift @INC, "$ENV{EMS_HOME}/lib";
-unshift @INC, "$ENV{EMS_HOME}/bin";
-}
+
+use lib "$ENV{EMS_HOME}/lib";
 
 use OracleIF;
 use GeneralUtils;
@@ -59,7 +57,7 @@ EMSUtils->loadConfig;
 
 $db = $opt_d || Midsvcs->get($opt_s || 'editing-db');
 $user = $main::EMSCONFIG{ORACLE_USER};
-$password = GeneralUtils->getOraclePassword($user,$db);
+$password = GeneralUtils->getOraclePassword($user);
 $dbh = new OracleIF("db=$db&user=$user&password=$password");
 die "ERROR: Database $db is unavailable\n" unless $dbh;
 
@@ -79,7 +77,7 @@ unless (@recipients) {
   die "No mail recipients spacified.\n" unless $opt_t;
 }
 $to = \@recipients;
-#$from = "EMS_Daily_editing_report";
+$from = "EMS_Daily_editing_report";
 
 # Environment
 $ENV{'PATH'} = "/bin:$ENV{'ORACLE_HOME'}/bin";
@@ -202,6 +200,7 @@ if ($opt_g) {
 } else {
   GeneralUtils->mailsender({
 			    from=>$EMSCONFIG{ADMIN},
+			    fake_from=>$from,
 			    replyto=>$EMSCONFIG{ADMIN},
 			    smtp=>$EMSCONFIG{SMTP},
 			    to=>$to,

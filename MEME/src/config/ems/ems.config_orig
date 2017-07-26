@@ -5,11 +5,10 @@ EMS_VERSION=3.0 2005/05/01 0701
 WMS_VERSION=3.0 2005/09/01 0701
 
 # Can be 0, 1 or 2 where
-# 0=only error logging, 1=action logging, 2=detailed SQL logs
+# 0=only error logging, 1=action logging, 3=detailed SQL logs
 LOGLEVEL=2
 
-#LVGHOME
-LVGIF_HOME=/umls_prod/umls_apps/lvgif
+
 
 # The Oracle schema name for the MID - some integrity procedures return tables in this schema
 MTHSCHEMA=MTH
@@ -32,7 +31,7 @@ EMS_ACCESS_MODE=deny/allow
 EMS_ACCESS=allow:*:*
 
 # who should be sent email when there are problems with the EMS
-ADMIN=lankas@mail.nih.gov
+ADMIN=lankas@nlm.nih.gov
 
 # SMTP host to use for sending error email
 SMTP=localhost
@@ -41,7 +40,7 @@ SMTP=localhost
 HOMEPAGENAME=Metathesaurus Editors Online World (MEOW)
 
 # Absolute URL to the home page, e.g., Meow
-HOMEPAGEURL=http://unimed.nlm.nih.gov
+HOMEPAGEURL=http://130.14.16.175
 
 # Relative URL of EMS home page
 EMSURL=/cgi-bin/ems.pl
@@ -73,9 +72,6 @@ SAMPLEREPORTURL=/concept-report/sample-report.html
 # URL to get concept reports from the MID via the web server
 MIDCONCEPTREPORTURL=/cgi-bin/concept-report-mid.pl
 
-# URL to get concept reports from the MID via the web server
-MIDEMS3CONCEPTREPORTURL=/cgi-bin/ems3-concept-report-mid.pl
-
 # URL to the EMS/WMS documentation and images
 EMSDOCURL=/ems
 
@@ -88,14 +84,7 @@ GROUP=umls
 
 # These UNIX users can run EMS in batch mode (via cron say) - MULTIPLE VALUES ALLOWED
 BATCH_UNIX_USER=lankas
-BATCH_UNIX_USER=umls
 BATCH_UNIX_USER=hotan
-BATCH_UNIX_USER=chanr
-BATCH_UNIX_USER=jwong
-BATCH_UNIX_USER=yaoh
-BATCH_UNIX_USER=tkao
-BATCH_UNIX_USER=bcarlsen
-
 
 # The EMS defined 3 levels of users: 0, 1 and 2 from least to most privileged.
 # A single HTTP user can belong to multiple classes, but the highest level applies
@@ -111,13 +100,17 @@ LEVEL0NICKNAME=ANY
 
 # Most privileged
 HTTP_LEVEL2_USER=nlm
-HTTP_LEVEL2_USER=mth
+HTTP_LEVEL2_USER=testems
+
 # These are HTTP authentication user names that are considered editors  - MULTIPLE VALUES ALLOWED
 # lesser privileged user
 HTTP_LEVEL1_USER=msd
 HTTP_LEVEL1_USER=msd_editor
 HTTP_LEVEL1_USER=mesh
 HTTP_LEVEL1_USER=nci
+HTTP_LEVEL1_USER=icdau
+HTTP_LEVEL1_USER=henk
+HTTP_LEVEL1_USER=riley
 
 # These are HTTP authentication user names that are allowed access to the EMS  - MULTIPLE VALUES ALLOWED
 # least privileged user (still restricted by the HTTPD configuration)
@@ -134,28 +127,14 @@ HTTP_LEVEL0_USER=testems
 HTTP_LEVEL0_USER=mth
 
 # Who gets the daily editing report
-EDITING_REPORT_RECIPIENT=powell@nlm.nih.gov
-EDITING_REPORT_RECIPIENT=laura.a.roth@lmco.com
-EDITING_REPORT_RECIPIENT=kwfung@nlm.nih.gov
-EDITING_REPORT_RECIPIENT=dmccully@mail.nih.gov
 EDITING_REPORT_RECIPIENT=hotan@mail.nlm.nih.gov
-EDITING_REPORT_RECIPIENT=chanr@mail.nlm.nih.gov
-EDITING_REPORT_RECIPIENT=yaoh@mail.nlm.nih.gov
-EDITING_REPORT_RECIPIENT=lankas@mail.nlm.nih.gov
-EDITING_REPORT_RECIPIENT=amy.k.jacobs@lmco.com
 
 # Concept report notifications are mailed to users.  This property lists
 # all known email addresses for this.
 USEREMAIL=lankas@mail.nlm.nih.gov
-USEREMAIL=suresh@nlm.nih.gov
-USEREMAIL=laura.aroth@lmco.com
-USEREMAIL=powell@nlm.nih.gov
-USEREMAIL=wth@nlm.nih.gov
-USEREMAIL=kwfung@nlm.nih.gov
 USEREMAIL=hotan@mail.nlm.nih.gov
 USEREMAIL=chanr@mail.nlm.nih.gov
-USEREMAIL=yaoh@mail.nlm.nih.gov
-USEREMAIL=amy.k.jacobs@lmco.com
+
 
 # How long are the _PRE prefixes in the STRING_UI table
 STRING_UI_PREFIX_LENGTH=10
@@ -163,7 +142,7 @@ STRING_UI_PREFIX_LENGTH=10
 # When is a cluster of concepts considered a "chemical" (one or all)
 DEFAULT_CHEMALGO=one
 # default chem algo for demotions bins (should be either "one" or "all")
-DEMOTIONS_CHEMALGO=all
+DEMOTIONS_CHEMALGO=one
 
 # How wide should the EMS and WMS pages be (in pixels)
 HTMLTABLEWIDTH=600

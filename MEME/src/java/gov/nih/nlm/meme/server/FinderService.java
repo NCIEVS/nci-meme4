@@ -2,8 +2,7 @@
  *
  * Package: gov.nih.nlm.meme.serverall
  * Object:  FinderService
- * Version Information
- * 03/06/2007 3.12.4 SL (1-DNO15) : Adding a new function find_concepts_by_ndc to retrieve the NDC Concepts
+ *
  *****************************************************************************/
 
 package gov.nih.nlm.meme.server;
@@ -32,10 +31,7 @@ import java.util.List;
 
 /**
  * Handles requests for finding data.
- * 
- * CHANGES
- * 09/10/2007 JFW (1-DBSLD): Modify isReEntrant to take a SessionContext argument 
- * 
+ *
  * @author MEME Group
  */
 public class FinderService implements MEMEApplicationService {
@@ -249,26 +245,8 @@ public class FinderService implements MEMEApplicationService {
               new Parameter.Default("concepts_by_code",
                                     (Concept[]) concepts.toArray(new Concept[] {})));
         }
-         }else if (function.equals("find_concepts_by_ndc")) {
-          Code code = (Code) request.getParameter("code").getValue();
-          if (code != null) {
-        	 // First the get first character. if it started by 0 then create a approximate attribute_value search parameter
-        	  //character 
-        	 
-            SearchParameter sp = new SearchParameter.Single("code", code.toString());
-            
-            sps.add(sp);
 
-            iterator = data_source.findNDCConceptsFromCode(code.toString(),ticket);
-
-            List concepts = getConceptList(iterator, max_result_count);
-
-            // Return value
-            request.addReturnValue(
-                new Parameter.Default("concepts_by_ndc",
-                                      (Concept[]) concepts.toArray(new Concept[] {})));
-          }
-     }else if (function.equals("exact_string")) {
+      } else if (function.equals("exact_string")) {
         String string = (String) request.getParameter("string").getValue();
         if (string != null) {
           SearchParameter sp =
@@ -433,10 +411,9 @@ public class FinderService implements MEMEApplicationService {
 
   /**
    * Returns <code>false</code>.
-   * @param context the {@link SessionContext}
    * @return <code>false</code>
    */
-  public boolean isReEntrant(SessionContext context) {
+  public boolean isReEntrant() {
     return false;
   }
 }

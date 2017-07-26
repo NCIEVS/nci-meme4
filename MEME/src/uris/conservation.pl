@@ -111,7 +111,7 @@ sub getCounts {
   foreach $file (keys %map) {
     $path = UrisUtils->getPath($dir, $file);
     $rsabindex = UrisUtils->getColIndex($dir, $file . ".RRF", 'SAB', 1);
-    $cmd = "/bin/gawk -F'|' \'\$" . $rsabindex . "==" . "\"$rsab\"" . "{n++}END{print n}' $path > /tmp/$file.out";
+    $cmd = "/bin/nawk -F'|' \'\$" . $rsabindex . "==" . "\"$rsab\"" . "{n++}END{print n}' $path > /tmp/$file.out";
     push @cmd, $cmd;
   }
 

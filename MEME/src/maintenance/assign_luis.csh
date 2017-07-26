@@ -1,7 +1,7 @@
 #! /bin/csh -f
 #
 # Script: assign_luis.csh
-# Author: Bobby Edrosa, Joanne Wong
+# Author: Bobby Edrosa
 #
 # Usage:
 #     assign_luis.csh [-cleanup] <database>
@@ -17,25 +17,14 @@
 #     Requires ORACLE_HOME to be set
 #
 # Version Information:
-# 10/15/2007 JFW (1-FIFPN): Use unique /tmp directory based on pid
-# 10/12/2007 JFW (1-FHPA1): Adjust regex for ambiguous strings to " <[0-9]{1,3}>"
-# 10/05/2007 JFW (1-FFKUL): Change rebuild_table call due to Oracle 10 bug (rebuild_flag='Y').
-# 10/01/2007 PM  (1-FE03J): Remove extra backslash from the sql call to drop temporary report tables.
-# 09/10/2007 JFW (1-DBSLY): Remove hard-coded references to L0028429 (null LUI)
-# 11/30/2006 BAC (1-CXX0G): Use rank char(34) instead of rank char(23) and use "whenever sqlerror" clauses
-# 08/31/2006 TTN (1-C261E): use the ranking algorithm from MEME_RANKS
-# 08/16/2006 BAC (1-BV4YB): code rank lookups for MTH/TM,MTH/MM to guarantee result,
-#                           Avoid using AWK, use perl.
 # 04/24/2006 JFW (1-AYXSB): write reports on split,merge,split/merge to files
 # 12/13/2004 (4.2.0): no more report table change
 # 03/18/2003 (4.1.0): Ported to MEME4
-# 01/17/2009  SL : Updating the RANK to use 34 character ( because of the UI changes)
 #
 set release=4
 set version=2.0
 set version_date="12/13/2004"
 set version_authority="BAC"
-set TMP_SPACE=.
 
 #
 # Set environment (if configured)
@@ -60,17 +49,10 @@ if ($?ORACLE_HOME == 0) then
     exit 1
 endif
 
-if ($?TMP_SPACE != 1) then
-    echo '$TMP_SPACE must be set'
-    exit 1
-endif
-
 #
 # Environment variables
 #
-
 setenv PATH "/bin:/usr/bin:/usr/local/bin"
-set id=$$
 set AWK=awk
 set CAT=cat
 set FGREP=fgrep
@@ -78,8 +60,10 @@ set JOIN=join
 set SED=sed
 set SORT="sort -T ."
 set PERL=$PATH_TO_PERL
-set META_WORK=$TMP_SPACE/assignluis_$$
+set META_WORK=/tmp
 set NORM=$LVG_HOME/bin/luiNorm
+set user=`$MIDSVCS_HOME/bin/get-oracle-pwd.pl`
+set id=$$
 
 setenv LVG_HOME_LANG AMERICAN_AMERICA.UTF8
 setenv LANG en_US.UTF-8
@@ -136,7 +120,7 @@ end
 #
 if ($#argv == 1) then
     set db=$1
-else if ($#argv == 2) then
+else if ($#argv == 2 && $argv[1] == "-cleanup") then
     set db=$2
     set cleanup=1
 else
@@ -158,7 +142,7 @@ echo "ORACLE_HOME:    $ORACLE_HOME"
 echo "META_WORK:      $META_WORK"
 echo "DATABASE:       $db"
 echo ""
-set user=`$MIDSVCS_HOME/bin/get-oracle-pwd.pl -d $db`
+
 #
 # 5 second delay before starting to cancel if desired.
 #
@@ -167,8 +151,6 @@ foreach num (5 4 3 2 1)
     sleep 1
 end
 
-echo "    Creating the log directory $META_WORK ... `/bin/date`"
-/bin/mkdir $META_WORK
 #
 # Cleaning old temporary tables
 #
@@ -209,7 +191,7 @@ $PERL -ne 'split /\|/; print "$_[1]|$_[0]|$_[6]\n";' >! $META_WORK/string.$id
 #
 echo "    Normalizing strings to $META_WORK/string.norm.$id ... `/bin/date`"
 $PERL -ne 'chop; ($a,$b,$c) = split /\|/; \
-          if ($c =~ /(.*) <[0-9]{1,3}>$/) { $d = $1; $e = "N"; } \
+          if ($c =~ /(.*) <[0-9]{1,2}>$/) { $d = $1; $e = "N"; } \
           else { $d = "$c"; $e = "Y"} \
 	  print join("|",($a,$b,$d)),"\n";' $META_WORK/string.$id |\
 $NORM -t:3 -n |\
@@ -233,7 +215,7 @@ endif
 # 
 echo "    Assigning unique norm string to $META_WORK/string.norm.$id ... `/bin/date`"
 $PERL -ne '@fields = split /\|/; print $fields[3]."\n";' $META_WORK/string.norm.$id |\
-$SORT -u | $PERL -ne 'print ++$i."|$_"' >! $META_WORK/string.tmpluis.$id
+$SORT -u | $AWK '{print ++$i"|"$0}' >! $META_WORK/string.tmpluis.$id
 
 #
 # Sort and Join luis to create lui_facts.dat file
@@ -269,14 +251,8 @@ $ORACLE_HOME/bin/sqlplus -s $user@$db <<EOF >! sql_create.$id.log
         lui           VARCHAR2(10),
         lui_dash      VARCHAR2(10),
         norm_string   VARCHAR2(3000),
-        rank          CHAR(34)
+        rank          CHAR(23)
     );
-    
-    CREATE INDEX X_LUIFACTS_DASH ON LUI_FACTS
-		(LUI_DASH)
-			LOGGING
-			NOPARALLEL;
-			
     exec MEME_UTILITY.drop_it('table','lui_merge');
     CREATE TABLE lui_merge(
         lui           VARCHAR2(10)
@@ -331,11 +307,9 @@ endif
 # Rank lui lui' pairs
 #
 echo "    Ranking lui lui prime pairs ... `/bin/date`"
-$ORACLE_HOME/bin/sqlplus -s $user@$db <<EOF >! sql_rank.$id.log 
+$ORACLE_HOME/bin/sqlplus -s $user@$db <<EOF | tee sql_rank.$id.log 
     set feedback off
-    whenever sqlerror exit 1
     alter session set sort_area_size=268435456;
-                                      
     alter session set hash_area_size=268435456;
 
     DECLARE 
@@ -348,10 +322,10 @@ $ORACLE_HOME/bin/sqlplus -s $user@$db <<EOF >! sql_rank.$id.log
 
 	-- MTH/MMs have 0 rank for this purpose
         location := '10';
-        SELECT nvl(min(rank),0) INTO mm_rank
+        SELECT rank INTO mm_rank
         FROM termgroup_rank
         WHERE termgroup = 'MTH/MM';
-        SELECT nvl(min(rank),0) INTO tm_rank
+        SELECT rank INTO tm_rank
         FROM termgroup_rank
         WHERE termgroup = 'MTH/TM';
 
@@ -362,155 +336,42 @@ $ORACLE_HOME/bin/sqlplus -s $user@$db <<EOF >! sql_rank.$id.log
         COMMIT;
 
         location := '30';
-        UPDATE LUI_FACTS A
-           SET RANK =
-           (  SELECT /*+ USE_MERGE(TBR,C,B) */
-                   MAX (MEME_RANKS.GET_ATOM_EDITING_RANK (TBR.RANK,
-                                                          C.RELEASE_RANK,
-                                                          LAST_RELEASE_RANK,
-                                                          B.SUI,
-                                                          AUI,
-                                                          ATOM_ID))
-               FROM CLASSES B, TERMGROUP_RANK C, TOBERELEASED_RANK TBR
-              WHERE     B.SUI = A.SUI
-                    AND B.TERMGROUP = C.TERMGROUP
-                    AND B.TOBERELEASED = TBR.TOBERELEASED
-           GROUP BY B.SUI)
-           WHERE TO_NUMBER (SUBSTR (a.sui, 2)) < 2000000;
-        COMMIT;
-        
-        location := '31';
-        UPDATE LUI_FACTS A
-           SET RANK =
-           (  SELECT /*+ USE_MERGE(TBR,C,B) */
-                   MAX (MEME_RANKS.GET_ATOM_EDITING_RANK (TBR.RANK,
-                                                          C.RELEASE_RANK,
-                                                          LAST_RELEASE_RANK,
-                                                          B.SUI,
-                                                          AUI,
-                                                          ATOM_ID))
-               FROM CLASSES B, TERMGROUP_RANK C, TOBERELEASED_RANK TBR
-              WHERE     B.SUI = A.SUI
-                    AND B.TERMGROUP = C.TERMGROUP
-                    AND B.TOBERELEASED = TBR.TOBERELEASED
-           GROUP BY B.SUI)
-           WHERE TO_NUMBER (SUBSTR (a.sui, 2)) >= 2000000 
-           and TO_NUMBER (SUBSTR (a.sui, 2)) < 4000000;
+        UPDATE lui_facts a
+        SET rank = 
+            (SELECT MAX(LPAD(c.rank,5,0)||
+		SUBSTR(last_release_rank,0,1)||substr(b.sui,2)||
+	    LPAD(atom_id,10,0))
+         FROM classes b, termgroup_rank c
+         WHERE b.sui=a.sui
+         AND b.termgroup=c.termgroup
+         GROUP BY b.sui)
+        WHERE a.sui <= 'S1000000';
         COMMIT;
 
-        location := '32';
-        UPDATE LUI_FACTS A
-           SET RANK =
-           (  SELECT /*+ USE_MERGE(TBR,C,B) */
-                   MAX (MEME_RANKS.GET_ATOM_EDITING_RANK (TBR.RANK,
-                                                          C.RELEASE_RANK,
-                                                          LAST_RELEASE_RANK,
-                                                          B.SUI,
-                                                          AUI,
-                                                          ATOM_ID))
-               FROM CLASSES B, TERMGROUP_RANK C, TOBERELEASED_RANK TBR
-              WHERE     B.SUI = A.SUI
-                    AND B.TERMGROUP = C.TERMGROUP
-                    AND B.TOBERELEASED = TBR.TOBERELEASED
-           GROUP BY B.SUI)
-           WHERE TO_NUMBER (SUBSTR (a.sui, 2)) >= 4000000 
-           and TO_NUMBER (SUBSTR (a.sui, 2)) < 6000000;
+        location := '35';
+        UPDATE lui_facts a
+        SET rank = (SELECT MAX(LPAD(c.rank,5,0)||
+		SUBSTR(last_release_rank,0,1)||substr(b.sui,2)||
+	    LPAD(atom_id,10,0))
+         FROM classes b, termgroup_rank c
+         WHERE b.sui=a.sui
+         AND b.termgroup=c.termgroup
+         GROUP BY b.sui)
+        WHERE a.sui > 'S1000000' AND a.sui < 'S2000000';
         COMMIT;
-        
-        location := '33';
-        UPDATE LUI_FACTS A
-           SET RANK =
-           (  SELECT /*+ USE_MERGE(TBR,C,B) */
-                   MAX (MEME_RANKS.GET_ATOM_EDITING_RANK (TBR.RANK,
-                                                          C.RELEASE_RANK,
-                                                          LAST_RELEASE_RANK,
-                                                          B.SUI,
-                                                          AUI,
-                                                          ATOM_ID))
-               FROM CLASSES B, TERMGROUP_RANK C, TOBERELEASED_RANK TBR
-              WHERE     B.SUI = A.SUI
-                    AND B.TERMGROUP = C.TERMGROUP
-                    AND B.TOBERELEASED = TBR.TOBERELEASED
-           GROUP BY B.SUI)
-           WHERE TO_NUMBER (SUBSTR (a.sui, 2)) >= 6000000 
-           and TO_NUMBER (SUBSTR (a.sui, 2)) < 8000000;
+
+
+        location := '37.5';
+        UPDATE lui_facts a
+        SET rank = (SELECT MAX(LPAD(c.rank,5,0)||
+		SUBSTR(last_release_rank,0,1)||substr(b.sui,2)||
+	    LPAD(atom_id,10,0))
+         FROM classes b, termgroup_rank c
+         WHERE b.sui=a.sui
+         AND b.termgroup=c.termgroup
+         GROUP BY b.sui)
+        WHERE a.sui >= 'S2000000';
         COMMIT;
-        
-        location := '34';
-        UPDATE LUI_FACTS A
-           SET RANK =
-           (  SELECT /*+ USE_MERGE(TBR,C,B) */
-                   MAX (MEME_RANKS.GET_ATOM_EDITING_RANK (TBR.RANK,
-                                                          C.RELEASE_RANK,
-                                                          LAST_RELEASE_RANK,
-                                                          B.SUI,
-                                                          AUI,
-                                                          ATOM_ID))
-               FROM CLASSES B, TERMGROUP_RANK C, TOBERELEASED_RANK TBR
-              WHERE     B.SUI = A.SUI
-                    AND B.TERMGROUP = C.TERMGROUP
-                    AND B.TOBERELEASED = TBR.TOBERELEASED
-           GROUP BY B.SUI)
-           WHERE TO_NUMBER (SUBSTR (a.sui, 2)) >= 8000000 
-           and TO_NUMBER (SUBSTR (a.sui, 2)) < 10000000;
-        COMMIT;
-        
-        location := '35';        
-       UPDATE LUI_FACTS A
-           SET RANK =
-           (  SELECT /*+ USE_MERGE(TBR,C,B) */
-                   MAX (MEME_RANKS.GET_ATOM_EDITING_RANK (TBR.RANK,
-                                                          C.RELEASE_RANK,
-                                                          LAST_RELEASE_RANK,
-                                                          B.SUI,
-                                                          AUI,
-                                                          ATOM_ID))
-               FROM CLASSES B, TERMGROUP_RANK C, TOBERELEASED_RANK TBR
-              WHERE     B.SUI = A.SUI
-                    AND B.TERMGROUP = C.TERMGROUP
-                    AND B.TOBERELEASED = TBR.TOBERELEASED
-           GROUP BY B.SUI)
-           WHERE TO_NUMBER (SUBSTR (a.sui, 2)) >= 10000000 
-           and TO_NUMBER (SUBSTR (a.sui, 2)) < 12000000;
-        COMMIT;
-        
-        location := '36';
-      UPDATE LUI_FACTS A
-           SET RANK =
-           (  SELECT /*+ USE_MERGE(TBR,C,B) */
-                   MAX (MEME_RANKS.GET_ATOM_EDITING_RANK (TBR.RANK,
-                                                          C.RELEASE_RANK,
-                                                          LAST_RELEASE_RANK,
-                                                          B.SUI,
-                                                          AUI,
-                                                          ATOM_ID))
-               FROM CLASSES B, TERMGROUP_RANK C, TOBERELEASED_RANK TBR
-              WHERE     B.SUI = A.SUI
-                    AND B.TERMGROUP = C.TERMGROUP
-                    AND B.TOBERELEASED = TBR.TOBERELEASED
-           GROUP BY B.SUI)
-           WHERE TO_NUMBER (SUBSTR (a.sui, 2)) >= 12000000 
-           and TO_NUMBER (SUBSTR (a.sui, 2)) < 14000000;
-        COMMIT;
-        
-        location := '37';
-        UPDATE LUI_FACTS A
-           SET RANK =
-           (  SELECT /*+ USE_MERGE(TBR,C,B) */
-                   MAX (MEME_RANKS.GET_ATOM_EDITING_RANK (TBR.RANK,
-                                                          C.RELEASE_RANK,
-                                                          LAST_RELEASE_RANK,
-                                                          B.SUI,
-                                                          AUI,
-                                                          ATOM_ID))
-               FROM CLASSES B, TERMGROUP_RANK C, TOBERELEASED_RANK TBR
-              WHERE     B.SUI = A.SUI
-                    AND B.TERMGROUP = C.TERMGROUP
-                    AND B.TOBERELEASED = TBR.TOBERELEASED
-           GROUP BY B.SUI)
-           WHERE TO_NUMBER (SUBSTR (a.sui, 2)) >= 14000000 ;
-        COMMIT;
-        
 
         location := '40';
         UPDATE termgroup_rank
@@ -523,7 +384,7 @@ $ORACLE_HOME/bin/sqlplus -s $user@$db <<EOF >! sql_rank.$id.log
 
         location := '50';
         UPDATE lui_facts
-        SET rank = LPAD(TRIM('L' FROM lui) || LPAD(TRIM('S' FROM sui),9,0),34,0)
+        SET rank = LPAD(TRIM('L' FROM lui) || TRIM('S' FROM sui),23,0)
         WHERE rank = '00000000000000000000000'
 	  OR rank is null;
         COMMIT;
@@ -548,7 +409,7 @@ endif
 echo "    Assigning lui_merge ... `/bin/date`"
 $ORACLE_HOME/bin/sqlplus -s $user@$db <<EOF >! LuiMerge.$id.log
     set feedback off
-    whenever sqlerror exit 1
+    set autocommit on
     alter session set sort_area_size=268435456;
     alter session set hash_area_size=268435456;
 
@@ -557,8 +418,6 @@ $ORACLE_HOME/bin/sqlplus -s $user@$db <<EOF >! LuiMerge.$id.log
     WHERE lui_dash IN 
      (SELECT lui_dash
       FROM lui_facts GROUP BY lui_dash HAVING COUNT(DISTINCT lui) > 1);
-
-    COMMIT;
 EOF
 if ($status != 0 || `$FGREP -c 'ORA-' LuiMerge.$id.log` > 0) then
     echo "      ERROR: Error found in LuiMerge.$id.log"
@@ -571,7 +430,8 @@ endif
 echo "    Assigning lui_split ... `/bin/date`"
 $ORACLE_HOME/bin/sqlplus -s $user@$db <<EOF >! LuiSplit.$id.log
     set feedback off
-	whenever sqlerror exit 1
+    set autocommit on
+
     alter session set sort_area_size=268435456;
     alter session set hash_area_size=268435456;
 
@@ -593,7 +453,7 @@ endif
 echo "    Assigning lui_split_merge ... `/bin/date`"
 $ORACLE_HOME/bin/sqlplus -s $user@$db <<EOF >! LuiSplitMerge.$id.log
     set feedback off
-	whenever sqlerror exit 1
+    set autocommit on
     alter session set sort_area_size=268435456;
     alter session set hash_area_size=268435456;
 
@@ -602,8 +462,6 @@ $ORACLE_HOME/bin/sqlplus -s $user@$db <<EOF >! LuiSplitMerge.$id.log
     WHERE lui IN (SELECT DISTINCT lui FROM lui_merge)
     AND lui_dash IN (SELECT DISTINCT lui_dash FROM lui_split);
 
-	COMMIT;
-	
     exec MEME_SYSTEM.analyze('lui_split_merge');
 
 EOF
@@ -618,7 +476,7 @@ endif
 echo "    Cleaning lui_merge ... `/bin/date`"
 $ORACLE_HOME/bin/sqlplus -s $user@$db <<EOF >! LuiMergeOnly.$id.log
     set feedback off
-    whenever sqlerror exit 1
+    set autocommit on
     alter session set sort_area_size=268435456;
     alter session set hash_area_size=268435456;
 
@@ -637,7 +495,7 @@ endif
 echo "      Cleaning lui_split ... `/bin/date`"
 $ORACLE_HOME/bin/sqlplus -s $user@$db <<EOF >! LuiSplitOnly.$id.log
     set feedback off
-    whenever sqlerror exit 1
+    set autocommit on
     alter session set sort_area_size=268435456;
     alter session set hash_area_size=268435456;
 
@@ -654,7 +512,6 @@ endif
 echo "    Assigning 1-1 cases ... `/bin/date`"
 $ORACLE_HOME/bin/sqlplus -s $user@$db <<EOF >! OneToOne.$id.log
     set feedback off
-    whenever sqlerror exit 1
     alter session set sort_area_size=268435456;
     alter session set hash_area_size=268435456;
 
@@ -680,7 +537,7 @@ endif
 echo "    Assigning N-1 cases ... `/bin/date`"
 $ORACLE_HOME/bin/sqlplus -s $user@$db <<EOF >! NthToOne.$id.log
     set feedback off
-    whenever sqlerror exit 1
+    set autocommit on
     alter session set sort_area_size=268435456;
     alter session set hash_area_size=268435456;
 
@@ -704,7 +561,7 @@ endif
 echo "    Assigning 1-N cases ... `/bin/date`"
 $ORACLE_HOME/bin/sqlplus -s $user@$db <<EOF >! OneToNth.$id.log
     set feedback off
-    whenever sqlerror exit 1
+    set autocommit on
 
     alter session set sort_area_size=268435456;
     alter session set hash_area_size=268435456;
@@ -727,9 +584,9 @@ endif
 # Assign N-N cases
 #
 echo "    Assigning N-N cases ... `/bin/date`"
-$ORACLE_HOME/bin/sqlplus -s $user@$db <<EOF >! NthToNth.$id.log
+$ORACLE_HOME/bin/sqlplus -s $user@$db <<EOF | tee NthToNth.$id.log
     set feedback off
-    whenever sqlerror exit 1
+    set autocommit on
     alter session set sort_area_size=268435456;
     alter session set hash_area_size=268435456;
 
@@ -741,8 +598,6 @@ $ORACLE_HOME/bin/sqlplus -s $user@$db <<EOF >! NthToNth.$id.log
     WHERE a.lui=b.lui
     AND a.lui_dash=b.lui_dash
     AND rank IS NOT NULL;
-
-    COMMIT;
 
     DECLARE
         wt_rec_count  NUMBER;
@@ -793,17 +648,16 @@ endif
 # Assign Null Luis
 #
 echo "    Assigning Null Luis ... `/bin/date`"
-$ORACLE_HOME/bin/sqlplus -s $user@$db <<EOF >! NullLuis.$id.log
+$ORACLE_HOME/bin/sqlplus -s $user@$db <<EOF | tee NullLuis.$id.log
     set feedback off
-    whenever sqlerror exit 1
+    set autocommit on
     alter session set sort_area_size=268435456;
     alter session set hash_area_size=268435456;
 
     DECLARE
-        null_lui          VARCHAR2(10);
         l_lui          VARCHAR2(10);
         l_luip     VARCHAR2(10);
-	    l_luip2     VARCHAR2(10);
+	l_luip2     VARCHAR2(10);
         location                VARCHAR2(3);
         null_lui_exc            EXCEPTION;
 
@@ -814,24 +668,20 @@ $ORACLE_HOME/bin/sqlplus -s $user@$db <<EOF >! NullLuis.$id.log
         WHERE a.norm_string IS NULL
         AND a.lui_dash = b.lui_dash;
 
-        location := '15';
-        SELECT DISTINCT lui INTO null_lui FROM string_ui
-        WHERE language='ENG' AND norm_string IS NULL;
-
         location := '20';
-        IF l_lui != null_lui THEN
+        IF l_lui != 'L0028429' THEN
             -- Null luis has not been assigned to empty norm string,
             -- This block will re-assign null luis to empty norm string.
             location := '30';
             SELECT nvl(min(lui_dash),'null') INTO l_luip2
             FROM tmp_lui_assignment
-            WHERE lui = null_lui;
+            WHERE lui = 'L0028429';
 
 	    IF l_luip2 != 'null' THEN
                 location := '40';
                 UPDATE tmp_lui_assignment
                 SET lui_dash = l_luip
-                WHERE lui = null_lui;
+                WHERE lui = 'L0028429';
      
                 location := '50';
                 UPDATE tmp_lui_assignment
@@ -840,7 +690,7 @@ $ORACLE_HOME/bin/sqlplus -s $user@$db <<EOF >! NullLuis.$id.log
 	    ELSE
                 location := '60';
                 UPDATE tmp_lui_assignment
-                SET lui = null_lui
+                SET lui = 'L0028429'
                 WHERE lui_dash = l_luip; 
 	    END IF;
         END IF;
@@ -861,9 +711,9 @@ endif
 # Assign New Luis
 #
 echo "    Assigning New Luis ... `/bin/date`"
-$ORACLE_HOME/bin/sqlplus -s $user@$db <<EOF >! NewLuis.$id.log
+$ORACLE_HOME/bin/sqlplus -s $user@$db <<EOF | tee NewLuis.$id.log
     set feedback off
-    whenever sqlerror exit 1
+    set autocommit on
     alter session set sort_area_size=268435456;
     alter session set hash_area_size=268435456;
 
@@ -891,9 +741,7 @@ $ORACLE_HOME/bin/sqlplus -s $user@$db <<EOF >! NewLuis.$id.log
 
     location := '30';
     INSERT INTO tmp_lui_assignment (lui, lui_dash)
-    SELECT 'L'||LPAD(mt_max_lui+rownum,
-    	(select to_number(value) from code_map where code='LUI' and type='ui_length'),
-    	0), lui_dash
+    SELECT 'L'||LPAD(mt_max_lui+rownum,7,0), lui_dash
     FROM new_luis;
     
     EXCEPTION
@@ -913,9 +761,8 @@ endif
 # QA Counts
 #
 echo "    QA Counting ... `/bin/date`"
-$ORACLE_HOME/bin/sqlplus -s $user@$db <<EOF >! QACounts.$id.log
+$ORACLE_HOME/bin/sqlplus -s $user@$db <<EOF | tee QACounts.$id.log
     set feedback off
-    whenever sqlerror exit 1
     alter session set sort_area_size=268435456;
     alter session set hash_area_size=268435456;
 
@@ -924,11 +771,6 @@ $ORACLE_HOME/bin/sqlplus -s $user@$db <<EOF >! QACounts.$id.log
     SELECT a.sui AS sui, a.lui AS old_lui, b.lui AS new_lui
     FROM lui_facts a, tmp_lui_assignment b
     WHERE a.lui_dash = b.lui_dash;
-    
-    CREATE INDEX X_LUIASSIGN_OLD ON LUI_ASSIGNMENT
-		(OLD_LUI)
-			LOGGING
-			NOPARALLEL;
 
     set feedback on
 
@@ -979,9 +821,8 @@ endif
 # Compare record count (string_ui vs lui_facts)
 #
 echo "    Comparing record counts (string_ui vs lui_facts) ... `/bin/date`"
-$ORACLE_HOME/bin/sqlplus -s $user@$db <<EOF >! QAValid.$id.log
+$ORACLE_HOME/bin/sqlplus -s $user@$db <<EOF | tee QAValid.$id.log
     set feedback off
-    whenever sqlerror exit 1
     set serveroutput on size 100000
     alter session set sort_area_size=268435456;
     alter session set hash_area_size=268435456;
@@ -1023,9 +864,8 @@ endif
 # Rebuild string_ui
 #
 echo "    Rebuilding string_ui ... `/bin/date`"
-$ORACLE_HOME/bin/sqlplus -s $user@$db <<EOF >! string_ui.$id.log
+$ORACLE_HOME/bin/sqlplus -s $user@$db <<EOF | tee string_ui.$id.log
     set feedback off
-    whenever sqlerror exit 1
     alter session set sort_area_size=268435456;
     alter session set hash_area_size=268435456;
 
@@ -1050,7 +890,7 @@ $ORACLE_HOME/bin/sqlplus -s $user@$db <<EOF >! string_ui.$id.log
     SELECT /*+ parallel(s) */ * FROM t_string_ui s;
     COMMIT;
 
-    exec meme_system.rebuild_table('string_ui','Y',' ');
+    exec meme_system.rebuild_table('string_ui','N',' ');
 
     set feedback on
 
@@ -1164,8 +1004,8 @@ echo "    Cleaning up ...`/bin/date`"
 
 
 
-echo "    Creating report files ... `/bin/date`"
-$ORACLE_HOME/bin/sqlplus -s $user@$db <<EOF >! $META_WORK/t.$$.log
+    echo "    Creating report files ... `/bin/date`"
+    $ORACLE_HOME/bin/sqlplus -s $user@$db <<EOF >! /tmp/t.$$.log
     whenever sqlerror exit 1
     set serveroutput on size 100000
     set feedback off
@@ -1202,16 +1042,16 @@ $ORACLE_HOME/bin/sqlplus -s $user@$db <<EOF >! $META_WORK/t.$$.log
 EOF
 if ($status != 0) then
     echo "error creating report tables"
-    cat $META_WORK/t.$$.log
+    cat /tmp/t.$$.log
     exit 1
 endif
 
-$MEME_HOME/bin/dump_table.pl -u $user -d $db -q "select * from merge order by 2,1" >! merge.rpt
-$MEME_HOME/bin/dump_table.pl -u $user -d $db -q "select * from split order by 1,2" >! split.rpt
-$MEME_HOME/bin/dump_table.pl -u $user -d $db -q "select * from split_merge order by 1,2" >! split_merge.rpt
+$MEME_HOME/bin/dump_table.pl -u $mu -d $db -q "select * from merge order by 2,1" >! merge.rpt
+$MEME_HOME/bin/dump_table.pl -u $mu -d $db -q "select * from split order by 1,2" >! split.rpt
+$MEME_HOME/bin/dump_table.pl -u $mu -d $db -q "select * from split_merge order by 1,2" >! split_merge.rpt
 
 echo "    Removing temporary report tables ... `/bin/date`"
-$ORACLE_HOME/bin/sqlplus -s $user@$db <<EOF >! $META_WORK/t.$$.log
+    $ORACLE_HOME/bin/sqlplus -s $user@$db <<EOF >! /tmp/t.$$.log
     whenever sqlerror exit 1
     set serveroutput on size 100000
     set feedback off
@@ -1223,12 +1063,9 @@ $ORACLE_HOME/bin/sqlplus -s $user@$db <<EOF >! $META_WORK/t.$$.log
 EOF
 if ($status != 0) then
     echo "error dropping report tables"
-    cat $META_WORK/t.$$.log
+    cat /tmp/t.$$.log
     exit 1
 endif
-
-echo "    Clean up temp space ($META_WORK) ... `/bin/date`"
-/bin/rm -Rf $META_WORK
 
 
 #
@@ -1237,4 +1074,5 @@ echo "    Clean up temp space ($META_WORK) ... `/bin/date`"
 echo "----------------------------------------------------------------"
 echo "Finished $0 ...`/bin/date`"
 echo "----------------------------------------------------------------"
+exit 0
 

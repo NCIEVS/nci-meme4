@@ -1,26 +1,92 @@
+#
+# Run cron validation script (on web server only)
+#
+#00 07 * * 6 env ENV_HOME=/d5/ENV ENV_FILE=/d5/ENV/etc/env.prop /d5/MEME4/bin/cronvalidate.csh
+
+#
+# Run nightly tasks
+#
+00 04 * * 1-6 env ENV_HOME=/d5/ENV ENV_FILE=/d5/ENV/etc/env.prop /d5/MEME4/bin/nightly_tasks.csh
+
+#
 # Generate the what's new file on meow every hour
 #
-
-# Run nightly tasks
+5 12,22 * * * /site/umls/scripts/whatsnew.pl -c /export/home/meow/whatsnew/meow.cfg > /export/home/meow/whatsnew/whatsnew.log.new;/bin/mv /export/home/meow/whatsnew/whatsnew.log.new /export/home/meow/whatsnew/whatsnew.log
+5 10 * * 6 /bin/grep -i error /export/home/meow/whatsnew/whatsnew.log
+30 19 * * * /export/home/meow/whatsnew/archive.sh
 
 #
-00 03 * * 1-6 ENV_FILE=/umls_s/umls_apps/env/etc/env.prop.webapps;ENV_HOME=/umls_s/umls_apps/env/;. $ENV_HOME/bin/env.sh;/umls_s/umls_apps/meme/etc/pwd_expire.csh
-00 04 * * 1-6 /umls_s/umls_apps/meme/etc/nightly_tasks.csh
+# Send editors daily report (some only once a wekk)
+#
+00 08 * * 2-5 /site/umls/oracle/ems-2.1/scripts/mail-daily-report.pl -b "Daily Editing Report" -r "lroth@msdinc.com" > /dev/null
+00 20 * * 6 /site/umls/oracle/ems-2.1/scripts/mail-daily-report.pl -b "Daily Editing Report" -r "bcarlsen@apelon.com,smayhugh@mail.nih.gov,tkao@apelon.com"  > /dev/null
 
-
-#5 12,22 * * * /site/umls/scripts/whatsnew.pl -c /export/home/meow/whatsnew/meow.cfg > /export/home/meow/whatsnew/whatsnew.log.new;/bin/mv  /export/home/meow/whatsnew/whatsnew.log.new  /export/home/meow/whatsnew/whatsnew.log
-
+#
 # Run this hourly during work hours
+# MUST CONFIGURE SCRIPT
+#
+01 7-18 * * * /site/umls/oracle/ems-2.1/scripts/ems-hourly-snapshot.pl
 
-# Compute MID Validation report each Saturday
-0 13 * * 6 /umls_s/umls_apps/meme/etc/cronvalidate.csh
+#
+# Refresh Q/A & AH bins on a Sunday afternoon
+#
+00 14 * * 0 /site/umls/oracle/ems-2.1/scripts/batch_qa.pl; /site/umls/oracle/ems-2.1/scripts/batch_ah.pl
 
-# EMS3
-* * * * * ENV_FILE=/umls_s/umls_apps/env/etc/env.prop.webapps; ENV_HOME=/umls_s/umls_apps/env/ ; . $ENV_HOME/bin/env.sh; $EMS_HOME/bin/reportqueueviacron.pl
-02 05 * * * ENV_FILE=/umls_s/umls_apps/env/etc/env.prop.webapps; ENV_HOME=/umls_s/umls_apps/env/ ; . $ENV_HOME/bin/env.sh; $EMS_HOME/bin/chemconcepts.pl
-02 06 * * * ENV_FILE=/umls_s/umls_apps/env/etc/env.prop.webapps; ENV_HOME=/umls_s/umls_apps/env/ ; . $ENV_HOME/bin/env.sh; $EMS_HOME/bin/daily.pl
-20 06 * * * ENV_FILE=/umls_s/umls_apps/env/etc/env.prop.webapps; ENV_HOME=/umls_s/umls_apps/env/ ; . $ENV_HOME/bin/env.sh; $EMS_HOME/bin/batchpartition.pl
-00 20 * * * ENV_FILE=/umls_s/umls_apps/env/etc/env.prop.webapps; ENV_HOME=/umls_s/umls_apps/env/ ; . $ENV_HOME/bin/env.sh; $EMS_HOME/bin/batchtestchecklist.pl
-00 22 * * 1-4 ENV_FILE=/umls_s/umls_apps/env/etc/env.prop.webapps; ENV_HOME=/umls_s/umls_apps/env/ ; . $ENV_HOME/bin/env.sh; $EMS_HOME/bin/sourcestats-generator.pl -n 2
-00 22 * * 5,6 ENV_FILE=/umls_s/umls_apps/env/etc/env.prop.webapps; ENV_HOME=/umls_s/umls_apps/env/ ; . $ENV_HOME/bin/env.sh; $EMS_HOME/bin/sourcestats-generator.pl -n 5
-#00 10 * * 6 ENV_FILE=/umls_s/umls_apps/env/etc/env.prop.webapps; ENV_HOME=/umls_s/umls_apps/env/ ; . $ENV_HOME/bin/env.sh;$EMS_HOME/bin/batchgenerate.pl -t QA
+#
+# EMS Source stats - update cache
+#
+10 18 * * * /site/umls/scripts/generate-source-stats.pl > /dev/null 
+
+# 
+# Refresh the sources file used in meow concept reports 
+#
+02 07 * * * /site/umls/oracle/scripts/dump_table.pl -q "select distinct source from classes where tobereleased in ('y','Y') order by source" > /site/umls/ems/data/sources.txt
+
+#
+# Checks to see if there are any reports that need to be made - DO NOT REMOVE
+# Run every ten minutes from 6am thru 10:50pm 
+# MUST CONFIGURE SCRIPT
+#
+0,5,10,15,20,25,30,35,40,45,50 6-22 * * 1-5 /site/umls/oracle/wms-2.1/scripts/report-daemon.pl
+
+#
+# Check to see if MEME4 server is up and running? 
+# MUST CONFIGURE SCRIPT
+# 
+0,5,10,15,20,25,30,35,40,45,50,55 7-19 * * * /site/umls/scripts/testmeme4.pl
+
+#
+# Collect data on time to generate reports for a standard set of CUIs
+# 01 10,20 * * * /site/umls/scripts/reportstats.pl
+
+#
+# Make the testconcepts checklist
+#
+20 20 * * * /site/bin/perl5 -e '{foreach (100..999) {print $_, "\n";}}' | /site/umls/scripts/make-checklist.pl -c chk_testconcepts
+ 
+#
+# Full RMAN backup of database.
+# 
+#0 17 * * *      su - oracle -c "/export/home/oracle/scripts/rman_full_backup8.sh mid2005" > /dev/null 2>&1
+
+#
+# Backup and delete archive log files.
+#
+#0 6,11,16 * * * su - oracle -c "/export/home/oracle/scripts/rman_archivelog_backup8.sh mid2005" > /dev/null 2>&1
+#0 5,10,15 * * * su - oracle -c "/export/home/oracle/scripts/rman_archivelog_backup.sh  mid2006" > /dev/null 2>&1
+
+#
+# Delete obsolete RMAN backups
+#
+#0 7 * * *       su - oracle -c "/export/home/oracle/scripts/rman_delete_obsolete8.sh   mid2005" > /dev/null 2>&1
+#0 6 * * *       su - oracle -c "/export/home/oracle/scripts/rman_delete_obsolete.sh    mid2006" > /dev/null 2>&1
+
+#
+# Full database exports
+#
+#0 17 * * *      su - oracle -c "/export/home/oracle/scripts/exp_full_backup.sh  mid2005"  > /dev/null 2>&1
+
+#
+# RMAN Catalog information per database.
+#
+#0 23 * * *      su - oracle -c "/export/home/oracle/scripts/rman_catalog_info.sh mid2006" > /dev/null 2>&

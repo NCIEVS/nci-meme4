@@ -6,13 +6,9 @@
 # Options:
 # -d database
 
-BEGIN
-{
 unshift @INC, "$ENV{ENV_HOME}/bin";
 require "env.pl";
-unshift @INC, "$ENV{EMS_HOME}/lib";
-unshift @INC, "$ENV{EMS_HOME}/bin";
-}
+use lib "$ENV{EMS_HOME}/lib";
 
 use OracleIF;
 use EMSUtils;
@@ -34,7 +30,7 @@ EMSUtils->loadConfig;
 
 $db = $opt_d || Midsvcs->get($opt_s || 'editing-db');
 $user = $main::EMSCONFIG{ORACLE_USER};
-$password = GeneralUtils->getOraclePassword($user,$db);
+$password = GeneralUtils->getOraclePassword($user);
 $dbh = new OracleIF("db=$db&user=$user&password=$password");
 
 $srstre = "SRSTRE2";
@@ -45,21 +41,21 @@ $dbh->dropTable($tmptable);
 
 $sql = <<"EOD";
 CREATE TABLE $tmptable AS
-WITH sty AS (SELECT attribute_value, concept_id FROM attributes WHERE attribute_name='SEMANTIC_TYPE')
-SELECT DISTINCT a1.concept_id
-FROM sty a1, sty a2, srstre2 b
+SELECT DISTINCT a1.concept_id, a1.attribute_value AS ancestor_sty, a2.attribute_value AS descendant_sty
+       FROM attributes a1, attributes a2
 WHERE  a1.concept_id=a2.concept_id
-  AND    a1.attribute_value != a2.attribute_value
-  AND    a1.attribute_value = sty1
-  AND    a2.attribute_value = sty2
-  AND    b.rel='isa'
+AND    a1.attribute_name || '' = 'SEMANTIC_TYPE'
+AND    a2.attribute_name || '' = 'SEMANTIC_TYPE'
+AND    a1.attribute_value != a2.attribute_value
 EOD
 $dbh->executeStmt($sql);
 
 $sql = <<"EOD";
-SELECT a.concept_id, rownum as cluster_id FROM $tmptable a
+SELECT DISTINCT a.concept_id, rownum as cluster_id FROM $tmptable a, $srstre b
+WHERE  a.descendant_sty = b.sty1
+AND    a.ancestor_sty = b.sty2
+AND    b.rel='isa'
 EOD
-
 
 $dbh->selectToFile($sql, \*STDOUT);
 $dbh->dropTable($tmptable);

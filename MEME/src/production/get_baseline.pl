@@ -69,7 +69,7 @@ $medline_dir ="$ENV{MEDLINE_DIR}";
 $ftp_host="ftp.nlm.nih.gov";
 $ftp_dir="nlmdata/.medleasebaseline/gz";
 $ftp_user="anonymous";
-$ftp_pwd="meme\@msdinc.com";
+$ftp_pwd="meme\@apelon.com";
 $gunzip="gunzip";
 
 use lib "$ENV{MEME_HOME}/lib";

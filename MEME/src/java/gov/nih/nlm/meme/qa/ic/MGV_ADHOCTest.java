@@ -3,7 +3,6 @@
  * Package: gov.nih.nlm.meme.qa.ic
  * Object:  MGV_ADHOCTest
  * 
- * 12/07/2006 BAC (1-D0BIJ): Replace "MDR80" with current version (via lookup)
  * 01/05/2006 RBE (1-72TW3): File created
  *
  *****************************************************************************/
@@ -83,8 +82,7 @@ public class MGV_ADHOCTest extends TestSuite{
       Source[] sources = client.getSources();
       Source src = null;
       for (int i=0; i<sources.length; i++) {
-      	if (sources[i].getStrippedSourceAbbreviation().equals("MDR") &&
-      			sources[i].isCurrent()) {
+      	if (sources[i].getStrippedSourceAbbreviation().equals("MDR")) {
       		src = sources[i];
       	  break;
       	}

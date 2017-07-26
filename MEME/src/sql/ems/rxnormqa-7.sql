@@ -19,3 +19,5 @@ WHERE a.atom_id = b.atom_id_1
   AND a.termgroup  like 'RXNORM%/SCD' -- not SBD!
   AND a.tobereleased in ('Y','y')
   AND concept_id_2 = c.scdc_id;
+
+

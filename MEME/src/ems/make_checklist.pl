@@ -36,7 +36,7 @@ sub do_make_checklist {
     $html .= "Make a checklist by selecting concepts from a MID table.";
     $html .= $query->p;
 
-    $html .= $query->start_form({-method=>'POST', -action=>$query->url(-absolute=>1)});
+    $html .= $query->start_form({-method=>'POST', -action=>$query->url()});
     push @d, ["Enter name of concept table: ", $query->textfield(-name=>'table_name', -size=>32, -limit=>32)];
     push @d, ["Checklist name: " . $query->b("chk_"),
 	      $query->textfield({-name=>'checklist_suffix', -value=>$checklist_suffix, -size=>18, -maxlength=>18})];
@@ -59,7 +59,7 @@ sub do_make_checklist {
     $html .= "Make a checklist by uploading local file of concepts.";
     $html .= $query->p;
 
-    $html .= $query->start_multipart_form({-method=>'POST', -action=>$query->url(-absolute=>1)});
+    $html .= $query->start_multipart_form({-method=>'POST', -action=>$query->url()});
     $html .= "Select file: " . $query->filefield(-name=>'uploadfile');
     $html .= $query->p;
 

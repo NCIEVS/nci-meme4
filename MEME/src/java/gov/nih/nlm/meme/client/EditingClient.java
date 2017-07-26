@@ -1522,8 +1522,8 @@ public class EditingClient extends ClientAPI {
    * @throws MEMEException if failed to get meta property
    */
   public MetaProperty getMetaProperty(String key, String key_qualifier,
-                                      String value, String description) throws MEMEException {//naveen UMLS-60 added description parameter to getMetaProperty method
-    return auxiliary_data_client.getMetaProperty(key, key_qualifier, value, description);
+                                      String value) throws MEMEException {
+    return auxiliary_data_client.getMetaProperty(key, key_qualifier, value);
   }
 
   /**

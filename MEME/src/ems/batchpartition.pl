@@ -16,13 +16,10 @@
 # -d <database> (by default the MID name server is used).
 # -c (alternate config)
 
-BEGIN
-{
 unshift @INC, "$ENV{ENV_HOME}/bin";
 require "env.pl";
-unshift @INC, "$ENV{EMS_HOME}/lib";
-unshift @INC, "$ENV{EMS_HOME}/bin";
-}
+push @INC, "$ENV{EMS_HOME}/bin";
+use lib $ENV{EMS_HOME} . "/lib";
 
 use Getopt::Std;
 use EMSUtils;

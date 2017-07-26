@@ -7,7 +7,7 @@ use lib "$ENV{EXT_LIB}";
 use lib "$ENV{URIS_HOME}/lib";
 use lib "$ENV{URIS_HOME}/bin";
 
-#!@PATH_TO_PERL@
+#!/share_nfs/perl/5.8.6/bin/perl
 
 # Are RUIs maintained across versions?
 # suresh@nlm.nih.gov

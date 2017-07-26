@@ -354,22 +354,8 @@ public class STYEditor extends JFrame implements JekyllConstants, Refreshable,
                 try {
                     SemanticType[] stys = JekyllKit.getAuxDataClient()
                             .getValidSemanticTypes();
-                    // First check if there is a exact match otherwise go to next
-                    int k = 0;
-                    for (k =0; k < stys.length; k++) {
-                    	if (stys[k].getValue().toLowerCase().equals(string.toLowerCase())) {
-                    		tuiTF.setText(stys[k].getTypeIdentifier()
-                                    .toString());
-                            styTF.setText(stys[k].getValue());
-                            styNameTF.setText(stys[k].getValue());
-                            semantic_type = stys[k].getValue();
-                            found = true;
-                            break;
-                    	}
-                    }
-                    if (!found) {
-                    	for (int i = 0; i < stys.length; i++) {
-                          if (stys[i].getValue().toLowerCase().startsWith(
+                    for (int i = 0; i < stys.length; i++) {
+                        if (stys[i].getValue().toLowerCase().startsWith(
                                 string.toLowerCase())) {
                             tuiTF.setText(stys[i].getTypeIdentifier()
                                     .toString());
@@ -378,8 +364,7 @@ public class STYEditor extends JFrame implements JekyllConstants, Refreshable,
                             semantic_type = stys[i].getValue();
                             found = true;
                             break;
-                         }
-                       }
+                        }
                     }
                 } catch (Exception ex) {
                     if (ex instanceof MEMEException

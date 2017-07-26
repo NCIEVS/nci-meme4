@@ -41,10 +41,7 @@ import java.util.List;
  * contains functionality for finding worklists and checklists
  * based on a variety of criteria.  Additionally it can be used
  * to create, destroy, and stamp worklists and checklists.
- * 
- * CHANGES
- * 09/10/2007 JFW (1-DBSLD): Modify isReEntrant to take a SessionContext argument 
- * 
+ *
  * @author MEME Group
  */
 public class WorklistService implements MEMEApplicationService {
@@ -258,13 +255,12 @@ public class WorklistService implements MEMEApplicationService {
 
   /**
    * Returns <code>false</code>.
-   * @param context the {@link SessionContext}
    * @return <code>false</code>
    */
-  public boolean isReEntrant(SessionContext context) {
+  public boolean isReEntrant() {
     return false;
   }
-  
+
   //
   // Private Methods
   //

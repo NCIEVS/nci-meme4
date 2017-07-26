@@ -2,9 +2,6 @@
  * Package: gov.nih.nlm.meme.sql
  * Object:  RelationshipMapper
  *
- * 02/24/2009 BAC (1-GCLNT): Sets rel rank to 0.
- * 04/03/2007 BAC (1-DW8NP): ensure concept of related atom is always set to related concept.
- * 
  *****************************************************************************/
 package gov.nih.nlm.meme.sql;
 
@@ -190,7 +187,7 @@ public interface RelationshipMapper {
       rel.setName(rs.getString("RELATIONSHIP_NAME"));
       rel.setAttribute(rs.getString("RELATIONSHIP_ATTRIBUTE"));
       rel.setSourceOfLabel(mds.getSource(rs.getString("SOURCE_OF_LABEL")));
-      rel.setRank(new Rank.Default(0));
+      rel.setRank(new Rank.Default(rs.getInt("RANK")));
 
       int concept_id_1 = rs.getInt("CONCEPT_ID_1");
       int concept_id_2 = rs.getInt("CONCEPT_ID_2");
@@ -229,7 +226,7 @@ public interface RelationshipMapper {
             rel.setRelatedAtom(atom);
           } else {
             rel.setRelatedAtom(new Atom.Default(atom_id_2));
-            rel.getRelatedAtom().setConcept(rel.getRelatedConcept());
+
           }
           atom_id = atom_id_1;
           if (cd_map != null && cd_map.containsKey("C" + atom_id)) {
@@ -237,7 +234,6 @@ public interface RelationshipMapper {
             rel.setAtom(atom);
           } else {
             rel.setAtom(new Atom.Default(atom_id_1));
-            rel.getAtom().setConcept(rel.getConcept());
           }
         }
 

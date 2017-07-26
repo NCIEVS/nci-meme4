@@ -124,16 +124,13 @@ while (<F>) {
 close(F);
 print "\nOK: MRCONSO SRLs are consistent with MRSAB.\n\n" unless $error;
 
-# MTH, NLM-MED and SRC SABS do not have VERSIONED CUI.
-
-
 print "-" x 50, "\n";
 foreach $sab (keys %rsab) {
   if ($vcuifound{$sab}) {
     print "OK: VCUI: ", $vsab2cui{$sab}, " found for $sab\n";
   } elsif ($vsab2cui{$sab}) {
     print STDERR "ERROR: VCUI: ", $vsab2cui{$sab}, " not found for $sab in MRCONSO.RRF\n";
-  } elsif(($sab !~ /MTH/) && ($sab !~ /NLM-MED/) && ($sab !~ /SRC/)){
+  } else {
     print STDERR "ERROR: No VCUI for $sab\n";
   }
 

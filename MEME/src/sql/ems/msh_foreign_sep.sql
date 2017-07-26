@@ -3,7 +3,7 @@
 # concept_id of the non-ENG MSH thing and its MUI.
 
 # suresh@nlm.nih.gov 5/2005
-# bcarlsen@msdinc.com 5/2005
+# carlsen@apelon.com 5/2005
 
 
 select distinct concept_id, rownum as cluster_id from (

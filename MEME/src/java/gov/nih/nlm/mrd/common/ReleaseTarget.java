@@ -2,13 +2,11 @@
  *
  * Package: gov.nih.nlm.mrd.common
  * Object:  ReleaseTarget
- *   03/08/2007 TTN (1-DKB57): Add Finish Release method
  *
  *****************************************************************************/
 
 package gov.nih.nlm.mrd.common;
 
-import gov.nih.nlm.meme.common.StageStatus;
 import gov.nih.nlm.meme.exception.MEMEException;
 
 import java.util.ArrayList;

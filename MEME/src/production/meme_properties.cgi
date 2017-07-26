@@ -237,7 +237,7 @@ sub PrintFooter {
 	      <address><a href="$cgi?db=$db">Back to Index</a></address>
             </td>
 	    <td ALIGN=RIGHT VALIGN=TOP NOSAVE>
-	      <font size="-1"><address>Contact: <a href="mailto:tnaing\@msdinc.com">Tun Tun Naing</a></address>
+	      <font size="-1"><address>Contact: <a href="mailto:tnaing\@apelon.com">Tun Tun Naing</a></address>
 	      <address>Generated on:},scalar(localtime),qq{</address>
               <address>This page took $elapsed_time seconds to generate.</address>
 	      <address>};
@@ -302,7 +302,7 @@ sub PrintINDEX {
 			                  <option>-- SELECT A CATEGORY --</option>\n    };
 
     # set variables
-    $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl -d $db`;
+    $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl`;
     ($user,$password) = split /\//, $userpass;
     chop($password);
 
@@ -370,7 +370,7 @@ sub PrintINDEX {
 sub PrintEDIT_INDEX {
 
     # set variables
-    $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl -d $db`;
+    $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl`;
     ($user,$password) = split /\//, $userpass;
     chop($password);
 
@@ -500,7 +500,7 @@ sub PrintEDIT_INDEX {
 sub PrintEDIT_COMPLETE {
 
     # set variables
-    $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl -d $db`;
+    $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl`;
     ($user,$password) = split /\//, $userpass;
     chop($password);
 
@@ -627,7 +627,7 @@ $row_count rows were updated instead of 1.
 #
 sub PrintLIST_DATA {
     # set variables
-    $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl -d $db`;
+    $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl`;
     ($user,$password) = split /\//, $userpass;
     chop($password);
 

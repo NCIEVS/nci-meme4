@@ -19,10 +19,7 @@ import java.io.Writer;
 
 /**
  * Used to shutdown server (<B>DO NOT USE</b>).  Deprecated by {@link AdminService}.
- * 
- * CHANGES
- * 09/10/2007 JFW (1-DBSLD): Modify isReEntrant to take a SessionContext argument 
- * 
+ *
  * @author MEME Group
  */
 public class CGIShutdownServer implements MEMEApplicationService {
@@ -99,11 +96,11 @@ public class CGIShutdownServer implements MEMEApplicationService {
   }
 
   /**
-   * Returns <code>false</code>.
-   * @param context the {@link SessionContext}
-   * @return <code>false</code>
+   * Implements {@link MEMEApplicationService#isReEntrant()}.
+   * @return <code>true</code> if the server is currently running and
+   * this is a re entrant, <code>false</code> otherwise.
    */
-  public boolean isReEntrant(SessionContext context) {
+  public boolean isReEntrant() {
     return false;
   }
 

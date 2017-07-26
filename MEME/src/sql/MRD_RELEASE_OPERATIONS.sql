@@ -5,16 +5,6 @@ CREATE OR REPLACE PACKAGE MRD_RELEASE_OPERATIONS AS
  * PL/SQL File: MRD_RELEASE_OPERATIONS.sql
  *
  * Changes
- * 09/29/2011 PM : Modified mrrel_prepare queries for AQ and QB rels, added filtering on source=MSH.
- * 04/25/2008 BAC (1-H83PD): Use YYYYMMDD instead of YYYY_MM_DD for VSTART and VEND when making MRSAB.
- *  01/30/2008 TTN (1-GC89L): implement the code to apply CVF field for STY based on the atoms CVF values in that concept.
- *   07/17/2007 2.2   SL (1-EG305) : Changed the toid/fromid in mrmap value column to 50 varchar2
- *   07/17/2007 2.2   SL (1-EG3G3) : Changed the attribute value column to 350 varchar2
- *  01/29/2007 BAC, Soma (1-D5427): fix ATNL computation.
- *  08/31/2006 TTN (1-C261E): use the ranking algorithm from MEME_RANKS
- *  06/12/2006 TTN (1-BGD15): compute ts,stt,ispref in mrconso_prepare
- *  06/09/2006 TTN (1-BFPCX): remove CVF entries from mrdoc
- *  06/01/2006 BAC (1-BCSO4): Implement correct MED<year> ATUI semantics in mrsat_prepare
  *  03/29/2006 TK (1-AHNAL) : Fixed code changes to apply_cvf
  *  02/27/2006 TTN (1-AHNAL) : add code and cascade field to content_view_members
  *                             apply_cvf can just use the code value of cv_memebers
@@ -58,7 +48,6 @@ CREATE OR REPLACE PACKAGE MRD_RELEASE_OPERATIONS AS
  * 01/01/2002  1.0: This is the version of the code used to produce
  *		    the Meta2002AA release.  Any further changes should
  *		    be recorded/logged in this section.
- * 07/12/2006  1.0: SL: 1-BNL1W -- Adding new MTH ATN names for 2006AC release
  *
  *****************************************************************************/
 
@@ -158,11 +147,6 @@ CREATE OR REPLACE PACKAGE MRD_RELEASE_OPERATIONS AS
       table_name	IN VARCHAR2,
       key_field		IN VARCHAR2,
       cascade_field	IN VARCHAR2,
-      cui_field		IN VARCHAR2
-    );
-
-    PROCEDURE apply_sty_cvf(
-      table_name	IN VARCHAR2,
       cui_field		IN VARCHAR2
     );
 
@@ -327,12 +311,12 @@ BEGIN
     MEME_UTILITY.exec(
 	'CREATE TABLE  mrmap_pre (
         mapsetcui		VARCHAR2(10) NOT NULL,
-	    mapsetsab		VARCHAR2(40) NOT NULL,
+	    mapsetsab		VARCHAR2(20) NOT NULL,
         mapsubsetid		VARCHAR2(10) ,
         maprank		VARCHAR2(10) ,
         mapid		VARCHAR2(12) ,
-        mapsid		VARCHAR2(50) ,
-        fromid		VARCHAR2(50) ,
+        mapsid		VARCHAR2(12) ,
+        fromid		VARCHAR2(10) ,
         fromsid		VARCHAR2(10) ,
 	    fromexpr		VARCHAR2(1786),
         fromtype		VARCHAR2(100) ,
@@ -340,14 +324,14 @@ BEGIN
 	    fromres		VARCHAR2(100),
 	    rel			VARCHAR2(1786),
 	    rela		VARCHAR2(1786),
-        toid		VARCHAR2(50) ,
+        toid		VARCHAR2(10) ,
         tosid		VARCHAR2(10) ,
 	    toexpr		VARCHAR2(1786),
         totype		VARCHAR2(100) ,
         torule		VARCHAR2(100) ,
 	    tores		VARCHAR2(100),
-	    maprule		VARCHAR2(500),
-	    mapres		VARCHAR2(500),
+	    maprule		VARCHAR2(100),
+	    mapres		VARCHAR2(100),
 	    maptype		VARCHAR2(100),
 	    mapatn		VARCHAR2(20),
 	    mapatv		VARCHAR2(1786),
@@ -363,17 +347,17 @@ BEGIN
     MEME_UTILITY.exec(
 	'CREATE TABLE  mrmap_pre_xmap (
             mapsetcui		VARCHAR2(10) NOT NULL,
-	    mapsetsab		VARCHAR2(40) NOT NULL,
+	    mapsetsab		VARCHAR2(20) NOT NULL,
             mapsubsetid		VARCHAR2(10) ,
             maprank		VARCHAR2(10) ,
             mapid		VARCHAR2(12) ,
-            mapsid		VARCHAR2(50) ,
-            fromid		VARCHAR2(50) ,
+            mapsid		VARCHAR2(12) ,
+            fromid		VARCHAR2(10) ,
 	    rel			VARCHAR2(1786),
 	    rela		VARCHAR2(1786),
-            toid		VARCHAR2(50) ,
-	    maprule		VARCHAR2(500),
-	    mapres		VARCHAR2(500),
+            toid		VARCHAR2(10) ,
+	    maprule		VARCHAR2(100),
+	    mapres		VARCHAR2(100),
 	    maptype		VARCHAR2(100),
 	    mapatn		VARCHAR2(20),
 	    mapatv		VARCHAR2(1786))
@@ -506,7 +490,7 @@ BEGIN
     MEME_UTILITY.exec(
 	'CREATE TABLE  mrmap_pre_from (
             mapsetcui		VARCHAR2(10) NOT NULL,
-            fromid		VARCHAR2(50) ,
+            fromid		VARCHAR2(10) ,
             fromsid		VARCHAR2(10) ,
 	    fromexpr		VARCHAR2(1786),
             fromtype		VARCHAR2(100) ,
@@ -597,7 +581,7 @@ BEGIN
     MEME_UTILITY.exec(
 	'CREATE TABLE  mrmap_pre_to (
             mapsetcui		VARCHAR2(10) NOT NULL,
-            toid		VARCHAR2(50) ,
+            toid		VARCHAR2(10) ,
             tosid		VARCHAR2(10) ,
 	    toexpr		VARCHAR2(1786),
             totype		VARCHAR2(100) ,
@@ -698,27 +682,7 @@ BEGIN
      	AND a.toid = c.toid
 	');
     MEME_UTILITY.sub_timing_stop;
- -- To Handle the null values in TOID for ICD10PCS data
- 
-     MEME_UTILITY.sub_timing_start;
-     location := '120.1';
-     row_count := MEME_UTILITY.exec(
-       'INSERT INTO mrmap_pre (mapsetcui,mapsetsab,mapsubsetid,maprank,
-                       fromid,fromsid,fromexpr,fromtype,fromrule,fromres,rel,rela,
-                       toid,tosid,toexpr,totype,torule,tores,
-                       maprule,maptype,mapatn,mapatv,mapid,mapsid,mapres)
-       SELECT a.mapsetcui, a.mapsetsab, mapsubsetid, maprank,
-               a.fromid, fromsid, fromexpr, fromtype, fromrule, fromres, rel, rela,
-               a.toid, c.tosid, toexpr, totype, torule, tores,
-              maprule, maptype, mapatn, mapatv, mapid, mapsid, mapres
-       FROM mrmap_pre_xmap a, mrmap_pre_from b, mrmap_pre_to c
-               WHERE a.mapsetcui = b.mapsetcui
-       AND a.fromid = b.fromid
-       AND a.mapsetcui = c.mapsetcui
-       AND a.toid is null
-         AND c.toid is null
-       ');
-     MEME_UTILITY.sub_timing_stop;
+
     -- Log row count
     location := '130';
     log_progress(
@@ -762,9 +726,9 @@ BEGIN
     MEME_UTILITY.sub_timing_start;
     EXECUTE IMMEDIATE
         'UPDATE mrmap_pre SET  mapsubsetid = null, maprank = null
-	 WHERE mapsubsetid = ''0''
-	   AND maprank = ''0''
-	   AND mapsetsab != ''SNOMEDCT_US''';
+	 WHERE mapsubsetid = 0
+	   AND maprank = 0
+	   AND mapsetsab != ''SNOMEDCT''';
 
     row_count := SQL%ROWCOUNT;
 
@@ -887,12 +851,13 @@ IS
 
     -- types for handling coa_freq
     CURSOR coa_freq_cursor IS
-    	SELECT string, 0
-        FROM string_ui a, mrd_classes b
-        WHERE b.expiration_date IS NULL
-        AND a.sui=b.sui AND b.root_source = 'MSH'
-        AND b.tty = 'QAB'
-        UNION SELECT '<>', 0 FROM dual;
+    	SELECT attribute_value, 0
+    	FROM mrd_attributes a, mrd_classes b
+    	WHERE a.expiration_date IS NULL and b.expiration_date IS NULL
+    	AND a.ui=b.aui AND b.root_source = 'MSH'
+	AND b.tty = 'TQ'
+    	AND a.attribute_name='QA'
+	UNION SELECT '<>', 0 FROM dual;
 
     qa                      	VARCHAR2(2);
 
@@ -916,8 +881,8 @@ IS
     prev_sab                	VARCHAR2(10):= '';
 
     -- SAB values, looked up in mrd_source_rank
-    mbd			    	VARCHAR2(40);
-    med			    	VARCHAR2(40);
+    mbd			    	VARCHAR2(20);
+    med			    	VARCHAR2(20);
 
     -- Counting/Tracking variables
     -- To make logging more frequent, make chunk_size smaller
@@ -1237,7 +1202,7 @@ BEGIN
         'CREATE TABLE t_lq_lqb_count (
 	   heading_aui  	VARCHAR2(10),
 	   qa         		VARCHAR2(2),
-	   sab			VARCHAR2(40),
+	   sab			VARCHAR2(20),
 	   ct	      		NUMBER(12) ) ' );
 
     -- Get mbd count with subheadings
@@ -1330,17 +1295,12 @@ BEGIN
     location := '310';
     EXECUTE IMMEDIATE
         'INSERT INTO mrcoc_pre (aui_1,aui_2,sab,cot,cof,coa)
-         SELECT a.heading_aui, d.aui , sab, ''LQ'', sum(ct), ''''
-         FROM t_lq_lqb_count a, string_ui c, mrd_classes b, mrd_classes d
-         WHERE qa = c.string
-           AND d.tty = ''TQ''
-           AND d.code = b.code
-           AND d.root_source = ''MSH''
-           AND b.tty = ''QAB''
-           AND b.root_source = ''MSH''
-           AND b.sui = c.sui
-           AND b.expiration_date IS NULL
-         GROUP BY a.heading_aui, d.aui, sab';
+         SELECT a.heading_aui, b.ui , sab, ''LQ'', sum(ct), ''''
+         FROM t_lq_lqb_count a, mrd_attributes b
+         WHERE qa = attribute_value
+	   AND attribute_name = ''QA''
+	   AND b.expiration_date IS NULL
+         GROUP BY a.heading_aui, b.ui, sab';
 
     row_count := row_count + SQL%ROWCOUNT;
 
@@ -1371,7 +1331,6 @@ BEGIN
 
     -- Update CUI_1
     location := '350';
-        
     EXECUTE IMMEDIATE
         'UPDATE /*+ parallel(c) */ mrcoc_pre c SET cui_1 =
          (SELECT cui
@@ -1514,12 +1473,12 @@ BEGIN
             sui        		VARCHAR2(10) NOT NULL,
             ispref      	VARCHAR2(1) NOT NULL,
             aui         	VARCHAR2(10) NOT NULL,
-            source_aui        	VARCHAR2(100),
-            source_cui        	VARCHAR2(100),
-            source_dui        	VARCHAR2(100),
-            sab         	VARCHAR2(40) NOT NULL,
+            source_aui        	VARCHAR2(50),
+            source_cui        	VARCHAR2(50),
+            source_dui        	VARCHAR2(50),
+            sab         	VARCHAR2(20) NOT NULL,
             tty         	VARCHAR2(20) NOT NULL,
-            code        	VARCHAR2(100),
+            code        	VARCHAR2(30),
             string      	VARCHAR2(3000) NOT NULL,
   	    srl			NUMBER(12) NOT NULL,
   	    suppressible	VARCHAR2(20) NOT NULL,
@@ -1534,7 +1493,7 @@ BEGIN
 		source_aui,source_cui,source_dui,sab,tty,
 		code,string,srl,suppressible)
         SELECT /*+ PARALLEL(a) */ cui, a.language,
-               ''S'' AS ts,  a.lui, ''VO'' AS stt, a.sui, ''N'' AS ispref, aui,
+               ''X'' AS ts,  a.lui, ''X'' AS stt, a.sui, ''X'' AS ispref, aui,
 		source_aui, source_cui, source_dui, a.root_source as sab, tty,
 		code, string,
 		restriction_level AS srl, suppressible
@@ -1546,8 +1505,6 @@ BEGIN
 	  AND is_current=''Y''
 	');
 
-	COMMIT;
-	
     -- Stop timing of first operation
     MEME_UTILITY.sub_timing_stop;
 
@@ -1560,165 +1517,6 @@ BEGIN
         transaction_id => 0,
         work_id => 0,
         elapsed_time => MEME_UTILITY.sub_elapsed_time);
-
-    location := '32';
-    MEME_UTILITY.drop_it('table','mrconso_pre_t1');
-
-    -- Create mrconso_pre_t1
-    MEME_UTILITY.sub_timing_start;
-    location := '35';
-    MEME_UTILITY.exec (
-    'CREATE TABLE mrconso_pre_t1 (
-       lat  VARCHAR2(100) NOT NULL,
-       rank VARCHAR2(40),
-       cui  VARCHAR2(10),
-       aui  VARCHAR2(10),
-       sui  VARCHAR2(10),
-       lui  VARCHAR2(10))
-     ');
-
-    location := '40';
-    row_count := MEME_UTILITY.exec (
-    'INSERT INTO mrconso_pre_t1
-     SELECT a.language,
-     		MEME_RANKS.get_atom_release_rank(c.rank, 
-	      		last_release_rank, sui , aui) as rank,
-           cui, aui, sui, lui
-      FROM mrd_classes a, mrd_source_rank b, mrd_termgroup_rank c
-      WHERE a.root_source = b.root_source
-        AND b.is_current = ''Y''
-        AND b.source = substr(normalized_termgroup, 1, instr(normalized_termgroup,''/'')-1)
-        AND a.tty = c.tty
-        AND a.expiration_date IS NULL
-        AND b.expiration_date IS NULL
-        AND c.expiration_date IS NULL
-        ');
-
-	COMMIT;
-	
-    -- Stop timing of first operation
-    MEME_UTILITY.sub_timing_stop;
-
-    -- Log row count
-    location := '45';
-    log_progress(
-        authority => 'RELEASE',
-        activity => 'MRD_RELEASE_OPERATIONS::mrconso_prepare',
-        detail => 'Table mrconso_pre_t1 created with ' || row_count || ' rows.',
-        transaction_id => 0,
-        work_id => 0,
-        elapsed_time => MEME_UTILITY.sub_elapsed_time);
-
-    MEME_UTILITY.drop_it('table','mrconso_pref_lui_4_cui_lat');
-
-    MEME_UTILITY.sub_timing_start;
-    location := '50';
-    MEME_UTILITY.exec (
-    'CREATE TABLE mrconso_pref_lui_4_cui_lat AS
-     SELECT lui, cui, lat
-     FROM mrconso_pre_t1
-     WHERE (rank) IN
-     (SELECT max(rank)
-      FROM mrconso_pre_t1
-      GROUP BY cui, lat)
-      ');
-
-    MEME_UTILITY.drop_it('table','mrconso_pref_sui_4_cui_lat_lui');
-    location := '60';
-    MEME_UTILITY.exec (
-    'CREATE TABLE mrconso_pref_sui_4_cui_lat_lui AS
-     SELECT sui, cui, lat
-     FROM mrconso_pre_t1
-     WHERE (rank) IN
-     (SELECT max(rank)
-      FROM mrconso_pre_t1
-      GROUP BY cui, lat, lui)
-      ');
-
-    MEME_UTILITY.drop_it('table','mrconso_pref_aui_4_cui_lui_sui');
-    location := '70';
-    MEME_UTILITY.exec (
-    'CREATE TABLE mrconso_pref_aui_4_cui_lui_sui AS
-     SELECT aui, cui, lat
-     FROM mrconso_pre_t1
-     WHERE (rank) IN
-     (SELECT max(rank)
-      FROM mrconso_pre_t1
-      GROUP BY cui, lat, lui, sui)
-      ');
-
-	COMMIT;
-	
-    location := '80';
-    MEME_UTILITY.sub_timing_start;
-    row_count := MEME_UTILITY.exec (
-    'UPDATE mrconso_pre SET ts = ''P''
-     WHERE (cui,language,lui) IN
-            (SELECT cui,lat,lui FROM mrconso_pref_lui_4_cui_lat)
-     ');
-
-    -- Stop timing of first operation
-    MEME_UTILITY.sub_timing_stop;
-
-    -- Log row count
-    location := '85';
-    log_progress(
-        authority => 'RELEASE',
-        activity => 'MRD_RELEASE_OPERATIONS::mrconso_prepare',
-        detail => 'Set ts = P ' || row_count || ' rows.',
-        transaction_id => 0,
-        work_id => 0,
-        elapsed_time => MEME_UTILITY.sub_elapsed_time);
-
-    location := '90';
-    MEME_UTILITY.sub_timing_start;
-    row_count := MEME_UTILITY.exec (
-    'UPDATE mrconso_pre SET stt = ''PF''
-     WHERE (cui,language,sui) IN
-           (SELECT cui,lat,sui FROM mrconso_pref_sui_4_cui_lat_lui)
-	');
-	
-    -- Stop timing of first operation
-    MEME_UTILITY.sub_timing_stop;
-
-    -- Log row count
-    location := '95';
-    log_progress(
-        authority => 'RELEASE',
-        activity => 'MRD_RELEASE_OPERATIONS::mrconso_prepare',
-        detail => 'Set stt = PF ' || row_count || ' rows.',
-        transaction_id => 0,
-        work_id => 0,
-        elapsed_time => MEME_UTILITY.sub_elapsed_time);
-
-    location := '100';
-    MEME_UTILITY.sub_timing_start;
-    row_count := MEME_UTILITY.exec (
-    'UPDATE mrconso_pre SET ispref = ''Y''
-     WHERE (cui,language,aui) IN
-           (SELECT cui,lat,aui FROM mrconso_pref_aui_4_cui_lui_sui)
-    ');
-
-    -- Stop timing of first operation
-    MEME_UTILITY.sub_timing_stop;
-
-    -- Log row count
-    location := '105';
-    log_progress(
-        authority => 'RELEASE',
-        activity => 'MRD_RELEASE_OPERATIONS::mrconso_prepare',
-        detail => 'Set ispref = Y ' || row_count || ' rows.',
-        transaction_id => 0,
-        work_id => 0,
-        elapsed_time => MEME_UTILITY.sub_elapsed_time);
-
-	COMMIT;
-	
-    MEME_UTILITY.drop_it('table','mrconso_pre_t1');
-    MEME_UTILITY.drop_it('table','mrconso_pref_lui_4_cui_lat');
-    MEME_UTILITY.drop_it('table','mrconso_pref_sui_4_cui_lat_lui');
-    MEME_UTILITY.drop_it('table','mrconso_pref_aui_4_cui_lui_sui');
-    
 
     MEME_SYSTEM.analyze('mrconso_pre');
 
@@ -1793,7 +1591,6 @@ BEGIN
 
     EXECUTE IMMEDIATE 'ALTER SESSION SET sort_area_size=200000000';
     EXECUTE IMMEDIATE 'ALTER SESSION SET hash_area_size=200000000';
-    
 
     -- Clean any previous logging
     location := '5';
@@ -1823,7 +1620,7 @@ BEGIN
     MEME_UTILITY.exec(
     	'CREATE TABLE mrcxt_pre_1(
     	    aui		VARCHAR2(10),
-    	    sab		VARCHAR2(40),
+    	    sab		VARCHAR2(20),
     	    aui_2	VARCHAR2(10),
     	    cxn    	NUMBER(12),
     	    cxl		CHAR(3), -- ANC, SIB, CCP, CHD
@@ -1849,7 +1646,7 @@ BEGIN
     	'CREATE TABLE mrcxt_pre_2(
     	    aui		VARCHAR2(10),
        	    treenum     VARCHAR2(1000),
-	    sab		VARCHAR2(40),
+	    sab		VARCHAR2(20),
 	    rela	VARCHAR2(100),
 	    cxn		NUMBER(12)
          ) STORAGE (INITIAL 500M)
@@ -2328,7 +2125,6 @@ BEGIN
 
     MEME_UTILITY.sub_timing_start;
     location := '130.1';
-    
     row_count := MEME_UTILITY.exec (
 	'UPDATE /*+ PARALLEL(a) */ mrcxt_pre_1 a
 	 SET xc = ''+''
@@ -2410,7 +2206,7 @@ BEGIN
             cui                VARCHAR2(10),
             sui                VARCHAR2(10),
             aui                VARCHAR2(10),
-            sab                VARCHAR2(40),
+            sab                VARCHAR2(20),
             scd                VARCHAR2(100),
             cxn                NUMBER,
             cxl                CHAR(3), -- ANC,CCP,SIB,CHD
@@ -2531,7 +2327,6 @@ BEGIN
     -- Initialize tracking parameters and start timing elements
 	initialize_trace('MRHIER_PREPARE');
     MEME_UTILITY.timing_start;
-    
 
     -- Clean any previous logging
     location := '5';
@@ -2564,7 +2359,7 @@ BEGIN
     	    aui		VARCHAR2(10),
     	    cxn		NUMBER(12),
     	    paui	VARCHAR2(10),
-    	    sab		VARCHAR2(40),
+    	    sab		VARCHAR2(20),
     	    rela  	VARCHAR2(100),
 	    ptr		VARCHAR2(1000),
     	    hcd		VARCHAR2(100),
@@ -2589,7 +2384,7 @@ BEGIN
     	'CREATE TABLE mrhier_pre_1(
     	    aui		VARCHAR2(10),
        	    treenum     VARCHAR2(1000),
-	    sab		VARCHAR2(40),
+	    sab		VARCHAR2(20),
 	    rela	VARCHAR2(100),
 	    cxn		NUMBER(12)
          ) STORAGE (INITIAL 100M)
@@ -2813,13 +2608,16 @@ IS
     row_count			INTEGER;
     row_multiplier		INTEGER;
     chunk_size			INTEGER := 2000;
+    CURSOR cv_cur IS
+	SELECT * FROM mrd_content_views
+	WHERE expiration_date IS NULL;
+    cv_var		cv_cur%ROWTYPE;
 BEGIN
 
 	-- Initialize tracking parameters and start timing elements
    	initialize_trace('MRDOC_PREPARE');
    	MEME_UTILITY.timing_start;
 
-    
     -- Clean any previous logging
     location := '5';
     DELETE FROM meme_progress
@@ -2896,34 +2694,7 @@ BEGIN
 	    MINUS
 	    (SELECT /*+ parallel(a) */ DISTINCT attribute_name
 	     FROM mrd_attributes a
-	     WHERE expiration_date IS NULL
-         UNION
-          SELECT ''MEMBERSTATUS'' from dual
-           UNION
-		SELECT DISTINCT substr(attribute_value, instr(attribute_value,''~'') +1,
-                instr(attribute_value,''~'',1,2)-instr(attribute_value,''~'')-1)
-     FROM attributes WHERE attribute_name=''CV_MEMBER''
-     AND attribute_value not like ''<>Long_Attribute<>:%''
-     UNION
-     SELECT DISTINCT substr(text_value,instr(text_value,''~'')+1,
-                instr(text_value,''~'',1,2)-instr(text_value,''~'')-1)
-     FROM attributes a, stringtab b
-     WHERE to_number(substr(attribute_value,20)) = string_id
-       AND attribute_name=''CV_MEMBER'' 
-       AND attribute_value like ''<>Long_Attribute<>:%''
-    UNION
-       SELECT DISTINCT SUBSTR(attribute_value, INSTR(attribute_value,''~'', 1, 1)+1,
-       INSTR(attribute_value,''~'',1,2)-INSTR(attribute_value,''~'',1,1)-1) atn
-       FROM attributes where attribute_name=''SUBSET_MEMBER'' and tobereleased in (''Y'',''y'')
-     AND attribute_value not like ''<>Long_Attribute<>:%''
-     UNION
-     SELECT DISTINCT substr(text_value,instr(text_value,''~'')+1,
-                instr(text_value,''~'',1,2)-instr(text_value,''~'')-1)
-     FROM attributes a, stringtab b
-     WHERE to_number(substr(attribute_value,20)) = string_id
-       AND attribute_name=''SUBSET_MEMBER''
-       AND attribute_value like ''<>Long_Attribute<>:%''
-))');
+	     WHERE expiration_date IS NULL))');
 
     --
     -- RELA in MRHIER, MRREL, MRMAP
@@ -2947,15 +2718,7 @@ BEGIN
                      (INSTR(attribute_value, ''~'', 1, 5) -
                      INSTR(attribute_value, ''~'', 1, 4)) -1 )
 	     FROM mrd_attributes
-  	     WHERE attribute_name=''XMAP'' AND expiration_date IS NULL
-			UNION
-              SELECT DISTINCT inverse_rel_attribute from inverse_rel_attributes
-                                        where relationship_attribute in ( select distinct
-              SUBSTR(attribute_value, instr(attribute_value, ''~'', 1, 4) + 1,
-                     (INSTR(attribute_value, ''~'', 1, 5) -
-                     INSTR(attribute_value, ''~'', 1, 4)) -1 )
-             FROM mrd_attributes
-             WHERE attribute_name=''XMAP'' AND expiration_date IS NULL)))' );
+  	     WHERE attribute_name=''XMAP'' AND expiration_date IS NULL))' );
 
     -- Assume REL are correct
 
@@ -3071,6 +2834,138 @@ BEGIN
         work_id => 0,
         elapsed_time => MEME_UTILITY.sub_elapsed_time);
 
+    location := '130';
+    MEME_UTILITY.sub_timing_start;
+    row_count := 0;
+    OPEN cv_cur;
+    LOOP
+        location := '130.1';
+	FETCH cv_cur INTO cv_var;
+        location := '130.2';
+	EXIT WHEN cv_cur%NOTFOUND;
+        location := '130.3';
+	EXECUTE IMMEDIATE
+	    'INSERT INTO mrdoc_pre (key_qualifier,value,key,description)
+	     VALUES (:x,:x,:x,:x)'
+ 	USING 'CVF_ID', cv_var.content_view_id, 'content_view',
+		cv_var.content_view_id;
+        location := '130.4';
+	EXECUTE IMMEDIATE
+	    'INSERT INTO mrdoc_pre (key_qualifier,value,key,description)
+	     VALUES (:x,:x,:x,:x)'
+ 	USING 'CVF_NAME', cv_var.content_view_name, 'content_view',
+		cv_var.content_view_id;
+        location := '130.5';
+	EXECUTE IMMEDIATE
+	    'INSERT INTO mrdoc_pre (key_qualifier,value,key,description)
+	     VALUES (:x,:x,:x,:x)'
+ 	USING 'CVF_CONTRIBUTOR', cv_var.contributor, 'content_view',
+		cv_var.content_view_id;
+        location := '130.6';
+	EXECUTE IMMEDIATE
+	    'INSERT INTO mrdoc_pre (key_qualifier,value,key,description)
+	     VALUES (:x,:x,:x,:x)'
+ 	USING 'CVF_CONTRIBUTOR_VERSION', cv_var.contributor_version,
+		'content_view', cv_var.content_view_id;
+        location := '130.7';
+	EXECUTE IMMEDIATE
+	    'INSERT INTO mrdoc_pre (key_qualifier,value,key,description)
+	     VALUES (:x,:x,:x,:x)'
+ 	USING 'CVF_CONTRIBUTOR_DATE', cv_var.contributor_date,
+		'content_view', cv_var.content_view_id;
+        location := '130.8';
+	EXECUTE IMMEDIATE
+	    'INSERT INTO mrdoc_pre (key_qualifier,value,key,description)
+	     VALUES (:x,:x,:x,:x)'
+ 	USING 'CVF_MAINTAINER', cv_var.maintainer,
+		'content_view', cv_var.content_view_id;
+        location := '130.9';
+	EXECUTE IMMEDIATE
+	    'INSERT INTO mrdoc_pre (key_qualifier,value,key,description)
+	     VALUES (:x,:x,:x,:x)'
+ 	USING 'CVF_MAINTAINER_VERSION', cv_var.maintainer_version,
+		'content_view', cv_var.content_view_id;
+        location := '130.10';
+	EXECUTE IMMEDIATE
+	    'INSERT INTO mrdoc_pre (key_qualifier,value,key,description)
+	     VALUES (:x,:x,:x,:x)'
+ 	USING 'CVF_MAINTAINER_DATE', cv_var.maintainer_date,
+		'content_view', cv_var.content_view_id;
+        location := '130.11';
+	EXECUTE IMMEDIATE
+	    'INSERT INTO mrdoc_pre (key_qualifier,value,key,description)
+	     VALUES (:x,:x,:x,:x)'
+ 	USING 'CVF_CODE', cv_var.content_view_code,
+		'content_view', cv_var.content_view_id;
+        location := '130.12';
+	EXECUTE IMMEDIATE
+	    'INSERT INTO mrdoc_pre (key_qualifier,value,key,description)
+	     VALUES (:x,:x,:x,:x)'
+ 	USING 'CVF_DESCRIPTION', cv_var.content_view_description,
+		'content_view', cv_var.content_view_id;
+        location := '130.13';
+	EXECUTE IMMEDIATE
+	    'INSERT INTO mrdoc_pre (key_qualifier,value,key,description)
+	     VALUES (:x,:x,:x,:x)'
+ 	USING 'CVF_CATEGORY', cv_var.content_view_category,
+		'content_view', cv_var.content_view_id;
+        location := '130.14';
+	IF (cv_var.content_view_subcategory IS NOT NULL) THEN
+	    EXECUTE IMMEDIATE
+	    	'INSERT INTO mrdoc_pre (key_qualifier,value,key,description)
+	     	VALUES (:x,:x,:x,:x)'
+ 	    USING 'CVF_SUBCATEGORY', cv_var.content_view_subcategory,
+		'content_view', cv_var.content_view_id;
+	END IF;
+	IF (cv_var.content_view_previous_meta IS NOT NULL) THEN
+	    EXECUTE IMMEDIATE
+	    	'INSERT INTO mrdoc_pre (key_qualifier,value,key,description)
+	     	VALUES (:x,:x,:x,:x)'
+ 	    USING 'CVF_PREVIOUS_META', cv_var.content_view_previous_meta,
+		'content_view', cv_var.content_view_id;
+	END IF;
+	IF (cv_var.content_view_contributor_url IS NOT NULL) THEN
+	    EXECUTE IMMEDIATE
+	    	'INSERT INTO mrdoc_pre (key_qualifier,value,key,description)
+	     	VALUES (:x,:x,:x,:x)'
+ 	    USING 'CVF_CONTRIBUTOR_URL', cv_var.content_view_contributor_url,
+		'content_view', cv_var.content_view_id;
+	END IF;
+	IF (cv_var.content_view_maintainer_url IS NOT NULL) THEN
+	    EXECUTE IMMEDIATE
+	    	'INSERT INTO mrdoc_pre (key_qualifier,value,key,description)
+	     	VALUES (:x,:x,:x,:x)'
+ 	    USING 'CVF_MAINTAINER_URL', cv_var.content_view_maintainer_url,
+		'content_view', cv_var.content_view_id;
+	END IF;
+        location := '130.15';
+	EXECUTE IMMEDIATE
+	    'INSERT INTO mrdoc_pre (key_qualifier,value,key,description)
+	     VALUES (:x,:x,:x,:x)'
+ 	USING 'CVF_CLASS', cv_var.content_view_class,
+		'content_view', cv_var.content_view_id;
+        location := '130.16';
+	EXECUTE IMMEDIATE
+	    'INSERT INTO mrdoc_pre (key_qualifier,value,key,description)
+	     VALUES (:x,:x,:x,:x)'
+ 	USING 'CVF_CASCADE', cv_var.cascade,
+		'content_view', cv_var.content_view_id;
+        row_count := row_count + 14;
+    END LOOP;
+    CLOSE cv_cur;
+
+
+    -- Log row count
+    location := '140';
+    MEME_UTILITY.sub_timing_stop;
+    log_progress(
+        authority => 'RELEASE',
+        activity => 'MRD_RELEASE_OPERATIONS::mrdoc_prepare',
+        detail => 'Finished generating CVF ' || row_count || ' rows.',
+        transaction_id => 0,
+        work_id => 0,
+        elapsed_time => MEME_UTILITY.sub_elapsed_time);
+
     -- Log completion of activity
     location := '150';
     MEME_UTILITY.timing_stop;
@@ -3100,7 +2995,6 @@ BEGIN
     initialize_trace('MRDEF_PREPARE');
     MEME_UTILITY.timing_start;
 
-    
     -- Clean any previous logging
     location := '5';
     DELETE FROM meme_progress
@@ -3127,9 +3021,9 @@ BEGIN
             cui         	VARCHAR2(10) NOT NULL,
             ui	         	VARCHAR2(10),
             atui	        VARCHAR2(12),
-            satui	        VARCHAR2(50),
-	    sab			VARCHAR2(40),
-	    def 		VARCHAR2(350),
+            satui	        VARCHAR2(12),
+	    sab			VARCHAR2(20),
+	    def 		VARCHAR2(100),
 	    suppress	 	VARCHAR2(10),
             cvf	        	NUMBER(20) )
 	  STORAGE (INITIAL 10M)
@@ -3202,7 +3096,7 @@ END mrrank_prepare;
  */
 PROCEDURE mrrel_prepare
 IS
- 	uwda		VARCHAR2(40);
+ 	uwda		VARCHAR2(20);
 	row_count	INTEGER;
 BEGIN
 
@@ -3210,7 +3104,6 @@ BEGIN
     initialize_trace('MRREL_PREPARE');
     MEME_UTILITY.timing_start;
 
-    
     -- Clean any previous logging
     location := '5';
     DELETE FROM meme_progress
@@ -3244,8 +3137,8 @@ BEGIN
   	    relationship_attribute 	VARCHAR2(100),
 	    rui				VARCHAR2(12) NOT NULL,
 	    srui			VARCHAR2(50) ,
-	    source	 		VARCHAR2(40) NOT NULL,
-	    source_of_label		VARCHAR2(40) NOT NULL,
+	    source	 		VARCHAR2(20) NOT NULL,
+	    source_of_label		VARCHAR2(20) NOT NULL,
 	    relationship_group	 	VARCHAR2(10) ,
 	    dir_flag		 	VARCHAR2(1) ,
 	    suppressible	 	VARCHAR2(10) ,
@@ -3337,42 +3230,28 @@ BEGIN
 	    cui_2	 		VARCHAR2(10) NOT NULL,
 	    aui_2	 		VARCHAR2(10) ,
   	    relationship_attribute 	VARCHAR2(100),
-	    source	 		VARCHAR2(40) NOT NULL,
-	    source_of_label		VARCHAR2(40) NOT NULL,
-	    SG_ID_1         VARCHAR(20) NOT NULL,
-        SG_ID_2         VARCHAR(20)  NOT NULL,
-        SG_QUALIFIER_1       VARCHAR(40)  NOT NULL,
-        SG_QUALIFIER_2  VARCHAR(40) NOT NULL,
-        SG_TYPE_1       VARCHAR(20) NOT NULL,
-        SG_TYPE_2       VARCHAR(20) NOT NULL)
+	    source	 		VARCHAR2(20) NOT NULL,
+	    source_of_label		VARCHAR2(20) NOT NULL)
 	STORAGE (initial 100M)
     ');
 
-   
     -- Get 'AQ' relationships
     MEME_UTILITY.sub_timing_start;
     location := '80';
     row_count := MEME_UTILITY.exec(
         'INSERT INTO mrrel_pre_aq
-         SELECT a.cui, a.ui, ''AQ'', d.cui,d.aui, null,
-                a.root_source, a.root_source, c.source_dui, d.source_dui, c.root_source,d.root_source,
-        ''ROOT_SOURCE_DUI'', ''ROOT_SOURCE_DUI''
-         FROM mrd_classes b, mrd_attributes a, mrd_classes c, mrd_classes d, string_ui e
-         WHERE b.code like ''Q%''
-           AND a.code like ''D%''
-           AND b.tty = ''QAB''
-           AND b.code = d.code
-       AND d.tty = ''TQ''
-       AND b.sui = e.sui
-           AND a.attribute_name IN (''ATN'',''AQL'')
-           AND INSTR(a.attribute_value,e.string) > 0
-       AND a.ui = c.aui
-           AND a.root_source = ''MSH''
-           AND b.root_source = ''MSH''
-           AND d.root_source = ''MSH''
-           AND c.root_source = ''MSH''
-           AND a.expiration_date IS NULL
-           AND b.expiration_date IS NULL
+	 SELECT a.cui, a.ui, ''AQ'', b.cui, b.ui, null,
+	 	a.root_source, a.root_source
+	 FROM mrd_attributes b, mrd_attributes a
+	 WHERE b.code like ''Q%''
+	   AND a.code like ''D%''
+	   AND b.attribute_name = ''QA''
+	   AND a.attribute_name IN (''ATN'',''AQL'')
+	   AND INSTR(a.attribute_value,b.attribute_value) > 0
+	   AND a.root_source = ''MSH''
+	   AND b.root_source = ''MSH''
+	   AND a.expiration_date IS NULL
+	   AND b.expiration_date IS NULL
     ');
 
     -- Log row count
@@ -3382,7 +3261,7 @@ BEGIN
         authority => 'RELEASE',
         activity => 'MRD_RELEASE_OPERATIONS::mrrel_prepare',
         detail => 'Finished generating AQ relationship rows, ' ||
-                row_count || ' rows processed.',
+		row_count || ' rows processed.',
         transaction_id => 0,
         work_id => 0,
         elapsed_time => MEME_UTILITY.sub_elapsed_time);
@@ -3391,29 +3270,22 @@ BEGIN
     MEME_UTILITY.sub_timing_start;
     location := '86';
     row_count := MEME_UTILITY.exec(
-        'INSERT INTO mrrel_pre_aq
-         SELECT a.cui, a.ui, ''AQ'', e.cui, e.aui, null,
-                a.root_source, a.root_source,d.source_dui, e.source_dui, d.root_source,e.root_source,
-        ''ROOT_SOURCE_DUI'', ''ROOT_SOURCE_DUI''
-         FROM mrd_classes b, mrd_attributes a, mrd_stringtab c,mrd_classes d, mrd_classes e, string_ui f
-         WHERE b.code like ''Q%''
-           AND a.code like ''D%''
-           AND b.tty = ''QAB''
-       AND b.code = e.code
-       ANd e.tty = ''TQ''
-       AND b.sui = f.sui
-           AND a.attribute_name IN (''ATN'',''AQL'')
-           AND a.attribute_value like ''<>Long_Attribute<>:%''
-           AND c.hashcode||'''' = a.hashcode
-           AND INSTR(c.text_value,f.string) > 0
-       AND a.ui = d.aui
-           AND a.root_source = ''MSH''
-           AND b.root_source = ''MSH''
-           AND d.root_source = ''MSH''
-           AND e.root_source = ''MSH''
-           AND a.expiration_date IS NULL
-           AND b.expiration_date IS NULL
-           AND c.expiration_date IS NULL
+	'INSERT INTO mrrel_pre_aq
+	 SELECT a.cui, a.ui, ''AQ'', b.cui, b.ui, null,
+	 	a.root_source, a.root_source
+	 FROM mrd_attributes b, mrd_attributes a, mrd_stringtab c
+	 WHERE b.code like ''Q%''
+	   AND a.code like ''D%''
+	   AND b.attribute_name = ''QA''
+	   AND a.attribute_name IN (''ATN'',''AQL'')
+	   AND a.attribute_value like ''<>Long_Attribute<>:%''
+	   AND c.hashcode||'''' = a.hashcode
+	   AND INSTR(c.text_value,b.attribute_value) > 0
+	   AND a.root_source = ''MSH''
+	   AND b.root_source = ''MSH''
+	   AND a.expiration_date IS NULL
+	   AND b.expiration_date IS NULL
+	   AND c.expiration_date IS NULL
     ');
 
     -- Log row count
@@ -3423,7 +3295,7 @@ BEGIN
         authority => 'RELEASE',
         activity => 'MRD_RELEASE_OPERATIONS::mrrel_prepare',
         detail => 'Finished generating Long AQ relationship rows, ' ||
-                row_count || ' rows processed.',
+		row_count || ' rows processed.',
         transaction_id => 0,
         work_id => 0,
         elapsed_time => MEME_UTILITY.sub_elapsed_time);
@@ -3432,26 +3304,19 @@ BEGIN
     MEME_UTILITY.sub_timing_start;
     location := '90';
     row_count := MEME_UTILITY.exec(
-        'INSERT INTO mrrel_pre_aq
-         SELECT d.cui, d.aui, ''QB'', a.cui, a.ui, null,
-                a.root_source, a.root_source, d.source_dui, c.source_dui, d.root_source,c.root_source,
-        ''ROOT_SOURCE_DUI'', ''ROOT_SOURCE_DUI''
-         FROM mrd_classes b, mrd_attributes a, mrd_classes c, mrd_classes d, string_ui e
-         WHERE b.code like ''Q%''
-           AND a.code like ''D%''
-           AND b.tty = ''QAB''
-           AND b.code = d.code
-       AND d.tty = ''TQ''
-       AND b.sui = e.sui
-           AND a.attribute_name IN (''ATN'',''AQL'')
-           AND INSTR(a.attribute_value,e.string) > 0
-       AND a.ui = c.aui
-           AND a.root_source = ''MSH''
-           AND b.root_source = ''MSH''
-           AND d.root_source = ''MSH''
-           AND c.root_source = ''MSH''
-           AND a.expiration_date IS NULL
-           AND b.expiration_date IS NULL
+	'INSERT INTO mrrel_pre_aq
+	 SELECT b.cui, b.ui, ''QB'', a.cui, a.ui, null,
+	 	a.root_source, a.root_source
+	 FROM mrd_attributes b, mrd_attributes a
+	 WHERE b.code like ''Q%''
+	   AND a.code like ''D%''
+	   AND b.attribute_name = ''QA''
+	   AND a.attribute_name IN (''ATN'',''AQL'')
+	   AND INSTR(a.attribute_value,b.attribute_value) > 0
+	   AND a.root_source = ''MSH''
+	   AND b.root_source = ''MSH''
+	   AND a.expiration_date IS NULL
+	   AND b.expiration_date IS NULL
     ');
 
     -- Log row count
@@ -3461,7 +3326,7 @@ BEGIN
         authority => 'RELEASE',
         activity => 'MRD_RELEASE_OPERATIONS::mrrel_prepare',
         detail => 'Finished generating QB relationship rows, ' ||
-                row_count || ' rows processed.',
+		row_count || ' rows processed.',
         transaction_id => 0,
         work_id => 0,
         elapsed_time => MEME_UTILITY.sub_elapsed_time);
@@ -3470,29 +3335,22 @@ BEGIN
     MEME_UTILITY.sub_timing_start;
     location := '96';
     row_count := MEME_UTILITY.exec(
-        'INSERT INTO mrrel_pre_aq
-         SELECT e.cui, e.aui, ''QB'', a.cui, a.ui, null,
-                a.root_source, a.root_source,e.source_dui, d.source_dui, e.root_source,d.root_source,
-        ''ROOT_SOURCE_DUI'', ''ROOT_SOURCE_DUI''
-         FROM mrd_classes b, mrd_attributes a, mrd_stringtab c,mrd_classes d, mrd_classes e, string_ui f
-         WHERE b.code like ''Q%''
-           AND a.code like ''D%''
-           AND b.tty = ''QAB''
-       AND b.code = e.code
-       ANd e.tty = ''TQ''
-       AND b.sui = f.sui
-           AND a.attribute_name IN (''ATN'',''AQL'')
-           AND a.attribute_value like ''<>Long_Attribute<>:%''
-           AND c.hashcode||'''' = a.hashcode
-           AND INSTR(c.text_value,f.string) > 0
-       AND a.ui = d.aui
-           AND a.root_source = ''MSH''
-           AND b.root_source = ''MSH''
-           AND e.root_source = ''MSH''
-           AND d.root_source = ''MSH''
-           AND a.expiration_date IS NULL
-           AND b.expiration_date IS NULL
-           AND c.expiration_date IS NULL
+	'INSERT INTO mrrel_pre_aq
+	 SELECT b.cui, b.ui, ''QB'', a.cui, a.ui, null,
+	 	a.root_source, a.root_source
+	 FROM mrd_attributes b, mrd_attributes a, mrd_stringtab c
+	 WHERE b.code like ''Q%''
+	   AND a.code like ''D%''
+	   AND b.attribute_name = ''QA''
+	   AND a.attribute_name IN (''ATN'',''AQL'')
+	   AND a.attribute_value like ''<>Long_Attribute<>:%''
+	   AND c.hashcode||'''' = a.hashcode
+	   AND INSTR(c.text_value,b.attribute_value) > 0
+	   AND a.root_source = ''MSH''
+	   AND b.root_source = ''MSH''
+	   AND a.expiration_date IS NULL
+	   AND b.expiration_date IS NULL
+	   AND c.expiration_date IS NULL
     ');
 
     -- Log row count
@@ -3502,7 +3360,7 @@ BEGIN
         authority => 'RELEASE',
         activity => 'MRD_RELEASE_OPERATIONS::mrrel_prepare',
         detail => 'Finished generating Long QB relationship rows, ' ||
-                row_count || ' rows processed.',
+		row_count || ' rows processed.',
         transaction_id => 0,
         work_id => 0,
         elapsed_time => MEME_UTILITY.sub_elapsed_time);
@@ -3513,28 +3371,30 @@ BEGIN
     MEME_UTILITY.sub_timing_start;
     location := '100';
     row_count := MEME_UTILITY.exec(
-        'INSERT INTO mrrel_pre
-                (cui_1,aui_1,sg_type_1,relationship_name,
-                cui_2,aui_2,sg_type_2,
-                relationship_attribute,rui, source, source_of_label,
-                relationship_group,dir_flag,suppressible)
-         SELECT /*+ USE_MERGE(a,b) */
-                cui_1, aui_1, ''SDUI'', a.relationship_name,
-                cui_2, aui_2, ''SDUI'',
-                a.relationship_attribute, rui, source, source_of_label,
-                null, null, ''N''
-         FROM mrrel_pre_aq a, relationships_ui b
-         WHERE a.source = b.root_source
-           AND b.relationship_level = ''S''
-           AND a.relationship_name = b.relationship_name
-           AND b.relationship_attribute IS NULL
-           AND a.sg_id_1 = b.sg_id_1
-           AND b.sg_qualifier_1 = a.sg_qualifier_1
-           AND b.sg_type_1 = ''ROOT_SOURCE_DUI''
-           AND a.sg_id_2 = b.sg_id_2
-           AND b.sg_qualifier_2 = a.sg_qualifier_1
-           AND b.sg_type_2 = ''ROOT_SOURCE_DUI''
+	'INSERT INTO mrrel_pre
+		(cui_1,aui_1,sg_type_1,relationship_name,
+		cui_2,aui_2,sg_type_2,
+		relationship_attribute,rui, source, source_of_label,
+		relationship_group,dir_flag,suppressible)
+	 SELECT /*+ USE_MERGE(a,b) */
+		cui_1, aui_1, b.sg_type_1, a.relationship_name,
+		cui_2, aui_2, b.sg_type_2,
+		a.relationship_attribute, rui, source, source_of_label,
+		null, null, ''N''
+	 FROM mrrel_pre_aq a, relationships_ui b
+	 WHERE a.source = b.root_source
+	   AND b.relationship_level = ''S''
+	   AND a.relationship_name = b.relationship_name
+	   AND b.relationship_attribute IS NULL
+	   AND a.aui_1 = b.sg_id_1
+	   AND b.sg_qualifier_1 IS NULL
+	   AND b.sg_type_1 = ''AUI''
+	   AND a.aui_2 = b.sg_id_2
+	   AND b.sg_qualifier_2 IS NULL
+	   AND b.sg_type_2 = ''AUI''
     ');
+
+
     -- Log row count
     MEME_UTILITY.sub_timing_stop;
     location := '115';
@@ -3542,10 +3402,11 @@ BEGIN
         authority => 'RELEASE',
         activity => 'MRD_RELEASE_OPERATIONS::mrrel_prepare',
         detail => 'Get RUI values for AQ rels ' ||
-                row_count || ' rows.',
+		row_count || ' rows.',
         transaction_id => 0,
         work_id => 0,
         elapsed_time => MEME_UTILITY.sub_elapsed_time);
+
     -- drop temp table
     MEME_UTILITY.drop_it('table','mrrel_pre_aq');
 
@@ -3596,7 +3457,7 @@ PROCEDURE mrsat_prepare(
 )
 IS
     row_count		INTEGER;
-    med 		VARCHAR2(40);
+    med 		VARCHAR2(20);
 
     -- Cursor for assigning DA attribute
     CURSOR mp_cur IS
@@ -3615,7 +3476,7 @@ BEGIN
 
     EXECUTE IMMEDIATE 'ALTER SESSION SET sort_area_size=200000000';
     EXECUTE IMMEDIATE 'ALTER SESSION SET hash_area_size=200000000';
-    
+
     -- Clean any previous logging
     location := '5';
     DELETE FROM meme_progress
@@ -3643,12 +3504,12 @@ BEGIN
             sui        		VARCHAR2(10) ,
             ui	         	VARCHAR2(20) ,
 	    sg_type 		VARCHAR2(50) NOT NULL,
-            code        	VARCHAR2(100),
+            code        	VARCHAR2(50),
             atui        	VARCHAR2(12),
             source_atui        	VARCHAR2(50),
-	    attribute_name 	VARCHAR2(100) NOT NULL,
-            root_source        	VARCHAR2(40) NOT NULL,
-	    attribute_value 	VARCHAR2(350),
+	    attribute_name 	VARCHAR2(50) NOT NULL,
+            root_source        	VARCHAR2(20) NOT NULL,
+	    attribute_value 	VARCHAR2(200),
   	    suppressible	VARCHAR2(20) NOT NULL,
   	    cvf			NUMBER(20))
 	' );
@@ -3708,7 +3569,7 @@ BEGIN
            AND attribute_level = ''C''
            AND attribute_name not IN
              (''DEFINITION'',''ATX_REL'',''MRLO'',''HDA'',
-	      ''HPC'',''COC'',''LEXICAL_TAG'', ''SEMANTIC_TYPE'',
+	      ''HPC'',''COC'',''LEXICAL_TAG'', ''NON_HUMAN'',''SEMANTIC_TYPE'',
 	      ''XMAP'',''XMAPFROM'',''XMAPTO'',''COMPONENTHISTORY'')'
     );
 
@@ -3738,9 +3599,9 @@ BEGIN
             ui	         	VARCHAR2(10) ,
             code        	VARCHAR2(30),
             source_atui        	VARCHAR2(10),
-	    attribute_name 	VARCHAR2(100) NOT NULL,
-            root_source        	VARCHAR2(40) NOT NULL,
-	    attribute_value 	VARCHAR2(350),
+	    attribute_name 	VARCHAR2(20) NOT NULL,
+            root_source        	VARCHAR2(20) NOT NULL,
+	    attribute_value 	VARCHAR2(100),
   	    suppressible	VARCHAR2(20) NOT NULL)
 	' );
 
@@ -3760,7 +3621,8 @@ BEGIN
       	 WHERE expiration_date IS NULL
       	   AND attribute_level = ''S''
       	   AND attribute_name = ''LEXICAL_TAG''
-	   AND attribute_value = ''TRD'' '
+	   AND attribute_value = ''TRD''
+	   AND root_source = ''MSH'' '
     );
 
     MEME_UTILITY.sub_timing_stop;
@@ -3790,7 +3652,8 @@ BEGIN
       	   AND a.sui = b.sui
       	   AND a.cui = b.cui
       	   AND attribute_name = ''LEXICAL_TAG''
-	   AND attribute_value = ''TRD'' '
+	   AND attribute_value = ''TRD''
+	   AND a.root_source != ''MSH'' '
     );
 
     MEME_UTILITY.sub_timing_stop;
@@ -3835,6 +3698,32 @@ BEGIN
         work_id => 0,
         elapsed_time => MEME_UTILITY.sub_elapsed_time);
 
+    -- Get the concept level attributes with attribute_name 'NON_HUMAN'.
+    MEME_UTILITY.sub_timing_start;
+    location := '60';
+    row_count := MEME_UTILITY.exec(
+    	'INSERT INTO mrsat_pre
+	    (cui, lui, sui, ui, sg_type, code, atui, source_atui,
+		attribute_name, root_source, attribute_value, suppressible)
+      	 SELECT cui, null, null, ui, ''CUI'', null, atui, source_atui,
+		''NH'', ''MTH'', ''Y'', suppressible
+      	 FROM mrd_attributes
+      	 WHERE expiration_date IS NULL
+      	   AND attribute_level = ''C''
+      	   AND attribute_name = ''NON_HUMAN'' '
+    );
+
+    MEME_UTILITY.sub_timing_stop;
+    -- Log row count
+    location := '65';
+    log_progress(
+        authority => 'RELEASE',
+        activity => 'MRD_RELEASE_OPERATIONS::mrsat_prepare',
+        detail => row_count || ' NON_HUMAN attributes added.' ,
+        transaction_id => 0,
+        work_id => 0,
+        elapsed_time => MEME_UTILITY.sub_elapsed_time);
+
     COMMIT;
 
     -- Recreate the mrsat_pre_2 table
@@ -3850,9 +3739,9 @@ BEGIN
             sui        		VARCHAR2(10) ,
             ui	         	VARCHAR2(10) ,
             code        	VARCHAR2(30),
-	    attribute_name 	VARCHAR2(100) NOT NULL,
-            root_source        	VARCHAR2(40) NOT NULL,
-	    attribute_value 	VARCHAR2(350))
+	    attribute_name 	VARCHAR2(20) NOT NULL,
+            root_source        	VARCHAR2(20) NOT NULL,
+	    attribute_value 	VARCHAR2(100))
 	' );
 
 
@@ -3923,42 +3812,31 @@ BEGIN
         transaction_id => 0,
         work_id => 0,
         elapsed_time => MEME_UTILITY.sub_elapsed_time);
-       MEME_UTILITY.drop_it('table','T_SL_MRD_COC_1');
-location := '180.2';
-        MEME_UTILITY.exec(
-        'CREATE TABLE T_SL_MRD_COC_1 AS SELECT /*+ PARALLEL(coc) */ DISTINCT citation_set_id,
-                            TO_CHAR(publication_date,''YYYY'') as year
-                     FROM mrd_coc_headings coc
-                     WHERE root_source=''NLM-MED''
-                       AND expiration_date IS NULL ');
 
 
-   location := '180.1';
-    MEME_UTILITY.drop_it('table','T_SL_MRD_COC');
-    MEME_UTILITY.exec(
-   'CREATE TABLE T_SL_MRD_COC AS SELECT year, subheading_qa, count(*) as ct
-                       FROM T_SL_MRD_COC_1 a,
-                    mrd_coc_subheadings b
-               WHERE a.citation_set_id = b.citation_set_id
-                 AND b.expiration_date IS NULL
-               GROUP BY year, subheading_qa ');
     --Get the Q# MED<year> attributes
     MEME_UTILITY.sub_timing_start;
     location := '190';
     row_count := MEME_UTILITY.exec(
-        'INSERT INTO mrsat_pre_2
+	'INSERT INTO mrsat_pre_2
            (cui,lui,sui,ui,code,attribute_name,root_source,attribute_value)
-         SELECT d.cui, d.lui, d.sui, d.aui, d.code, ''MED''||year, ''NLM-MED'', sum(ct)
-         FROM mrd_classes a,string_ui c, mrd_classes d, T_SL_MRD_COC b
-         WHERE a.tty = ''QAB''
-           AND d.tty = ''TQ''
-           AND d.root_source = ''MSH''
-           AND d.code = a.code
-           AND a.sui = c.sui
+         SELECT cui, lui, sui, ui, code, ''MED''||year, ''NLM-MED'', sum(ct)
+         FROM mrd_attributes a,
+              (SELECT year, subheading_qa, count(*) as ct
+               FROM (SELECT /*+ PARALLEL(coc) */ DISTINCT citation_set_id,
+                            TO_CHAR(publication_date,''YYYY'') as year
+                     FROM mrd_coc_headings coc
+		     WHERE root_source=''NLM-MED''
+                       AND expiration_date IS NULL) a,
+	            mrd_coc_subheadings b
+               WHERE a.citation_set_id = b.citation_set_id
+	         AND b.expiration_date IS NULL
+               GROUP BY year, subheading_qa) b
+         WHERE a.attribute_name = ''QA''
            AND a.root_source = ''MSH''
            AND a.expiration_date IS NULL
-           AND c.string=b.subheading_qa
-         GROUP BY d.cui,d.lui,d.sui,d.aui,d.code,year  '
+           AND a.attribute_value=b.subheading_qa
+         GROUP BY cui,lui,sui,ui,code,year  '
     );
 
     -- Log row count
@@ -4029,11 +3907,9 @@ location := '180.2';
 		cui, lui, sui, ui, b.sg_type, code, atui, '''',
 		a.attribute_name,  a.root_source, a.attribute_value, ''N''
 	 FROM mrsat_pre_2 a, attributes_ui b
-	 WHERE a.attribute_name = b.attribute_name 
-	   AND a.attribute_value = b.hashcode
+	 WHERE b.attribute_name = DECODE(SUBSTR(a.attribute_value,1,1),''*'',
+		a.attribute_name || ''*'', a.attribute_name)
 	   AND a.root_source = b.root_source
-	   AND b.attribute_level = ''S''
-	   AND b.source_atui IS NULL
 	   AND b.sg_id = a.ui
 	   AND sg_type = ''AUI''
 	   AND sg_qualifier IS NULL'
@@ -4106,73 +3982,34 @@ IS
     ORDER BY normalized_source, tty;
 
     CURSOR atn_cursor IS
-    SELECT distinct source, DECODE(attribute_name,
-       'LEXICAL_TAG','LT',attribute_name)
-        as attribute_name
-    FROM (
-      SELECT /*+ PARALLEL(a) */ distinct source, attribute_name
-      FROM mrd_attributes a, mrd_source_rank b
-      WHERE a.expiration_date IS NULL
-        AND b.expiration_date IS NULL
-        AND a.root_source = b.root_source
-        AND is_current = 'Y'
-        AND attribute_level = 'S'
-        AND attribute_name not IN
-        ('DEFINITION','COC',
-         'XMAPTO','XMAP','XMAPFROM','COMPONENTHISTORY')
-      UNION ALL
-      SELECT distinct 'MTH', attribute_name
-      FROM mrd_attributes a
-      WHERE a.expiration_date IS NULL
-        AND attribute_level = 'C'
-        AND attribute_name not IN
-        ('SEMANTIC_TYPE')
-    UNION ALL
-    SELECT DISTINCT source, substr(attribute_value,
-    instr(attribute_value,'~') +1,
-                instr(attribute_value,'~',1,2)-instr(attribute_value,'~')-1)
+    SELECT /*+ PARALLEL(a) */ distinct source, attribute_name
     FROM mrd_attributes a, mrd_source_rank b
     WHERE a.expiration_date IS NULL
-        AND b.expiration_date IS NULL
-        AND a.root_source = b.root_source
-        AND is_current = 'Y'
-        AND attribute_name = 'SUBSET_MEMBER'
-    AND attribute_value not like '<>Long_Attribute<>:%'
-    UNION
-    SELECT DISTINCT source, substr(text_value,instr(text_value,'~')+1,
-                instr(text_value,'~',1,2)-instr(text_value,'~')-1)
-    FROM mrd_attributes a, mrd_stringtab b, mrd_source_rank c
-    WHERE a.expiration_date IS NULL
-        AND c.expiration_date IS NULL
-        AND a.root_source = c.root_source
-        AND is_current = 'Y'
-        AND a.hashcode = b.hashcode
-      AND attribute_name = 'SUBSET_MEMBER'
-      AND attribute_value like '<>Long_Attribute<>:%'
+      AND b.expiration_date IS NULL
+      AND a.root_source = b.root_source
+      AND is_current = 'Y'
+      AND attribute_level = 'S'
+      AND attribute_name not IN
+    	('DEFINITION','ATX_REL','MRLO','HDA','HPC','COC','LEXICAL_TAG',
+	 'XMAPTO','XMAP','XMAPFROM','COMPONENTHISTORY')
     UNION ALL
-    SELECT DISTINCT root_source, substr(attribute_value,
-    instr(attribute_value,'~') +1,
-                instr(attribute_value,'~',1,2)-instr(attribute_value,'~')-1)
-    FROM mrd_attributes
-    WHERE attribute_name ='CV_MEMBER'
-    AND attribute_value not like '<>Long_Attribute<>:%'
-    UNION
-    SELECT DISTINCT root_source, substr(text_value,instr(text_value,'~')+1,
-                instr(text_value,'~',1,2)-instr(text_value,'~')-1)
-    FROM mrd_attributes a, mrd_stringtab b
-    WHERE a.hashcode = b.hashcode
-      AND attribute_name = 'CV_MEMBER'
-      AND attribute_value like '<>Long_Attribute<>:%'
-     )
+    SELECT source, 'LT' FROM mrd_source_rank
+    WHERE expiration_date IS NULL AND is_current='Y'
+      AND root_source = 'MSH'
     ORDER BY source, attribute_name;
 
+    CURSOR med_cursor IS
+    SELECT DISTINCT to_char(publication_date,'YYYY') as year
+    FROM mrd_coc_headings
+    WHERE root_source = 'NLM-MED'
+      AND expiration_date IS NULL;
 
     tty_row             tty_cursor%ROWTYPE;
     atn_row             atn_cursor%ROWTYPE;
-
+    mc_row		med_cursor%ROWTYPE;
 
     list                VARCHAR2(1000);
-    prev_source         VARCHAR2(40);
+    prev_source         VARCHAR2(20);
     row_count			INTEGER;
 
 BEGIN
@@ -4183,7 +4020,7 @@ BEGIN
 
     EXECUTE IMMEDIATE 'ALTER SESSION SET sort_area_size=50000000';
     EXECUTE IMMEDIATE 'ALTER SESSION SET hash_area_size=50000000';
-    
+
     -- Clean any previous logging
     location := '5';
     DELETE FROM meme_progress
@@ -4209,13 +4046,13 @@ BEGIN
     	'CREATE TABLE mrsab_pre(
         vcui     VARCHAR2(10),
         rcui     VARCHAR2(10),
-        vsab     VARCHAR2(40),
-        rsab     VARCHAR2(40),
+        vsab     VARCHAR2(20),
+        rsab     VARCHAR2(20),
         son      VARCHAR2(1500),
-        sf       VARCHAR2(40),
+        sf       VARCHAR2(20),
         ver      VARCHAR2(20),
-        mstart   VARCHAR(10),
-        mend     VARCHAR(10),
+        mstart   CHAR(10),
+        mend     CHAR(10),
         imeta    VARCHAR2(20),
         rmeta    VARCHAR2(20),
         slc      VARCHAR2(1000),
@@ -4244,8 +4081,8 @@ BEGIN
          	scc, slc, cxty, cenc, curver, sabin, ssn, scit, lat)
 	 SELECT source, root_source, restriction_level, source_official_name,
         	source_family, version,
-        	to_char(valid_start_date,''YYYYMMDD''),
-        	to_char(valid_end_date,''YYYYMMDD''),
+        	to_char(valid_start_date,''YYYY_MM_DD''),
+        	to_char(valid_end_date,''YYYY_MM_DD''),
         	insert_meta_version, remove_meta_version, content_contact,
         	license_contact, context_type, character_set,
 		is_current, ''Y'', source_short_name, citation, language
@@ -4267,8 +4104,8 @@ BEGIN
          	scc, slc, cxty, cenc, curver, sabin, ssn, scit, lat)
 	 SELECT source, root_source, restriction_level, source_official_name,
         	source_family, version,
-        	to_char(valid_start_date,''YYYYMMDD''),
-        	to_char(valid_end_date,''YYYYMMDD''),
+        	to_char(valid_start_date,''YYYY_MM_DD''),
+        	to_char(valid_end_date,''YYYY_MM_DD''),
         	insert_meta_version, remove_meta_version, content_contact,
         	license_contact, context_type, character_set,
 		is_current, ''N'', source_short_name, citation, language
@@ -4349,7 +4186,7 @@ BEGIN
     EXECUTE IMMEDIATE
 	'CREATE TABLE mrsab_pre_1 AS
 	 SELECT /*+ PARALLEL(b) */
-	        count(distinct AUI) as tfr,
+	        count(distinct cui||sui) as tfr,
                 count(distinct cui) as cfr,
 		normalized_source as source
          FROM mrd_classes b, mrd_source_rank c
@@ -4364,11 +4201,6 @@ BEGIN
           (SELECT tfr, cfr FROM mrsab_pre_1 b
 	   WHERE vsab = b.source) ');
     MEME_UTILITY.sub_timing_stop;
-    location := '70.35';
-    row_count := MEME_UTILITY.exec(
-      'UPDATE mrsab_pre a SET tfr = 0,cfr = 0 
-         WHERE tfr IS NULL');
-
     location := '70.4';
     MEME_UTILITY.drop_it('table','mrsab_pre_1');
 
@@ -4454,6 +4286,40 @@ BEGIN
 
     CLOSE atn_cursor;
 
+    -- Get NLM attributes
+    location := '170.1';
+    list := '';
+    OPEN med_cursor;
+    LOOP
+        location := '170.2';
+	FETCH med_cursor INTO mc_row;
+	EXIT WHEN med_cursor%NOTFOUND;
+    	location := '170.3';
+	list := list || 'MED' || mc_row.year || ',';
+    END LOOP;
+    location := '170.4';
+    CLOSE med_cursor;
+
+    -- strip trailing commal
+    list := RTRIM(list,',');
+
+    location := '175';
+    EXECUTE IMMEDIATE
+	'UPDATE mrsab_pre SET atnl = :x
+	 WHERE vsab = :x '
+    USING list,'NLM-MED';
+
+    -- Get MTH attributes
+    location := '180';
+    -- 1-748Y3 - Seibel Request. Per Brian, the following MTH_UMLSMAPSETSEPARATOR is not necessary.
+    -- 1-AU9MF  -- Reverting back the changes made in 1-748Y3
+    list := 'DA,FROMRSAB,FROMVSAB,LT,MAPSETGRAMMAR,MAPSETID,MAPSETNAME,MAPSETRSAB,MAPSETTYPE,MAPSETVSAB,MR,MTH_MAPFROMCOMPLEXITY,MTH_MAPFROMEXHAUSTIVE,MTH_MAPSETCOMPLEXITY,MTH_MAPTOCOMPLEXITY,MTH_MAPTOEXHAUSTIVE,MTH_UMLSMAPSETSEPARATOR,NH,SOS,ST,TORSAB,TOVSAB';
+
+    location := '150';
+    EXECUTE IMMEDIATE
+	'UPDATE mrsab_pre SET atnl = :x
+	 WHERE vsab = :x '
+    USING list,'MTH';
 
     -- To drop the table
     COMMIT;
@@ -4514,9 +4380,9 @@ BEGIN
     MEME_UTILITY.exec(
         'CREATE TABLE mrhist_pre (
             cui         	VARCHAR2(10) NOT NULL,
-            ui	         	VARCHAR2(100),
-            sab	        	VARCHAR2(40) NOT NULL,
-            sver        	VARCHAR2(40),
+            ui	         	VARCHAR2(10),
+            sab	        	VARCHAR2(20) NOT NULL,
+            sver        	VARCHAR2(20),
             changetype        	VARCHAR2(100),
             changekey        	VARCHAR2(1000),
             changeval	        VARCHAR2(1000),
@@ -4547,8 +4413,7 @@ BEGIN
        		SUBSTR(attribute_value, instr(attribute_value, ''~'', 1, 5) + 1)
         FROM mrd_attributes a
     	WHERE attribute_name = ''COMPONENTHISTORY''
-		and attribute_value not like ''<>Long%''
-	  	AND expiration_date IS NULL');
+	  AND expiration_date IS NULL');
 
     -- Log row count
     location := '35';
@@ -4560,30 +4425,7 @@ BEGIN
         transaction_id => 0,
         work_id => 0,
         elapsed_time => MEME_UTILITY.sub_elapsed_time);
-     row_count := MEME_UTILITY.exec(
-      'INSERT INTO mrhist_pre
-          (cui, ui, sab, sver, changetype, changekey, changeval, reason)
-        SELECT cui,
-               SUBSTR(text_value, 1, instr(text_value, ''~'') - 1),
-               root_source,
-                       SUBSTR(text_value, instr(text_value, ''~'') + 1,
-                            (INSTR(text_value, ''~'', 1, 2) -
-                             INSTR(text_value, ''~'', 1)) -1 ),
-                       SUBSTR(text_value, instr(text_value, ''~'', 1, 2) + 1,
-                            (INSTR(text_value, ''~'', 1, 3) -
-                             INSTR(text_value, ''~'', 1, 2)) -1 ),
-                       SUBSTR(text_value, instr(text_value, ''~'', 1, 3) + 1,
-                            (INSTR(text_value, ''~'', 1, 4) -
-                             INSTR(text_value, ''~'', 1, 3)) -1 ),
-                       SUBSTR(text_value, instr(text_value, ''~'', 1, 4) + 1,
-                            (INSTR(text_value, ''~'', 1, 5) -
-                             INSTR(text_value, ''~'', 1, 4)) -1 ),
-                       SUBSTR(text_value, instr(text_value, ''~'', 1, 5) + 1)
-      FROM mrd_attributes a, mrd_stringtab b
-        WHERE attribute_name=''COMPONENTHISTORY''
-        AND a.expiration_date IS NULL
-        AND attribute_value like ''<>Long%''
-        AND b.hashcode = substr(attribute_value,20)');
+
     -- Set cvf
     apply_cvf(
 	table_name => 'mrhist_pre',
@@ -4686,11 +4528,6 @@ BEGIN
 	table_name => 'mrsty_pre',
 	key_field => 'atui',
 	cascade_field => null,
-	cui_field => 'cui');
-
-     -- Set sty cvf
-     apply_sty_cvf(
-	table_name => 'mrsty_pre',
 	cui_field => 'cui');
 
     -- Log for the whole procedure
@@ -5042,25 +4879,17 @@ BEGIN
     EXECUTE IMMEDIATE
     	'INSERT INTO t_deleted_cui (cui, string)
 	 SELECT c.cui, string
-	 FROM classes a, string_ui b, t_deleted_cuis c,
-			termgroup_rank tr, tobereleased_rank tbr
+	 FROM classes a, string_ui b, t_deleted_cuis c
 	 WHERE a.last_release_cui = c.cui
 	   AND a.released != ''N''
 	   AND a.sui = b.sui
-	   AND a.termgroup = tr.termgroup
-       AND a.tobereleased = tbr.tobereleased
 	   AND a.last_release_cui IS NOT NULL
-	   AND ( MEME_RANKS.get_atom_editing_rank(tbr.rank, tr.release_rank, 
-	      a.last_release_rank, a.sui , a.aui, a.atom_id) ) IN
-	      (SELECT max(MEME_RANKS.get_atom_editing_rank(tbr.rank, tr.release_rank, 
-	      d.last_release_rank, d.sui , d.aui, d.atom_id))
-	       FROM classes d,
-			termgroup_rank tr, tobereleased_rank tbr
+	   AND ( SUBSTR(a.rank,2) || a.sui || LPAD(a.atom_id,10,0) ) IN
+	      (SELECT max(SUBSTR(d.rank,2) || d.sui || LPAD(d.atom_id,10,0))
+	       FROM classes d
 	       WHERE d.released != ''N''
 	  	 AND d.last_release_cui IS NOT NULL
-			AND d.termgroup = tr.termgroup
-        	AND d.tobereleased = tbr.tobereleased
-	       GROUP BY d.last_release_cui) ';
+	       GROUP BY last_release_cui) ';
 
     row_count := SQL%ROWCOUNT;
 
@@ -5068,24 +4897,16 @@ BEGIN
     EXECUTE IMMEDIATE
     	'INSERT INTO t_deleted_cui (cui, string)
 	 SELECT c.cui, string
-	 FROM dead_classes a, string_ui b, t_deleted_cuis c,
-			termgroup_rank tr, tobereleased_rank tbr
+	 FROM dead_classes a, string_ui b, t_deleted_cuis c
 	 WHERE a.last_release_cui = c.cui
 	   AND a.released != ''N''
 	   AND a.sui = b.sui
-	   AND a.termgroup = tr.termgroup
-       AND a.tobereleased = tbr.tobereleased
 	   AND a.last_release_cui IS NOT NULL
-	   AND (MEME_RANKS.get_atom_editing_rank(tbr.rank, tr.release_rank, 
-	      a.last_release_rank, a.sui , a.aui, a.atom_id),a.last_release_cui) IN
-	      (SELECT MAX(MEME_RANKS.get_atom_editing_rank(tbr.rank, tr.release_rank, 
-	      d.last_release_rank, d.sui , d.aui, d.atom_id)),last_release_cui
-	       FROM dead_classes d,
-			termgroup_rank tr, tobereleased_rank tbr
+	   AND (a.rank || a.sui || lpad(a.atom_id,10,0),a.last_release_cui) IN
+	      (SELECT MAX(d.rank || d.sui || lpad(d.atom_id,10,0)),last_release_cui
+	       FROM dead_classes d
 	       WHERE d.last_release_cui IS NOT NULL
 	       AND d.released != ''N''
-			AND d.termgroup = tr.termgroup
-        	AND d.tobereleased = tbr.tobereleased
 	       GROUP BY last_release_cui)
 	  AND c.cui IN (SELECT cui FROM t_deleted_cuis
 			MINUS SELECT cui FROM t_deleted_cui) ';
@@ -5206,47 +5027,7 @@ BEGIN
         transaction_id => 0,
         work_id => 0,
         elapsed_time => MEME_UTILITY.sub_elapsed_time);
-    --
-    -- Delete the new LUI that are not part of the previous release Seibel Ticket 1-D62PI
-    -- Changes needed to support mixed-length LUIs
-    --
-    MEME_UTILITY.sub_timing_start;
-    location := '150.1';
-    EXECUTE IMMEDIATE
-        'DELETE FROM t_old_luis WHERE to_number(substr(lui,2)) >
-           (SELECT max(to_number(substr(lui,2))) from
-                (SELECT old_lui lui FROM lui_assignment WHERE sui in
-                       (SELECT sui FROM classes WHERE released=''A''
-                        UNION
-                        SELECT sui FROM dead_classes WHERE released=''A''
-                        UNION
-                        SELECT sui FROM foreign_classes WHERE released=''A'')
-                 UNION ALL
-                 SELECT lui FROM classes WHERE released=''A''
-                 AND (SELECT count(*) FROM lui_assignment) = 0
-                 UNION ALL
-                 SELECT lui FROM foreign_classes WHERE released=''A''
-                 AND (SELECT count(*) FROM lui_assignment) = 0
-                 UNION ALL
-                 SELECT lui FROM dead_classes WHERE released=''A''
-                 AND (SELECT COUNT(*) FROM lui_assignment) = 0
-                       ) 
-            WHERE lui IS NOT null)';
 
-    row_count := SQL%ROWCOUNT;
-
-    -- Log row count
-    MEME_UTILITY.sub_timing_stop;
-    location := '150.2';
-    log_progress(
-        authority => 'RELEASE',
-        activity => 'MRD_RELEASE_OPERATIONS::mrcui_prepare',
-        detail => 'Remove any false positive LUI from old luis table: ' || row_count || ' rows.',
-        transaction_id => 0,
-        work_id => 0,
-        elapsed_time => MEME_UTILITY.sub_elapsed_time);
-        
-        
     --
     -- Now find the "merged luis" which are t_old_luis from
     -- lui assignment that have different luis assigned
@@ -5411,17 +5192,13 @@ BEGIN
 	 SELECT b.lui, string
 	 FROM string_ui a,
 	      (SELECT b.lui,
-		MAX(MEME_RANKS.get_atom_editing_rank(tbr.rank, tr.release_rank, 
-	      a.last_release_rank, a.sui , a.aui, a.atom_id) || ''/'' || a.sui)
+		MAX(a.termgroup_rank || a.last_release_rank || ''/'' || a.sui)
 		  as rank
 	       FROM classes a, t_deleted_luis b,
-		    lui_assignment c,
-			termgroup_rank tr, tobereleased_rank tbr
-        	       WHERE b.lui = c.old_lui
+		    lui_assignment c
+	       WHERE b.lui = c.old_lui
 		 AND a.sui = c.sui
 	         AND a.released != ''N''
-			AND a.termgroup = tr.termgroup
-        	AND a.tobereleased = tbr.tobereleased 
 	       GROUP BY b.lui ) b
 	 WHERE a.sui = SUBSTR(rank,instr(rank,''/'')+1)';
 
@@ -5433,15 +5210,11 @@ BEGIN
 	 SELECT b.lui, string
 	 FROM string_ui a,
 	      (SELECT b.lui,
-		MAX(MEME_RANKS.get_atom_editing_rank(tbr.rank, tr.release_rank, 
-	      a.last_release_rank, a.sui , a.aui, a.atom_id) || ''/'' || a.sui)
+		MAX(a.termgroup_rank || a.last_release_rank || ''/'' || a.sui)
 		  as rank
-	       FROM classes a, t_deleted_luis b,
-			termgroup_rank tr, tobereleased_rank tbr
+	       FROM classes a, t_deleted_luis b
 	       WHERE b.lui = a.lui
 	         AND a.released != ''N''
-			AND a.termgroup = tr.termgroup
-        	AND a.tobereleased = tbr.tobereleased 
 	       GROUP BY b.lui ) b
 	 WHERE a.sui = SUBSTR(rank,instr(rank,''/'')+1) ';
 
@@ -5453,15 +5226,11 @@ BEGIN
 	 SELECT b.lui, string
 	 FROM string_ui a,
 	      (SELECT a.lui,
-		MAX(MEME_RANKS.get_atom_editing_rank(tbr.rank, tr.release_rank, 
-	      a.last_release_rank, a.sui , a.aui, a.atom_id) || ''/'' || a.sui)
+		MAX(a.termgroup_rank || a.last_release_rank || ''/'' || a.sui)
 		  as rank
-	       FROM foreign_classes a, t_deleted_luis b,
-			termgroup_rank tr, tobereleased_rank tbr
+	       FROM foreign_classes a, t_deleted_luis b
 	       WHERE a.lui = b.lui
 	         AND a.released != ''N''
-			AND a.termgroup = tr.termgroup
-        	AND a.tobereleased = tbr.tobereleased 
 	       GROUP BY a.lui ) b
 	 WHERE a.lui = b.lui and a.sui = SUBSTR(rank,instr(rank,''/'')+1)';
 
@@ -5474,16 +5243,12 @@ BEGIN
 	 SELECT b.lui, string
 	 FROM string_ui a,
 	      (SELECT /*+ ORDERED USE_HASH(b,c) USE_HASH(a,c) */ b.lui,
-		MAX(MEME_RANKS.get_atom_editing_rank(tbr.rank, tr.release_rank, 
-	      a.last_release_rank, a.sui , a.aui, a.atom_id) || ''/'' || a.sui)
+		MAX(a.rank||a.sui||lpad(a.atom_id,10,0) || ''/'' || a.sui)
 		  as rank
-	       FROM t_deleted_luis b, lui_assignment c, dead_classes a,
-			termgroup_rank tr, tobereleased_rank tbr
+	       FROM t_deleted_luis b, lui_assignment c, dead_classes a
 	       WHERE b.lui = c.old_lui
 		 AND a.sui = c.sui
 	         AND a.released != ''N''
-			AND a.termgroup = tr.termgroup
-        	AND a.tobereleased = tbr.tobereleased 
 	       GROUP BY b.lui ) b
 	 WHERE a.sui = SUBSTR(rank,instr(rank,''/'')+1)
 	   AND a.lui in (SELECT lui FROM t_deleted_luis
@@ -5497,15 +5262,11 @@ BEGIN
 	 SELECT b.lui, string
 	 FROM string_ui a,
 	      (SELECT b.lui,
-		MAX(MEME_RANKS.get_atom_editing_rank(tbr.rank, tr.release_rank, 
-	      a.last_release_rank, a.sui , a.aui, a.atom_id) || ''/'' || a.sui)
+		MAX(a.rank || a.sui || lpad(a.atom_id,10,0) || ''/'' || a.sui)
 		  as rank
-	       FROM dead_classes a, t_deleted_luis b,
-			termgroup_rank tr, tobereleased_rank tbr
+	       FROM dead_classes a, t_deleted_luis b
 	       WHERE b.lui = a.lui
 	         AND a.released != ''N''
-			AND a.termgroup = tr.termgroup
-        	AND a.tobereleased = tbr.tobereleased 
 	       GROUP BY b.lui ) b
 	 WHERE a.sui = SUBSTR(rank,instr(rank,''/'')+1)
 	   AND a.lui in (SELECT lui FROM t_deleted_luis
@@ -5821,8 +5582,6 @@ BEGIN
 	IF ( key_field IS NOT NULL) THEN
 	    location := '30';
     	MEME_UTILITY.sub_timing_start;
-    	
-    
 	EXECUTE IMMEDIATE
 	    'UPDATE /*+ PARALLEL(a) */ ' || table_name || ' a
 	     SET cvf =
@@ -5837,8 +5596,6 @@ BEGIN
 		   AND expiration_date IS NULL)'
         USING 'Y','Y';
     	row_count := SQL%ROWCOUNT;
-    	
-    COMMIT;
 
 	EXECUTE IMMEDIATE
 	    'UPDATE /*+ PARALLEL(a) */ ' || table_name || ' a
@@ -5854,7 +5611,6 @@ BEGIN
 		   AND expiration_date IS NULL)'
         USING 'N','N';
     	row_count := row_count + SQL%ROWCOUNT;
-    	
 	COMMIT;
 
 	-- Log row count
@@ -5873,22 +5629,19 @@ BEGIN
 	IF (cascade_field IS NOT NULL) THEN
 	    location := '50';
     	    MEME_UTILITY.sub_timing_start;
-		-- RXNORM CVF 4096 does not cascade to all attributes.
-		-- attribute_name list in this query needs to be refreshed every release.
-		-- 2015AA onwards, RXNORM CVF 4096 cascades to all attributes.
-    	    EXECUTE IMMEDIATE
-		  	'UPDATE /*+ PARALLEL(a) */ ' || table_name || ' a
-		   	 SET cvf =
-		    	  (SELECT NVL(cvf,0) - BITAND(NVL(cvf,0), code) + code
-		     	  FROM mrd_content_view_members
-		     	  WHERE a.' || cascade_field || ' = meta_ui
-		       	    AND cascade = :cascade
-			    AND expiration_date IS NULL)
-	      	         WHERE a.' || cascade_field || ' IN
-			   (SELECT meta_ui FROM mrd_content_view_members
-			    WHERE cascade = :cascade
-			      AND expiration_date IS NULL)'
-		    USING 'Y','Y';
+	    EXECUTE IMMEDIATE
+	  	'UPDATE /*+ PARALLEL(a) */ ' || table_name || ' a
+	   	 SET cvf =
+	    	  (SELECT NVL(cvf,0) - BITAND(NVL(cvf,0), code) + code
+	     	  FROM mrd_content_view_members
+	     	  WHERE a.' || cascade_field || ' = meta_ui
+	       	    AND cascade = :cascade
+		    AND expiration_date IS NULL)
+      	         WHERE a.' || cascade_field || ' IN
+		   (SELECT meta_ui FROM mrd_content_view_members
+		    WHERE cascade = :cascade
+		      AND expiration_date IS NULL)'
+	    USING 'Y','Y';
     	    row_count := SQL%ROWCOUNT;
 
 	    COMMIT;
@@ -5909,22 +5662,19 @@ BEGIN
 	IF ( cui_field IS NOT NULL) THEN
 	    location := '70';
     	    MEME_UTILITY.sub_timing_start;
-		-- RXNORM CVF 4096 does not cascade to all attributes.
-		-- attribute_name list in this query needs to be refreshed every release.
-		-- 2015AA onwards, RXNORM CVF 4096 cascades to all attributes.
-		    EXECUTE IMMEDIATE
-		  	'UPDATE /*+ PARALLEL(a) */ ' || table_name || ' a
-		   	 SET cvf =
-		    	  (SELECT NVL(cvf,0) - BITAND(NVL(cvf,0), code) + code
-		     	  FROM mrd_content_view_members
-		     	  WHERE a.' || cui_field || ' = meta_ui
-		       	    AND cascade = :cascade
-			    AND expiration_date IS NULL)
-	      	         WHERE a.' || cui_field || ' IN
-			   (SELECT meta_ui FROM mrd_content_view_members
-			    WHERE cascade = :cascade
-			      AND expiration_date IS NULL)'
-		    USING 'Y','Y';
+	    EXECUTE IMMEDIATE
+	  	'UPDATE /*+ PARALLEL(a) */ ' || table_name || ' a
+	   	 SET cvf =
+	    	  (SELECT NVL(cvf,0) - BITAND(NVL(cvf,0), code) + code
+	     	  FROM mrd_content_view_members
+	     	  WHERE a.' || cui_field || ' = meta_ui
+	       	    AND cascade = :cascade
+		    AND expiration_date IS NULL)
+      	         WHERE a.' || cui_field || ' IN
+		   (SELECT meta_ui FROM mrd_content_view_members
+		    WHERE cascade = :cascade
+		      AND expiration_date IS NULL)'
+	    USING 'Y','Y';
 
 	    COMMIT;
 
@@ -5947,79 +5697,6 @@ EXCEPTION
        RAISE mrd_release_exception;
 
 END apply_cvf;
-
-/* PROCEDURE APPLY_STY_CVF *****************************/
---
--- This procedure is responsible for generating the
---  value of cvf field  for Semantic Types
--- Parameter 'table_name' is the name of the target file.
--- Parameter 'cui_field' is the name of the cui field.
---
-
-PROCEDURE apply_sty_cvf(
-      table_name	IN VARCHAR2,
-      cui_field		IN VARCHAR2
-    )
-IS
-    CURSOR code_cursor IS
-    SELECT DISTINCT code
-    FROM mrd_content_view_members
-    WHERE expiration_date IS NULL;
-    
-    row_count		INTEGER;
-    code_row		code_cursor%ROWTYPE;
-BEGIN
-
-    OPEN code_cursor;
-    LOOP
-        location := '70.2';
-	FETCH code_cursor INTO code_row;
-	EXIT WHEN code_cursor%NOTFOUND;
-	    location := '70';
-    	MEME_UTILITY.sub_timing_start;
-    	
-    	
-	    EXECUTE IMMEDIATE
-	  	'UPDATE /*+ PARALLEL(a) */ ' || table_name || ' a
-	   	 SET cvf = 
-	    	  (SELECT NVL(cvf,0) - BITAND(NVL(cvf,0), c.code) + c.code
-	     	  	FROM mrd_content_view_members c, mrd_classes b
-	     	  	WHERE a.' || cui_field || ' = b.cui
-	     	  	  AND c.code = ' || code_row.code || '
-	     	  	  AND meta_ui = b.aui
-			    	  AND c.expiration_date IS NULL
-		    	  AND b.expiration_date IS NULL
-		    	GROUP BY c.code)
-      	 WHERE a.' || cui_field || ' IN
-		   (SELECT cui FROM mrd_content_view_members c, mrd_classes b
-	     	  WHERE c.code = ' || code_row.code || '
-	     	  	AND meta_ui = b.aui
-			    	AND c.expiration_date IS NULL
-		    	AND b.expiration_date IS NULL)';
-    	row_count := SQL%ROWCOUNT + row_count;
-    location := '70.4';
-    END LOOP;
-    CLOSE code_cursor;
-	COMMIT;
-
-	    -- Log row count
-	    MEME_UTILITY.sub_timing_stop;
-    	location := '50.5';
-    	log_progress(
-        	authority => 'RELEASE',
-        	activity => 'MRD_RELEASE_OPERATIONS::apply_sty_cvf',
-        	detail => 'Set sty cvf values: ' || row_count || ' rows.',
-        	transaction_id => 0,
-        	work_id => 0,
-        	elapsed_time => MEME_UTILITY.sub_elapsed_time);
-
-EXCEPTION
-
-   WHEN OTHERS THEN
-        mrd_release_operations_error(method,location,err_code,SQLERRM);
-       RAISE mrd_release_exception;
-
-END apply_sty_cvf;
 
 /* PROCEDURE SELF_TEST *****************************/
 PROCEDURE self_test

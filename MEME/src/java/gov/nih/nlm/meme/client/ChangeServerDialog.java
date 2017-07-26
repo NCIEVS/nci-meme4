@@ -33,7 +33,7 @@ import javax.swing.JTextField;
  * Dialog for changing the MEME application server host and port.
  * The initial values are passed in.
  *
- * @author  Brian Carlsen (bcarlsen@msdinc.com)
+ * @author  Brian Carlsen (bcarlsen@apelon.com)
  */
 public class ChangeServerDialog extends JDialog {
 

@@ -17,7 +17,6 @@
 #   -[-]help:	On-line help
 #
 # Changes:
-# 09/09/2006 JFW (): Add notification (*) to counts where there is an adjustment, set NLS_DATE_FORMAT
 # 03/03/2006 RBE (1-AJV1Z): Fixed SQL injection error
 #
 # Version Information
@@ -106,7 +105,7 @@ print "Starting ...",scalar(localtime),"\n";
 print "-----------------------------------------------------------\n";
 
 # set variables
-$userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl -d $db`;
+$userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl`;
 ($user,$password) = split /\//, $userpass;
 chop($password);
 print "Database:     $db\n";
@@ -125,12 +124,6 @@ $dbh->do(qq{
 	    ALTER SESSION set hash_area_size=200000000
 	   }) || 
   ((print "<span id=red>Error setting hash area size ($DBI::errstr).</span>")    &&  return);
-
-$dbh->do(qq{
-            ALTER SESSION SET NLS_DATE_FORMAT = 'DD-mon-YYYY HH24:MI:SS'
-           }) ||
-  ((print "<span id=red>Error setting NLS date format ($DBI::errstr).</span>")    &&  return);
-
 
 # Enable buffer
 &EnableBuffer;
@@ -189,10 +182,7 @@ while (($check_type)=$sh->fetchrow_array) {
 
         $d = "$d                                                            ";
 	$d =~ s/(.{55}).*/$1/;
-        # account for adjusted counts with an asterisk
-        $ast = "";
-        if($a != 0) { $ast = "*"; }
-	print "    $d$ct$ast   ",scalar(localtime),"\n";
+	print "    $d$ct   ",scalar(localtime),"\n";
 
     }; #end while
 	

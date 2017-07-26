@@ -8,10 +8,11 @@ CREATE OR REPLACE PACKAGE MEME_INTEGRITY_PROC AS
  * to perform MEME integrity checkings
  *
  * Changes
- * 02/24/2009 BAC (1-GCLNT): Improve performance of matrix init procedures.
- * 12/21/2006 BAC (1-D3YLZ): Bug fix to separated_strings
- * 05/10/2006 BAC (1-B6CFE): Changed msh_mui_merge, msh_mui_split to
+ *  05/10/2006 BAC (1-B6CFE): Changed msh_mui_merge, msh_mui_split to
  *     use classes.source_cui instead of attributes where atn='MUI'
+ *
+ * Version Information
+ *
  * 01/03/2006 BAC (1-72FLV): Bug fix to styisa query (extra ' character)
  * 10/28/2005 4.19.0: Bug fixes to styisa
  * 04/18/2005 4.18.0: Released
@@ -926,7 +927,7 @@ BEGIN
 	 WHERE tobereleased IN (''y'',''Y'',''?'')' ||
 	restriction_clause ||
 	'MINUS
-	 SELECT /*+ PARALLEL(a)*/ concept_id FROM attributes a
+	 SELECT concept_id FROM attributes
 	 WHERE attribute_name = ''SEMANTIC_TYPE''
 	   AND tobereleased IN (''Y'',''y'',''?'')' ||
 	 restriction_clause );
@@ -1056,7 +1057,7 @@ BEGIN
     location := '10';
     local_exec(
 	'CREATE TABLE ' || t_auto_merged || ' AS ' ||
-	'SELECT /*+ PARALLEL(c) */ DISTINCT concept_id FROM classes c ' ||
+	'SELECT DISTINCT concept_id FROM classes c ' ||
 	'WHERE authority LIKE ''ENG-%'' AND ' ||
 	'tobereleased IN (''y'',''Y'',''?'') ' ||
 	restriction_clause);
@@ -1129,8 +1130,8 @@ BEGIN
 
     	local_exec(
 	    'CREATE TABLE ' || t_demotions || ' AS ' ||
-	    'SELECT /*+ PARALLEL(a) */ DISTINCT concept_id_1, concept_id_2 ' ||
-	    'FROM relationships a ' ||
+	    'SELECT DISTINCT concept_id_1, concept_id_2 ' ||
+	    'FROM relationships ' ||
 	    'WHERE status = ''D'' '
 	);
 
@@ -1451,13 +1452,13 @@ RETURN VARCHAR2
 IS
     ct			INTEGER;
     restriction_clause	VARCHAR2(128);
-    dc			VARCHAR2(100);
-    dcode		VARCHAR2(100);
-    ddef		VARCHAR2(100);
+    dc			VARCHAR2(50);
+    dcode		VARCHAR2(50);
+    ddef		VARCHAR2(50);
     cluster_table	 VARCHAR2(50);
     result_table	VARCHAR2(50);
     location		 VARCHAR2(256);
-    current_msh		VARCHAR2(40);
+    current_msh		VARCHAR2(20);
 BEGIN
 
     current_msh := MEME_UTILITY.get_current_name('MSH');
@@ -1603,12 +1604,12 @@ RETURN VARCHAR2
 IS
     ct			INTEGER;
     restriction_clause	VARCHAR2(128);
-    xr			VARCHAR2(100);
-    dcode		VARCHAR2(100);
-    ddef		VARCHAR2(100);
+    xr			VARCHAR2(50);
+    dcode		VARCHAR2(50);
+    ddef		VARCHAR2(50);
     location		VARCHAR2(256);
     result_table	VARCHAR2(50);
-    current_msh		VARCHAR2(40);
+    current_msh		VARCHAR2(20);
 BEGIN
 
     IF table_name != MEME_CONSTANTS.EMPTY_TABLE THEN
@@ -1715,13 +1716,13 @@ RETURN VARCHAR2
 IS
     ct			INTEGER;
     restriction_clause	VARCHAR2(128);
-    qcode		VARCHAR2(100);
-    qdef		VARCHAR2(100);
-    qc			VARCHAR2(100);
+    qcode		VARCHAR2(50);
+    qdef		VARCHAR2(50);
+    qc			VARCHAR2(50);
     cluster_table	VARCHAR2(50);
     result_table	VARCHAR2(50);
     location		VARCHAR2(256);
-    current_msh		VARCHAR2(40);
+    current_msh		VARCHAR2(20);
 BEGIN
 
     current_msh := MEME_UTILITY.get_current_name('MSH');
@@ -1872,12 +1873,12 @@ RETURN VARCHAR2
 IS
     ct			INTEGER;
     restriction_clause	VARCHAR2(128);
-    xr			VARCHAR2(100);
-    qcode		VARCHAR2(100);
-    qdef		VARCHAR2(100);
+    xr			VARCHAR2(50);
+    qcode		VARCHAR2(50);
+    qdef		VARCHAR2(50);
     result_table	VARCHAR2(50);
     location		VARCHAR2(256);
-    current_msh		VARCHAR2(40);
+    current_msh		VARCHAR2(20);
 BEGIN
 
     IF table_name != MEME_CONSTANTS.EMPTY_TABLE THEN
@@ -1989,13 +1990,13 @@ RETURN VARCHAR2
 IS
     ct			INTEGER;
     restriction_clause	VARCHAR2(128);
-    cdef		VARCHAR2(100);
-    ccode		VARCHAR2(100);
-    cc			VARCHAR2(100);
+    cdef		VARCHAR2(50);
+    ccode		VARCHAR2(50);
+    cc			VARCHAR2(50);
     cluster_table	VARCHAR2(50);
     result_table	VARCHAR2(50);
     location		VARCHAR2(256);
-    current_msh		VARCHAR2(40);
+    current_msh		VARCHAR2(20);
 BEGIN
 
     current_msh := MEME_UTILITY.get_current_name('MSH');
@@ -2149,12 +2150,12 @@ RETURN VARCHAR2
 IS
     ct			INTEGER;
     restriction_clause	VARCHAR2(128);
-    xr			VARCHAR2(100);
-    ccode		VARCHAR2(100);
-    cdef		VARCHAR2(100);
+    xr			VARCHAR2(50);
+    ccode		VARCHAR2(50);
+    cdef		VARCHAR2(50);
     result_table	VARCHAR2(50);
     location		VARCHAR(256);
-    current_msh		VARCHAR2(40);
+    current_msh		VARCHAR2(20);
 BEGIN
 
     IF table_name != MEME_CONSTANTS.EMPTY_TABLE THEN
@@ -2387,8 +2388,8 @@ IS
     safe_reps		VARCHAR2(50);
     mh_et_rels_pre	VARCHAR2(50);
     location		VARCHAR2(256);
-    current_msh		VARCHAR2(40);
-    previous_msh	VARCHAR2(40);
+    current_msh		VARCHAR2(20);
+    previous_msh	VARCHAR2(20);
     result_table	VARCHAR2(50);
 BEGIN
 
@@ -2588,8 +2589,8 @@ IS
     mh_concepts 	VARCHAR2(50);
     cluster_table	 VARCHAR2(50);
     location		VARCHAR2(256);
-    current_msh		VARCHAR2(40);
-    previous_msh	VARCHAR2(40);
+    current_msh		VARCHAR2(20);
+    previous_msh	VARCHAR2(20);
 
 BEGIN
 
@@ -2761,12 +2762,12 @@ IS
     restriction_clause	VARCHAR2(128);
     pnw 		VARCHAR2(10);
     cnw 		VARCHAR2(10);
-    bcd			VARCHAR2(100);
+    bcd			VARCHAR2(50);
     result_table	VARCHAR2(50);
     t_mh_diff		VARCHAR2(50);
     location		VARCHAR2(256);
-    current_msh		VARCHAR2(40);
-    previous_msh	VARCHAR2(40);
+    current_msh		VARCHAR2(20);
+    previous_msh	VARCHAR2(20);
 
 BEGIN
 
@@ -3097,7 +3098,7 @@ IS
     sep_pm		VARCHAR2(50);
     cluster_table	VARCHAR2(50);
     result_table	VARCHAR2(50);
-    current_msh		VARCHAR2(40);
+    current_msh		VARCHAR2(20);
 
 BEGIN
 
@@ -3407,7 +3408,7 @@ BEGIN
 
     local_exec(
 	'CREATE TABLE ' || t_mult_pn || ' AS ' ||
-	'SELECT /*+ PARALLEL(a) */ concept_id FROM classes a ' ||
+	'SELECT concept_id FROM classes ' ||
 	'WHERE termgroup like ''%PN'' ' ||
 	restriction_clause ||
 	'AND source = ''MTH'' ' ||
@@ -4093,25 +4094,50 @@ BEGIN
     location := '0';
     t_ss := MEME_UTILITY.get_unique_tablename('qat_');
 
-    location := '10';
-    local_exec(
-	'CREATE TABLE ' || t_ss || 
-	' AS SELECT * FROM separated_strings_include_pn');
-
     IF table_name != MEME_CONSTANTS.EMPTY_TABLE THEN
-        location := '20';
-        local_exec(
-           'DELETE FROM ' || t_ss || 
-           ' WHERE concept_id_1 NOT IN (SELECT concept_id FROM ' || table_name ||
-           ' )');
+	restriction_clause := ' and concept_id IN (select concept_id from
+' || table_name || ') ';
 
-        location := '30';
-        local_exec(
-           'DELETE FROM ' || t_ss || 
-           ' WHERE concept_id_2 NOT IN (SELECT concept_id FROM ' || table_name ||
-           ' )');
-    END IF;	
-    
+	location := '10';
+	local_exec('CREATE TABLE ' || t_ss || '_classes AS ' ||
+		  'SELECT isui FROM CLASSES a, ' || table_name || ' b ' ||
+		  'WHERE a.concept_id = b.concept_id ' ||
+		  '  AND tobereleased not in (''n'',''N'') ' );
+    	location := '20';
+	classes := MEME_UTILITY.get_unique_tablename('qat_');
+	location := '30';
+	local_exec('CREATE TABLE ' || classes || ' AS ' ||
+		   'SELECT * FROM classes ' ||
+		   'WHERE tobereleased not in (''N'',''n'') ' ||
+		   '  AND isui IN (SELECT isui FROM ' || t_ss || '_classes)' );
+   ELSE
+	restriction_clause := ' ';
+	classes := 'classes';
+   END IF;
+
+    -- Get ambiguous isuis
+    location := '40';
+    local_exec (
+	'CREATE TABLE ' || t_ss || '_ambig_isui AS ' ||
+	'SELECT isui FROM ' || classes || ' ' ||
+	'WHERE tobereleased not in (''N'',''n'') ' ||
+	'GROUP BY isui HAVING count(*) > 1'  );
+
+    location := '50';
+    local_exec(
+	'CREATE TABLE ' || t_ss || ' AS SELECT /*+ RULE */ ' ||
+	'c1.concept_id AS concept_id_1, ' ||
+	'c2.concept_id AS concept_id_2, ' ||
+	'c1.isui ' ||
+	'FROM ' || classes || ' c1, ' || classes || ' c2, ' ||
+		   t_ss || '_ambig_isui b ' ||
+	'WHERE c1.isui = b.isui and c2.isui = b.isui ' ||
+	'AND c1.concept_id < c2.concept_id ' ||
+--	'AND (c1.source != ''MTH'' OR c1.termgroup NOT LIKE ''%PN'') ' ||
+	'AND c1.tobereleased IN (''Y'',''y'',''?'') ' ||
+--	'AND (c2.source != ''MTH'' OR c2.termgroup NOT LIKE ''%PN'') ' ||
+	'AND c2.tobereleased IN (''Y'',''y'',''?'')');
+
     -- If cluster_flag = MEME_CONSTANTS.CLUSTER_YES, cluster results
     IF cluster_flag = MEME_CONSTANTS.CLUSTER_YES THEN
 
@@ -4648,7 +4674,7 @@ IS
     result_table	VARCHAR2(50);
     t_msh_mrg		VARCHAR2(50);
     t_msh		VARCHAR2(50);
-    current_msh		VARCHAR2(40);
+    current_msh		VARCHAR2(20);
 BEGIN
 
 
@@ -4757,8 +4783,8 @@ RETURN VARCHAR2
 IS
     result_table	VARCHAR2(50);
     t_msh_sep		VARCHAR2(50);
-    current_msh		VARCHAR2(40);
-    previous_msh	VARCHAR2(40);
+    current_msh		VARCHAR2(20);
+    previous_msh	VARCHAR2(20);
 
 BEGIN
 
@@ -4827,7 +4853,7 @@ RETURN VARCHAR2
 IS
     result_table	VARCHAR2(50);
     t_msh_n1		VARCHAR2(50);
-    current_msh		VARCHAR2(40);
+    current_msh		VARCHAR2(20);
 
 BEGIN
 
@@ -4885,7 +4911,7 @@ RETURN VARCHAR2
 IS
     result_table	VARCHAR2(50);
     t_rcd_mrg		VARCHAR2(50);
-    current_rcd		VARCHAR2(40);
+    current_rcd		VARCHAR2(20);
 BEGIN
 
 
@@ -4949,7 +4975,7 @@ RETURN VARCHAR2
 IS
     result_table	VARCHAR2(50);
     t_rcd_sep		VARCHAR2(50);
-    current_rcd		VARCHAR2(40);
+    current_rcd		VARCHAR2(20);
 
 BEGIN
 
@@ -5007,7 +5033,7 @@ IS
     t_snomedct_mrg		VARCHAR2(50);
 BEGIN
 
-    -- Get SNOMEDCT_US Merges
+    -- Get SNOMEDCT Merges
     location := '10';
     t_snomedct_mrg := MEME_UTILITY.get_unique_tablename('qat_');
     location := '20';
@@ -5016,7 +5042,7 @@ BEGIN
 	 SELECT concept_id
 	 FROM classes a, source_version b
 	 WHERE a.source = b.current_name
-	   AND b.source = ''SNOMEDCT_US''
+	   AND b.source = ''SNOMEDCT''
 	   AND a.tobereleased in (''Y'',''y'')
 	 GROUP BY concept_id HAVING count(distinct code)>1');
 
@@ -5042,7 +5068,7 @@ EXCEPTION
 
 END snomedct_mrg;
 
-/* FUNCTION SNOMEDCT_US_SEP ************************************************************
+/* FUNCTION SNOMEDCT_SEP ************************************************************
  */
 FUNCTION snomedct_sep (
 	cluster_flag IN INTEGER := MEME_CONSTANTS.CLUSTER_YES,
@@ -5053,7 +5079,7 @@ IS
     result_table	VARCHAR2(50);
     t_snomedct_sep		VARCHAR2(50);
 BEGIN
-    -- Get SNOMEDCT_US splits
+    -- Get SNOMEDCT splits
     location := '10';
     t_snomedct_sep := MEME_UTILITY.get_unique_tablename('qat_');
     location := '20';
@@ -5068,7 +5094,7 @@ BEGIN
 	   AND b.tobereleased in (''Y'',''y'')
 	   AND a.source = c.current_name 
 	   AND b.source = c.current_name 
-	   AND c.source = ''SNOMEDCT_US'' ');
+	   AND c.source = ''SNOMEDCT'' ');
 
     IF cluster_flag = MEME_CONSTANTS.CLUSTER_YES THEN
 	location := '30';
@@ -5102,7 +5128,7 @@ RETURN VARCHAR2
 IS
     result_table	VARCHAR2(50);
     t_snm_mrg		VARCHAR2(50);
-    current_snm		VARCHAR2(40);
+    current_snm		VARCHAR2(20);
 BEGIN
 
 
@@ -5297,7 +5323,7 @@ RETURN VARCHAR2
 IS
     result_table	VARCHAR2(50);
     t_umd_mrg		VARCHAR2(50);
-    current_umd		VARCHAR2(40);
+    current_umd		VARCHAR2(20);
 BEGIN
 
 
@@ -5481,8 +5507,8 @@ RETURN VARCHAR2
 IS
     result_table	VARCHAR2(50);
     t_hcpcs_mrg		VARCHAR2(50);
-    current_hcpcs	VARCHAR2(40);
-    current_cpt		VARCHAR2(40);
+    current_hcpcs	VARCHAR2(20);
+    current_cpt		VARCHAR2(20);
 BEGIN
 
 
@@ -5544,8 +5570,8 @@ RETURN VARCHAR2
 IS
     result_table	VARCHAR2(50);
     t_cpt_split		VARCHAR2(50);
-    current_hcpcs	VARCHAR2(40);
-    current_cpt		VARCHAR2(40);
+    current_hcpcs	VARCHAR2(20);
+    current_cpt		VARCHAR2(20);
 BEGIN
 
 
@@ -5602,7 +5628,7 @@ RETURN VARCHAR2
 IS
     result_table	VARCHAR2(50);
     t_cpt_orph		VARCHAR2(50);
-    current_cpt		VARCHAR2(40);
+    current_cpt		VARCHAR2(20);
 BEGIN
 
 
@@ -5657,7 +5683,7 @@ RETURN VARCHAR2
 IS
     result_table	VARCHAR2(50);
     t_lnc_sep		VARCHAR2(50);
-    current_lnc		VARCHAR2(40);
+    current_lnc		VARCHAR2(20);
 
 BEGIN
 
@@ -5770,7 +5796,7 @@ BEGIN
 EXCEPTION
     WHEN OTHERS THEN
     	MEME_UTILITY.drop_it ('table',t_styisa);
-
+    	MEME_UTILITY.drop_it ('table',t_styisa || '_2');
     	MEME_UTILITY.drop_it ('table',t_styisa || '_pre');
 	MEME_UTILITY.drop_it('table',result_table);
 	meme_integrity_proc_error('styisa',location,1,SQLERRM);
@@ -5790,7 +5816,7 @@ RETURN VARCHAR2
 IS
     result_table	VARCHAR2(50);
     t_icdproc		VARCHAR2(50);
-    current_icd		VARCHAR2(40);
+    current_icd		VARCHAR2(20);
 
 BEGIN
 
@@ -6497,7 +6523,7 @@ BEGIN
    /* Remove UWDA concepts */
    local_exec('DELETE FROM '||deleted_cui_uwda||' WHERE concept_id IN
       (SELECT concept_id FROM classes 
-       WHERE source like ''SNOMEDCT_US%'') ');
+       WHERE source like ''UWDA%'') ');
 
    location := '30';
    /* Cluster the results */

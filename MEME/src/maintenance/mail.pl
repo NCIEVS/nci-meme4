@@ -1,4 +1,4 @@
-#!@PATH_TO_PERL@
+#!/site/bin/perl5
 #
 # File:     mail.pl
 # Author:   Bobby Edrosa (2006).

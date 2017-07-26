@@ -64,36 +64,14 @@
 		<p><a href="/research/umls/license.html&#35;category4">CATEGORY 4 RESTRICTIONS APPLY</a> to U.S. UMLS USERS</p>
 		<p><a href="/research/umls/license.html&#35;category3">CATEGORY 3 RESTRICTIONS APPLY</a> to Non-U.S. UMLS USERS</p>
 	</xsl:if>
-	
-	<xsl:if test="./srl[contains(., '5')]">
-		<p><a href="/research/umls/license.html&#35;category4">CATEGORY 5 RESTRICTIONS APPLY</a></p>
-	</xsl:if>
-	
-	<xsl:if test="./srl[contains(., '6')]">
-		<p><a href="/research/umls/license.html&#35;category4">CATEGORY 6 RESTRICTIONS APPLY</a></p>
-	</xsl:if>
-	
-	<xsl:if test="./srl[contains(., '7')]">
-		<p><a href="/research/umls/license.html&#35;category4">CATEGORY 7 RESTRICTIONS APPLY</a></p>
-	</xsl:if>
-	
-	<xsl:if test="./srl[contains(., '8')]">
-		<p><a href="/research/umls/license.html&#35;category4">CATEGORY 8 RESTRICTIONS APPLY</a></p>
-	</xsl:if>
-	
-	<xsl:if test="./srl[contains(., '9')]">
-		<p>TERMS IN APPENDIX 2 OF UMLS LICENSE APPLY.</p>
-	</xsl:if>
+
 	<xsl:apply-templates select="." mode="subinfo"/>
 
 
 	<p>
 		Contact: <xsl:apply-templates select="slc"/>
 	</p>
-	<p>
-	 <xsl:variable name="t1" select="rsab"/>
-		  <a href="http://www.nlm.nih.gov/research/umls/sourcereleasedocs/current/{$t1}/">Read more information about this source</a>
-	</p>
+
 		<hr/>
 
   	</xsl:for-each>
@@ -424,7 +402,7 @@
     </xsl:choose>
 
     <xsl:choose>
-      <xsl:when test="rsab='SNOMEDCT_US'">
+      <xsl:when test="rsab='SNOMEDCT'">
         <p>Users are required to display the SNOMED copyright
 			and trademark notice below if SNOMED information
 			is used in their product(s).</p>

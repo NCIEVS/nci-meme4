@@ -35,11 +35,11 @@ sub do_report {
   my($hour) = GeneralUtils->date('+%H');
   my(@hrs) = map { $_ - $hour } $hour .. 23;
   my($emails) = $main::EMSCONFIG{USEREMAIL};
-  my(@reporttype) = (1, 2,3);
-  my(%reportlabel) = (1=>'Full concept report', 2=>'Atoms and STY', 3=>'No Context Data');
+  my(@reporttype) = (1, 2);
+  my(%reportlabel) = (1=>'Full concept report', 2=>'Atoms and STY');
   my(@maxreviewedrels) = ('n/a', 50, 20, 10, 5);
   my(@lat) = ('n/a');
-  my($REPORTSDIR) = $ENV{EMS_LOG_DIR}. "/reports/$currentepoch";
+  my($REPORTSDIR) = $ENV{EMS_HOME} . "/log/$currentepoch";
   my($LEVEL0URL) = $main::EMSCONFIG{LEVEL0WMSURL};
   my($url, $mailmessage);
 
@@ -82,11 +82,11 @@ EOD
       $html .= "Generates reports for all the following worklists or checklists." . $query->p . $list .     $html .= $query->p;
     }
     $html .= <<"EOD";
-The report files are stored in \$EMS_HOME/log.  A report request can
+The report files are stored in \$EMS_HOME/dataout.  A report request can
 be queued for generation or generated inline in the browser for convenient printing.
 EOD
     $html .= $query->p;
-    $html .= $query->start_form({-method=>'POST', -action=>$query->url(-absolute=>1)});
+    $html .= $query->start_form({-method=>'POST', -action=>$query->url()});
     push @d, ["Use data source: ", $query->popup_menu({-name=>'sourcedb', -values=>\@sourcedbs, -default=>$sourcedb}) . "\n" ];
     push @d, ["Use MEME server/port: ", $query->popup_menu({-name=>'meme-server-hostport', -values=>\@hostports, -default=>$hostport}) . "\n" ];
     push @d, ["Start the generator in: ", $query->popup_menu({-name=>'whentorun', -values=>\@hrs}) . " hours\n" ];

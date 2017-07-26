@@ -29,7 +29,7 @@ This facility lets you turn on and off any batch scripts run on
 the behalf of the EMS/WMS such as the daily editing counts.
 EOD
     $html .= $query->p;
-    $form .= $query->start_form(-method=>'POST', -action=>$query->url(-absolute=>1));
+    $form .= $query->start_form(-method=>'POST', -action=>$query->url());
     $form .= "Cutoff batch scripts? " . $query->radio_group({-name=>'batch_cutoff', -default=>$current, -values=>\@values});
     $form .= $query->p . $query->submit . " " . $query->reset;
     $form .= $query->hidden(-name=>'action', -value=>$action, -override=>1);

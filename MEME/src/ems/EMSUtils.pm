@@ -1,23 +1,11 @@
 # EMS related utility functions
 # suresh@nlm.nih.gov 8/2002
-# 02/24/2009 BAC (1-GCLNT): Several changes
-#   - Initialize bins as "reviewed" instead of "leftover"
-#   - Create a concept_id index on MEBINSTABLE
-#   - Avoid ordering bins (like reviewed) that do not have an orderer
-#   - Improved performance of demotions bin
-#   - Improved performance of pure_tms bin
-#   - Improved performance of order_by_atom_ordering
-#   - Improved performance of clusterizeDemotions
-#   - SL: Modified the clusterizeDemotions to group together based on the concept_id_1
-#
+
 package EMSUtils;
-BEGIN
-{
 unshift @INC, "$ENV{ENV_HOME}/bin";
+
 require "env.pl";
-unshift @INC, "$ENV{EMS_HOME}/lib";
-unshift @INC, "$ENV{EMS_HOME}/bin";
-}
+use lib "$ENV{EMS_HOME}/lib";
 
 use Data::Dumper;
 use File::Copy;
@@ -45,7 +33,7 @@ sub init {
   $self->loadConfig;
 
 # set environment variables
-  $ENV{MEME_HOME} = $main::EMSCONFIG{MEME_HOME} unless $ENV{MEME_HOME};
+
 
 # ensure that all EMS tables are present
   foreach $table (keys %EMSTables::TABLESPEC) {
@@ -139,18 +127,7 @@ sub addPredefinedMEbins {
 			      content_type=>$dbh->quote("MIXED"),
 			      generator=>$dbh->quote('SUB'),
 			      orderer=>$nullstr,
-			      chemalgo=>$dbh->quote(uc($main::EMSCONFIG{DEMOTIONS_CHEMALGO})),
-			     });
-  $dbh->insertRow($MECONFIG, {
-			      bin_name=>$dbh->quote('puretms'),
-			      description=>$dbh->quote('Concepts with ONLY MTH/TM atoms'),
-			      editable=>$dbh->quote('N'),
-			      predefined=>$dbh->quote('Y'),
-			      rank=>$rank++,
-			      content_type=>$nullstr,
-			      generator=>$dbh->quote('SUB'),
-			      orderer=>$nullstr,
-			      chemalgo=>$nullstr,
+			      chemalgo=>$dbh->quote("ONE"),
 			     });
   $dbh->insertRow($MECONFIG, {
 			      bin_name=>$dbh->quote('embryos'),
@@ -192,7 +169,7 @@ sub addPredefinedMEbins {
 			      predefined=>$dbh->quote('Y'),
 			      rank=>$rank++,
 			      content_type=>$nullstr,
-			      generator=>$nullstr,
+			      generator=>$dbh->quote('SUB'),
 			      orderer=>$nullstr,
 			      chemalgo=>$nullstr,
 			     });
@@ -203,7 +180,7 @@ sub addPredefinedMEbins {
 			      predefined=>$dbh->quote('Y'),
 			      rank=>$BIGRANK,
 			      content_type=>$dbh->quote('MIXED'),
-			      generator=>$dbh->quote('SUB'),
+			      generator=>$nullstr,
 			      orderer=>$dbh->quote('CONCEPT_ID'),
 			      chemalgo=>$dbh->quote("ONE"),
 			     });
@@ -262,18 +239,14 @@ sub ME_partition {
 
   $self->meconfig2table($dbh, $self->configfile($dbh, "ME"), $MECONFIGTABLE);
 
-# initialize the ME bins table as 'reviewed' (not leftovers)
+# initialize the ME bins table
   EMSUtils->plain_log($main::partitionlogfile, "Initializing $MEBINSTABLE table");
 
   $dbh->dropTable($MEBINSTABLE);
   EMSTables->createTable($dbh, $MEBINSTABLE);
   $sql = <<"EOD";
 insert into $MEBINSTABLE (bin_name, concept_id, cluster_id, ischemical)
-select 'reviewed' as bin_name, concept_id, rownum as cluster_id, 'N' as ischemical from concept_status
-EOD
-  $dbh->executeStmt($sql);
-  $sql = <<"EOD";
-create index x_${MEBINSTABLE}_cid on $MEBINSTABLE (concept_id) compute statistics
+select 'leftovers' as bin_name, concept_id, rownum as cluster_id, 'N' as ischemical from concept_status
 EOD
   $dbh->executeStmt($sql);
 
@@ -324,12 +297,9 @@ EOD
 
       EMSUtils->ems_log($main::emslogfile, "Done generating contents for $bin");
       EMSUtils->plain_log($main::partitionlogfile, "Finished generating contents for $bin");
-    }else{
-    	# for leftovers when no source bins are available or they are removed.
-    	$editable = "Y";
     }
 
-    $orderer = uc($binconfig->{orderer}) || "NO_ORDER";
+    $orderer = uc($binconfig->{orderer}) || "CONCEPT_ID";
 
     EMSUtils->plain_log($main::partitionlogfile, "Starting to order contents for $bin");
     EMSUtils->ems_log($main::emslogfile, "Starting to order contents for $bin");
@@ -343,10 +313,10 @@ EOD
 #      die "ERROR: generator must be SAB for ALPHA ordering" if ($generatortype ne "SAB");
       my(@vsabs);
       if ($generatorcomponent) {
-	      @vsabs = MIDUtils->makeVersionedSAB($dbh, [ split /[,\s]+/, $generatorcomponent ]);
-	      $self->order_by_alpha($dbh, $bin, \@vsabs);
+	@vsabs = MIDUtils->makeVersionedSAB($dbh, [ split /[,\s]+/, $generatorcomponent ]);
+	$self->order_by_alpha($dbh, $bin, \@vsabs);
       } else {
-	      $self->order_by_alpha($dbh, $bin);
+	$self->order_by_alpha($dbh, $bin);
       }
     }
     EMSUtils->ems_log($main::emslogfile, "Done ordering contents for $bin");
@@ -363,11 +333,10 @@ EOD
       my($tmptable) = EMSUtils->tempTable($dbh, $EMSNames::TMPTABLEPREFIX . "_COUNTDEM");
       $self->clusterizeDemotions($dbh, $tmptable);
       $dbh->createIndex($tmptable, 'concept_id', "x_" . $tmptable);
-      $self->assignChemical($dbh,  {table=>$tmptable});
       $counts = $self->getDemotionsCounts($dbh, $tmptable);
       $dbh->dropTable($tmptable);
     } else {
-      $counts = $self->getBinCounts($dbh, $binconfig, \%bininfo, EMSUtils->getChemalgo($dbh, $bin));
+      $counts = $self->getBinCounts($dbh, $binconfig, \%bininfo, $DEFAULTCHEMALGO);
     }
     EMSUtils->plain_log($main::partitionlogfile, "Finished getting counts for $bin");
     EMSUtils->ems_log($main::emslogfile, "Finished getting counts for $bin");
@@ -399,83 +368,60 @@ sub getBinCounts {
   my($bin_type) = $bininfo->{bin_type};
   my($sql);
   my(%bincounts);
-  my($alltable);
 
   my($BINSTABLE) = ($bin_type eq "ME" ? $EMSNames::MEBINSTABLE :
 		    $bin_type eq "QA" ? $EMSNames::QABINSTABLE :
 		    $bin_type eq "AH" ? $EMSNames::AHBINSTABLE : "");
 
-  $chemalgo = EMSUtils->getChemalgo($dbh, $bininfo->{bin_name}) unless $chemalgo;
-
   $sql = "select count(distinct concept_id) from $BINSTABLE where bin_name=$qb";
-  $bincounts{totalConcepts} = $dbh->selectFirstAsArray($sql);
+  $bincounts{totalConcepts} = $dbh->selectFirstAsScalar($sql) + 0;
   $sql = "select count(distinct cluster_id) from $BINSTABLE where bin_name=$qb";
   $bincounts{totalClusters} = $dbh->selectFirstAsScalar($sql) + 0;
 
-  foreach (qw(totalUneditableClusters chemConcepts chemClusters chemUneditableClusters clinicalConcepts clinicalClusters clinicalUneditableClusters otherConcepts otherClusters otherUneditableClusters)) {
+  foreach (qw(totalUneditableClusters chemConcepts chemClusters chemUneditableClusters nonchemConcepts nonchemClusters nonchemUneditableClusters)) {
     $bincounts{$_} = 0;
   }
 
   return \%bincounts if ($bininfo->{bin_type} eq "ME" && $binconfig->{editable} ne 'Y');
 
-  $alltable = EMSUtils->tempTable($dbh, $EMSNames::TMPTABLEPREFIX . "_all");
-  $sql = <<"EOD";
-create table $alltable as select * from $BINSTABLE where bin_name=$qb
-EOD
-  $dbh->executeStmt($sql);
-
-  $bincounts{totalUneditableClusters} = EMSUtils->uneditableCount($dbh, $alltable);
-
+  $bincounts{totalUneditableClusters} = EMSUtils->uneditableCount($dbh, $BINSTABLE, "a.bin_name=$qb");
   if ($binconfig->{content_type} eq "CHEM") {
-
     $bincounts{chemConcepts} = $bincounts{totalConcepts};
     $bincounts{chemClusters} = $bincounts{totalClusters};
     $bincounts{chemUneditableClusters} = $bincounts{totalUneditableClusters};
-    $bincounts{clinicalUneditableClusters} = 0;
-    $bincounts{otherUneditableClusters} = 0;    
+    $bincounts{nonchemUneditableClusters} = 0;
 
-  } elsif ($binconfig->{content_type} eq "CLINICAL") {
-
-    $bincounts{clinicalConcepts} = $bincounts{totalConcepts};
-    $bincounts{clinicalClusters} = $bincounts{totalClusters};
-    $bincounts{clinicalUneditableClusters} = $bincounts{totalUneditableClusters};
+  } elsif ($binconfig->{content_type} eq "NONCHEM") {
+    $bincounts{nonchemConcepts} = $bincounts{totalConcepts};
+    $bincounts{nonchemClusters} = $bincounts{totalClusters};
+    $bincounts{nonchemUneditableClusters} = $bincounts{totalUneditableClusters};
     $bincounts{chemUneditableClusters} = 0;
-    $bincounts{otherUneditableClusters} = 0;
-
-  } elsif ($binconfig->{content_type} eq "OTHER") {
-
-    $bincounts{otherConcepts} = $bincounts{totalConcepts};
-    $bincounts{otherClusters} = $bincounts{totalClusters};
-    $bincounts{otherUneditableClusters} = $bincounts{totalUneditableClusters};
-    $bincounts{chemUneditableClusters} = 0;
-    $bincounts{clinicalUneditableClusters} = 0;    
 
   } else { # MIXED
+    $chemalgo = $DEFAULTCHEMALGO unless $chemalgo;
 
-    my($chemtable) = EMSUtils->tempTable($dbh, $EMSNames::TMPTABLEPREFIX . "_chem");
-    my($clinicaltable) = EMSUtils->tempTable($dbh, $EMSNames::TMPTABLEPREFIX . "_clinical");
-    my($othertable) = EMSUtils->tempTable($dbh, $EMSNames::TMPTABLEPREFIX . "_other");
+    $sql = "select count(distinct concept_id) from $BINSTABLE where bin_name=$qb and ischemical='Y'";
+    $bincounts{chemConcepts} = $dbh->selectFirstAsScalar($sql) + 0;
+    $bincounts{nonchemConcepts} = $bincounts{totalConcepts} - $bincounts{chemConcepts};
 
-    $dbh->dropTables([$chemtable, $clinicaltable, $othertable]);
+    if (lc($chemalgo) eq "one") {
+      $sql = "select count(distinct cluster_id) from $BINSTABLE where bin_name=$qb and ischemical='Y'";
+      $bincounts{chemClusters} = $dbh->selectFirstAsScalar($sql) + 0;
+      $bincounts{nonchemClusters} = $bincounts{totalClusters} - $bincounts{chemClusters};
 
-    EMSUtils->splitContents($dbh, $alltable, $chemtable, $clinicaltable, $othertable, $chemalgo);
+    } else {
+      $sql = <<"EOD";
+select count(distinct cluster_id) from $BINSTABLE
+where  bin_name=$qb
+and    ischemical != 'Y'
+EOD
+      $bincounts{nonchemClusters} = $dbh->selectFirstAsScalar($sql) || 0;
+      $bincounts{chemClusters} = $bincounts{totalClusters}-$bincounts{nonchemClusters};
+    }
 
-    $bincounts{chemConcepts} = $dbh->selectFirstAsScalar("select count(distinct concept_id) from $chemtable") + 0;
-    $bincounts{chemClusters} = $dbh->selectFirstAsScalar("select count(distinct cluster_id) from $chemtable") + 0;
-    $bincounts{clinicalConcepts} = $dbh->selectFirstAsScalar("select count(distinct concept_id) from $clinicaltable") + 0;
-    $bincounts{clinicalClusters} = $dbh->selectFirstAsScalar("select count(distinct cluster_id) from $clinicaltable") + 0;
-    $bincounts{otherConcepts} = $dbh->selectFirstAsScalar("select count(distinct concept_id) from $othertable") + 0;
-    $bincounts{otherClusters} = $dbh->selectFirstAsScalar("select count(distinct cluster_id) from $othertable") + 0;
-
-    $bincounts{chemUneditableClusters} = EMSUtils->uneditableCount($dbh, $chemtable);
-    $bincounts{clinicalUneditableClusters} = EMSUtils->uneditableCount($dbh, $clinicaltable);
-    $bincounts{otherUneditableClusters} = EMSUtils->uneditableCount($dbh, $othertable);
-    $bincounts{totalUneditableClusters} = $bincounts{chemUneditableClusters}+$bincounts{clinicalUneditableClusters}+$bincounts{otherUneditableClusters};;
-
-    $dbh->dropTables([$chemtable, $clinicaltable]);
+    $bincounts{chemUneditableClusters} = EMSUtils->uneditableCount($dbh, $BINSTABLE, "a.bin_name=$qb and a.ischemical='Y'");
+    $bincounts{nonchemUneditableClusters} = $bincounts{totalUneditableClusters}-$bincounts{chemUneditableClusters};
   }
-
-  $dbh->dropTable($alltable);
   return \%bincounts;
 }
 
@@ -488,51 +434,39 @@ sub uneditableCount {
 
   $clause = "and $clause" if $clause;
 
-  $sql = <<"EOD";
-select count(distinct cluster_id) from (
-  select a.cluster_id from $concepttable a, concept_status b
-  where  a.concept_id=b.concept_id
-  and    b.status='E'
-  $clause
-  union
-  select a.cluster_id from $concepttable a
-  where  concept_id not in (select concept_id from concept_status where concept_id=a.concept_id)
-  $clause
-  union
-  select a.cluster_id from $concepttable a
-  where  a.concept_id in (select concept_id from $EMSNames::BEINGEDITEDTABLE)
-  $clause
-)
-EOD
-  $c = $dbh->selectFirstAsScalar($sql);
-  return $c;
-
 # cluster is uneditable if concept is an embryo
-#  $sql = <<"EOD";
-#select count(distinct a.cluster_id) from $concepttable a, concept_status b
-#where  a.concept_id=b.concept_id
-#and    b.status='E'
-#$clause
-#EOD
-#  $c += $dbh->selectFirstAsScalar($sql);
+  $sql = <<"EOD";
+select count(distinct a.cluster_id) from $concepttable a, concept_status b
+where  a.concept_id=b.concept_id
+and    b.status='E'
+$clause
+EOD
+  $c += $dbh->selectFirstAsScalar($sql);
 
 # concept no longer exists
-#  $sql = <<"EOD";
-#select count(distinct a.cluster_id) from $concepttable a
-#where  a.concept_id not in (select concept_id from concept_status where concept_id=a.concept_id)
-#$clause
-#EOD
-#
-#  $c += $dbh->selectFirstAsScalar($sql);
+  $sql = <<"EOD";
+select count(distinct a.cluster_id) from $concepttable a
+where  a.concept_id not in (select concept_id from concept_status)
+$clause
+EOD
+  $sql = <<"EOD";
+select count(distinct cluster_id) from $concepttable
+where  concept_id in (
+  select concept_id from $concepttable a where 1=1 $clause
+  minus
+  select concept_id from concept_status
+)
+EOD
+  $c += $dbh->selectFirstAsScalar($sql);
 
 # concept is currently on a worklist being edited
-#  $sql = <<"EOD";
-#select count(distinct a.cluster_id) from $concepttable a
-#where  a.concept_id in (select concept_id from $EMSNames::BEINGEDITEDTABLE)
-#$clause
-#EOD
-#  $c += $dbh->selectFirstAsScalar($sql);
-#  return $c;
+  $sql = <<"EOD";
+select count(distinct a.cluster_id) from $concepttable a
+where  a.concept_id in (select concept_id from $EMSNames::BEINGEDITEDTABLE)
+$clause
+EOD
+  $c += $dbh->selectFirstAsScalar($sql);
+  return $c;
 }
 
 # gets counts for demotions bins
@@ -544,34 +478,31 @@ sub getDemotionsCounts {
   my($sql);
   my($bincounts);
 
-  $chemalgo = EMSUtils->getChemalgo($dbh, "demotions");
+  $chemalgo = uc($main::EMSCONFIG{DEMOTIONS_CHEMALGO}) || uc($DEFAULTCHEMALGO);
 
   $sql = "select count(distinct concept_id) from $table";
   $bincounts{totalConcepts} = $dbh->selectFirstAsScalar($sql) || 0;
   $sql = "select count(distinct cluster_id) from $table";
   $bincounts{totalClusters} = $dbh->selectFirstAsScalar($sql) || 0;
+  $bincounts{totalUneditableClusters} = EMSUtils->uneditableCount($dbh, $table);
 
-  my($chemtable) = EMSUtils->tempTable($dbh, $EMSNames::TMPTABLEPREFIX . "_demch");
-  my($clinicaltable) = EMSUtils->tempTable($dbh, $EMSNames::TMPTABLEPREFIX . "_demnc");
-  my($othertable) = EMSUtils->tempTable($dbh, $EMSNames::TMPTABLEPREFIX . "_demot");
+# demotions are always mixed chem and nonchem concepts
+  $sql = "select count(distinct concept_id) from $table where concept_id in (select concept_id from $chemconceptstable)";
+  $bincounts{chemConcepts} = $dbh->selectFirstAsScalar($sql) || 0;
+  $bincounts{nonchemConcepts} = $bincounts{totalConcepts}-$bincounts{chemConcepts};
 
-  $dbh->dropTables([$chemtable, $clinicaltable, $othertable]);
+  if ($chemalgo eq "ONE") {
+    $sql = "select count(distinct cluster_id) from $table where concept_id in (select concept_id from $chemconceptstable)";
+    $bincounts{chemClusters} = $dbh->selectFirstAsScalar($sql) || 0;
+    $bincounts{nonchemClusters} = $bincounts{totalClusters}-$bincounts{chemClusters};
+  } else {
+    $sql = "select count(distinct cluster_id) from $table where concept_id not in (select concept_id from $chemconceptstable)";
+    $bincounts{nonchemClusters} = $dbh->selectFirstAsScalar($sql) || 0;
+    $bincounts{chemClusters} = $bincounts{totalClusters}-$bincounts{nonchemClusters};
+  }
+  $bincounts{chemUneditableClusters} = EMSUtils->uneditableCount($dbh, $table, "a.ischemical='Y'");
+  $bincounts{nonchemUneditableClusters} = $bincounts{totalUneditableClusters}-$bincounts{chemUneditableClusters};
 
-  EMSUtils->splitContents($dbh, $table, $chemtable, $clinicaltable, $othertable, $chemalgo);
-
-  $bincounts{chemConcepts} = $dbh->selectFirstAsScalar("select count(distinct concept_id) from $chemtable") + 0;
-  $bincounts{chemClusters} = $dbh->selectFirstAsScalar("select count(distinct cluster_id) from $chemtable") + 0;
-  $bincounts{clinicalConcepts} = $dbh->selectFirstAsScalar("select count(distinct concept_id) from $clinicaltable") + 0;
-  $bincounts{clinicalClusters} = $dbh->selectFirstAsScalar("select count(distinct cluster_id) from $clinicaltable") + 0;
-  $bincounts{otherConcepts} = $dbh->selectFirstAsScalar("select count(distinct concept_id) from $othertable") + 0;
-  $bincounts{otherClusters} = $dbh->selectFirstAsScalar("select count(distinct cluster_id) from $othertable") + 0;
-
-  $bincounts{chemUneditableClusters} = EMSUtils->uneditableCount($dbh, $chemtable);
-  $bincounts{clinicalUneditableClusters} = EMSUtils->uneditableCount($dbh, $clinicaltable);
-  $bincounts{otherUneditableClusters} = EMSUtils->uneditableCount($dbh, $othertable);  
-  $bincounts{totalUneditableClusters} = $bincounts{chemUneditableClusters}+$bincounts{clinicalUneditableClusters}+$bincounts{otherUneditableClusters};
-
-  $dbh->dropTables([$chemtable, $clinicaltable, $othertable]);
   return \%bincounts;
 }
 
@@ -642,14 +573,12 @@ sub meconfig2table {
       push @errors, "$line\nERROR: line: $linenum: orderer column should be $s characters or fewer";
     }
 
-    $row{chemalgo} = $dbh->quote(uc($main::EMSCONFIG{DEFAULT_CHEMALGO} || $DEFAULTCHEMALGO));
+    $row{chemalgo} = $dbh->quote($DEFAULTCHEMALGO);
 
     if (uc($x[4]) eq "CHEM" || uc($x[4] eq "C")) {
       $row{content_type} = $dbh->quote("CHEM");
-    } elsif (uc($x[4]) eq "CLINICAL" || uc($x[4]) eq "NONCHEM" || uc($x[4] eq "N")) {
-      $row{content_type} = $dbh->quote("CLINICAL");
-    } elsif (uc($x[4]) eq "OTHER" || uc($x[4] eq "O")) {
-      $row{content_type} = $dbh->quote("OTHER");
+    } elsif (uc($x[4]) eq "NONCHEM" || uc($x[4] eq "N")) {
+      $row{content_type} = $dbh->quote("NONCHEM");
     } elsif (uc($x[4]) eq "MIXED" || uc($x[4]) eq "M") {
       $row{content_type} = $dbh->quote("MIXED");
     } else {
@@ -716,10 +645,8 @@ sub qaconfig2table {
 
     if (uc($x[3]) eq "CHEM" || uc($x[3]) eq "C") {
       $row{content_type} = $dbh->quote("CHEM");
-    } elsif (uc($x[3]) eq "CLINICAL" || uc($x[3]) eq "NONCHEM" || uc($x[3]) eq "N") {
-      $row{content_type} = $dbh->quote("CLINICAL");
-    } elsif (uc($x[3]) eq "OTHER" || uc($x[3]) eq "O") {
-      $row{content_type} = $dbh->quote("OTHER");
+    } elsif (uc($x[3]) eq "NONCHEM" || uc($x[3]) eq "N") {
+      $row{content_type} = $dbh->quote("NONCHEM");
     } elsif (uc($x[3]) eq "MIXED" || uc($x[3]) eq "M") {
       $row{content_type} = $dbh->quote("MIXED");
     } else {
@@ -798,10 +725,8 @@ sub ahconfig2table {
 
     if (uc($x[3]) eq "CHEM" || uc($x[3]) eq "C") {
       $row{content_type} = $dbh->quote("CHEM");
-    } elsif (uc($x[3]) eq "CLINICAL" || uc($x[3]) eq "NONCHEM" || uc($x[3]) eq "N") {
-      $row{content_type} = $dbh->quote("CLINICAL");
-    } elsif (uc($x[3]) eq "OTHER" || uc($x[3]) eq "O") {
-      $row{content_type} = $dbh->quote("OTHER");
+    } elsif (uc($x[3]) eq "NONCHEM" || uc($x[3]) eq "N") {
+      $row{content_type} = $dbh->quote("NONCHEM");
     } elsif (uc($x[3]) eq "MIXED" || uc($x[3]) eq "M") {
       $row{content_type} = $dbh->quote("MIXED");
     } else {
@@ -888,8 +813,8 @@ sub generate_testconcepts {
   $sql = <<"EOD";
 update $MEBINSTABLE m
 set bin_name=$b, ischemical='N'
-where bin_name = 'reviewed'
-and concept_id in (select concept_id from concept_status where concept_id>=100 and concept_id<=1000)
+where bin_name = 'leftovers'
+and   concept_id in (select concept_id from concept_status where concept_id>=100 and concept_id<=1000)
 EOD
   $dbh->executeStmt($sql);
   EMSUtils->ems_log($main::emslogfile, "Done generating contents for $bin");
@@ -905,40 +830,11 @@ sub generate_demotions {
   $sql = <<"EOD";
 update $MEBINSTABLE
 set bin_name='demotions', ischemical='N'
-where bin_name='reviewed'
-and  concept_id in (
-  select /*+ PARALLEL(r) */ concept_id_1 from relationships r where status='D'
-)
-EOD
-  $dbh->executeStmt($sql);
-
-  $sql = <<"EOD";
-update $MEBINSTABLE
-set bin_name='demotions', ischemical='N'
-where bin_name='reviewed'
-and  concept_id in (
-  select /*+ PARALLEL(r) */ concept_id_2 from relationships r where status='D'
-)
-EOD
-  $dbh->executeStmt($sql);
-}
-
-# puretms
-sub generate_puretms {
-  my($self, $dbh, $bin) = @_;
-  my($MEBINSTABLE) = $EMSNames::MEBINSTABLE;
-  my($b) = $dbh->quote($bin);
-  my($sql);
-
-  $sql = <<"EOD";
-update $MEBINSTABLE m
-set bin_name=$b, ischemical='N'
-where bin_name = 'reviewed'
-and concept_id in (
-select concept_id from classes where source='MTH' and tty='TM'
-minus
-select concept_id from classes where tty != 'TM' and concept_id in
-    (select concept_id from classes where source='MTH' and tty='TM')
+where bin_name='leftovers'
+and   concept_id in (
+  select concept_id_1 as concept_id from relationships where status='D'
+  union
+  select concept_id_2 as concept_id from relationships where status='D'
 )
 EOD
   $dbh->executeStmt($sql);
@@ -952,10 +848,10 @@ sub generate_embryos {
   my($sql);
 
   $sql = <<"EOD";
-update $MEBINSTABLE m
+update /*+ PARALLEL */ $MEBINSTABLE m
 set bin_name=$b, ischemical='N'
-where bin_name = 'reviewed'
-and concept_id in (select concept_id from concept_status where status='E')
+where bin_name = 'leftovers'
+and   concept_id in (select concept_id from concept_status where status='E')
 EOD
   $dbh->executeStmt($sql);
 }
@@ -968,17 +864,38 @@ sub generate_norelease {
   my($sql);
 
   $sql = <<"EOD";
-update $MEBINSTABLE m
+update /*+ PARALLEL */ $MEBINSTABLE m
 set bin_name=$b, ischemical='N'
-where bin_name = 'reviewed'
-and concept_id in (select concept_id from concept_status where tobereleased in ('n','N'))
+where bin_name = 'leftovers'
+and   concept_id in (select concept_id from concept_status where tobereleased in ('n','N'))
 EOD
   $dbh->executeStmt($sql);
 }
 
 # noreview
 sub generate_noreview {
-  # do nothing - no cases
+  my($self, $dbh, $bin) = @_;
+  my($MEBINSTABLE) = $EMSNames::MEBINSTABLE;
+  my($b) = $dbh->quote($bin);
+  my($sql);
+
+  $sql = <<"EOD";
+select /*+ PARALLEL */ concept_id from classes where tobereleased in ('y','Y') and status='U'
+minus
+select /*+ PARALLEL */ concept_id from classes where tobereleased in ('y','Y') and status!='U'
+EOD
+
+  $sql = <<"EOD";
+update /*+ PARALLEL */ $MEBINSTABLE a
+set   bin_name = $b, ischemical='N'
+where bin_name = 'leftovers'
+and   concept_id in (
+  select concept_id from classes where tobereleased in ('y','Y') and status='U'
+  minus
+  select concept_id from classes where tobereleased in ('y','Y') and status!='U'
+)
+EOD
+  $dbh->executeStmt($sql);
 }
 
 # reviewed
@@ -989,26 +906,10 @@ sub generate_reviewed {
   my($sql);
 
   $sql = <<"EOD";
-update $MEBINSTABLE a
+update /*+ PARALLEL */ $MEBINSTABLE a
 set bin_name=$b, ischemical='N'
 where bin_name = 'leftovers'
-and concept_id in (select concept_id from concept_status where status='R')
-EOD
-  $dbh->executeStmt($sql);
-}
-
-# leftovers
-sub generate_leftovers {
-  my($self, $dbh, $bin) = @_;
-  my($MEBINSTABLE) = $EMSNames::MEBINSTABLE;
-  my($b) = $dbh->quote($bin);
-  my($sql);
-
-  $sql = <<"EOD";
-update $MEBINSTABLE a
-set bin_name=$b, ischemical='N'
-where bin_name = 'reviewed'
-and concept_id in (select concept_id from concept_status where status='N')
+and   concept_id in (select concept_id from concept_status where status='R')
 EOD
   $dbh->executeStmt($sql);
 }
@@ -1037,8 +938,7 @@ sub generate_by_sab {
 
   $sql = <<"EOD";
 create table $ta as
-select distinct a.concept_id from concept_status a, classes b where $clause
-and a.status = 'N' and a.concept_id=b.concept_id
+select distinct concept_id from classes where $clause
 EOD
   $dbh->executeStmt($sql);
 
@@ -1053,11 +953,11 @@ EOD
   }
 
   $sql = <<"EOD";
-update $MEBINSTABLE m
+update /*+ PARALLEL */ $MEBINSTABLE m
   set bin_name=$b, ischemical='N',
       cluster_id=(select cluster_id from $tb where concept_id=m.concept_id)
-where bin_name='reviewed'
-and concept_id in (select concept_id from $tb)
+where bin_name='leftovers'
+and   concept_id in (select concept_id from $tb)
 EOD
   $dbh->executeStmt($sql);
   $dbh->dropTable([$ta, $tb]);
@@ -1091,11 +991,11 @@ sub generate_by_script {
   unlink $tmpfile;
 
   $sql = <<"EOD";
-update $MEBINSTABLE m
+update /*+ PARALLEL */ $MEBINSTABLE m
   set bin_name=$b, ischemical='N',
       cluster_id=(select cluster_id from $tmptable where concept_id=m.concept_id)
-where bin_name='reviewed'
-and concept_id in (select concept_id from $tmptable)
+where bin_name='leftovers'
+and   concept_id in (select concept_id from $tmptable)
 EOD
   $dbh->executeStmt($sql);
   $dbh->dropTable($tmptable);
@@ -1136,11 +1036,11 @@ select concept_id, rownum as cluster_id from (
 EOD
 
   $sql = <<"EOD";
-update $MEBINSTABLE m
+update /*+ PARALLEL */ $MEBINSTABLE m
   set bin_name=$b, ischemical='N',
       cluster_id=(select cluster_id from $tmptable where concept_id=m.concept_id)
-where bin_name='reviewed'
-and concept_id in (select concept_id from $tmptable)
+where bin_name='leftovers'
+and   concept_id in (select concept_id from $tmptable)
 EOD
   $dbh->executeStmt($sql);
   $dbh->dropTable($tmptable);
@@ -1165,7 +1065,7 @@ EOD
   $dbh->createIndex($tmptable, "concept_id", "x_" . $tmptable);
 
   $sql = <<"EOD";
-update $MEBINSTABLE a
+update /*+ PARALLEL */ $MEBINSTABLE a
 set cluster_id=(select order_id from $tmptable where concept_id=a.concept_id)
 where bin_name=$qb
 EOD
@@ -1190,28 +1090,26 @@ sub order_by_atom_ordering {
 
   $dbh->dropTable($tmptable);
   $sql = <<"EOD";
-create table $tmptable NOLOGGING as
-select concept_id, max(order_id) cluster_id from
-  (select concept_id, atom_id, rownum as order_id from
-    (
-     select a.concept_id, a.atom_id, b.order_id from classes a, atom_ordering b
-     where  a.concept_id in (select concept_id from $MEBINSTABLE where bin_name=$qb)
-     and    a.atom_id=b.atom_id
-     and    $clause
-     order by order_id
-    )
-  )
-group by concept_id
+create table $tmptable as
+select concept_id, atom_id, rownum as order_id from
+(
+ select a.concept_id, a.atom_id, b.order_id from classes a, atom_ordering b
+ where  a.concept_id in (select concept_id from $MEBINSTABLE where bin_name=$qb)
+ and    a.atom_id=b.atom_id
+ and    $clause
+ order by order_id
+)
 EOD
   $dbh->executeStmt($sql);
   $dbh->createIndex($tmptable, "concept_id", "x_" . $tmptable);
 
   $sql = <<"EOD";
-update $MEBINSTABLE a
+update /*+ PARALLEL */ $MEBINSTABLE a
 set cluster_id=
 (
- select cluster_id from $tmptable
+ select max(order_id) from $tmptable
  where concept_id=a.concept_id
+ group by concept_id
 )
 where bin_name=$qb
 EOD
@@ -1253,7 +1151,7 @@ EOD
   $dbh->createIndex($tmptable, "concept_id", "x_" . $tmptable);
 
   $sql = <<"EOD";
-update $MEBINSTABLE a
+update /*+ PARALLEL */ $MEBINSTABLE a
 set cluster_id=
 (
  select min(order_id) from $tmptable
@@ -1296,7 +1194,7 @@ EOD
   $dbh->createIndex($tmptable, "concept_id", "x_" . $tmptable);
 
   $sql = <<"EOD";
-update $MEBINSTABLE a
+update /*+ PARALLEL */ $MEBINSTABLE a
 set cluster_id=
 (
  select max(order_id) from $tmptable
@@ -1316,57 +1214,58 @@ sub clusterizeDemotions {
   my($t1) = EMSUtils->tempTable($dbh, $EMSNames::TMPTABLEPREFIX . "_CLUSDEM1");
   my($t2) = EMSUtils->tempTable($dbh, $EMSNames::TMPTABLEPREFIX . "_CLUSDEM2");
   my($t3) = EMSUtils->tempTable($dbh, $EMSNames::TMPTABLEPREFIX . "_CLUSDEM3");
+  my($t4) = EMSUtils->tempTable($dbh, $EMSNames::TMPTABLEPREFIX . "_CLUSDEM4");
   my($t5) = EMSUtils->tempTable($dbh, $EMSNames::TMPTABLEPREFIX . "_CLUSDEM5");
 
-  $dbh->dropTable([$table, $t1, $t2, $t3, $t5]);
+  $dbh->dropTable([$table, $t1, $t2, $t3, $t4, $t5]);
 
   $sql = <<"EOD";
-create table $t1 NOLOGGING as
-with rel as (select /*+ PARALLEL(r) */ concept_id_1,concept_id_2 
-             from relationships r where status='D') 
-select concept_id_1 as concept_id_1, concept_id_2 as concept_id_2 from rel
-where concept_id_1 < concept_id_2
+create table $t1 as
+select concept_id_1 as concept_id_1, concept_id_2 as concept_id_2 from relationships where status='D'
 union
-select concept_id_2 as concept_id_1, concept_id_1 as concept_id_2 from rel
-where concept_id_2 < concept_id_1
+select concept_id_2 as concept_id_1, concept_id_1 as concept_id_2 from relationships where status='D'
 EOD
   $dbh->executeStmt($sql);
 
   $sql = <<"EOD";
-create table $t2 NOLOGGING as
-select concept_id, rownum cluster_id from
-(select count(*) ct, concept_id from
-(select concept_id_1 concept_id from $t1
- union all
- select concept_id_2 from $t1)
-group by concept_id order by ct desc
-)
+create table $t2 as
+select distinct concept_id_1, concept_id_2 from $t1
+where  concept_id_1 < concept_id_2
 EOD
   $dbh->executeStmt($sql);
 
   $sql = <<"EOD";
-create table $t3 NOLOGGING as
-select concept_id_1 concept_id, 
-  (select min(cluster_id) cluster_id from $t2 
-   where concept_id in (concept_id_1, concept_id_2)) cluster_id
-from $t1
+create table $t3 as
+select concept_id_1 as concept_id, concept_id_1 as cluster_id from $t2
 union
-select concept_id_2 concept_id, 
-  (select min(cluster_id) cluster_id from $t2 
-   where concept_id in (concept_id_1, concept_id_2))
-from $t1
+select concept_id_2 as concept_id, concept_id_1 as cluster_id from $t2
 EOD
   $dbh->executeStmt($sql);
 
   $sql = <<"EOD";
-create table $table NOLOGGING as
-select concept_id, cluster_id, 
-  DECODE((SELECT count(*) FROM $EMSNames::CHEMCONCEPTSTABLE b 
-          WHERE a.concept_id = b.concept_id),0,'N','Y') as ischemical 
-from $t3 a
+create table $t4 as
+select distinct cluster_id from $t3
 EOD
   $dbh->executeStmt($sql);
 
+  $sql = <<"EOD";
+create table $t5 as
+select cluster_id, rownum as r from $t4
+EOD
+  $dbh->executeStmt($sql);
+
+  $sql = <<"EOD";
+create table $table as
+select a.concept_id, b.r as cluster_id, 'N' as ischemical from $t3 a, $t5 b
+where  a.cluster_id=b.cluster_id
+order  by cluster_id, concept_id
+EOD
+  $dbh->executeStmt($sql);
+
+  $sql = <<"EOD";
+update table $table set ischemical='Y'
+where  concept_id in (select concept_id from $EMSNames::CHEMCONCEPTSTABLE)
+EOD
   $dbh->dropTables([$t1, $t2, $t3, $t4, $t5]);
 }
 
@@ -1382,18 +1281,15 @@ sub drawFromBin {
   my($p) = $EMSNames::TMPTABLEPREFIX;
   my($allconceptstable) = EMSUtils->tempTable($dbh, $p . "_a");
   my($chemtable) = EMSUtils->tempTable($dbh, $p . "_c");
-  my($clinicaltable) = EMSUtils->tempTable($dbh, $p . "_n");
-  my($othertable) = EMSUtils->tempTable($dbh, $p . "_oth");  
+  my($nonchemtable) = EMSUtils->tempTable($dbh, $p . "_n");
   my($outtable) = EMSUtils->tempTable($dbh, $p . "_o");
   my($bin_type) = $param->{bin_type} || $param->{bininfo}->{bin_type};
   
   $qb = $dbh->quote($param->{bin_name});
-  $dbh->dropTables([$allconceptstable, $chemtable, $clinicaltable, $othertable]);
+  $dbh->dropTables([$allconceptstable, $chemtable, $nonchemtable]);
 
   $BINTABLE = $EMSNames::QABINSTABLE if ($bin_type eq "QA");
   $BINTABLE = $EMSNames::AHBINSTABLE if ($bin_type eq "AH");
-
-  $param->{chemalgo} = EMSUtils->getChemalgo($dbh, $param->{bin_name}) unless $param->{chemalgo};
 
   if (!$param->{chemalgo} && $param->{bin_name} && $param->{bin_type}) {
     my($CONFIGTABLE);
@@ -1429,29 +1325,26 @@ EOD
   }
 
   if (lc($param->{content_type}) eq "chem") {
-    EMSUtils->splitContents($dbh, $allconceptstable, $chemtable, $clinicaltable, $othertable, $param->{chemalgo});
+    EMSUtils->splitContents($dbh, $allconceptstable, $chemtable, $nonchemtable, $param->{chemalgo});
     $sql = "create table $outtable as select * from $chemtable";
-  } elsif (lc($param->{content_type}) eq "clinical") {
-    EMSUtils->splitContents($dbh, $allconceptstable, $chemtable, $clinicaltable, $othertable, $param->{chemalgo});
-    $sql = "create table $outtable as select * from $clinicaltable";
-  } elsif (lc($param->{content_type}) eq "other") {
-    EMSUtils->splitContents($dbh, $allconceptstable, $chemtable, $clinicaltable, $othertable, $param->{chemalgo});
-    $sql = "create table $outtable as select * from $othertable";
+  } elsif (lc($param->{content_type}) eq "nonchem") {
+    EMSUtils->splitContents($dbh, $allconceptstable, $chemtable, $nonchemtable, $param->{chemalgo});
+    $sql = "create table $outtable as select * from $nonchemtable";
   } else {
     $sql = "create table $outtable as select * from $allconceptstable";
   }
   $dbh->executeStmt($sql);
-  $dbh->dropTables([$allconceptstable, $chemtable, $clinicaltable, $othertable]);
+  $dbh->dropTables([$allconceptstable, $chemtable, $nonchemtable]);
   return $outtable;
 }
 
 # Splits the contents of a concept/cluster table into chemical and nonchemical
 # tables
 sub splitContents {
-  my($class, $dbh, $concepttable, $chemtable, $clinicaltable, $othertable, $chemalgo) = @_;
+  my($class, $dbh, $concepttable, $chemtable, $nonchemtable, $chemalgo) = @_;
   my($sql);
-  my($p) = $EMSNames::TMPTABLEPREFIX;
-  my($nonchemtable) = EMSUtils->tempTable($dbh, $p . "_nc");
+
+  $chemalgo = "one" unless $chemalgo;
 
   if (lc($chemalgo) eq "one") {
 
@@ -1463,22 +1356,9 @@ EOD
     $dbh->executeStmt($sql);
 
     $sql = <<"EOD";
-create table $clinicaltable as
+create table $nonchemtable as
 select concept_id, cluster_id from $concepttable
-where  cluster_id in 
- (select cluster_id from $concepttable where ischemical='C'
-  minus select cluster_id from $chemtable)
-EOD
-    $dbh->executeStmt($sql);
-
-    $sql = <<"EOD";
-create table $othertable as
-select concept_id, cluster_id from $concepttable
-where  cluster_id in 
- (select cluster_id from $concepttable 
-  minus (select cluster_id from $chemtable
-         union
-         select cluster_id from $clinicaltable))
+where  cluster_id not in (select cluster_id from $chemtable)
 EOD
     $dbh->executeStmt($sql);
 
@@ -1487,37 +1367,16 @@ EOD
     $sql = <<"EOD";
 create table $nonchemtable as
 select concept_id, cluster_id from $concepttable
-where  cluster_id in (select cluster_id from $concepttable where ischemical !='Y')
+where  cluster_id in (select cluster_id from $concepttable where ischemical='N')
 EOD
     $dbh->executeStmt($sql);
 
     $sql = <<"EOD";
 create table $chemtable as
 select concept_id, cluster_id from $concepttable
-where  cluster_id in  (select cluster_id from $concepttable minus select cluster_id from $nonchemtable)
+where  cluster_id not in (select cluster_id from $nonchemtable)
 EOD
     $dbh->executeStmt($sql);
-    
-    $sql = <<"EOD";
-create table $clinicaltable as
-select concept_id, cluster_id from $concepttable
-where  cluster_id in (select cluster_id from $concepttable where ischemical ='C'
-  minus select cluster_id from $chemtable)
-EOD
-    $dbh->executeStmt($sql);
-
-    $sql = <<"EOD";
-create table $othertable as
-select concept_id, cluster_id from $concepttable
-where  cluster_id in 
- (select cluster_id from $concepttable 
-  minus (select cluster_id from $chemtable
-         union
-         select cluster_id from $clinicaltable))
-EOD
-    $dbh->executeStmt($sql);
-
-    $dbh->dropTables([$nonchemtable]);
   }
 }
 
@@ -1527,36 +1386,13 @@ sub assignChemical {
   my($class, $dbh, $param) = @_;
   my($sql);
   my($chemconceptstable) = $EMSNames::CHEMCONCEPTSTABLE;
-  my($clinicalconceptstable) = $EMSNames::CLINICALCONCEPTSTABLE;
-  my($otherconceptstable) = $EMSNames::OTHERCONCEPTSTABLE;
   my($c) = " and " . $param->{clause} if $param->{clause};
   my($table) = $param->{table};
 
   $sql = <<"EOD";
-update $table
+update /*+ PARALLEL */ $table
 set ischemical='Y'
 where concept_id in (select concept_id from $chemconceptstable) $c
-EOD
-  $dbh->executeStmt($sql);
-  
-  $sql = <<"EOD";
-update $table
-set ischemical='C'
-where concept_id in (select concept_id from $clinicalconceptstable) $c
-EOD
-  $dbh->executeStmt($sql);
-
-    $sql = <<"EOD";
-update $table
-set ischemical='O'
-where concept_id in (select concept_id from $otherconceptstable) $c
-EOD
-  $dbh->executeStmt($sql);
-  
-    $sql = <<"EOD";
-update $table
-set ischemical='O'
-where ischemical='N'
 EOD
   $dbh->executeStmt($sql);
 }
@@ -1587,9 +1423,7 @@ sub updateBininfo {
     $m{generation_user} = $dbh->quote("unknown");
     $m{nextWorklistNum} = 1;
     $m{nextChemWorklistNum} = 1;
-    $m{nextnonChemWorklistNum} = 1;    
-    $m{nextClinicalWorklistNum} = 1;
-    $m{nextOtherWorklistNum} = 1;
+    $m{nextNonchemWorklistNum} = 1;
     $m{totalClusters} = 0;
     $m{totalConcepts} = 0;
     $m{totalUneditableClusters} = 0;
@@ -1599,12 +1433,6 @@ sub updateBininfo {
     $m{nonchemClusters} = 0;
     $m{nonchemConcepts} = 0;
     $m{nonchemUneditableClusters} = 0;
-    $m{clinicalClusters} = 0;
-    $m{clinicalConcepts} = 0;
-    $m{clinicalUneditableClusters} = 0;
-    $m{otherClusters} = 0;
-    $m{otherConcepts} = 0;
-    $m{otherUneditableClusters} = 0;
     $dbh->insertRow($BININFOTABLE, \%m);
   }
 
@@ -1662,7 +1490,7 @@ sub bin_generate {
     $binconfig = EMSUtils->getBinconfig($dbh, $CONFIGTABLE, $bin_name);
     EMSTables->createTable($dbh, $BINSTABLE);
 
-    $chemalgo = EMSUtils->getChemalgo($dbh, $bin_name);
+    $chemalgo = $binconfig->{chemalgo} || $DEFAULTCHEMALGO;
     $generator = $binconfig->{generator};
     next unless $generator;
 
@@ -1682,7 +1510,7 @@ sub bin_generate {
     if ($generatortype eq "SCRIPT") {
       my($tmpfile) = $self->tempFile;
       my($opts) = "-d " . $dbh->getDB;
-      my($cmd) = join("/", $ENV{EMS_HOME}, "bin", $generatorcomponent) . " $opts > $tmpfile";
+      my($cmd) = join("/", $ENV{EMS_HOME}, "scripts", $generatorcomponent) . " $opts > $tmpfile";
       system $cmd;
       my($clusterfile) = $self->clusterizeFile($tmpfile);
       $dbh->createTable($tmptable, ['concept_id', 'cluster_id']);
@@ -1711,7 +1539,7 @@ EOD
       $dbh->dropTable(join('.', $main::EMSCONFIG{MTHSCHEMA}, $cluster_table));
 
     } elsif ($generatortype eq "SQLFILE") {
-      my($f) = join("/", $ENV{EMS_HOME}, "/etc/sql", $generatorcomponent);
+      my($f) = join("/", $ENV{EMS_HOME}, "sql", $generatorcomponent);
       die "File: $f does not exist" unless -f $f;
       $sql = "create table $tmptable as " . GeneralUtils->file2str($f, {flatten=>1, skipcomments=>1, skipspaces=>1, removetrailingsemicolon=>1});
       EMSUtils->ems_log($main::emslogfile, "SQL: $sql");
@@ -1745,10 +1573,6 @@ select $qb as bin_name, concept_id, cluster_id, 'N' as ischemical from $tmptable
 EOD
     $dbh->executeStmt($sql);
     $dbh->dropTable($tmptable);
-
-# for AH bins, remove clusters that were previously edited
-    EMSUtils->removeAlreadyEdited($dbh, $bin_name) if $bin_type eq "AH";
-
     $self->assignChemical($dbh, {table=>$BINSTABLE, clause=>'bin_name=' . $dbh->quote($bin_name)});
 
     my($counts) = $self->getBinCounts($dbh, $binconfig, \%bininfo, $chemalgo);
@@ -1758,37 +1582,6 @@ EOD
     $bininfo{generation_time} = time-$bininfo{generation_time};
     $self->updateBininfo($dbh, \%bininfo);
   }
-}
-
-sub removeAlreadyEdited {
-  my($self, $dbh, $bin_name) = @_;
-  my($tmptable) = $dbh->tempTable($EMSNames::TMPTABLEPREFIX . "_bin");
-  my($histtable) = $dbh->tempTable($EMSNames::TMPTABLEPREFIX . "_hist");
-  my($sql);
-  my($qb) = $dbh->quote($bin_name);
-  my($AHHISTORY) = $EMSNames::AHHISTORYTABLE;
-
-  $dbh->dropTables([$tmptable, $histtable]);
-
-  $sql = <<"EOD";
-create table $tmptable as select concept_id, cluster_id from $EMSNames::AHBINSTABLE
-where bin_name=$qb
-EOD
-  $dbh->executeStmt($sql);
-
-  EMSUtils->list2history($dbh, $tmptable, $histtable);
-
-  $sql = <<"EOD";
-delete from $EMSNames::AHBINSTABLE
-where  bin_name=$qb
-and    cluster_id in (
-		      select a.cluster_id from $histtable a, $AHHISTORY b
-		      where  a.min_concept_id=b.min_concept_id
-		      and    a.md5=b.md5
-)
-EOD
-  $dbh->executeStmt($sql);
-  $dbh->dropTables([$tmptable, $histtable]);
 }
 
 # returns the names of all bins of a certain type
@@ -1805,7 +1598,7 @@ sub getBinNames {
   } elsif ($bin_type eq "AH") {
     $CONFIGTABLE = $EMSNames::AHCONFIGTABLE;
   } else {
-    $CONFIGTABLE = $EMSNames::BININFOTABLE;
+    return ();
   }
 
   $sql = "select bin_name from $CONFIGTABLE";
@@ -1920,8 +1713,8 @@ EOD
     $dbh->executeStmt($sql);
   }
 
-  $dbh->createIndex($checklist, 'orig_concept_id', "x1_" . substr($checklist,4,20));
-  $dbh->createIndex($checklist, ['atom_id', 'cluster_id'], "x2_" . substr($checklist,4,20));
+  $dbh->createIndex($checklist, 'orig_concept_id', "x1_" . $checklist);
+  $dbh->createIndex($checklist, ['atom_id', 'cluster_id'], "x2_" . $checklist);
 
   $sql = "GRANT ALL ON $checklist TO PUBLIC";
   $dbh->executeStmt($sql);
@@ -2013,11 +1806,6 @@ EOD
     $dbh->executeStmt($sql);
   }
 
-# Any clusters left to edit?
-  if ($dbh->selectFirstAsScalar("select count(*) from $concepttable") == 0) {
-    die "There were no clusters left to edit from this bin.\n";
-  }
-
   $sql0 = <<"EOD";
 select cluster_id, rownum as row_id from (
   select distinct cluster_id from $concepttable a, concept_status b
@@ -2066,7 +1854,6 @@ EOD
   $sql = <<"EOD";
 delete from $BEINGEDITEDTABLE where worklist_name=$qw
 EOD
-  $dbh->executeStmt($sql);
 
   $sql = <<"EOD";
 insert into $BEINGEDITEDTABLE
@@ -2100,8 +1887,7 @@ insert into $AHHISTORY
     $qw as worklist_name,
     cluster_id,
     min_concept_id,
-    md5 from $histtable a
-    where a.cluster_id in (select distinct cluster_id from $worklist_table)
+    md5 from $histtable
 EOD
     $dbh->executeStmt($sql);
     $dbh->dropTable($histtable);
@@ -2151,10 +1937,8 @@ sub nextWorklistName {
 
   if (uc($content_type_wanted) eq "CHEM") {
     $worklist_name = sprintf("%s_ch_%.2d", $prefix, $n);
-  } elsif (uc($content_type_wanted) eq "CLINICAL") {
-    $worklist_name = sprintf("%s_cl_%.2d", $prefix, $n);
-  } elsif (uc($content_type_wanted) eq "OTHER") {
-    $worklist_name = sprintf("%s_ot_%.2d", $prefix, $n);
+  } elsif (uc($content_type_wanted) eq "NONCHEM") {
+    $worklist_name = sprintf("%s_nc_%.2d", $prefix, $n);
   } else {
     $worklist_name = sprintf("%s_%.2d", $prefix, $n);
   }
@@ -2167,10 +1951,8 @@ sub nextWorklistNum {
 
   if (uc($content_type_wanted) eq "CHEM") {
     return $bininfo->{nextChemWorklistNum};
-  } elsif (uc($content_type_wanted) eq "CLINICAL") {
-    return $bininfo->{nextClinicalWorklistNum};
-  } elsif (uc($content_type_wanted) eq "OTHER") {
-    return $bininfo->{nextOtherWorklistNum};
+  } elsif (uc($content_type_wanted) eq "NONCHEM") {
+    return $bininfo->{nextNonchemWorklistNum};
   } else {
     return $bininfo->{nextWorklistNum};
   }
@@ -2186,12 +1968,9 @@ sub incrementWorklistNum {
   if (uc($content_type_wanted) eq "CHEM") {
     $bininfo->{nextChemWorklistNum}++;
     $dbh->updateRow($BININFOTABLE, 'bin_name', $qb, {nextChemWorklistNum=>$bininfo->{nextChemWorklistNum}});
-  } elsif (uc($content_type_wanted) eq "CLINICAL") {
-    $bininfo->{nextClinicalWorklistNum}++;
-    $dbh->updateRow($BININFOTABLE, 'bin_name', $qb, {nextClinicalWorklistNum=>$bininfo->{nextClinicalWorklistNum}});
-  } elsif (uc($content_type_wanted) eq "OTHER") {
-    $bininfo->{nextOtherWorklistNum}++;
-    $dbh->updateRow($BININFOTABLE, 'bin_name', $qb, {nextOtherWorklistNum=>$bininfo->{nextOtherWorklistNum}});
+  } elsif (uc($content_type_wanted) eq "NONCHEM") {
+    $bininfo->{nextNonchemWorklistNum}++;
+    $dbh->updateRow($BININFOTABLE, 'bin_name', $qb, {nextNonchemWorklistNum=>$bininfo->{nextNonchemWorklistNum}});
   } else {
     $bininfo->{nextWorklistNum}++;
     $dbh->updateRow($BININFOTABLE, 'bin_name', $qb, {nextWorklistNum=>$bininfo->{nextWorklistNum}});
@@ -2267,11 +2046,11 @@ sub retractWorklist {
   my($binconfig);
   my($bin_name) =  WMSUtils->worklist2bin($worklist_name);
 
-  $binconfig = EMSUtils->getBinconfig($dbh, $EMSNames::MECONFIGTABLE, $bin_name);
-  unless ($binconfig && $binconfig->{bin_name}) {
+  $binconfig = EMSUtils->getBinconfig($dbh, $EMSNames::MECONFIGTABLE,);
+  unless ($binconfig) {
     $binconfig = EMSUtils->getBinconfig($dbh, $EMSNames::QACONFIGTABLE, $bin_name);
-    unless ($binconfig && $binconfig->{bin_name}) {
-      $sql = "delete from $EMSNames::AHHISTORYTABLE where lower(worklist_name)=" . $dbh->quote(lc($worklist_name));
+    unless ($binconfig) {
+      $sql = "delete from $EMSNames::AHHISTORYTABLE where worklist_name=" . $dbh->quote($worklist_name);
       $dbh->executeStmt($sql);
     }
   }
@@ -2597,31 +2376,6 @@ sub createHistoryTable {
   my($self, $dbh) = @_;
   my($colspec) = [{CanonicalName=>'varchar(128)'}, {WorklistName=>'varchar(128)'}, 'cluster_id', {IdType=>'varchar(128)'}, 'key'];
   $dbh->createTable($EMSUtils::HISTORYTABLE, $colspec);
-}
-
-# returns the chemalgo for a bin
-sub getChemalgo {
-  my($class, $dbh, $bin) = @_;
-  my($bininfo, $binconfig);
-  my($configtable);
-  my($default) = uc($main::EMSCONFIG{DEFAULT_CHEMALGO});
-
-  $default = uc($main::EMSCONFIG{DEMOTIONS_CHEMALGO}) if ($bin eq "demotions");
-
-  $bininfo = EMSUtils->getBininfo($dbh, $bin);
-  return $default unless $bininfo;
-
-  if ($bininfo->{bin_type} eq "ME") {
-    return $default;
-  } elsif ($bininfo->{bin_type} eq "QA") {
-    $configtable = $EMSNames::QACONFIGTABLE;
-  } else {
-    $configtable = $EMSNames::AHCONFIGTABLE;
-  }
-  $binconfig = EMSUtils->getBinconfig($dbh, $configtable, $bin);
-  return $default unless $binconfig;
-
-  return uc($binconfig->{chemalgo});
 }
 
 # Given a file of concept_id's and (optional) cluster_id's in the second field

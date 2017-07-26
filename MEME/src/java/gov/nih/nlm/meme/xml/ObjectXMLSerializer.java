@@ -1780,8 +1780,6 @@ public class ObjectXMLSerializer extends DefaultHandler implements
           params[j] = new Double(0);
         } else if (type == String.class) {
           params[j] = "0";
-        } else if (type == List.class) {
-          params[j] = new ArrayList();
         } else if (type == c) {
 
           // If the type is the same as the class, we have
@@ -1789,7 +1787,7 @@ public class ObjectXMLSerializer extends DefaultHandler implements
           params[j] = null;
         } else {
 
-          // setting object params to null may present a problem
+          // setting object parms to null may present a problem
           // so instead we try to force a new instance of that type.
           params[j] = forceNewInstance(paramTypes[j]);
         }

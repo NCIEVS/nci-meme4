@@ -10,14 +10,12 @@
 # Options:
 # -d database
 
-BEGIN
-{
 unshift @INC, "$ENV{ENV_HOME}/bin";
-require "env.pl";
-unshift @INC, "$ENV{EMS_HOME}/lib";
-unshift @INC, "$ENV{EMS_HOME}/bin";
-}
 
+require "env.pl";
+
+use lib "$ENV{EMS_HOME}/lib";
+push @INC, "$ENV{EMS_HOME}/bin";
 require "utils.pl";
 
 use OracleIF;
@@ -38,7 +36,7 @@ EMSUtils->loadConfig;
 
 $db = $opt_d || Midsvcs->get('editing-db');
 $user = $main::EMSCONFIG{ORACLE_USER};
-$password = GeneralUtils->getOraclePassword($user,$db);
+$password = GeneralUtils->getOraclePassword($user);
 $dbh = new OracleIF("db=$db&user=$user&password=$password");
 
 # These STYs can have NH attribute

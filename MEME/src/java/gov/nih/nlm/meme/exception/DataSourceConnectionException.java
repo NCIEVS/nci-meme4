@@ -3,8 +3,6 @@
  * Package: gov.nih.nlm.meme.exception
  * Object:  DataSourceConnectionException
  *
- * 05/24/2006 RBE (1-BA55P) : Preventing certain errors from sending mail
- * 
  *****************************************************************************/
 
 package gov.nih.nlm.meme.exception;
@@ -41,7 +39,6 @@ public class DataSourceConnectionException extends DeveloperException {
     setFatal(false);
     setPrintStackTrace(false);
     setInformUser(false);
-    setInformAdministrator(false);    
     setEnclosedException(exception);
   }
 

@@ -47,7 +47,7 @@ This form produces an editing report for the day specified.
 <P>
 EOD
 
-    $html .= $query->start_form(-method=>'POST', -action=>$query->url(-absolute=>1));
+    $html .= $query->start_form(-method=>'POST', -action=>$query->url());
     $html .= $DBpost;
 
     $html .= "Show daily report for: ";

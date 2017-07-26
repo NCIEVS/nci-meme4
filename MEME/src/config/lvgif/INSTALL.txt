@@ -13,13 +13,6 @@ INSTALL
      ENV_HOME=<path to ENV_HOME> \
      <path to LVGIF_HOME>/bin/lvg_server.pl start
 
-Dependencies
------------------------
-Subsystem Dependencies
-  $ENV_HOME
-  $LVG_HOME
-  $MIDSVCS_HOME
-
 UPDATE
 ------
 Same as install

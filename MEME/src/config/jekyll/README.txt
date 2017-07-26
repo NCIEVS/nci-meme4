@@ -2,26 +2,6 @@ Version Information
 -------------------
 RELEASE=4
 VERSION=4.0
-DATE=20070309
-AUTHORITY=SL
-
-Jekyll is the editing client for the MEME system. This distribution contains all
-of the files necessary to get Jekyll to run as a JNLP app.
-Notable changes for this release include:
-
- o Added the NDC Code searches for Finder screen
- 
- o Added the NDC Code searches for concept selector screen
- 
- o Moved the next cluster button.
-
- 
-See INSTALL.txt for installation instructions
-
-Old Version Information
--------------------
-RELEASE=4
-VERSION=4.0
 DATE=20060511
 AUTHORITY=BAC
 

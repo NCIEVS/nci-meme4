@@ -9,13 +9,11 @@
 # Options:
 # -d database
 
-BEGIN
-{
-unshift @INC, "$ENV{ENV_HOME}/bin";
+nshift @INC, "$ENV{ENV_HOME}/bin";
+
 require "env.pl";
-unshift @INC, "$ENV{EMS_HOME}/lib";
-unshift @INC, "$ENV{EMS_HOME}/bin";
-}
+
+use lib "$ENV{EMS_HOME}/lib";
 
 use OracleIF;
 use EMSUtils;
@@ -37,7 +35,7 @@ EMSUtils->loadConfig;
 
 $db = $opt_d || Midsvcs->get('editing-db');
 $user = $main::EMSCONFIG{ORACLE_USER};
-$password = GeneralUtils->getOraclePassword($user,$db);
+$password = GeneralUtils->getOraclePassword($user);
 $dbh = new OracleIF("db=$db&user=$user&password=$password");
 
 $srstre = "SRSTRE2";

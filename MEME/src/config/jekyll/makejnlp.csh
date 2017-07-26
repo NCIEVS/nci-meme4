@@ -47,15 +47,15 @@ echo "    Writing $pwd/jekyll.jnlp ... `/bin/date`"
     <all-permissions />
   </security>
   <resources>
-    <j2se version="1.5.0+" initial-heap-size="16m" max-heap-size="128m" href="http://java.sun.com/products/autodl/j2se" />
+    <j2se version="1.4.2+" initial-heap-size="16m" max-heap-size="128m" href="http://java.sun.com/products/autodl/j2se" />
     <jar href="lib/config.jar" />
 <!--    <jar href="lib/patch.jar" /> -->
     <jar href="lib/jekyll.jar" main="true" />
     <jar href="lib/meme.jar" />
     <jar href="lib/utils.jar" />
     <jar href="lib/samples.jar" />
-    <jar href="lib/xercesImpl.jar" />
- <!--   <jar href="lib/jaxp.jar" /> -->
+    <jar href="lib/xerces.jar" />
+    <jar href="lib/jaxp.jar" />
     <property name="meme.prop.loc" value="bundles/meme.prop" />
     <property name="default.rela.source" value="MTHRELA" />
     <property name="release.date" value="$release_date" />

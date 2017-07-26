@@ -64,7 +64,7 @@ public interface MapSet
   public String getType();
 
   /**
-   * Returns the map set {@link Identifier} (MAPSETSID).
+   * Returns the map set {@link Identifier} (MAPSETID).
    * @return the map set {@link Identifier}
    */
   public Identifier getMapSetIdentifier();
@@ -269,7 +269,7 @@ public interface MapSet
      * Implements {@link MapSet#getMapSetIdentifier()}.
      */
     public Identifier getMapSetIdentifier() {
-      Attribute[] atts = getAttributesByName("MAPSETSID");
+      Attribute[] atts = getAttributesByName("MAPSETID");
       for (int i = 0; i < atts.length; i++) {
         if (atts[i].isReleasable()) {
           return new Identifier.Default(atts[i].getValue());

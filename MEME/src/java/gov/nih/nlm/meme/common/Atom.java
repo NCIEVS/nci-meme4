@@ -78,18 +78,6 @@ public interface Atom extends MEMEString, ConceptElement {
   public void setLastAssignedCUI(CUI last_assigned_cui);
 
   /**
-   * Returns the last {@link Rank} this atom was released with.
-   * @return the last {@link Rank} this atom was released with
-   */
-  public Rank getLastReleaseRank();
-
-  /**
-   * Sets the last release {@link Rank}.
-   * @param last_release_rank the last release {@link Rank}
-   */
-  public void setLastReleaseRank(Rank last_release_rank);
-
-  /**
    * Returns the {@link Concept} containing this atom.
    * @return the {@link Concept}
    */
@@ -330,7 +318,6 @@ public interface Atom extends MEMEString, ConceptElement {
     private Code code = null;
     private CUI last_release_cui = null;
     private CUI last_assigned_cui = null;
-    private Rank last_release_rank = new Rank.Default(0);
     private Concept concept = null;
     private MEMEString meme_string = null;
     private AUI aui = null;
@@ -405,7 +392,6 @@ public interface Atom extends MEMEString, ConceptElement {
       termgroup = null;
       code = null;
       last_release_cui = null;
-      last_release_rank = new Rank.Default(0);
       last_assigned_cui = null;
       concept = null;
       meme_string = null;
@@ -476,20 +462,6 @@ public interface Atom extends MEMEString, ConceptElement {
       this.last_release_cui = last_release_cui;
     }
 
-    /**
-     * Implements {@link Atom#getLastReleaseRank()}.
-     */
-    public Rank getLastReleaseRank() {
-    	return last_release_rank;
-    }
-
-    /**
-     * Implements {@link Atom#setLastReleaseRank(Rank)}.
-     */
-    public void setLastReleaseRank(Rank last_release_rank) {
-        this.last_release_rank = last_release_rank;
-      }
-    
     /**
      * Implements {@link Atom#getLastAssignedCUI()}.
      */

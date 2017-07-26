@@ -17,21 +17,6 @@ NSTALL ( Can be used only in OCCS enviroment.)
 6. The user used to start the apache webserver should be placed in the same group as the user who installs. 
     ( webuser user id is used to write logs and other data).
 
-Dependencies
------------------------
-Subsystem Dependencies
-  MEOW Installation
-  
-Network Dependencies
-  MIDSVCS Server
-  LVG Server (for concept report normalized searches)
-
-Required Perl Libraries
-  Archive::Zip
-  Digest::MD5
-  Mail::Sender
-
-
 UPDATE
 ------
 Same as install

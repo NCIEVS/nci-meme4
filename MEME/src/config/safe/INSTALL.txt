@@ -9,11 +9,6 @@ INSTALL
 
 4. Edit $ENV_FILE and set SAFEBOX_HOME property to $SAFEBOX_HOME path
 
-Dependencies
------------------------
-System Dependencies
-  $ENV_HOME
-  
 UPDATE
 ------
 Same as install

@@ -4,7 +4,6 @@
  * Object:  ReportsGenerator
  *
  * Changes
- *   06/09/2006 TTN (1-BFPDH) : populate midService in SourceMetadataReport
  *   04/10/2006 TTN (1-AV6X1) : optimize queries to pick up the correct previous name for updated sources
  *   02/15/2006 BAC (1-79HNF): If -url params not supplied and properties file
  *     doesn't have URL props, then provide no links for those kinds of URLs
@@ -68,11 +67,7 @@ import java.lang.Thread;
  * for the {@link ReportsClient} but later was expanded to generate
  * molecular action summary reports and to generate editing report data for the
  * "action harvester".
- * 
- * CHANGES
- * 08/01/2008 SL: Adding another clause to check the Base atom attribute is releasble
- * 09/10/2007 JFW (1-DBSLD): Modify isReEntrant to take a SessionContext argument 
- * 07/01/2008 SL : Chanign the Relationship name from NSY to SY
+ *
  * @author MEME Group
  */
 public class ReportsGenerator
@@ -113,7 +108,7 @@ public class ReportsGenerator
   // Fields
   //
 
-  //private MEMEApplicationServer server = null;
+  private MEMEApplicationServer server = null;
   private Thread thread = null;
   private static SourceMetadataReport sourceMetadataReport;
   private static boolean cacheReport;
@@ -122,11 +117,11 @@ public class ReportsGenerator
   static {
     rel_name_map.put("RT", "REL");
     rel_name_map.put("NT", "NRW");
-    rel_name_map.put("SY", "SY");
+    rel_name_map.put("SY", "NSY");
     rel_name_map.put("BT", "BRD");
     rel_name_map.put("LK", "LIK");
     rel_name_map.put("XR", "NOT");
-    rel_name_map.put("XS", "SY");
+    rel_name_map.put("XS", "NSY");
   }
 
   private static String[] rel_tag_map = new String[6];
@@ -344,10 +339,9 @@ public class ReportsGenerator
 
   /**
    * Returns <code>false</code>.
-   * @param context the {@link SessionContext}
    * @return <code>false</code>
    */
-  public boolean isReEntrant(SessionContext context) {
+  public boolean isReEntrant() {
     return false;
   }
 
@@ -1126,6 +1120,7 @@ public class ReportsGenerator
     if (cxt_rel_opt == ReportsGenerator.INCLUDE_SIB ||
         cxt_rel_opt == ReportsGenerator.ALL) {
       include_sib = true;
+
     }
     MEMEToolkit.trace("MEME_HOME=" + meme_home);
     MEMEToolkit.trace("REPORT_DB=" + report_db);
@@ -1207,13 +1202,6 @@ public class ReportsGenerator
       // Optain matrix initializer integrity vector
       //
     }
-    
-    boolean cxt_attr_notdisplay = false;
-    url_param = context.getServiceRequest().getParameter("cxt_attr_notdisplay");
-    if (url_param != null) {
-    	cxt_attr_notdisplay = true;
-    }
-    
     IntegrityCheck[] checks = null;
     EnforcableIntegrityVector vector =
         (EnforcableIntegrityVector) data_source.getApplicationVector(
@@ -1653,18 +1641,8 @@ public class ReportsGenerator
       else {
         work.append(" ");
       }
-
-      // Depict flag "B" for RxNORM Base Ambiguity Atom.
-      if (isRxNormBaseAmbiguous(sorted_atoms[i]))
-      {
-    	  work.append("B");
-      }
-      else {
-          work.append(" ");
-      }
-
       if (sorted_atoms[i].isAmbiguous()) {
-   		  work.append("A");
+        work.append("A");
       }
       else {
         work.append(" ");
@@ -1753,17 +1731,14 @@ public class ReportsGenerator
       work.append("]");
 
       //
-      // Write MUI if ( MSH (or MSH translation) or NCI (or NCI subsources)).
+      // Write MUI if MSH (or MSH translation).
       //
-      if (("MSH".equals(sorted_atoms[i].getSource().getSourceFamilyAbbreviation()) &&
-          sorted_atoms[i].getSourceConceptIdentifier() != null) ||
-          ("NCI".equals(sorted_atoms[i].getSource().getSourceFamilyAbbreviation()) &&
-                  sorted_atoms[i].getSourceConceptIdentifier() != null)){
+      if ("MSH".equals(sorted_atoms[i].getSource().getSourceFamilyAbbreviation()) &&
+          sorted_atoms[i].getSourceConceptIdentifier() != null) {
         work.append(" ");
         work.append(sorted_atoms[i].getSourceConceptIdentifier().toString());
       }
-      
-    
+
       // Write RXCUI
       if (atom_rxcui_map.containsKey(sorted_atoms[i].getIdentifier())) {
         work.append(" ");
@@ -1854,56 +1829,6 @@ public class ReportsGenerator
             .append(lex_rels[i].getRelatedAtom().getSource().toString());
       }
       work.append("}");
-      
-      
-      if (!lex_rels[i].getRelatedConcept().getIdentifier().toString().equals(
-    		  lex_rels[i].getConcept().getIdentifier().toString())) {
-    		            applyStyles(content_type, report, work.toString(), style_list);
-    		            report.append( " [");
-    		            if (url_mid_for_concept_id != null) {
-    		                    if (atom1.length() < atom2.length()) {
-    		                       report.append("<a href=\"").append(url_mid_for_concept_id).append(lex_rels[i].getRelatedConcept().getIdentifier().toString());
-    		                   report.append("#report\">");
-    		                   applyStyles(content_type, report,
-    		                                   lex_rels[i].getRelatedConcept().getIdentifier().toString(),
-    		                           style_list);
-    		                   if (url_mid_for_concept_id != null) {
-    		                       report.append("</a>");
-    		                   }
-    		                   report.append(" / ");
-    		                   report.append("<a href=\"").append(url_mid_for_concept_id).append(lex_rels[i].getConcept().getIdentifier().toString());
-    		                   report.append("#report\">");
-    		                   applyStyles(content_type,
-    		                                   report,lex_rels[i].getConcept().getIdentifier().toString(),style_list);
-    		                   if (url_mid_for_concept_id != null) {
-    		                       report.append("</a>");
-    		                     }
-    		                    } else {
-    		                            report.append("<a href=\"").append(url_mid_for_concept_id).append(lex_rels[i].getConcept().getIdentifier().toString());
-    		                    report.append("#report\">");
-    		                    applyStyles(content_type, report,
-    		                                   lex_rels[i].getConcept().getIdentifier().toString(),
-    		                            style_list);
-    		                    if (url_mid_for_concept_id != null) {
-    		                        report.append("</a>");
-    		                    }
-    		                    report.append(" / ");
-    		                    report.append("<a href=\"").append(url_mid_for_concept_id).append(lex_rels[i].getRelatedConcept().getIdentifier().toString());
-    		                    report.append("#report\">");
-    		                    applyStyles(content_type,
-    		                                   report,lex_rels[i].getRelatedConcept().getIdentifier().toString(),style_list);
-    		                    if (url_mid_for_concept_id != null) {
-    		                        report.append("</a>");
-    		                      }
-    		                    }
-
-    		              }
-    		            report.append( " ]");
-    		           work.setLength(0);
-    		        }
-      
-      
-      
       if (lex_rels[i].isUnreleasable()) {
         work.append(" }");
       }
@@ -1935,7 +1860,6 @@ public class ReportsGenerator
       line.append("[");
       line.append(atom_notes[i].getAtom());
       line.append("] ");
-      line.append(" [ " + atom_notes[i].getAtom().getCode() + "/" + atom_notes[i].getAtom().getTermgroup() + " ] ");
       line.append(atom_notes[i].getValue());
       String[] lines = MEMEToolkit.splitString(line.toString(), 65);
       for (int j = 0; j < lines.length; j++) {
@@ -2002,16 +1926,16 @@ public class ReportsGenerator
       //
     }
     MEMEToolkit.trace(
-        "ReportsGenerator.getReport() - Write SNOMEDCT_US Concept Status.");
+        "ReportsGenerator.getReport() - Write SNOMEDCT Concept Status.");
     Attribute[] atts = concept.getAttributesByName("CONCEPTSTATUS");
     if (atts.length > 0) {
       for (int i = 0; i < atts.length; i++) {
         if (atts[i].getSource() != null && atts[i].getAtom() != null &&
             atts[i].getSource().getStrippedSourceAbbreviation().equals(
-                "SNOMEDCT_US")) {
+                "SNOMEDCT")) {
           if (atts[i].getAtom() != null &&
               !atts[i].getValue().equals("0")) {
-            work.append("SNOMEDCT_US Concept ");
+            work.append("SNOMEDCT Concept ");
             work.append(atts[i].getAtom().getSourceConceptIdentifier());
             work.append(" Status: ");
             work.append(atts[i].getValue());
@@ -2439,26 +2363,21 @@ public class ReportsGenerator
       // CONTEXT Section
       //
     }
-    
-    if (!cxt_attr_notdisplay) {
-    	MEMEToolkit.trace("ReportsGenerator.getReport() - Write CONTEXTS.");
-    	Arrays.sort(contexts, Concept.Default.ATTRIBUTE_VALUE_COMPARATOR);
-    	if (contexts.length > 0) {
-    		report.append(line_end);
-    		applyStyles(content_type, report, "CONTEXTS", style_list);
-    		report.append(line_end);
-    	}
-    	for (int i = 0; i < contexts.length; i++) {
-    		if (contexts[i].getAtom().getIdentifier().intValue() == atom_id) {
-    			report.append(sep_begin);
-    		}
-    		applyStyles(content_type, report, contexts[i].getValue(), style_list);
-    		if (contexts[i].getAtom().getIdentifier().intValue() == atom_id) {
-    			report.append(sep_end);
-    		}
-    	}
-    } else {
-    	MEMEToolkit.trace("ReportsGenerator.getReport() - CONTEXTS omitted.");
+    MEMEToolkit.trace("ReportsGenerator.getReport() - Write CONTEXTS.");
+    Arrays.sort(contexts, Concept.Default.ATTRIBUTE_VALUE_COMPARATOR);
+    if (contexts.length > 0) {
+      report.append(line_end);
+      applyStyles(content_type, report, "CONTEXTS", style_list);
+      report.append(line_end);
+    }
+    for (int i = 0; i < contexts.length; i++) {
+      if (contexts[i].getAtom().getIdentifier().intValue() == atom_id) {
+        report.append(sep_begin);
+      }
+      applyStyles(content_type, report, contexts[i].getValue(), style_list);
+      if (contexts[i].getAtom().getIdentifier().intValue() == atom_id) {
+        report.append(sep_end);
+      }
     }
 
     //
@@ -2771,7 +2690,7 @@ public class ReportsGenerator
       InitializationException {
 
     // get reference to server
-    //server = (MEMEApplicationServer) context;
+    server = (MEMEApplicationServer) context;
 
     // add server hook
     context.addHook(this);
@@ -2800,7 +2719,6 @@ public class ReportsGenerator
 
       try {
         sourceMetadataReport = new SourceMetadataReport();
-        sourceMetadataReport.setMidService(data_source.getServiceName());
         Statement stmt = data_source.createStatement();
         ResultSet rs = stmt.executeQuery(query);
         final ArrayList newSources = new ArrayList();
@@ -3176,7 +3094,7 @@ public class ReportsGenerator
         sourceMetadataReport.setSourceDifferences(sourceDifferences);
 
         ThreadGroup tg = new ThreadGroup("Differences");
-        Thread[] th = new Thread[4];
+        Thread[] th = new Thread[3];
         th[1] = new Thread(tg,new Runnable() {
           public void run() {
             // MEMEToolkit.logComment("  Starting AttributeName Differences", true);
@@ -3445,139 +3363,6 @@ public class ReportsGenerator
             }
           }
         });
-        th[3] = new Thread(tg, new Runnable() {
-            public void run() {
-               // MEMEToolkit.logComment("  Starting Suppress Termgroup Differences", true);
-              StringBuffer sb = new StringBuffer();
-              /*
-                1. flag 1 - ttys that have current source name and inserted before current source's real insertion date
-                2. flag 2 - ttys that have current source name and inserted after current source's real insertion date
-                3. flag 2 - ttys that have previous source name
-                   current_source count = flag 1 + flag 2  (2)
-                   previous_source count = flag 1 + flag 2 (3)
-              */
-              sb.append(" SELECT b.source, tty, suppressible, sum(ct) ct")
-              .append(" FROM ")
-              .append(" (SELECT source, tty, suppressible, flag, count(*) ct FROM ")
-              .append("   (SELECT /*+ parallel(a) */ a.source, a.tty, a.suppressible, DECODE(is_current, ")
-              .append("        'Y', DECODE(a.released, 'N', 2, 1), 2) flag   ")
-              .append("    FROM classes a,  ")
-              .append("    (SELECT src.source, DECODE(src.source, c.current_name, 'Y','N') is_current ")
-              .append("     FROM source_rank src, source_version c, sims_info si ")
-              .append("     WHERE src.stripped_source = c.source ")
-              .append("       AND src.source = si.source ")
-              .append("       AND si.remove_meta_version IS NULL ) src ")
-              .append("    WHERE a.source = src.source  ")
-              .append("      AND NOT (a.tobereleased IN ('N','n') ")
-              .append("           AND a.released = 'N')")
-              .append("      ) ")
-              .append("  GROUP BY source, tty, suppressible, flag ) a , ")
-              .append(" (SELECT 1 flag, current_name as current_name, current_name as source ")
-              .append("  FROM source_version ")
-              .append("  WHERE current_name IS NOT NULL ")
-              .append("  UNION ")
-              .append("  SELECT 2 flag, current_name as current_name, current_name as source ")
-              .append("  FROM source_version ")
-              .append("  WHERE current_name IS NOT NULL ")
-              .append("  UNION ")
-              .append("  SELECT DECODE((SELECT count(*) FROM source_version WHERE current_name=d.source) ")
-              .append("                ,0,2,1) flag, a.source as current_name, b.source as source")
-              .append("  FROM source_rank a, sims_info b, source_rank c, sims_info d ")
-              .append("  WHERE b.insert_meta_version IS NOT NULL ")
-              .append("  AND b.remove_meta_version IS NULL ")
-              .append("  AND b.source NOT IN (SELECT current_name FROM source_version WHERE current_name IS NOT NULL) ")
-              .append("  AND b.source = c.source ")
-              .append("  AND a.stripped_source = c.stripped_source ")
-              .append("  AND a.source = d.source ")
-              .append("  AND NVL(d.insert_meta_version, b.insert_meta_version) = b.insert_meta_version ")
-              .append("  AND d.remove_meta_version IS NULL ")
-              .append("  ) b ")
-              .append(" WHERE a.flag = b.flag ")
-              .append(" AND a.source = b.current_name ")
-              .append(" GROUP BY b.source, tty, suppressible ");
-             String query = sb.toString();
-              String source = null;
-              try {
-                 // MEMEToolkit.logComment("  Creating Statement Suppress Termgroup Differences", true);
-                Statement stmt = data_source.createStatement();
-                 // MEMEToolkit.logComment("  Executing Statement Suppress Termgroup Differences", true);
-                ResultSet rs = stmt.executeQuery(query);
-                 // MEMEToolkit.logComment("  Processed Statement Suppress Termgroup Differences", true);
-                Map oldValues = new HashMap();
-                Map newValues = new HashMap();
-                // Read termgroups
-                while (rs.next()) {
-                  source = rs.getString("source");
-                  String key = rs.getString("tty") + "|" + rs.getString("suppressible");
-                  Source tempSource = data_source.getSource(source);
-                  if ( oldSources.contains(tempSource) ||
-                        obsoleteSources.contains(tempSource) ||
-                        unchangedSources.contains(tempSource) ) {
-                    Value value = new Value();
-                    value.setValue(key);
-                    if (oldValues.containsKey(key)) {
-                      value = (Value) oldValues.get(key);
-                    }
-                    value.setCount(tempSource.getSourceAbbreviation(),
-                                   rs.getInt("ct"));
-                    value.setSourceAbbreviation(tempSource.getSourceAbbreviation());
-                    oldValues.put(key, value);
-                  }
-                  if ( newSources.contains(tempSource) ||
-                        updateSources.contains(tempSource) ||
-                        unchangedSources.contains(tempSource) ) {
-                    Value value = new Value();
-                    value.setValue(key);
-                    if (newValues.containsKey(key)) {
-                      value = (Value) newValues.get(key);
-                    }
-                    value.setCount(tempSource.getSourceAbbreviation(),
-                                   rs.getInt("ct"));
-                    value.setSourceAbbreviation(tempSource.getSourceAbbreviation());
-                    newValues.put(key, value);
-                  }
-                }
-                // Close statement
-                stmt.close();
-                SourceDifference sourceDifference = new SourceDifference();
-                sourceDifference.setName("SUPPRESS");
-                sourceDifference.setNewValues( (Value[]) newValues.values().
-                                              toArray(new
-                    Value[0]));
-                sourceDifference.setOldValues( (Value[]) oldValues.values().
-                                              toArray(new
-                    Value[0]));
-                sourceMetadataReport.setSuppressibleDifferences(new SourceDifference[] {
-                    sourceDifference});
-                 // MEMEToolkit.logComment("  Finished Suppress Termgroup Differences", true);
-              }
-              catch (SQLException se) {
-                DataSourceException dse = new DataSourceException(
-                    "Failed to look up suppressible info.", query, se);
-                dse.setDetail("query", query);
-                se.printStackTrace();
-                MEMEToolkit.handleError(dse);
-              }
-              catch (BadValueException bve) {
-                DataSourceException dse = new DataSourceException(
-                    "Failed to source metadata report.", source, bve);
-                bve.printStackTrace();
-                MEMEToolkit.handleError(dse);
-              }
-              catch (DataSourceException dse) {
-                dse.printStackTrace();
-                MEMEToolkit.handleError(dse);
-              }
-              catch (Exception e) {
-                e.printStackTrace();
-                BadValueException bve = new BadValueException(
-                    "Invalid source value");
-                bve.setEnclosedException(e);
-                bve.setDetail("source", source);
-                MEMEToolkit.handleError(bve);
-              }
-            }
-          });
         th[2] = new Thread(tg, new Runnable() {
           public void run() {
             // MEMEToolkit.logComment("  Starting RelationshipAttribute Differences", true);
@@ -3589,96 +3374,62 @@ public class ReportsGenerator
                  current_source count = flag 1 + flag 2  (2)
                  previous_source count = flag 1 + flag 2 (3)
             */
-            sb.append(
-            		"WITH relsa AS (SELECT rui, relationship_attribute, source, released FROM relationships" + 
-            		"               WHERE NOT (tobereleased IN ('N','n')" + 
-            		"                 AND released = 'N') )," + 
-            		"relsb AS (SELECT inverse_rui as rui, inverse_rel_attribute as relationship_attribute, source, released" + 
-            		"          FROM relationships r, inverse_rel_attributes a, inverse_relationships_ui i" + 
-            		"          WHERE nvl(r.relationship_attribute,'null') = nvl(a.relationship_attribute,'null')" + 
-            		"            AND r.rui = i.rui" + 
-            		"            AND NOT (r.tobereleased IN ('N','n') AND r.released = 'N') )," + 
-            		"relsc AS (SELECT rui, relationship_attribute, source, released FROM context_relationships" + 
-            		"          WHERE NOT (tobereleased IN ('N','n')" + 
-            		"            AND released = 'N') )," + 
-            		"relsd AS (SELECT inverse_rui as rui, inverse_rel_attribute as relationship_attribute, source, released" + 
-            		"          FROM context_relationships r, inverse_rel_attributes a, inverse_relationships_ui i" + 
-            		"          WHERE nvl(r.relationship_attribute,'null') = nvl(a.relationship_attribute,'null')" + 
-            		"            AND NOT (r.tobereleased IN ('N','n')" + 
-            		"            AND r.released = 'N')" + 
-            		"            AND r.rui = i.rui )," + 
-            		"flags AS (SELECT 1 flag, current_name as current_name, current_name as source" + 
-            		"          FROM source_version" + 
-            		"          WHERE current_name IS NOT NULL" + 
-            		"          UNION" + 
-            		"          SELECT 2 flag, current_name as current_name, current_name as source" + 
-            		"          FROM source_version" + 
-            		"          WHERE current_name IS NOT NULL" + 
-            		"          UNION" + 
-            		"          SELECT DECODE((SELECT count(*) FROM source_version WHERE current_name=d.source)" + 
-            		"                         ,0,2,1) flag, a.source as current_name, b.source as source" + 
-            		"          FROM source_rank a, sims_info b, source_rank c, sims_info d" + 
-            		"          WHERE b.insert_meta_version IS NOT NULL" + 
-            		"            AND b.remove_meta_version IS NULL" + 
-            		"            AND b.source NOT IN (SELECT current_name FROM source_version WHERE current_name IS NOT NULL)" + 
-            		"            AND b.source = c.source" + 
-            		"            AND a.stripped_source = c.stripped_source" + 
-            		"            AND a.source = d.source" + 
-            		"            AND NVL(d.insert_meta_version, b.insert_meta_version) = b.insert_meta_version" + 
-            		"            AND d.remove_meta_version IS NULL) ," + 
-            		"src AS (SELECT src.source, DECODE(src.source, c.current_name, 'Y','N') is_current" + 
-            		"        FROM source_rank src, source_version c, sims_info si" + 
-            		"        WHERE src.stripped_source = c.source" + 
-            		"          AND src.source = si.source" + 
-            		"          AND si.remove_meta_version IS NULL )" + 
-            		"SELECT /*+ PARALLEL(a 4 ) */ * FROM (" + 
-            		"        SELECT b.source, relationship_attribute, sum(ct) ct" + 
-            		"        FROM" + 
-            		"            (SELECT source, relationship_attribute, flag, count(*) ct FROM" + 
-            		"              (SELECT a.source, a.relationship_attribute, DECODE(is_current," + 
-            		"                   'Y', DECODE(a.released, 'N', 2, 1), 2) flag" + 
-            		"               FROM relsa a, src" + 
-            		"               WHERE a.source = src.source )" + 
-            		"             GROUP BY source, relationship_attribute, flag ) a , flags b" + 
-            		"            WHERE a.flag = b.flag" + 
-            		"            AND a.source = b.current_name" + 
-            		"            GROUP BY b.source, relationship_attribute" + 
-            		"        UNION ALL" + 
-            		"        SELECT b.source, relationship_attribute, sum(ct) ct" + 
-            		"            FROM" + 
-            		"            (SELECT source, relationship_attribute, flag, count(*) ct FROM" + 
-            		"              (SELECT a.source, a.relationship_attribute, DECODE(is_current," + 
-            		"                   'Y', DECODE(a.released, 'N', 2, 1), 2) flag" + 
-            		"               FROM relsb a, src" + 
-            		"               WHERE a.source = src.source )" + 
-            		"             GROUP BY source, relationship_attribute, flag ) a , flags b" + 
-            		"            WHERE a.flag = b.flag" + 
-            		"            AND a.source = b.current_name" + 
-            		"            GROUP BY b.source, relationship_attribute" + 
-            		"        UNION ALL" + 
-            		"        SELECT b.source, relationship_attribute, sum(ct) ct" + 
-            		"            FROM" + 
-            		"            (SELECT source, relationship_attribute, flag, count(*) ct FROM" + 
-            		"              (SELECT a.source, a.relationship_attribute, DECODE(is_current," + 
-            		"                   'Y', DECODE(a.released, 'N', 2, 1), 2) flag" + 
-            		"               FROM relsc a, src" + 
-            		"               WHERE a.source = src.source )" + 
-            		"             GROUP BY source, relationship_attribute, flag ) a , flags b" + 
-            		"            WHERE a.flag = b.flag" + 
-            		"            AND a.source = b.current_name" + 
-            		"            GROUP BY b.source, relationship_attribute" + 
-            		"        UNION ALL" + 
-            		"        SELECT b.source, relationship_attribute, sum(ct) ct" + 
-            		"            FROM" + 
-            		"            (SELECT source, relationship_attribute, flag, count(*) ct FROM" + 
-            		"              (SELECT a.source, a.relationship_attribute, DECODE(is_current," + 
-            		"                   'Y', DECODE(a.released, 'N', 2, 1), 2) flag" + 
-            		"               FROM relsd a, src" + 
-            		"               WHERE a.source = src.source )" + 
-            		"             GROUP BY source, relationship_attribute, flag ) a , flags b" + 
-            		"            WHERE a.flag = b.flag" + 
-            		"            AND a.source = b.current_name" + 
-            		"            GROUP BY b.source, relationship_attribute) a");
+            sb.append(" SELECT b.source, relationship_attribute, sum(ct) ct")
+            .append(" FROM ")
+            .append(" (SELECT source, relationship_attribute, flag, count(*) ct FROM ")
+            .append("   (SELECT /*+ parallel(a) */ a.source, a.relationship_attribute, DECODE(is_current, ")
+            .append("        'Y', DECODE(a.released, 'N', 2, 1), 2) flag   ")
+            .append("    FROM (SELECT rui, relationship_attribute, source, released FROM relationships " )
+            .append("          WHERE NOT (tobereleased IN ('N','n') ")
+            .append("           AND released = 'N')")
+            .append("          UNION ALL " )
+            .append("          SELECT /*+ USE_HASH(r,i) */ inverse_rui as rui, inverse_rel_attribute as relationship_attribute, source, released " )
+            .append("          FROM relationships r, inverse_rel_attributes a, inverse_relationships_ui i " )
+            .append("          WHERE r.relationship_attribute = a.relationship_attribute " )
+            .append("            AND r.rui = i.rui " )
+            .append("            AND NOT (r.tobereleased IN ('N','n') ")
+            .append("           AND r.released = 'N')")
+            .append("          UNION ALL " )
+            .append("          SELECT rui, relationship_attribute, source, released FROM context_relationships " )
+            .append("          WHERE NOT (tobereleased IN ('N','n') ")
+            .append("           AND released = 'N')")
+            .append("          UNION ALL " )
+            .append("          SELECT /*+ USE_HASH(r,i) */ inverse_rui as rui, inverse_rel_attribute as relationship_attribute, source, released " )
+            .append("          FROM context_relationships r, inverse_rel_attributes a, inverse_relationships_ui i " )
+            .append("          WHERE r.relationship_attribute = a.relationship_attribute " )
+            .append("            AND NOT (r.tobereleased IN ('N','n') ")
+            .append("           AND r.released = 'N')")
+            .append("            AND r.rui = i.rui) a , " )
+            .append("          (SELECT src.source, DECODE(src.source, c.current_name, 'Y','N') is_current ")
+            .append("           FROM source_rank src, source_version c, sims_info si ")
+            .append("           WHERE src.stripped_source = c.source ")
+            .append("             AND src.source = si.source ")
+            .append("             AND si.remove_meta_version IS NULL ) src ")
+            .append("    WHERE a.source = src.source )")
+            .append("  GROUP BY source, relationship_attribute, flag ) a , ")
+            .append(" (SELECT 1 flag, current_name as current_name, current_name as source ")
+            .append("  FROM source_version ")
+            .append("  WHERE current_name IS NOT NULL ")
+            .append("  UNION ")
+            .append("  SELECT 2 flag, current_name as current_name, current_name as source ")
+            .append("  FROM source_version ")
+            .append("  WHERE current_name IS NOT NULL ")
+            .append("  UNION ")
+            .append("  SELECT DECODE((SELECT count(*) FROM source_version WHERE current_name=d.source) ")
+            .append("                ,0,2,1) flag, a.source as current_name, b.source as source")
+            .append("  FROM source_rank a, sims_info b, source_rank c, sims_info d ")
+            .append("  WHERE b.insert_meta_version IS NOT NULL ")
+            .append("  AND b.remove_meta_version IS NULL ")
+            .append("  AND b.source NOT IN (SELECT current_name FROM source_version WHERE current_name IS NOT NULL) ")
+            .append("  AND b.source = c.source ")
+            .append("  AND a.stripped_source = c.stripped_source ")
+            .append("  AND a.source = d.source ")
+            .append("  AND NVL(d.insert_meta_version, b.insert_meta_version) = b.insert_meta_version ")
+            .append("  AND d.remove_meta_version IS NULL ")
+            .append("  ) b ")
+            .append(" WHERE a.flag = b.flag ")
+            .append(" AND a.source = b.current_name ")
+            .append(" GROUP BY b.source, relationship_attribute ");
 
             String query = sb.toString();
             String source = null;
@@ -3767,12 +3518,12 @@ public class ReportsGenerator
 
         for(int i = 0 ; i < th.length ; i++ ) {
           try {
-             // MEMEToolkit.logComment("  Join th[" + i + "] isAlive = " + th[i].isAlive(), true);
+            // MEMEToolkit.logComment("  Join th[" + i + "] isAlive = " + th[i].isAlive(), true);
             th[i].join();
-             // MEMEToolkit.logComment("  Return join th[" + i + "] isAlive = " + th[i].isAlive(), true);
+            // MEMEToolkit.logComment("  Return join th[" + i + "] isAlive = " + th[i].isAlive(), true);
           }catch (InterruptedException inte) {inte.printStackTrace();}
         }
-         // MEMEToolkit.logComment(" Active Thread Count in Group = " + tg.activeCount(), true);
+        // MEMEToolkit.logComment(" Active Thread Count in Group = " + tg.activeCount(), true);
         cacheReport = true;
         MEMEToolkit.logComment("  Finished cache source metadata report", true);
       }
@@ -3808,21 +3559,4 @@ public class ReportsGenerator
     thread = new Thread(this);
     thread.start();
   }
-  
-  private boolean isRxNormBaseAmbiguous(Atom atom)
-  {
-	  boolean retVal = false;
-// Only check for AMBIGUITY_FLAG=Base condition, irrespective of source.	  
-//	  if (!"RXNORM".equals(atom.getSource().getRootSourceAbbreviation()))
-//		  return retVal;
-	  final Attribute[] flags = atom.getAttributesByName("AMBIGUITY_FLAG");
-	  for (Attribute attribute : flags)
-	  if ("Base".equals(attribute.getValue()) && attribute.isReleasable()) 
-//			  && "RXNORM".equals(attribute.getSource().getRootSourceAbbreviation())
-	  {
-		  retVal = true; 
-		  break; 
-	  }
-	  return retVal;
-  }
- }
+}

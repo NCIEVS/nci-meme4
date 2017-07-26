@@ -65,7 +65,7 @@ worklists in active epochs meeting the default criteria.
 $javascript
 EOD
 
-    $html .= $query->start_form(-name=>"queryform", -method=>'POST', -action=>$query->url(-absolute=>1));
+    $html .= $query->start_form(-name=>"queryform", -method=>'POST', -action=>$query->url());
     $html .= $DBpost;
     $html .= $query->hidden(-name=>'doit', -value=>1, -override=>1);
     $html .= $query->hidden(-name=>'action', -value=>$action, -override=>1);
@@ -100,10 +100,7 @@ EOD
 
     @x = ();
     @x = $dbh->selectAllAsArray(<<"EOD");
-select distinct grp from $WORKLISTINFOTABLE where extract(year from assign_date) in (
-(extract (year from sysdate)),
-(extract (year from sysdate)-1)
-)
+select distinct grp from $WORKLISTINFOTABLE
 EOD
     unshift @x, $na;
     unshift @x, $null;
@@ -111,7 +108,7 @@ EOD
 
     @x = ();
     @x = $dbh->selectAllAsArray(<<"EOD");
-select distinct editor from $WORKLISTINFOTABLE where exists (select 1 from editors where editor=initials and cur='Y') order by editor
+select distinct editor from $WORKLISTINFOTABLE
 EOD
     unshift @x, $na;
     unshift @x, $null;

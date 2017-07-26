@@ -3,7 +3,6 @@
  * Package: gov.nih.nlm.meme.integrity
  * Object:  AbstractMergeMoveInhibitor
  *
- * 06/19/2006 BAC (1-AV8WP): MergeMoveInhibitor
  * 04/07/2006 RBE (1-AV8WP): File created
  * 
  *****************************************************************************/
@@ -18,8 +17,7 @@ import gov.nih.nlm.meme.common.Concept;
  * @author MEME Group
  */
 
-public abstract class AbstractMergeMoveInhibitor 
-  extends AbstractMoveInhibitor implements MergeInhibitor {
+public abstract class AbstractMergeMoveInhibitor extends AbstractMoveInhibitor {
 
   //
   // Constructors
@@ -47,6 +45,5 @@ public abstract class AbstractMergeMoveInhibitor
   public boolean validate(Concept source, Concept target) {
 	  return validate(source, target, source.getAtoms());
   }
-
   
 }

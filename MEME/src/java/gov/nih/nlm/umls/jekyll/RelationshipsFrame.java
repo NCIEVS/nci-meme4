@@ -1120,6 +1120,14 @@ public class RelationshipsFrame extends JFrame implements Transferable,
             t.start();
         } // actionPerformed()
 
+        public boolean isEnabled() {
+            if (JekyllKit.getEditorLevel() == 5) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
     } // DeleteRelsAction
 
     /**

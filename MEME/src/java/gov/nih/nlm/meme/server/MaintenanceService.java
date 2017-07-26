@@ -23,10 +23,7 @@ import gov.nih.nlm.meme.xml.MEMEServiceRequest;
 
 /**
  * Handles maintenance requests.
- * 
- * CHANGES
- * 09/10/2007 JFW (1-DBSLD): Modify isReEntrant to take a SessionContext argument 
- * 
+ *
  * @author MEME Group
  */
 
@@ -223,10 +220,9 @@ public class MaintenanceService implements MEMEApplicationService {
 
   /**
    * Returns <code>false</code>.
-   * @param context the {@link SessionContext}
    * @return <code>false</code>
    */
-  public boolean isReEntrant(SessionContext context) {
+  public boolean isReEntrant() {
     return false;
   }
 

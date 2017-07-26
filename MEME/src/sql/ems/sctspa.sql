@@ -1,7 +1,7 @@
 # All Spanish SNOMED concepts clustered by the semantic neighborhood,
 # i.e., English concepts with same SCUI.
 
-# bcarlsen@msdinc.com 4/2004
+# carlsen@apelon.com 4/2004
 # suresh@nlm.nih.gov 5/2004
 # suresh@nlm.nih.gov 5/2005 * EMS-3
 
@@ -12,12 +12,12 @@ from
 	  where tobereleased in ('Y','y') and source =
 	     (select current_name
 	           from source_version
-	           where source = 'SNOMEDCT_US')
+	           where source = 'SNOMEDCT')
 	  group by source_cui having count(distinct concept_id)>1) ) a,
   (select distinct concept_id, source_cui from classes
    where tobereleased in ('Y','y')
      and source =
-   (select current_name from source_version where source='SNOMEDCT_US')
+   (select current_name from source_version where source='SNOMEDCT')
      and source_cui in
       (select source_cui from classes
        where source =

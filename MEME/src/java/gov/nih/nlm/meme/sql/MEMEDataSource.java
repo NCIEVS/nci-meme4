@@ -2,10 +2,7 @@
  *
  * Package: gov.nih.nlm.meme.sql
  * Object:  MEMEDataSource
- * Version Information
- * 10/30/2007 TTN (1-FN4GD): add paginated feature to getContentViewMembers method 
- * 04/17/2007 BAC (1-E0JWB): New getNullLui() method.
- * 03/06/2007 3.12.4 SL (1-DNO15) : Adding a new interface findNDCConceptsFromCode to retrieve the NDC Code.
+ *
  *****************************************************************************/
 package gov.nih.nlm.meme.sql;
 
@@ -30,7 +27,6 @@ import gov.nih.nlm.meme.common.ContextPath;
 import gov.nih.nlm.meme.common.ContextRelationship;
 import gov.nih.nlm.meme.common.CoreData;
 import gov.nih.nlm.meme.common.Identifier;
-import gov.nih.nlm.meme.common.LUI;
 import gov.nih.nlm.meme.common.Language;
 import gov.nih.nlm.meme.common.LoggedError;
 import gov.nih.nlm.meme.common.MapSet;
@@ -929,16 +925,6 @@ public interface MEMEDataSource extends Connection {
    */
   public Iterator findStrings(SearchParameter param) throws DataSourceException;
 
-  
-  /**
-   * Finds the null LUI.
-   * @param param the {@link SearchParameter}.
-   * @return the {@link Iterator}.
-   * @throws DataSourceException if failed to find a matching string.
-   */
-  public LUI getNullLUI() throws DataSourceException;
-
-  
   /**
    * Finds a matching string.
    * @param params An array of object {@link SearchParameter}.
@@ -998,15 +984,6 @@ public interface MEMEDataSource extends Connection {
   public Iterator findConceptsFromString(SearchParameter param, Ticket ticket) throws
       DataSourceException;
 
-  /**
-   * Finds a matching concepts from NDC COde.
-   * @param param the {@link SearchParameter}.
-   * @param ticket the {@link Ticket}.
-   * @return the {@link Iterator}.
-   * @throws DataSourceException if failed to find a matching concepts.
-   */
-  public Iterator findNDCConceptsFromCode(String code,Ticket ticket) throws
-      DataSourceException;
   /**
    * Finds a matching concepts from string.
    * @param params An array of object {@link SearchParameter}.
@@ -1216,12 +1193,10 @@ public interface MEMEDataSource extends Connection {
   /**
    * Gets content view member.
    * @param member the {@link ContentViewMember}
-   * @param start the start index
-   * @param end the end index
    * @return An array of object {@link ContentViewMember}
    * @throws DataSourceException if failed to get content view members
    */
-  public ContentViewMember[] getContentViewMembers(ContentView member, int start, int end) throws
+  public ContentViewMember[] getContentViewMembers(ContentView member) throws
       DataSourceException;
 
   /**
@@ -1321,7 +1296,7 @@ public interface MEMEDataSource extends Connection {
    * @return the {@link MetaProperty}
    */
   public MetaProperty getMetaProperty(String key, String key_qualifier,
-                                      String value, String description);//naveen UMLS-60 added description parameter to getMetaProperty method
+                                      String value);
 
   /**
    * Returns a list of meta property object.

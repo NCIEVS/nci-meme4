@@ -241,7 +241,7 @@ sub PrintFooter {
 	      <address><a href="$cgi?db=$db&range=$range">Back to Index</a></address>
             </td>
 	    <td ALIGN=RIGHT VALIGN=TOP >
-	      <font size="-1"><address>Contact: <a href="mailto:jwong\@msdinc.com">Joanne Wong</a></address>
+	      <font size="-1"><address>Contact: <a href="mailto:jwong\@apelon.com">Joanne Wong</a></address>
 	      <address>Generated on:},scalar(localtime),qq{</address>
               <address>This page took $elapsed_time seconds to generate.</address>
 	      <address>};
@@ -313,7 +313,7 @@ sub PrintINDEX {
 };
 
     # set variables
-    $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl -d $db`;
+    $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl`;
     ($user,$password) = split /\//, $userpass;
     chop($password);
 
@@ -385,7 +385,7 @@ work.  Then select the work item to see details of that operation.
 sub PrintLIST_ACTIVITIES {
 
     # set variables
-    $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl -d $db`;
+    $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl`;
     ($user,$password) = split /\//, $userpass;
     chop($password);
 

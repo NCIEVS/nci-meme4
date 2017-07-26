@@ -7,55 +7,6 @@ CREATE OR REPLACE PACKAGE MEME_SOURCE_PROCESSING AS
  * to perform SOURCE PROCESSING operations
  * 
  * Changes
- * 08/03/2012 AR:  Removed PARALLEL hints from "source_replacment" and "assign_atuis"
- * 03/15/2012 PM : Optimized source_replacement() for attributes and context_relationships.
- * 03/07/2012 BAC (artf1424): remove parallel hints from sections that were very slow during SCT insertion
- * 12/15/2011 BAC (artf1344): improve performance of map_sg_fields_all for SRUI cases
- * 08/30/2010 BAC (1-Q6GN9): One more bug fix in delete_demotions that leaves too many demotions around.
- * 05/26/2010 BAC (1-Q6GN9): Fix bug in delete_demotions that leaves too many demotions around.
- * 05/06/2009 BAC (1-GCLINT): Remove ORACLE PARALLEL hint in queries from assign_atuis and assign_ruis.
- * 04/17/2009 BAC (1-GCLINT): Allow insert_ranks to run where the source.src or termgroups.src
- *     contain references to sources/termgroups already inserted.
- *  02/24/2009 BAC (1-GCLINT): 
- *     Avoid analyzing tables
- *     Parallelize assign_atuis "normalizing uis" routine
- *     Improve performance of assign_ruis
- *     Support more logging statements for better tracking
- *     Improve assign_string_uis performance
- *     Avoid creating indexes (they already exist now)
- *     Remove atom ordering from assign meme ids
- *     Improve source_replacement performance (optimized queries)
- *     Improve update_releasability performance by avoiding actions
- *     Improve delete_demotions performance
- *     Improve handling of sg_meme_id/data_type for rels
- *     Avoid creating/removing insertion indexes
- *  09/05/2008 BAC (1-IKI05): Fixed query that updates ids in src_qa_samples during source_replacement.
- *  01/31/2008 BAC (1-GCLNT): Insertion improvements (works with updated load_src.csh).
- *  01/24/2008 TTN (1-GAF41): STY ATUI changes - do not assign ATUIs for STY and NON_HUMAN attributes during insertion 
- *  10/17/2007 JFW (1-FJ4OX): Add set_atom_ordering procedure
- *  09/10/2007 JFW (1-FHBK3): Properly update source_id_map for R during source_replacement
- *  09/10/2007 JFW (1-DBSLY): Remove hard-coded references to L0028429 (null LUI)
- *  09/06/2007 JFW (1-F6VI1): Add source_classes_atoms to "Set official name" in insert_ranks
- *  08/20/2007 SL  (1-F1AMN): Removing the VSAB dependency on stripped source.
- *  06/14/2007 JFW (1-EHXLB): Add "Set official name" functionality to insert_ranks 
- *  03/30/2007 JFW (1-DYD4R): reinstate ADD_HASH without PARALLEL hints in source_replacement
- *  03/02/2007 TTN (1-D3BQF): add SRC_REL_ID sg_type
- *  12/22/2006 BAC (1-D44YB): fix to map_sg_fields for 'CUI' types.
- *  02/28/2007 BAC (1-DM5MR): safe_replacement needs to use string_clause.
- *  02/23/2007 BAC (1-DKO45): assign_meme_ids no longer reverses RELAs for 'CR'
- *                            map_to_meme_ids no longer maps 'CR' parent_treenum
- *  12/22/2006 BAC (1-D44YB): fix to map_sg_fields for 'CUI' types.
- *  11/16/2006 BAC (1-CTST3): Patch to ISUI,LUI query of assign_string_uis to accommodate
- *                            LVG bug that allows same ISUI to have >1 LUI.
- *  10/30/2006 BAC (1-CNG9V): Bug in "new" AUI and RUI reporting was fixed.
- *  08/31/2006 TTN(1-C261E): use the ranking algorithm from MEME_RANKS
- *  08/29/2006 SL (1-C17ND)  Adding Oracle10g performance like analyze staments
- *  08/08/2006 BAC(1-BV4YH): delete_demotions no longer allows C level rels
- *                           to be approved if a demotion still exists.
- *  08/01/2006 BAC (1-BTDSF): Support SRC_ATOM_ID qualifiers: CODE,SOURCE_[ACD]UI
- *  06/09/2006 BAC (noticket): minor cleanup with tmp4||'_2' table in replacement_merges
- *  05/30/2006 BAC (1-BCQ39): map_obsolete_rels allowed to move "mappable" types.  
- *                            map_sg_data may remap them later, but this saves some strife here.
  *  05/03/2006 BAC (1-B2U2L): Minor map_obsolete_rels changes to account for source_replacement
  *                            and no_remap_sg_type logic.
  *  03/20/2006 BAC (1-AQDMZ): source_repl for 'A' handles SEMANTIC_TYPE properly
@@ -633,12 +584,6 @@ CREATE OR REPLACE PACKAGE MEME_SOURCE_PROCESSING AS
       authority 	  IN VARCHAR2,
       work_id		  IN INTEGER  := 0);
 
-   FUNCTION create_rank_table(
-      sg_type             IN VARCHAR2,
-      table_name          IN VARCHAR2,
-      str_pad             IN VARCHAR2
-   ) RETURN VARCHAR2;
-
    PROCEDURE map_sg_fields(
       table_name	  IN VARCHAR2,
       pair_flag 	  IN VARCHAR2 := MEME_CONSTANTS.NO,
@@ -664,12 +609,6 @@ CREATE OR REPLACE PACKAGE MEME_SOURCE_PROCESSING AS
    PROCEDURE drop_insertion_indexes(
       authority	          IN VARCHAR2,
       work_id		  IN INTEGER  := 0);
-   
-   PROCEDURE set_atom_ordering(
-       source		  IN VARCHAR2,
-       ordering		  IN VARCHAR2,
-       authority	  IN VARCHAR2,
-       work_id		  IN INTEGER := 0);
 
 END meme_source_processing;
 /
@@ -949,7 +888,6 @@ BEGIN
 
    MEME_UTILITY.sub_timing_start;
    
-/**
    msp_location := '10';
    MEME_SYSTEM.analyze(l_table);
 
@@ -957,13 +895,13 @@ BEGIN
    msp_location := '20';
    SELECT count(*) INTO stats_ct
    FROM user_indexes WHERE table_name ='ATOMS_UI'
-   AND (last_analyzed is null OR last_analyzed < (sysdate-1));
+   AND last_analyzed is null;
 
-    -- Soma Changing for 10g performance
    IF stats_ct > 0 THEN
-     MEME_SYSTEM.analyze('atoms_ui');
+       msp_location := '30';
+       MEME_SYSTEM.analyze('atoms_ui');
    END IF;
-**/
+
    MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::assign_auis',
     	'Done preparing statistics.',0,work_id,0,20);
 
@@ -977,7 +915,8 @@ BEGIN
 	     AND b.stripped_source = d.stripped_source
 	     AND a.source = c.source 
 	     AND c.normalized_source = d.source
-	     AND a.tty = b.tty
+	     AND (a.termgroup like ''%/''||b.tty OR
+	          a.tty = b.tty)
   	     AND NVL(a.source_aui,''null'') = NVL(b.source_aui,''null'')
   	     AND NVL(a.source_cui,''null'') = NVL(b.source_cui,''null'')
   	     AND NVL(a.source_dui,''null'') = NVL(b.source_dui,''null'')
@@ -994,7 +933,7 @@ BEGIN
    MEME_UTILITY.drop_it('table','source_classes_aui');
    msp_location := '60';
    local_exec('
-	CREATE TABLE source_classes_aui NOLOGGING AS
+	CREATE TABLE source_classes_aui AS
 	SELECT DISTINCT 0 as aui, sui, d.stripped_source,c.tty,
 	   code, a.source_aui,
 	   a.source_cui, a.source_dui
@@ -1006,14 +945,15 @@ BEGIN
           AND a.aui IS NULL AND a.tobereleased in (''Y'',''y'') ');
 
    msp_location := '70';
-   EXECUTE IMMEDIATE 'UPDATE source_classes_aui SET aui = rownum';
+   local_exec('UPDATE source_classes_aui SET aui = rownum');
+
    MEME_UTILITY.put_message(SQL%ROWCOUNT || ' new auis assigned.');
 
    MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::assign_auis',
     	'Done assigning new AUI',0,work_id,0,40);
 
    msp_location := '70.1';
-   --MEME_SYSTEM.analyze('source_classes_aui');
+   MEME_SYSTEM.analyze('source_classes_aui');
 
    msp_location := '80';
    aui_ct :=MEME_UTILITY.exec_select('SELECT COUNT(*) FROM source_classes_aui');
@@ -1043,14 +983,14 @@ BEGIN
    msp_location := '110.3';
    EXECUTE IMMEDIATE
 	'CREATE TABLE new_atoms_ui 
-	  (aui, sui, stripped_source, tty, code, source_aui, source_cui, source_dui) NOLOGGING AS
+	  (aui, sui, stripped_source, tty, code, source_aui, source_cui, source_dui) AS
 	SELECT /*+ PARALLEL(a) */ ''' || aui_prefix || ''' || 
 		LPAD(aui, ' || aui_length || ', 0), sui, 
 	  stripped_source, tty, code, source_aui, source_cui, source_dui
 	FROM source_classes_aui a';
 
    msp_location := '115';
-   local_exec('	CREATE INDEX x_new_atoms_ui on new_atoms_ui (sui,stripped_source,tty) TABLESPACE MIDI NOLOGGING');
+   local_exec('	CREATE INDEX x_new_atoms_ui on new_atoms_ui (sui,stripped_source,tty) TABLESPACE MIDI');
 
    MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::assign_auis',
     	'Done creating table new_atoms_ui',0,work_id,0,80);
@@ -1144,7 +1084,6 @@ IS
 
 BEGIN
 
-   MEME_UTILITY.put_message('Starting assign_atuis');
    MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::assign_atuis',
     	'Starting assign_atuis',0,work_id,0,1);
 
@@ -1156,25 +1095,24 @@ BEGIN
 
    MEME_UTILITY.sub_timing_start;
 
-   -- Prep the table by setting sg_id, sg_type, sg_qualifier
-
-   -- Use RUI where the type is SRC_REL_ID
-   msp_location := '5.0';
+   --
+   -- Make releasable data unreleasable if they are connected to
+   -- unreleasable atoms at this point
+   --
+   msp_location := '3.1';
    EXECUTE IMMEDIATE
-     'UPDATE ' || l_table || ' a
-      SET (sg_id,sg_type,sg_qualifier) = 
-         (SELECT rui,''RUI'',null 
-          FROM relationships b 
-          WHERE relationship_id = sg_meme_id
-          UNION ALL
-          SELECT rui,''RUI'', null
-          FROM context_relationships b
-          WHERE relationship_id = sg_meme_id)
-      WHERE sg_type = ''SRC_REL_ID'' ';
-
+       'UPDATE /*+ PARALLEL(a) */ ' || l_table || ' a
+        SET tobereleased = ''n''
+        WHERE tobereleased not in (''n'',''N'')
+          AND attribute_level = ''S''
+          AND atom_id IN 
+          (SELECT atom_id FROM classes WHERE tobereleased in (''n'',''N''))';
+ 
    COMMIT;
 
-   -- Use AUI where the type is not mappable and the level is S
+   -- Prep the table by setting sg_id, sg_type, sg_qualifier
+   -- It's AUI where the type is not mappable and the level is S
+   -- It's CONCEPT_ID where the type is not mappable and the level is C
    msp_location := '5.1';
    EXECUTE IMMEDIATE
      'UPDATE ' || l_table || ' a
@@ -1189,25 +1127,18 @@ BEGIN
    MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::assign_atuis',
     	'Done preparing table',0,work_id,0,10);
 
-   -- OLD: Do not convert CUI assigned things (e.g. insertion STYs)
-   --    is there still a reason for that??? changing it
-   --    STYs should always go in as CONCEPT_ID with a null ATUI value
-   --    STY ATUIs are entirely and completely assigned as a pre-production op.
-   -- Use CONCEPT_ID where the type is not mappable and the level is C
    msp_location := '5.2';
    EXECUTE IMMEDIATE
      'UPDATE ' || l_table || ' a
-      SET sg_id = to_char(concept_id),
-          sg_type = ''CONCEPT_ID'',
-          sg_qualifier = null
+      SET sg_id = to_char(concept_id), 
+	  sg_type = ''CONCEPT_ID'', 
+	  sg_qualifier = null
       WHERE attribute_level = ''C''
-        AND ( attribute_name = ''SEMANTIC_TYPE''
-              OR
-              NVL(sg_type,''null'') NOT IN
-                   (SELECT code FROM code_map WHERE type=''map_sg_type''))
-        AND nvl(sg_type,''null'') NOT IN (''CONCEPT_ID'',''CUI'') ';
+        AND (attribute_name = ''SEMANTIC_TYPE'' OR
+	     NVL(sg_type,''null'') NOT IN 
+	      (SELECT code FROM code_map WHERE type=''map_sg_type''))
+      AND nvl(sg_type,''null'') != ''CONCEPT_ID'' ';
    COMMIT;
-
 
    --
    -- To preserver ATUI values over time, we should use the ROOT  
@@ -1254,17 +1185,17 @@ BEGIN
 
    COMMIT;
 
-   MEME_UTILITY.put_message('Done normalizing UI types');
-/**
    -- ANALYZE l_table if no statistics
    msp_location := '10';
    SELECT count(*) INTO stats_ct
    FROM user_indexes WHERE table_name = upper(l_table)
-   AND (last_analyzed is null OR last_analyzed < (sysdate-1));
+   AND last_analyzed is null;
 
    IF stats_ct > 0 THEN
+       msp_location := '15';
        MEME_SYSTEM.analyze(l_table);
    END IF;
+
    MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::assign_atuis',
     	'Done analyzing table',0,work_id,0,40);
 
@@ -1272,97 +1203,68 @@ BEGIN
    msp_location := '20';
    SELECT count(*) INTO stats_ct
    FROM user_indexes WHERE table_name ='ATTRIBUTES_UI'
-   AND (last_analyzed is null OR last_analyzed < (sysdate-1));
+   AND last_analyzed is null;
+
    IF stats_ct > 0 THEN
-       MEME_SYSTEM.analyze('ATTRIBUTES_UI');
+       msp_location := '30';
+       MEME_SYSTEM.analyze('attributes_ui');
    END IF;
 
    MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::assign_atuis',
     	'Done analyzing attributes_ui',0,work_id,0,60);
-   MEME_UTILITY.put_message('Done analyzing attributes_ui');
-**/
-   
+
    -- Assign ATUI (only where not assigned and where releasable)
    -- Note: the hashcode can be null in the case of DA,MR,ST,and MED<year>
    -- attributes
    msp_location := '40.1';
    MEME_UTILITY.drop_it('table','source_attributes_atui_map');
    msp_location := '40.2';
-   IF l_table = 'source_attributes' THEN
-     EXECUTE IMMEDIATE
-        'CREATE TABLE source_attributes_atui_map NOLOGGING AS
-         SELECT a.attribute_id, b.atui
-         FROM ' || l_table || ' a, attributes_ui b, source_rank ns, source_rank rs
-         WHERE a.atui IS NULL
-         AND a.tobereleased not in (''N'',''n'')
-         AND b.root_source = rs.stripped_source
-         AND ns.normalized_source = rs.source
+   EXECUTE IMMEDIATE 
+	'CREATE TABLE source_attributes_atui_map AS
+      	 SELECT /*+ PARALLEL(b) USE_HASH(a,b) */ attribute_id, b.atui
+	 FROM 
+	   (SELECT /*+ PARALLEL(aa) */ attribute_id, attribute_level,
+	        DECODE(attribute_level,
+		 ''C'',''MTH'',
+		 ''S'',DECODE(SUBSTR(source,1,2),
+			''E-'',''MTH'',
+			''L-'',''MTH'',
+			''S-'',''MTH'', source)) source,
+		sg_id, sg_type, sg_qualifier, attribute_name,
+		hashcode, source_atui
+	    FROM ' || l_table || ' aa
+	    WHERE atui IS NULL
+	      AND tobereleased not in (''N'',''n'') ) a,
+	 attributes_ui b, source_rank ns, source_rank rs
+       WHERE a.attribute_level = b.attribute_level 
+	 AND b.root_source = rs.stripped_source
+	 AND ns.normalized_source = rs.source
          AND a.source = ns.source
-         AND a.attribute_level || a.attribute_name || a.source_atui || a.hashcode ||
-             a.sg_id || a.sg_type || a.sg_qualifier =
-             b.attribute_level || b.attribute_name || b.source_atui || b.hashcode ||
-             b.sg_id || b.sg_type || b.sg_qualifier
-         AND a.attribute_name||a.sg_type != ''SEMANTIC_TYPECONCEPT_ID''';
-    ELSE
-     EXECUTE IMMEDIATE
-        'CREATE TABLE source_attributes_atui_map NOLOGGING AS
-         SELECT attribute_id, b.atui
-         FROM
-           (SELECT attribute_id, attribute_level,
-                DECODE(attribute_level,
-                 ''C'',''MTH'',
-                 ''S'',DECODE(SUBSTR(source,1,2),
-                        ''E-'',''MTH'',
-                        ''L-'',''MTH'',
-                        ''S-'',''MTH'', source)) source,
-                sg_id, sg_type, sg_qualifier, attribute_name,
-                hashcode, source_atui
-            FROM ' || l_table || ' aa
-            WHERE atui IS NULL
-              AND tobereleased not in (''N'',''n'') ) a,
-         attributes_ui b, source_rank ns, source_rank rs
-       WHERE a.attribute_level = b.attribute_level
-         AND b.root_source = rs.stripped_source
-         AND ns.normalized_source = rs.source
-         AND a.source = ns.source
-         AND a.attribute_name = b.attribute_name
-         AND nvl(a.source_atui,''null'') = nvl(b.source_atui,''null'')
-         AND nvl(a.hashcode,''null'') = nvl(b.hashcode,''null'')
+	 AND a.attribute_name = b.attribute_name
+	 AND nvl(a.source_atui,''null'') = nvl(b.source_atui,''null'')
+	 AND nvl(a.hashcode,''null'') = nvl(b.hashcode,''null'')
          AND b.sg_type = a.sg_type
-         AND nvl(b.sg_qualifier,''null'') = nvl(a.sg_qualifier,''null'')
-         AND b.sg_id = a.sg_id
-         AND a.attribute_name||a.sg_type != ''SEMANTIC_TYPECONCEPT_ID''';
-    END IF;
-    msp_location := '40.3';
+	 AND nvl(b.sg_qualifier,''null'') = nvl(a.sg_qualifier,''null'')
+         AND b.sg_id = a.sg_id';
 
+    msp_location := '40.3';
     EXECUTE IMMEDIATE
-	'ALTER TABLE source_attributes_atui_map ADD PRIMARY KEY (attribute_id)'; 
- 	
-	MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::assign_atuis',
-    	'Done analyzing source_attributes_atui_map',0,work_id,0,40);
-    
-    MEME_UTILITY.put_message('Done creating and analyzing assignment table for existing ATUIs');
-    
+	'CREATE INDEX x_source_attributes_atui_map 
+  	 ON source_attributes_atui_map (attribute_id) TABLESPACE MIDI
+	 COMPUTE STATISTICS PARALLEL';
+
     msp_location := '40.4';
-    
-    EXECUTE IMMEDIATE           
-           'ALTER SESSION ENABLE PARALLEL DML';
-    msp_location := '40.4a';           
-    	EXECUTE IMMEDIATE
-    	    'MERGE /*+ first_rows parallel(a) parallel(new) */ INTO ' || l_table || ' a
-             USING source_attributes_atui_map new ON (a.attribute_id = new.attribute_id)
-             WHEN MATCHED THEN UPDATE SET
-             atui = new.atui where a.tobereleased in (''Y'',''y'') and a.atui is NULL';
-    
-/*    EXECUTE IMMEDIATE
-       'UPDATE (SELECT a.atui, b.atui new_atui 
-                FROM ' || l_table || ' a, source_attributes_atui_map b
-                WHERE a.tobereleased not in (''N'',''n'')
-                  AND a.atui IS NULL
-                  AND a.attribute_id = b.attribute_id)
-        SET atui = new_atui';
-*/
-   MEME_UTILITY.put_message(SQL%ROWCOUNT || ' atuis assigned');
+    EXECUTE IMMEDIATE
+       'UPDATE /*+ parallel(a) */ ' || l_table || ' a
+   	SET atui =
+          (SELECT DISTINCT atui FROM source_attributes_atui_map b
+	   WHERE a.attribute_id = b.attribute_id)
+	WHERE tobereleased not in (''N'',''n'')
+	  AND atui is null
+	  AND attribute_id IN 
+		(SELECT attribute_id FROM source_attributes_atui_map)';
+
+    MEME_UTILITY.put_message(SQL%ROWCOUNT || ' atuis assigned');
 
    MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::assign_atuis',
     	'Done assigning ATUI',work_id,0,70);
@@ -1372,41 +1274,40 @@ BEGIN
     msp_location := '50';
     MEME_UTILITY.drop_it('table','source_attributes_atui_map');
     msp_location := '60';
-    EXECUTE IMMEDIATE
-       'CREATE TABLE source_attributes_atui_map NOLOGGING AS
-        SELECT
-           attribute_id, rs.stripped_source as root_source,
-           attribute_level, attribute_name, hashcode,
-           sg_id, sg_type, sg_qualifier, a.source_atui
-        FROM ' || l_table || ' a, source_rank ns, source_rank rs
-        WHERE DECODE(attribute_level,
-                 ''C'',''MTH'',
-                 ''S'',DECODE(SUBSTR(a.source,1,2),
-                        ''E-'',''MTH'',
-                        ''L-'',''MTH'',
-                        ''S-'',''MTH'', a.source)) = ns.source
-          AND ns.normalized_source = rs.source
-          AND atui is null
-          AND tobereleased not in (''N'',''n'')
-         AND a.attribute_name||a.sg_type != 
-                        ''SEMANTIC_TYPECONCEPT_ID''';
-
- 	 MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::assign_atuis',
-    	'Done analyzing source_attributes_atui_map',0,work_id,0,40);
-    MEME_UTILITY.put_message('Done creating and analyzing table for new ATUIs');
+    EXECUTE IMMEDIATE 
+       'CREATE TABLE source_attributes_atui_map AS
+	SELECT /*+ PARALLEL(a) */ 
+	   attribute_id, rs.stripped_source as root_source,
+	   attribute_level, attribute_name, hashcode,
+	   sg_id, sg_type, sg_qualifier, a.source_atui
+	FROM ' || l_table || ' a, source_rank ns, source_rank rs
+	WHERE DECODE(attribute_level,
+		 ''C'',''MTH'',
+		 ''S'',DECODE(SUBSTR(a.source,1,2),
+			''E-'',''MTH'',
+			''L-'',''MTH'',
+			''S-'',''MTH'', a.source)) = ns.source
+	  AND ns.normalized_source = rs.source
+	  AND atui is null
+	  AND tobereleased not in (''N'',''n'')';
 
    msp_location := '50.1';
    MEME_UTILITY.drop_it('table','source_attributes_atui');
    msp_location := '60.1';
    EXECUTE IMMEDIATE
-       'CREATE TABLE source_attributes_atui NOLOGGING AS
-        SELECT rownum as atui, root_source,
-               attribute_level, attribute_name, hashcode,
-               sg_id, sg_type, sg_qualifier, source_atui
-        FROM (SELECT DISTINCT 0 as atui, root_source,
-                     attribute_level, attribute_name, hashcode,
-                    sg_id, sg_type, sg_qualifier, source_atui
-              FROM source_attributes_atui_map) ';
+       'CREATE TABLE source_attributes_atui AS
+	SELECT DISTINCT 0 as atui, root_source,
+	   attribute_level, attribute_name, hashcode,
+	   sg_id, sg_type, sg_qualifier, source_atui
+	FROM source_attributes_atui_map ';
+				
+   msp_location := '70';
+   EXECUTE IMMEDIATE 'UPDATE source_attributes_atui SET atui = rownum';
+
+   MEME_UTILITY.put_message(SQL%ROWCOUNT || ' new atuis assigned.');
+
+   msp_location := '70.1';
+   MEME_SYSTEM.analyze('source_attributes_atui');
 
    msp_location := '80';
    atui_ct :=
@@ -1435,7 +1336,7 @@ BEGIN
    EXECUTE IMMEDIATE
        'CREATE TABLE new_attributes_ui (atui, root_source, attribute_level,
 		attribute_name, hashcode, sg_id, sg_type, sg_qualifier, source_atui)
-	NOLOGGING AS SELECT ''' || atui_prefix || ''' ||
+	AS SELECT ''' || atui_prefix || ''' ||
 		LPAD(atui, ' || atui_length || ', 0), root_source, attribute_level,
 	 	attribute_name, hashcode, sg_id, sg_type, sg_qualifier, source_atui
 	FROM source_attributes_atui';
@@ -1443,87 +1344,63 @@ BEGIN
    msp_location := '110.1';
    EXECUTE IMMEDIATE
 	'CREATE INDEX x_naui on new_attributes_ui (sg_id, sg_type) TABLESPACE MIDI
-	 COMPUTE STATISTICS PARALLEL NOLOGGING';
+	 COMPUTE STATISTICS PARALLEL';
 
-	 /**
    msp_location := '115.1';
    MEME_SYSTEM.analyze('source_attributes_atui');
    msp_location := '115.2';
    MEME_SYSTEM.analyze('new_attributes_ui');
-**/
+
    MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::assign_atuis',
     	'Done assigning new ATUI',work_id,0,80);
-   MEME_UTILITY.put_message('Done assigning new ATUIs');
 
    -- Assign ATUI (only where not assigned and where releasable)
    msp_location := '120.0';
    MEME_UTILITY.drop_it('table','source_attributes_atui_map');
    msp_location := '120.1';
-   IF l_table = 'source_attributes' THEN
-     EXECUTE IMMEDIATE
-        'CREATE TABLE source_attributes_atui_map AS
-         SELECT /*+ USE_MERGE(a,b) */ attribute_id, b.atui
-         FROM ' || l_table || ' a, new_attributes_ui b, source_rank ns, source_rank rs
-         WHERE a.atui IS NULL
-         AND a.tobereleased not in (''N'',''n'')
-         AND b.root_source = rs.stripped_source
-         AND ns.normalized_source = rs.source
+   EXECUTE IMMEDIATE 
+	'CREATE TABLE source_attributes_atui_map AS
+      	 SELECT /*+ PARALLEL(b) USE_HASH(a,b) */ attribute_id, b.atui
+	 FROM 
+	   (SELECT /*+ PARALLEL(aa) */ attribute_id, attribute_level,
+	        DECODE(attribute_level,
+		 ''C'',''MTH'',
+		 ''S'',DECODE(SUBSTR(source,1,2),
+			''E-'',''MTH'',
+			''L-'',''MTH'',
+			''S-'',''MTH'', source)) source,
+		sg_id, sg_type, sg_qualifier, attribute_name,
+		hashcode, source_atui
+	    FROM ' || l_table || ' aa
+	    WHERE atui IS NULL
+	      AND tobereleased not in (''N'',''n'') ) a,
+	 new_attributes_ui b, source_rank ns, source_rank rs
+       WHERE a.attribute_level = b.attribute_level 
+	 AND b.root_source = rs.stripped_source
+	 AND ns.normalized_source = rs.source
          AND a.source = ns.source
-         AND a.attribute_level || a.attribute_name || a.source_atui || a.hashcode ||
-             a.sg_id || a.sg_type || a.sg_qualifier =
-             b.attribute_level || b.attribute_name || b.source_atui || b.hashcode ||
-             b.sg_id || b.sg_type || b.sg_qualifier
-         AND a.attribute_name||a.sg_type != ''SEMANTIC_TYPECONCEPT_ID''';
-    ELSE
-      EXECUTE IMMEDIATE
-        'CREATE TABLE source_attributes_atui_map NOLOGGING AS
-            -- Haining, Siebel C17ND, remove USE_HASH for 10g
-         SELECT attribute_id, b.atui
-         FROM
-           (SELECT attribute_id, attribute_level,
-                DECODE(attribute_level,
-                 ''C'',''MTH'',
-                 ''S'',DECODE(SUBSTR(source,1,2),
-                        ''E-'',''MTH'',
-                        ''L-'',''MTH'',
-                        ''S-'',''MTH'', source)) source,
-                sg_id, sg_type, sg_qualifier, attribute_name,
-                hashcode, source_atui
-            FROM ' || l_table || ' aa
-            WHERE atui IS NULL
-              AND tobereleased not in (''N'',''n'') ) a,
-         new_attributes_ui b, source_rank ns, source_rank rs
-       WHERE a.attribute_level = b.attribute_level
-         AND b.root_source = rs.stripped_source
-         AND ns.normalized_source = rs.source
-         AND a.source = ns.source
-         AND a.attribute_name = b.attribute_name
-         AND nvl(a.hashcode,''null'') = nvl(b.hashcode,''null'')
+	 AND a.attribute_name = b.attribute_name
+	 AND nvl(a.hashcode,''null'') = nvl(b.hashcode,''null'')
          AND b.sg_type = a.sg_type
-         AND nvl(b.sg_qualifier,''null'') = nvl(a.sg_qualifier,''null'')
-         AND nvl(b.source_atui,''null'') = nvl(a.source_atui,''null'')
+	 AND nvl(b.sg_qualifier,''null'') = nvl(a.sg_qualifier,''null'')
+	 AND nvl(b.source_atui,''null'') = nvl(a.source_atui,''null'')
          AND b.sg_id = a.sg_id';
-    END IF;
 
     msp_location := '120.2';
     EXECUTE IMMEDIATE
-	'ALTER TABLE source_attributes_atui_map ADD PRIMARY KEY (attribute_id)'; 
- 	 MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::assign_atuis',
-    	'Done analyzing source_attributes_atui_map',0,work_id,0,40);
+	'CREATE INDEX x_source_attributes_atui_map 
+  	 ON source_attributes_atui_map (attribute_id) TABLESPACE MIDI
+	 COMPUTE STATISTICS PARALLEL';
 
-    MEME_UTILITY.put_message('Done creating and analyzing assignment table for new ATUIs');
-
-    msp_location := '125';
+    msp_location := '120.3';
     EXECUTE IMMEDIATE
-       'UPDATE (SELECT a.atui, b.atui new_atui 
-                FROM ' || l_table || ' a, source_attributes_atui_map b
-                WHERE a.tobereleased not in (''N'',''n'')
-                  AND a.atui IS NULL
-                  AND a.attribute_id = b.attribute_id)
-        SET atui = new_atui';
-
-   msp_location := '127';
-   MEME_UTILITY.put_message(SQL%ROWCOUNT || ' new atuis assigned.');
+       'UPDATE ' || l_table || ' a
+   	SET atui =
+          (SELECT DISTINCT atui FROM source_attributes_atui_map b
+	   WHERE a.attribute_id = b.attribute_id)
+	WHERE tobereleased not in (''N'',''n'') AND atui IS NULL
+	  AND attribute_id IN 
+		(SELECT attribute_id FROM source_attributes_atui_map)';
 
    COMMIT;
 
@@ -1532,13 +1409,11 @@ BEGIN
 
    msp_location := '130';
    EXECUTE IMMEDIATE 
-	'INSERT /*+ APPEND */ INTO attributes_ui 
+	'INSERT INTO attributes_ui 
 	   (atui, root_source, attribute_level,
 	    attribute_name, hashcode, sg_id, sg_type, 
 	    sg_qualifier, source_atui)
 	 SELECT DISTINCT * FROM new_attributes_ui ';
-   MEME_UTILITY.put_message('Done loading new ATUIs');
-
    msp_location := '310';
    MEME_UTILITY.drop_it('table','source_attributes_atui');
    MEME_UTILITY.drop_it('table','source_attributes_atui_map');
@@ -1573,6 +1448,7 @@ EXCEPTION
 END assign_atuis;
 
 /* PROCEDURE ASSIGN_RUIS *************************************************
+
   Must be called after map_to_meme_ids
  */
 PROCEDURE assign_ruis(
@@ -1609,6 +1485,31 @@ BEGIN
 
    MEME_UTILITY.sub_timing_start;
 
+   --
+   -- Make releasable data unreleasable if they are connected to
+   -- unreleasable atoms at this point
+   --
+   msp_location := '3.1';
+   EXECUTE IMMEDIATE
+       'UPDATE /*+ PARALLEL(a) */ ' || l_table || ' a
+        SET tobereleased = ''n''
+        WHERE tobereleased not in (''n'',''N'')
+          AND relationship_level = ''S''
+          AND atom_id_1 IN 
+          (SELECT atom_id FROM classes WHERE tobereleased in (''n'',''N''))';
+
+   COMMIT;
+   
+   msp_location := '3.2';
+   EXECUTE IMMEDIATE
+       'UPDATE /*+ PARALLEL(a) */ ' || l_table || ' a
+        SET tobereleased = ''n''
+        WHERE tobereleased not in (''n'',''N'')
+          AND relationship_level = ''S''
+          AND atom_id_2 IN 
+          (SELECT atom_id FROM classes WHERE tobereleased in (''n'',''N''))';
+
+   COMMIT;
    
    -- Prep the table by setting sg_id_[12], sg_type_[12], sg_qualifier_[12]
    -- It's AUI where the type is not mappable and the level is S
@@ -1755,19 +1656,17 @@ BEGIN
    MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::assign_ruis',
     	'Done CODE_ROOT_SOURCE and CODE_ROOT_TERMGROUP',work_id,0,30);
 
-   MEME_UTILITY.put_message('Done normalizing UI types');
-
-/**
    -- ANALYZE l_table if no statistics
    msp_location := '10';
    SELECT count(*) INTO stats_ct
    FROM user_indexes WHERE table_name = upper(l_table)
-   AND (last_analyzed is null OR last_analyzed < (sysdate-1));
+   AND last_analyzed is null;
 
-   -- Soma changing 10g performance
    IF stats_ct > 0 THEN
+       msp_location := '15';
        MEME_SYSTEM.analyze(l_table);
    END IF;
+
    MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::assign_ruis',
     	'Done analyzing table',work_id,0,40);
 
@@ -1775,16 +1674,16 @@ BEGIN
    msp_location := '20';
    SELECT count(*) INTO stats_ct
    FROM user_indexes WHERE table_name ='RELATIONSHIPS_UI'
-   AND (last_analyzed is null OR last_analyzed < (sysdate-1));
+   AND last_analyzed is null;
+
    IF stats_ct > 0 THEN
-       MEME_SYSTEM.analyze('RELATIONSHIPS_UI');
+       msp_location := '30';
+       MEME_SYSTEM.analyze('relationships_ui');
    END IF;
 
    MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::assign_ruis',
     	'Done analyzing relationship_ui',work_id,0,50);
 
-   MEME_UTILITY.put_message('Done analyzing tables');
-**/
     msp_location := '40';
     -- Find matching RUIs 
     -- For C level rels, ignore rela if source != MTHRELA
@@ -1793,39 +1692,18 @@ BEGIN
     -- Create a table to do assignment
     msp_location := '50.1';
     MEME_UTILITY.drop_it('table','source_relationships_rui_map');
-    IF lower(l_table) = 'source_relationships' OR
-       lower(l_table) = 'source_context_relationships' THEN
-        msp_location := '50.2a';
-        EXECUTE IMMEDIATE
-            'CREATE TABLE source_relationships_rui_map NOLOGGING AS
-             SELECT a.relationship_id, b.rui
-             FROM ' || l_table || ' a, relationships_ui b,
-              source_rank ns, source_rank ss
-             WHERE a.relationship_level = b.relationship_level
-               AND b.root_source = ss.stripped_source
-               AND ns.normalized_source = ss.source
-               AND ns.source = a.source
-               AND a.relationship_name = b.relationship_name
-               AND a.relationship_attribute || a.source_rui || a.sg_qualifier_1 || a.sg_qualifier_2 ||
-                   a.sg_id_1 || a.sg_type_1 || a.sg_id_2 || a.sg_type_2 = 
-                   b.relationship_attribute || b.source_rui || b.sg_qualifier_1 || b.sg_qualifier_2 ||
-                   b.sg_id_1 || b.sg_type_1 || b.sg_id_2 || b.sg_type_2
-              AND a.relationship_level != ''P''
-              AND a.tobereleased not in (''N'',''n'') ';
-    ELSE
-        msp_location := '50.2b';
-        EXECUTE IMMEDIATE
-            'CREATE TABLE source_relationships_rui_map NOLOGGING AS
-            -- Haining, Siebel C17ND, remove USE_HASH for 10g
-             SELECT a.relationship_id, b.rui
-             FROM (SELECT relationship_id, DECODE(relationship_level,
+    msp_location := '50.2';
+    EXECUTE IMMEDIATE
+        'CREATE TABLE source_relationships_rui_map AS
+         SELECT /*+ PARALLEL(b) USE_HASH(a,b) */ a.relationship_id, b.rui 
+         FROM (SELECT /*+ PARALLEL(aa) */ relationship_id, DECODE(relationship_level,
                          ''C'',DECODE(source,''MTHRELA'',''MTHRELA'',''MTH''),
                          ''S'',DECODE(SUBSTR(source,1,2),
                                 ''E-'',''MTH'',
                                 ''L-'',''MTH'',
                                 ''S-'',''MTH'', source)) source,
                         relationship_level, relationship_name,
-                        relationship_attribute,
+                        relationship_attribute, 
                         sg_id_1, sg_type_1, sg_qualifier_1,
                         sg_id_2, sg_type_2, sg_qualifier_2, source_rui
                FROM ' || l_table || ' aa
@@ -1833,43 +1711,44 @@ BEGIN
                 AND tobereleased not in (''N'',''n'')
                ) a, relationships_ui b,
               source_rank ns, source_rank ss
-             WHERE a.relationship_level = b.relationship_level
-               AND b.root_source = ss.stripped_source
-               AND ns.normalized_source = ss.source
-               AND ns.source = a.source
-               AND a.relationship_name = b.relationship_name
-               AND (NVL(a.relationship_attribute,''null'') =
-                    NVL(b.relationship_attribute,''null'') OR
-                        (a.source not in (''MTHRELA'') AND a.relationship_level=''C'' AND
-                       b.relationship_attribute IS NULL))
-               AND NVL(a.source_rui,''null'') =
-                   NVL(b.source_rui,''null'')
-               AND b.sg_type_1 = a.sg_type_1
-               AND NVL(b.sg_qualifier_1,''null'') =
-                   NVL(a.sg_qualifier_1,''null'')
-               AND b.sg_id_1 = a.sg_id_1
-               AND b.sg_type_2 = a.sg_type_2
-               AND NVL(b.sg_qualifier_2,''null'') =
-                   NVL(a.sg_qualifier_2,''null'')
-               AND b.sg_id_2 = a.sg_id_2';
-    END IF;
-    
-    msp_location := '60.1';
-    EXECUTE IMMEDIATE
-	'ALTER TABLE source_relationships_rui_map ADD PRIMARY KEY (relationship_id)';
+         WHERE a.relationship_level = b.relationship_level
+           AND b.root_source = ss.stripped_source
+           AND ns.normalized_source = ss.source
+           AND ns.source = a.source
+           AND a.relationship_name = b.relationship_name
+           AND (NVL(a.relationship_attribute,''null'') = 
+                NVL(b.relationship_attribute,''null'') OR
+                    (a.source not in (''MTHRELA'') AND a.relationship_level=''C'' AND 
+                   b.relationship_attribute IS NULL))
+           AND NVL(a.source_rui,''null'') = 
+               NVL(b.source_rui,''null'')
+           AND b.sg_type_1 = a.sg_type_1
+           AND NVL(b.sg_qualifier_1,''null'') = 
+               NVL(a.sg_qualifier_1,''null'')
+           AND b.sg_id_1 = a.sg_id_1
+           AND b.sg_type_2 = a.sg_type_2
+           AND NVL(b.sg_qualifier_2,''null'') = 
+               NVL(a.sg_qualifier_2,''null'')
+           AND b.sg_id_2 = a.sg_id_2';
 
-	MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::assign_ruis',
-    	'Done creating source_relationships_rui_map',work_id,0,50);
-   MEME_UTILITY.put_message('Done creating and analyzing table for assigned RUIs');
-    
+    msp_location := '60.1';
+    MEME_UTILITY.drop_it('index','x_source_relationships_rui_map');
+    msp_location := '60.12';
+    EXECUTE IMMEDIATE
+	'CREATE INDEX x_source_relationships_rui_map 
+  	 ON source_relationships_rui_map (relationship_id) TABLESPACE MIDI
+	 COMPUTE STATISTICS PARALLEL';
+
     msp_location := '60.2';
     EXECUTE IMMEDIATE
-       'UPDATE (SELECT a.rui, b.rui new_rui
-                FROM ' || l_table || ' a, source_relationships_rui_map b
-                WHERE a.relationship_id = b.relationship_id
-                  AND a.tobereleased not in (''N'',''n'')
-                  AND a.rui IS NULL)
-        SET rui = new_rui';
+       'UPDATE /*+ PARALLEL(a) */ ' || l_table || ' a
+   	SET rui =
+          (SELECT DISTINCT rui FROM source_relationships_rui_map b
+	   WHERE a.relationship_id = b.relationship_id)
+	WHERE tobereleased not in (''N'',''n'')
+          AND rui is null
+	  AND relationship_id IN
+	   (SELECT relationship_id FROM source_relationships_rui_map)';
 
     MEME_UTILITY.put_message(SQL%ROWCOUNT || 
 		' ruis assigned (' || l_table || ')');
@@ -1885,32 +1764,31 @@ BEGIN
     MEME_UTILITY.drop_it('table','source_relationships_rui_map');
     msp_location := '120';
     EXECUTE IMMEDIATE
-           'CREATE TABLE source_relationships_rui_map NOLOGGING AS
-            SELECT
-                   relationship_id as rui, rs.stripped_source as root_source,
-                   relationship_level, relationship_name,
-                   DECODE(a.relationship_level,
+	   'CREATE TABLE source_relationships_rui_map AS
+	    SELECT /*+ PARALLEL(a) */
+	  	   relationship_id as rui, rs.stripped_source as root_source,
+	   	   relationship_level, relationship_name, 
+		   DECODE(a.relationship_level,
                             ''S'',relationship_attribute,
-                            DECODE(a.source,''MTHRELA'',relationship_attribute,
-                            null))
-                        as relationship_attribute,
-                   sg_id_1, sg_type_1, sg_qualifier_1,
-                   sg_id_2, sg_type_2, sg_qualifier_2, a.source_rui
-            FROM ' || l_table || ' a, source_rank ns, source_rank rs
-            WHERE DECODE(relationship_level,
-                 ''C'',''MTH'',
-                 ''S'',DECODE(SUBSTR(a.source,1,2),
-                        ''E-'',''MTH'',
-                        ''L-'',''MTH'',
-                        ''S-'',''MTH'', a.source)) = ns.source
-              AND ns.normalized_source = rs.source
-              AND rui is null
-              AND a.relationship_level != ''P''
-              AND a.tobereleased not in (''N'',''n'') ';
+		            DECODE(a.source,''MTHRELA'',relationship_attribute,
+			    null))
+			as relationship_attribute,
+	   	   sg_id_1, sg_type_1, sg_qualifier_1,
+	   	   sg_id_2, sg_type_2, sg_qualifier_2, a.source_rui
+	    FROM ' || l_table || ' a, source_rank ns, source_rank rs
+   	    WHERE DECODE(relationship_level,
+		 ''C'',''MTH'',
+		 ''S'',DECODE(SUBSTR(a.source,1,2),
+			''E-'',''MTH'',
+			''L-'',''MTH'',
+			''S-'',''MTH'', a.source)) = ns.source
+	      AND ns.normalized_source = rs.source
+	      AND rui is null
+    	      AND a.relationship_level != ''P''
+	      AND a.tobereleased not in (''N'',''n'') ';
 
-              MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::assign_ruis',
+   MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::assign_ruis',
     	'Done ignoring P level and unreleasable rels',work_id,0,70);
-   MEME_UTILITY.put_message('Done creating and analyzing table for new RUIs');
 
     -- Insert inverses (don't make duplicates).
     msp_location := '130';
@@ -1924,13 +1802,12 @@ BEGIN
 	      WHERE a.relationship_name = b.relationship_name
 	        AND NVL(a.relationship_attribute,''null'') = 
 		    NVL(c.relationship_attribute,''null'') ';
-    COMMIT;
 
     msp_location := '300';
     MEME_UTILITY.drop_it('table','source_relationships_rui');
     msp_location := '310';
     EXECUTE IMMEDIATE
-       'CREATE TABLE source_relationships_rui NOLOGGING AS
+       'CREATE TABLE source_relationships_rui AS
 	SELECT rownum as rui, root_source,
 	  	relationship_level, relationship_name, 
 		relationship_attribute,
@@ -1953,10 +1830,12 @@ BEGIN
 
     msp_location := '360';
     EXECUTE IMMEDIATE
-    'UPDATE source_relationships_rui
-	 SET rui = (SELECT rui + max_id - ' || rui_ct || '
-	 FROM max_tab WHERE table_name = ''RUI'')';
-	
+       'UPDATE source_relationships_rui
+	SET rui = (SELECT rui + max_id - ' || rui_ct || '
+	FROM max_tab WHERE table_name = ''RUI'')';
+
+    MEME_UTILITY.put_message(SQL%ROWCOUNT || ' new ruis assigned (' || l_table || ')');
+
     msp_location := '370.0';
     MEME_UTILITY.drop_it('table','new_relationships_ui');
     msp_location := '380.1';
@@ -1971,7 +1850,7 @@ BEGIN
 		relationship_level,
 		relationship_name, relationship_attribute, 
 		sg_id_1, sg_type_1, sg_qualifier_1,
-		sg_id_2, sg_type_2, sg_qualifier_2, source_rui) NOLOGGING AS
+		sg_id_2, sg_type_2, sg_qualifier_2, source_rui) AS
 	SELECT ''' || rui_prefix || ''' || 
 		LPAD(rui, ' || rui_length || ', 0), root_source, relationship_level,
 	 	relationship_name, relationship_attribute, 
@@ -1982,47 +1861,38 @@ BEGIN
     msp_location := '381';
     EXECUTE IMMEDIATE
 	'CREATE INDEX xnrui_1 on new_relationships_ui (sg_id_1,sg_type_1) TABLESPACE MIDI
-	 COMPUTE STATISTICS PARALLEL NOLOGGING';
+	 COMPUTE STATISTICS PARALLEL';
+
+    msp_location := '382';
+    EXECUTE IMMEDIATE
+	'CREATE INDEX xnrui_2 on new_relationships_ui (sg_id_2,sg_type_2) TABLESPACE MIDI
+	 COMPUTE STATISTICS PARALLEL';
+ 
+    msp_location := '390.1';
+    MEME_SYSTEM.analyze('source_relationships_rui');
+    msp_location := '390.2';
+    MEME_SYSTEM.analyze('new_relationships_ui');
 
    MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::assign_ruis',
     	'Done inserting inverses',work_id,0,80);
-   MEME_UTILITY.put_message('Done preparing tables for new RUI assignment');
 
     -- Set remaining UIs
     -- Ignore P level rels and unreleasable rels
     msp_location := '400.0';
     MEME_UTILITY.drop_it('table','source_relationships_rui_map');
     msp_location := '400.1';
-    IF lower(l_table) = 'source_relationships' OR
-       lower(l_table) = 'source_context_relationships' THEN
-        msp_location := '50.2a';
-        EXECUTE IMMEDIATE
-            'CREATE TABLE source_relationships_rui_map NOLOGGING AS
-             SELECT a.relationship_id, b.rui
-             FROM ' || l_table || ' a, new_relationships_ui b,
-              source_rank ns, source_rank ss
-             WHERE a.relationship_level = b.relationship_level
-               AND b.root_source = ss.stripped_source
-               AND ns.normalized_source = ss.source
-               AND ns.source = a.source
-               AND a.relationship_name = b.relationship_name
-               AND a.relationship_attribute || a.source_rui || a.sg_qualifier_1 || a.sg_qualifier_2 ||
-                   a.sg_id_1 || a.sg_type_1 || a.sg_id_2 || a.sg_type_2 = 
-                   b.relationship_attribute || b.source_rui || b.sg_qualifier_1 || b.sg_qualifier_2 ||
-                   b.sg_id_1 || b.sg_type_1 || b.sg_id_2 || b.sg_type_2';
-    ELSE
-       EXECUTE IMMEDIATE
-        'CREATE TABLE source_relationships_rui_map NOLOGGING AS
-        -- Haining, Siebel C17ND, remove USE_HASH for 10g
-         SELECT a.relationship_id, b.rui
-         FROM (SELECT relationship_id, DECODE(relationship_level,
-                      ''C'',DECODE(source,''MTHRELA'',''MTHRELA'',''MTH''),
-                      ''S'',DECODE(SUBSTR(source,1,2),
+    EXECUTE IMMEDIATE
+        'CREATE TABLE source_relationships_rui_map AS
+         SELECT  /*+ PARALLEL(b) USE_HASH(a,b) */ a.relationship_id, b.rui 
+         FROM (SELECT /*+ PARALLEL(aa) */
+			 relationship_id, DECODE(relationship_level,
+                         ''C'',DECODE(source,''MTHRELA'',''MTHRELA'',''MTH''),
+                         ''S'',DECODE(SUBSTR(source,1,2),
                                 ''E-'',''MTH'',
                                 ''L-'',''MTH'',
                                 ''S-'',''MTH'', source)) source,
                         relationship_level, relationship_name,
-                        relationship_attribute,
+                        relationship_attribute, 
                         sg_id_1, sg_type_1, sg_qualifier_1,
                         sg_id_2, sg_type_2, sg_qualifier_2, source_rui
                FROM ' || l_table || ' aa
@@ -2035,40 +1905,37 @@ BEGIN
            AND ns.normalized_source = ss.source
            AND ns.source = a.source
            AND a.relationship_name = b.relationship_name
-           AND (NVL(a.relationship_attribute,''null'') =
+           AND (NVL(a.relationship_attribute,''null'') = 
                 NVL(b.relationship_attribute,''null'') OR
-                    (a.source != ''MTHRELA'' AND a.relationship_level=''C'' AND
+                    (a.source != ''MTHRELA'' AND a.relationship_level=''C'' AND 
                    b.relationship_attribute IS NULL))
-           AND NVL(a.source_rui,''null'') =
+           AND NVL(a.source_rui,''null'') = 
                NVL(b.source_rui,''null'')
            AND b.sg_type_1 = a.sg_type_1
-           AND NVL(b.sg_qualifier_1,''null'') =
+           AND NVL(b.sg_qualifier_1,''null'') = 
                NVL(a.sg_qualifier_1,''null'')
            AND b.sg_id_1 = a.sg_id_1
            AND b.sg_type_2 = a.sg_type_2
-           AND NVL(b.sg_qualifier_2,''null'') =
+           AND NVL(b.sg_qualifier_2,''null'') = 
                NVL(a.sg_qualifier_2,''null'')
            AND b.sg_id_2 = a.sg_id_2';
-    END IF;
+
     msp_location := '400.2';
-
     EXECUTE IMMEDIATE
-	'ALTER TABLE source_relationships_rui_map ADD PRIMARY KEY (relationship_id)';
+	'CREATE INDEX x_source_relationships_rui_map 
+  	 ON source_relationships_rui_map (relationship_id) TABLESPACE MIDI
+	 COMPUTE STATISTICS PARALLEL';
 
-    MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::assign_ruis',
-    	'Done creating source_relationships_rui_map (new RUI)',work_id,0,50);
-   MEME_UTILITY.put_message('Done creating and analyzing assignment table for new RUIs');
-    
     msp_location := '400.3';
     EXECUTE IMMEDIATE
-       'UPDATE (SELECT a.rui, b.rui new_rui
-                FROM ' || l_table || ' a, source_relationships_rui_map b
-                WHERE a.relationship_id = b.relationship_id
-                  AND a.tobereleased not in (''N'',''n'')
-                  AND a.rui IS NULL)
-        SET rui = new_rui';
-
-    MEME_UTILITY.put_message(SQL%ROWCOUNT || ' new ruis assigned (' || l_table || ')');
+       'UPDATE ' || l_table || ' a
+   	SET rui =
+          (SELECT DISTINCT rui FROM source_relationships_rui_map b
+	   WHERE a.relationship_id = b.relationship_id)
+	WHERE tobereleased not in (''N'',''n'')
+          AND rui is null
+	  AND relationship_id IN
+	   (SELECT relationship_id FROM source_relationships_rui_map)';
 
     msp_location := '410';
     EXECUTE IMMEDIATE 
@@ -2083,7 +1950,7 @@ BEGIN
     MEME_UTILITY.drop_it('table','new_inverse_relationships_ui');
     msp_location := '415.2';
     EXECUTE IMMEDIATE
-       'CREATE TABLE new_inverse_relationships_ui (rui, inverse_rui) NOLOGGING AS
+       'CREATE TABLE new_inverse_relationships_ui (rui, inverse_rui) AS
 	SELECT DISTINCT /*+ USE_MERGE(a,b) */
 		a.rui as rui, b.rui as inverse_rui
 	FROM new_relationships_ui a, 
@@ -2096,7 +1963,7 @@ BEGIN
 	  WHERE bb.relationship_name = c.relationship_name
 	   AND NVL(bb.relationship_attribute,''null'') = 
 	       NVL(d.relationship_attribute,''null'')
- 	 ) b 
+ 	  ORDER BY sg_id_1,sg_type_1 ) b 
   	WHERE a.root_source = b.root_source
 	  AND a.sg_id_1 = b.sg_id_2
 	  AND a.sg_id_2 = b.sg_id_1
@@ -2116,9 +1983,7 @@ BEGIN
 	   (rui, inverse_rui)
 	 SELECT DISTINCT rui, inverse_rui FROM new_inverse_relationships_ui';
 
-   MEME_UTILITY.put_message('Done loading new RUIs and inverse RUIs');
-
-   msp_location := '430';
+    msp_location := '430';
     MEME_UTILITY.drop_it('table','source_relationships_rui');
     MEME_UTILITY.drop_it('table','source_relationships_rui_map');
     MEME_UTILITY.drop_it('table','new_relationships_ui');
@@ -2202,6 +2067,19 @@ BEGIN
 
    MEME_UTILITY.sub_timing_start;
    MEME_UTILITY.put_message('Starting assign_string_uis');
+
+   MEME_SYSTEM.analyze('source_string_ui');
+
+   -- ANALYZE string_ui if no statistics
+   msp_location := '10';
+   SELECT count(*) INTO stats_ct
+   FROM user_indexes WHERE table_name ='STRING_UI'
+   AND last_analyzed is null;
+
+   IF stats_ct > 0 THEN
+      MEME_SYSTEM.analyze('string_ui');
+   END IF;
+
    MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::assign_string_uis',
     	'Done preparing statistics.',0,work_id,0,5);
 
@@ -2209,16 +2087,15 @@ BEGIN
    -- Assign sui, lui, isui to source_string_ui
    --
    msp_location := '100';
-   UPDATE (SELECT /*+ PARALLEL(a) */ a.sui sui1, b.sui sui2, a.lui lui1, b.lui lui2,
-                  a.isui isui1, b.isui isui2
-           FROM source_string_ui a, string_ui b
-           WHERE a.string=b.string and a.language=b.language)
-   SET sui1=sui2, lui1=lui2, isui1=isui2;
-         
-         
+   UPDATE source_string_ui a
+   SET (a.sui, a.lui, a.isui) =
+      (SELECT /*+ USE_HASH(a,b) */ sui, lui, isui 
+       FROM string_ui b
+       WHERE a.string_pre = b.string_pre AND a.string = b.string
+         AND a.language = b.language);
+
    MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::assign_string_uis',
     	'Done assigning SUI,ISUI,LUI where available.',0,work_id,0,10);
-   MEME_UTILITY.put_message('Done assigning SUI,ISUI,LUI where available.');
 
    --
    -- Assign lui, isui to source_string_ui */
@@ -2226,26 +2103,20 @@ BEGIN
    -- The problem is that LUIs are assigned exactly
    -- as SUIs, the norm string is the string.  
    -- This allows an ISUI assigned (like in english)
-   -- to have >! LUIs. 
-   --
-   -- The added "norm_string" clause ensures that
-   -- cases where an ISUI has >1 LUI, we keep only the
-   -- matching LUI example.  This was needed for CPT2007
-   -- insertion because of a bug in LVG.
+   -- to have >! LUIs.
    --
    msp_location := '110';
-   UPDATE /*+ NOPARALLEL */ source_string_ui a
+   UPDATE source_string_ui a
    SET (a.lui, a.isui) =
-      (SELECT DISTINCT lui, isui 
+      (SELECT /*+ USE_HASH(a,b) */ DISTINCT lui, isui 
        FROM string_ui b
-       WHERE LOWER(a.string) = LOWER(b.string)
-         AND a.language = b.language 
-         AND a.norm_string = b.norm_string) 
+       WHERE a.lowercase_string_pre = b.lowercase_string_pre
+         AND LOWER(a.string) = LOWER(b.string)
+         AND a.language = b.language) 
    WHERE a.sui IS NULL AND a.language='ENG';
 
    MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::assign_string_uis',
     	'Done assigning ISUI,LUI where available.',0,work_id,0,15);
-   MEME_UTILITY.put_message('Done assigning ISUI,LUI where available.');
 
    --
    -- For foreign sources, assign isui where STRINGS match
@@ -2257,24 +2128,23 @@ BEGIN
    -- For foreign strings this will produce zero rows
    --
    msp_location := '120';
-   UPDATE /*+ NOPARALLEL */ source_string_ui a
+   UPDATE source_string_ui a
    SET lui =
-       (SELECT DISTINCT lui 
+       (SELECT /*+ USE_HASH(a,b) */ DISTINCT lui 
      	FROM string_ui b
-        WHERE a.norm_string = b.norm_string
+        WHERE a.norm_string_pre = b.norm_string_pre
+          AND a.norm_string = b.norm_string
           AND a.language = b.language)
    WHERE a.sui IS NULL AND a.isui IS NULL;
 
-   MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::assign_string_uis',   
+   MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::assign_string_uis',
     	'Done assigning LUI where available.',0,work_id,0,20);
-   MEME_UTILITY.put_message('Done assigning LUI where available.');
 
    --
    -- Handle strings with null norm strings.
    --
-   -- Soma changed for processing SNOMEDCT null norm strings.
    msp_location := '125';
-   UPDATE /*+ NOPARALLEL */ source_string_ui a
+   UPDATE /*+ PARALLEL(a) */ source_string_ui a
    SET lui =
        (SELECT DISTINCT lui 
 	FROM string_ui b
@@ -2285,7 +2155,6 @@ BEGIN
 
    MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::assign_string_uis',
     	'Done handling null norm strings.',0,work_id,0,25);
-   MEME_UTILITY.put_message('Done handling null norm strings.');
 
    --
    -- Create source_string_sui
@@ -2294,15 +2163,15 @@ BEGIN
    MEME_UTILITY.drop_it('table','source_string_sui');
    msp_location := '135';
    EXECUTE IMMEDIATE
-       'CREATE TABLE source_string_sui NOLOGGING AS
+       'CREATE TABLE source_string_sui AS
 	SELECT string, language, rownum AS sui
 	FROM source_string_ui
 	WHERE sui IS NULL';
    msp_location := '136';
-
+   MEME_SYSTEM.analyze('source_string_sui');
+  
    MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::assign_string_uis',
     	'Done finding new strings.',0,work_id,0,30);
-   MEME_UTILITY.put_message('Done identifying new strings.');
 
    --
    -- Create source_string_isui table
@@ -2311,7 +2180,7 @@ BEGIN
    MEME_UTILITY.drop_it('table','source_string_isui');
    msp_location := '145';
    EXECUTE IMMEDIATE
-       'CREATE TABLE source_string_isui NOLOGGING AS
+       'CREATE TABLE source_string_isui AS
 	SELECT DISTINCT (LOWER(string)) AS lower_string,
 	  language, 0 AS isui
 	FROM source_string_ui
@@ -2319,9 +2188,10 @@ BEGIN
    msp_location := '147';
    local_exec('UPDATE source_string_isui a SET isui = rownum');
    msp_location := '148';
+   MEME_SYSTEM.analyze('source_string_isui');
+
    MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::assign_string_uis',
     	'Done finding new case-insensitive strings.',0,work_id,0,35);
-   MEME_UTILITY.put_message('Done identifying new case-insensitive strings.');
 
    --
    -- Create source_string_lui table
@@ -2330,16 +2200,17 @@ BEGIN
    MEME_UTILITY.drop_it('table','source_string_lui');
    msp_location := '155';
    EXECUTE IMMEDIATE
-       'CREATE TABLE source_string_lui NOLOGGING AS
+       'CREATE TABLE source_string_lui AS
 	SELECT DISTINCT norm_string, language, 0 AS lui
 	FROM source_string_ui
 	WHERE lui IS NULL';
    msp_location := '157';
    local_exec('UPDATE source_string_lui SET lui = rownum');
    msp_location := '158';
+   MEME_SYSTEM.analyze('source_string_lui');
+
    MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::assign_string_uis',
     	'Done finding new norm strings.',0,work_id,0,40);
-   MEME_UTILITY.put_message('Done identifying new norm strings.');
 
    --
    -- Count new SUI, ISUI, and LUIs
@@ -2377,8 +2248,8 @@ BEGIN
 	' FROM max_tab WHERE table_name = ''SUI'')';
    msp_location := '200.2';
    EXECUTE IMMEDIATE 
-	'CREATE UNIQUE INDEX x_source_string_sui ON source_string_sui(string) TABLESPACE MIDI 
-	 COMPUTE STATISTICS PARALLEL NOLOGGING';
+	'CREATE INDEX x_source_string_sui ON source_string_sui(string) TABLESPACE MIDI 
+	 COMPUTE STATISTICS PARALLEL';
 
    MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::assign_string_uis',
     	'Done assigning new SUI values.',0,work_id,0,50);
@@ -2390,8 +2261,8 @@ BEGIN
 	' FROM max_tab WHERE table_name = ''ISUI'')';
    msp_location := '210.2';
    EXECUTE IMMEDIATE 
-	'CREATE UNIQUE INDEX x_source_string_isui ON source_string_isui(lower_string) TABLESPACE MIDI 
-	 COMPUTE STATISTICS PARALLEL NOLOGGING';
+	'CREATE INDEX x_source_string_isui ON source_string_isui(lower_string) TABLESPACE MIDI 
+	 COMPUTE STATISTICS PARALLEL';
 
    MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::assign_string_uis',
     	'Done assigning new ISUI values.',0,work_id,0,55);
@@ -2403,12 +2274,11 @@ BEGIN
 	' FROM max_tab WHERE table_name = ''LUI'')';
    msp_location := '220.2';
    EXECUTE IMMEDIATE 
-	'CREATE UNIQUE INDEX x_source_string_lui ON source_string_lui(norm_string) TABLESPACE MIDI 
-	 COMPUTE STATISTICS PARALLEL NOLOGGING';
+	'CREATE INDEX x_source_string_lui ON source_string_lui(norm_string) TABLESPACE MIDI 
+	 COMPUTE STATISTICS PARALLEL';
 
    MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::assign_string_uis',
     	'Done assigning new LUI values.',0,work_id,0,60);
-   MEME_UTILITY.put_message('Done assigning new SUI, ISUI, and LUI values.');
 
     msp_location := '230.1';
     SELECT value INTO sui_prefix FROM code_map
@@ -2496,7 +2366,7 @@ BEGIN
    MEME_UTILITY.drop_it('table','new_string_ui');
    msp_location := '270.2';
    EXECUTE IMMEDIATE
-      	'CREATE TABLE new_string_ui NOLOGGING AS
+      	'CREATE TABLE new_string_ui AS
   	 SELECT DISTINCT lui, sui, string_pre, norm_string_pre, language, base_string,
 	  string, norm_string, isui, lowercase_string_pre
 	 FROM source_string_ui a
@@ -2508,25 +2378,20 @@ BEGIN
 
    msp_location := '280';
    EXECUTE IMMEDIATE
-       'INSERT INTO string_ui
+       'INSERT /*+ APPEND */ INTO string_ui
 	 (lui, sui, string_pre, norm_string_pre, language, base_string,
 	  string, norm_string, isui, lowercase_string_pre)
 	SELECT 
 	  lui, sui, string_pre, norm_string_pre, language, base_string,
 	  string, norm_string, isui, lowercase_string_pre
 	FROM new_string_ui';
-
-   msp_location := '300.1';
-   EXECUTE IMMEDIATE 'CREATE UNIQUE INDEX x_ssui_string_lat on source_string_ui(string,language) NOLOGGING';
-    msp_location := '300';
+   msp_location := '300';
    UPDATE /*+ PARALLEL(a) */ source_classes_atoms a
    SET (sui,isui,lui) =
 	(SELECT sui, isui, lui FROM source_string_ui b
 	 WHERE string = atom_name
+	   AND string_pre = SUBSTR(atom_name,1,10)
 	   AND a.language = b.language );
-   msp_location := '300.2';
-   MEME_UTILITY.drop_it('index','x_ssui_string_lat');
-
 
    MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::assign_string_uis',
     	'Done loading new string_ui rows',0,work_id,0,95);
@@ -2630,53 +2495,134 @@ BEGIN
 
    IF UPPER(table_name) = 'C' OR UPPER(table_name) = 'ALL' THEN
 
+        MEME_SYSTEM.drop_indexes('source_classes_atoms');
+
 	--
- 	-- Report cases of illegal termgroup
+ 	-- Set correct termgroup_ranks, ttys, and suppressible values
 	--
-      	msp_location := '100.3';
-	SELECT count(*) INTO ct
-        FROM (SELECT termgroup,suppressible FROM source_classes_atoms
-              WHERE suppressible not in ('E','O') MINUS
-              SELECT termgroup,suppressible y FROM termgroup_rank);
-	IF ct != 0 THEN
-	    msp_error_detail := 'Illegal termgroup,suppressible combo in source_classes_atoms';
-            msp_error_code := 45;
-            RAISE msp_exception;
-        END IF;
+      	msp_location := '100.2';
+     	UPDATE /*+ PARALLEL(a) */ source_classes_atoms a
+	SET (termgroup_rank, tty, suppressible) =
+	   (SELECT b.release_rank, 
+		NVL(b.tty,SUBSTR(termgroup,INSTR(termgroup,'/')+1)),
+		DECODE(a.suppressible,'E','E','O','O',b.suppressible)
+	    FROM termgroup_rank b
+	    WHERE b.termgroup = a.termgroup);
+	COMMIT;
+
+	msp_location := '100.21';
+	IF MEME_UTILITY.exec_select(
+	    'SELECT count(*) FROM source_classes_atoms
+	     WHERE termgroup_rank is null') != 0 THEN
+	    msp_error_detail := 'Termgroup rank is null';
+	    msp_error_code := 45;
+	    RAISE msp_exception;
+	END IF;
 
    	MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::assign_meme_ids',
-    		'Done checking correct termgroup_ranks, ttys, and suppressible values',work_id,0,20);
+    		'Done setting correct termgroup_ranks, ttys, and suppressible values',work_id,0,20);
 
-      	-- set max atom id in max_tab
+      	-- Assign meme_id for source_classes_atoms
       	msp_location := '105';
-      	UPDATE max_tab SET max_id = NVL((select max(atom_id) from source_classes_atoms),max_id)
+      	SELECT COUNT(*) INTO ct FROM source_classes_atoms;
+
+      	msp_location := '105.2';
+      	UPDATE max_tab SET max_id = max_id + ct
       	WHERE table_name = 'ATOMS';
+
+      	msp_location := '105.3';
+      	SELECT max_id-ct INTO ct FROM max_tab
+      	WHERE table_name = 'ATOMS';
+
+      	msp_location := '110';
+	EXECUTE IMMEDIATE
+	     'UPDATE source_classes_atoms 
+	      SET atom_id = rownum + ' || ct;
+
+      	msp_location := '110.2';
+      	MEME_SYSTEM.reindex('source_classes_atoms','N',' ');
 
    	MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::assign_meme_ids',
     		'Done assigning meme_ids for source_classes_atoms',work_id,0,40);
 
-    		
-    -- Atom ordering section is now handled as an explicit recipe step, no need to do it here.
+      	-- Assign atom_ordering, termgroup_rank, tty, and suppressible
+	msp_location := '115';
+	IF MEME_UTILITY.exec_select(
+	  'SELECT count(*) FROM source_classes_atoms') > 50000 THEN
+  	    MEME_SYSTEM.drop_indexes('atom_ordering');
+  	END IF;
 
+      	msp_location := '115a';
+      	DELETE FROM atom_ordering WHERE root_source IN
+     	 (SELECT DISTINCT stripped_source
+ 	  FROM source_classes_atoms a, source_rank b
+	  WHERE a.source = b.source
+	    AND order_id IS NOT NULL); 
+
+      	msp_location := '115b';
+      	INSERT INTO atom_ordering (atom_id, root_source, order_id)
+     	SELECT atom_id, stripped_source, order_id
+	FROM source_classes_atoms a, source_rank b
+	WHERE a.source = b.source
+	AND order_id IS NOT NULL; 
+
+   	MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::assign_meme_ids',
+    		'Done assigning atom_ordering, termgroup_rank, tty, and suppressible',work_id,0,60);
+
+	-- Rebuild/reindex table if >50K entries
+	msp_location := '115c';
+	IF MEME_UTILITY.exec_select(
+	  'SELECT count(*) FROM source_classes_atoms') > 50000 THEN
+  	    MEME_SYSTEM.rebuild_table('atom_ordering','N',' ');
+  	END IF;
 
    	MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::assign_meme_ids',
     		'Done assigninig ids for classes',work_id,0,80);
-
-      --MEME_SYSTEM.analyze('source_classes_atoms');
 
    END IF;
 
    IF UPPER(table_name) = 'R' OR UPPER(table_name) = 'ALL' THEN
 
-      msp_location := '125';
-      UPDATE max_tab SET max_id = 
-              NVL((SELECT max(max_id) FROM 
-                    (SELECT max(relationship_id) max_id FROM source_relationships
-                     UNION SELECT max(relationship_id) max_id FROM source_context_relationships)),
-                  max_id)
+      msp_location := '120.1';
+      MEME_SYSTEM.drop_indexes('source_relationships');
+
+      -- Assign source_rank
+      msp_location := '120.2';
+      UPDATE /*+ PARALLEL(a) */ source_relationships a
+      SET a.source_rank =
+	 (SELECT b.rank FROM source_rank b
+	 WHERE b.source = a.source)
+      WHERE relationship_level!='C';
+      COMMIT;
+
+      MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::assign_meme_ids',
+    	      'Done assigning source_rank',work_id,0,20);
+
+      msp_location := '120.2';
+      UPDATE /*+ PARALLEL(a) */ source_relationships a
+      SET source_rank = MEME_CONSTANTS.MTH_RANK
+      WHERE relationship_level='C';
+      COMMIT;
+
+      -- Assign meme_id for source_relationships
+      msp_location := '125.1';
+      SELECT COUNT(*) INTO ct FROM source_relationships;
+
+      msp_location := '125.2';
+      UPDATE max_tab SET max_id = max_id + ct
       WHERE table_name = 'RELATIONSHIPS';
 
-      --MEME_SYSTEM.analyze('source_relationships');
+      msp_location := '125.3';
+      SELECT max_id-ct INTO ct FROM max_tab
+      WHERE table_name = 'RELATIONSHIPS';
+
+      msp_location := '130';
+      EXECUTE IMMEDIATE
+	 'UPDATE source_relationships
+	  SET relationship_id = rownum + ' || ct;
+
+      msp_location := '135';
+      MEME_SYSTEM.reindex('source_relationships','N',' ');
 
       MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::assign_meme_ids',
     	      'Done assigning meme_id for relationship',work_id,0,80);
@@ -2685,48 +2631,140 @@ BEGIN
 
    IF UPPER(table_name) = 'CR' OR UPPER(table_name) = 'ALL' THEN
 
-      msp_location := '145';
-      UPDATE max_tab SET max_id = 
-              NVL((SELECT max(max_id) FROM 
-                    (SELECT max(relationship_id) max_id FROM source_relationships
-                     UNION SELECT max(relationship_id) max_id FROM source_context_relationships)),
-                  max_id)
+      msp_location := '140.1';
+      MEME_SYSTEM.drop_indexes('source_context_relationships');
+
+      -- Assign source_Rank
+      msp_location := '140.2';
+      UPDATE /*+ PARALLEL(a) */ source_context_relationships a
+      SET a.source_rank =
+	 (SELECT b.rank FROM source_rank b
+	 WHERE b.source = a.source);
+      COMMIT;
+ 
+      MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::assign_meme_ids',
+    	      'Done assigning source_rank',work_id,0,20);
+
+      -- Assign meme_id for source_context_relationships
+      msp_location := '145.1';
+      SELECT COUNT(*) INTO ct FROM source_context_relationships;
+
+      msp_location := '145.2';
+      UPDATE max_tab SET max_id = max_id + ct
       WHERE table_name = 'RELATIONSHIPS';
 
-      --MEME_SYSTEM.analyze('source_context_relationships');
+      msp_location := '145.3';
+      SELECT max_id-ct INTO ct FROM max_tab
+      WHERE table_name = 'RELATIONSHIPS';
+
+      msp_location := '150';
+      EXECUTE IMMEDIATE
+	 'UPDATE source_context_relationships
+	  SET relationship_id = rownum + ' || ct;
+
+      msp_error_code := 0;
+
+      -- relas should only be reversed for PAR,CHD
+      -- rows.  Leave SIBS alone.
+      msp_location := '155';
+      UPDATE /*+ PARALLEL(a) */ source_context_relationships a
+      SET relationship_attribute = 
+	(SELECT inverse_rel_attribute FROM inverse_rel_attributes b
+	 WHERE a.relationship_attribute =
+	       b.relationship_attribute )
+      WHERE relationship_attribute IS NOT NULL
+	AND relationship_name='PAR';
+      COMMIT;
 
       MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::assign_meme_ids',
     	      'Done assigning meme_ids for context_relationships',work_id,0,80);
+
+      msp_location := '155.2';
+      MEME_SYSTEM.reindex('source_context_relationships','N',' ');
 
    END IF;
 
    IF UPPER(table_name) = 'A' OR UPPER(table_name) = 'ALL' THEN
 
+	msp_location := '160.0';
+	
+        IF MEME_UTILITY.exec_select(
+          'SELECT min(string_id) FROM source_stringtab') != 1 THEN
+	        msp_error_detail := 'Min string_id in source_stringtab too high, you should probably reload stringtab.src.';
+   		    RAISE assign_meme_ids_exc;
+        END IF;
+        
+	msp_location := '160.1';
+      	MEME_SYSTEM.drop_indexes('source_attributes');
+
+	-- Assign source_rank
+      	msp_location := '160.21';
+      	UPDATE /*+ PARALLEL(a)*/ source_attributes a
+      	SET a.source_rank =
+	 (SELECT b.rank FROM source_rank b
+	 WHERE b.source = a.source)
+      	WHERE attribute_level != 'C';
+	COMMIT;
+
+        MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::assign_meme_ids',
+    	      'Done assigning source_rank',work_id,0,20);
+
+      	msp_location := '160.2';
+      	UPDATE /*+ PARALLEL(a) */ source_attributes a
+      	SET source_rank = MEME_CONSTANTS.MTH_RANK
+      	WHERE attribute_level = 'C';
+	COMMIT;
+
+      	-- Assign meme_id for attributes
+      	msp_location := '165.1';
+      	SELECT COUNT(*) INTO ct FROM source_attributes;
+
       	msp_location := '165.2';
-      	UPDATE max_tab SET max_id = NVL((select max(attribute_id) from source_attributes),max_id)
+      	UPDATE max_tab SET max_id = max_id + ct
       	WHERE table_name = 'ATTRIBUTES';
 
-        -- Get max string id to update attributes
-      	msp_location := '175';
-        SELECT row_sequence INTO ct
-        FROM stringtab
-        WHERE string_id = -1;
+      	msp_location := '165.3';
+      	SELECT max_id-ct INTO ct FROM max_tab
+      	WHERE table_name = 'ATTRIBUTES';
+
+      	msp_location := '170';
+      	EXECUTE IMMEDIATE
+	  'UPDATE source_attributes a
+	   SET attribute_id = rownum + ' || ct;
+
+      	msp_location := '175.1';
+      	MEME_SYSTEM.reindex('source_attributes','N',' ');
+
+      	msp_location := '175.2';
+      	MEME_SYSTEM.drop_indexes('source_stringtab');
+
+      	msp_location := '175.3';
+      	SELECT NVL(max(string_id),0) INTO ct FROM source_stringtab;
 
       	msp_location := '175.4';
-      	UPDATE stringtab a
-        SET row_sequence = NVL((select max(string_id) from source_stringtab),row_sequence)
+      	UPDATE /*+ PARALLEL(a) */ stringtab a
+        SET row_sequence = row_sequence + ct
       	WHERE string_id = -1;
-	    COMMIT;
+	COMMIT;
+
+      	msp_location := '175.5';
+      	SELECT row_sequence-ct INTO ct FROM stringtab
+      	WHERE string_id = -1;
+	
+      	msp_location := '175.6';
+	EXECUTE IMMEDIATE
+	 'UPDATE source_stringtab 
+	  SET string_id = string_id + ' || ct;
 
       	msp_location := '175.7';
-        EXECUTE IMMEDIATE
+	EXECUTE IMMEDIATE
 	   'UPDATE /*+ PARALLEL(a) */ source_attributes a 
 	    SET attribute_value = ''<>Long_Attribute<>:'' ||
 	      (to_number(substr(attribute_value,20))+ ' || ct || ')
 	    WHERE attribute_value like ''<>Long_Attribute<>:%'' ' ;
 
-      --MEME_SYSTEM.analyze('source_stringtab');
-      --MEME_SYSTEM.analyze('source_attributes');
+	msp_location := '180';
+      	MEME_SYSTEM.reindex('source_stringtab','N',' ');
 
         MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::assign_meme_ids',
     	      'Done assigning meme_ids for attributes',work_id,0,80);
@@ -2768,9 +2806,6 @@ BEGIN
 
       msp_location := '210';
       MEME_SYSTEM.reindex('source_concept_status','N',' ');
-	
-      -- Soma Changing for 10g performance
-      --MEME_SYSTEM.analyze('source_concept_status');
 
       MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::assign_meme_ids',
           'Done assigning meme_ids for concept_status',work_id,0,80);
@@ -2864,21 +2899,9 @@ BEGIN
       MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::map_to_meme_ids',
           'Done setting atom_id = 0 for concept level attributes',work_id,0,40);
 
-      -- Check tbr
-      msp_location := '115';   
-      SELECT count(*) INTO ct
-      FROM source_attributes WHERE tobereleased not in ('N','n')
-        AND atom_id in (SELECT atom_id FROM classes WHERE tobereleased in ('n','N'))
-        AND attribute_level = 'S';
-      IF ct != 0 THEN
-         msp_error_detail := 'Releasable source_attributes entry connected to unreleasable atom';
-         msp_error_code := 45;
-         RAISE msp_exception;
-      END IF;
-
       -- Set the switch for rows that were mapped
       msp_location := '120';
-      UPDATE /*+ PARALLEL(a) */ source_attributes a SET switch='R'
+      UPDATE /*+ PARALLEL(a) */ source_attributes SET switch='R'
       WHERE (NVL(atom_id,0) != 0 OR attribute_level = 'C') 
 	AND NVL(concept_id,0) != 0;
       COMMIT;
@@ -2899,9 +2922,6 @@ BEGIN
 	 msp_error_detail := 'Source attributes not fully mapped.';
 	 RAISE map_to_meme_ids_exc;
       END IF;
-	
-	-- Delete source_rel_id mappings from source_id_map
-	DELETE FROM source_id_map WHERE table_name = 'R';
 
       MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::map_to_meme_ids',
           'Done mapping all ids',work_id,0,80);
@@ -2938,30 +2958,6 @@ BEGIN
       MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::map_to_meme_ids',
           'Done setting atom_id = 0 for concept level relationships',work_id,0,40);
 
-      -- Check tbr
-      msp_location := '220';   
-      SELECT count(*) INTO ct
-      FROM source_relationships WHERE tobereleased not in ('N','n')
-        AND atom_id_1 in (SELECT atom_id FROM classes WHERE tobereleased in ('n','N'))
-        AND relationship_level = 'S';
-      IF ct != 0 THEN
-         msp_error_detail := 'Releasable source_relationships entry connected to unreleasable atom';
-         msp_error_code := 45;
-         RAISE msp_exception;
-      END IF;
-
-      msp_location := '221';   
-      SELECT count(*) INTO ct
-      FROM source_relationships WHERE tobereleased not in ('N','n')
-        AND atom_id_2 in (SELECT atom_id FROM classes WHERE tobereleased in ('n','N'))
-        AND relationship_level = 'S';
-      IF ct != 0 THEN
-         msp_error_detail := 'Releasable source_relationships entry connected to unreleasable atom';
-         msp_error_code := 45;
-         RAISE msp_exception;
-      END IF;
-
-      msp_location := '225';
       -- Set switch to R for fully mapped relationships
       UPDATE /*+ PARALLEL(a) */  source_relationships a SET switch='R'
       WHERE (((NVL(atom_id_1,0) != 0 OR relationship_level = 'C') 
@@ -3017,6 +3013,7 @@ BEGIN
       MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::map_to_meme_ids',
           'Done mapping source atom id',work_id,0,30);
 
+
       -- Set switch to R for fully mapped relationships
       msp_location := '262';
       UPDATE /*+ PARALLEL(a) */ source_context_relationships a
@@ -3030,10 +3027,70 @@ BEGIN
           'Done setting switch to R for fully mapped relationships',work_id,0,60);
 
 
-      --
-      -- Mapping of parent_treenum is now done by cxt_ptr.pl
-      -- called within load_src.csh
-      --
+      -- Here map the parent_treenum field
+      msp_location := '300';
+      ct := 0;
+      OPEN scr_curs FOR 
+	'SELECT rowid, parent_treenum
+         FROM source_context_relationships 
+	 WHERE parent_treenum IS NOT NULL';
+      LOOP
+         msp_location := '305';
+         FETCH scr_curs INTO l_row_id, l_parent_treenum;
+         EXIT WHEN scr_curs%NOTFOUND;
+
+         map_parent_treenum := '';
+         msp_location := '310';
+         loop_ctr := 1;
+
+         LOOP
+            EXIT WHEN l_parent_treenum IS NULL;
+
+            -- Extract the first source atom id from the parent treenum
+            msp_location := '312';
+            l_source_atom_id := 
+               TO_NUMBER(SUBSTR(l_parent_treenum,0,
+				 INSTR(l_parent_treenum||'.','.')-1));
+
+            -- Strip first source atom id off of parent treenum
+            msp_location := '314';
+            l_parent_treenum := 
+               SUBSTR(l_parent_treenum,INSTR(l_parent_treenum||'.','.')+1);
+
+            msp_location := '316';
+            -- Look up aui from classes/source_id_map
+            SELECT aui into l_aui 
+	    FROM classes a, source_id_map b
+	    WHERE local_row_id = a.atom_id
+	      AND table_name = 'C'
+	      AND source_row_id = l_source_atom_id;
+
+            msp_location := '318';
+            -- Mapped parent treenum
+            IF l_aui IS NOT NULL THEN
+               IF loop_ctr > 1 THEN
+                  -- Append the remaining source atom id
+                  map_parent_treenum := map_parent_treenum||'.'||l_aui;
+               ELSE
+                  -- Mapped the first source atom id
+                  map_parent_treenum := l_aui;
+               END IF;
+            END IF;
+            loop_ctr := loop_ctr + 1;
+
+         END LOOP;
+
+         msp_location := '320';
+         -- Fix source_context_relationships
+         UPDATE source_context_relationships
+         SET parent_treenum = map_parent_treenum
+         WHERE rowid = l_row_id;
+         msp_location := '321';
+
+      END LOOP;
+      CLOSE scr_curs;
+
+      -- No need to check since we did not map CUI
 
       MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::map_to_meme_ids',
           'Done mapping the treenum field',work_id,0,80);
@@ -3083,21 +3140,13 @@ BEGIN
       MEME_UTILITY.drop_it('table','new_source_id_map');
       msp_location := '110.2';
       EXECUTE IMMEDIATE
-		'CREATE TABLE new_source_id_map NOLOGGING AS 
+		'CREATE TABLE new_source_id_map AS 
 		 SELECT atom_id as local_row_id, ''Local'' as origin, 
 			''C'' as table_name, source_atom_id AS source_row_id,
        	         '''|| insert_source_ids.authority ||''' AS source
          FROM source_classes_atoms 
 		 WHERE switch = ''R'' AND source_atom_id != 0 ';
 
-		 msp_location := '110.3';
-      EXECUTE IMMEDIATE
-		'UPDATE new_source_id_map
-		 SET source = ''SRC''
-		 WHERE local_row_id IN 
-		   (SELECT atom_id FROM source_classes_atoms
-		    WHERE source=''SRC'')';
--- Not sure about the following query but having will not cause any problems.
       msp_location := '110.3';
       EXECUTE IMMEDIATE
 		'UPDATE source_id_map
@@ -3112,29 +3161,12 @@ BEGIN
 	      (local_row_id,origin,table_name,source_row_id,source)
 	     SELECT * FROM new_source_id_map';
 
-   		msp_location := '410';
-   		MEME_UTILITY.drop_it('table','new_source_id_map');
    END IF;
 
+   msp_location := '410';
+   MEME_UTILITY.drop_it('table','new_source_id_map');
 
    MEME_UTILITY.put_message(msp_method||' successfully completed.');
-	
-	-- We are saving source_rel_id, relationship_id map 
-	-- for map_sg_fields's SRC_REL_ID sg_type
-    -- the data will be removed in map_to_meme_id's attribute section
-   IF UPPER(table_name) = 'R' OR UPPER(table_name) = 'ALL' THEN
-     msp_location := '112';
-      EXECUTE IMMEDIATE
-		'INSERT INTO source_id_map
-	      (local_row_id,origin,table_name,source_row_id,source)
-	     SELECT  relationship_id as local_row_id, ''Local'' as origin, 
-	     	''R'' as table_name, source_rel_id AS source_row_id,
-	     	 source
-		 FROM source_relationships
-		 	WHERE source_rel_id IN
-		 		(SELECT TO_NUMBER(sg_id) FROM source_attributes 
-		 			WHERE sg_type = ''SRC_REL_ID'')';
-	END IF;
 
    msp_location := '500';
    MEME_UTILITY.sub_timing_stop;
@@ -3150,7 +3182,6 @@ BEGIN
 
    MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::insert_source_ids',
           'Done process insert_source_ids',work_id,0,100);
-
 
 EXCEPTION
    WHEN insert_source_ids_exc THEN
@@ -3353,7 +3384,7 @@ BEGIN
    IF old_termgroup_table IS NULL THEN
       old_termgroup_clause := '';
    ELSIF MEME_UTILITY.object_exists('table',old_termgroup_table) = 1 THEN
-      --MEME_SYSTEM.analyze(old_termgroup_table);
+      MEME_SYSTEM.analyze(old_termgroup_table);
       old_termgroup_clause := ' AND b.termgroup IN (SELECT * FROM '||
 	 old_termgroup_table||')';
       t1_opt := MEME_UTILITY.table_to_string(old_termgroup_table);
@@ -3367,7 +3398,7 @@ BEGIN
    IF new_termgroup_table IS NULL THEN
       new_termgroup_clause := '';
    ELSIF MEME_UTILITY.object_exists('table',new_termgroup_table) = 1 THEN
-      --MEME_SYSTEM.analyze(new_termgroup_table);
+      MEME_SYSTEM.analyze(new_termgroup_table);
       new_termgroup_clause := ' AND a.termgroup IN (SELECT * FROM '||
 	 new_termgroup_table||')';
       t2_opt := MEME_UTILITY.table_to_string(new_termgroup_table);
@@ -3381,7 +3412,7 @@ BEGIN
    IF old_source_table IS NULL THEN
       old_source_clause := '';
    ELSIF MEME_UTILITY.object_exists('table',old_source_table) = 1 THEN
-      --MEME_SYSTEM.analyze(old_source_table);
+      MEME_SYSTEM.analyze(old_source_table);
       old_source_clause := ' AND b.source IN (SELECT * FROM '||
 	 old_source_table||')';
       s1_opt := MEME_UTILITY.table_to_string(old_source_table);
@@ -3395,7 +3426,7 @@ BEGIN
    IF new_source_table IS NULL THEN
       new_source_clause := '';
    ELSIF MEME_UTILITY.object_exists('table',new_source_table) = 1 THEN
-      --MEME_SYSTEM.analyze(new_source_table);
+      MEME_SYSTEM.analyze(new_source_table);
       new_source_clause := ' AND a.source IN (SELECT * FROM '||
 	 new_source_table||')';
       s2_opt := MEME_UTILITY.table_to_string(new_source_table);
@@ -3424,9 +3455,8 @@ BEGIN
       'CREATE TABLE ' || temp_safe_replacement || '
            (atom_id_1, atom_id_2, status_1, status_2, sui_1, sui_2,
             isui_1, isui_2, lui_1, lui_2, termgroup_1, termgroup_2,
-            status_rank, rank, source, code_1, code_2, last_release_cui) NOLOGGING AS
-            -- Haining, Siebel C17ND, remove USE_HASH for 10g
-        SELECT /*+ PARALLEL(a)*/ DISTINCT 
+            status_rank, rank, source, code_1, code_2, last_release_cui) AS
+        SELECT /*+ PARALLEL(a) USE_HASH(a,b) */ DISTINCT 
 	    a.atom_id, b.atom_id, a.status, b.status, a.sui, b.sui,
             a.isui, b.isui, a.lui, b.lui, a.tty, b.tty, a.rank,
 	    LPAD(0,3,0)  ||  
@@ -3446,7 +3476,7 @@ BEGIN
        scui_clause||
        scui_clause||
        sdui_clause||
-       code_clause || string_clause;
+       code_clause;
 
    MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::safe_replacement',
           'Done ranking of fields',work_id,0,10);
@@ -3527,7 +3557,7 @@ BEGIN
 
    msp_location := '210';
    local_exec
-      ('CREATE TABLE t_mom_safe_replacement NOLOGGING AS
+      ('CREATE TABLE t_mom_safe_replacement AS
         SELECT DISTINCT atom_id_1, atom_id_2, status_1, status_2, rank
         FROM ' || temp_safe_replacement);
 
@@ -3552,7 +3582,7 @@ BEGIN
    msp_location := '250';
    MEME_UTILITY.drop_it('table','new_msr');
    local_exec(
-	'CREATE TABLE new_msr NOLOGGING AS
+	'CREATE TABLE new_msr AS
          SELECT atom_id_1 AS new_atom_id, atom_id_2 AS old_atom_id,
          last_release_cui, rank, ''' || source || ''' AS source
          FROM ' || temp_safe_replacement );
@@ -3574,7 +3604,7 @@ BEGIN
    -- Inherit highest ranking fact
    msp_location := '263.2';
    local_exec (
-	'CREATE TABLE t_sr_lrr NOLOGGING AS 
+	'CREATE TABLE t_sr_lrr AS 
    	 SELECT new_atom_id as row_id,
 		to_char(last_release_rank) as new_value
          FROM classes a, new_msr b, 
@@ -3623,7 +3653,7 @@ BEGIN
    -- Inherit highest ranking fact
    msp_location := '263.22';
    local_exec (
-	'CREATE TABLE t_sr_lrc NOLOGGING AS 
+	'CREATE TABLE t_sr_lrc AS 
    	 SELECT new_atom_id as row_id,
 		a.last_release_cui as new_value
          FROM classes a, new_msr b, 
@@ -3667,7 +3697,7 @@ BEGIN
    -- Inherit highest ranking fact
    msp_location := '263.452';
    local_exec (
-	'CREATE TABLE t_sr_supp NOLOGGING AS 
+	'CREATE TABLE t_sr_supp AS 
    	 SELECT DISTINCT new_atom_id as row_id, a.suppressible as new_value
          FROM classes a, new_msr b, classes b
    	 WHERE a.atom_id = old_atom_id
@@ -3722,7 +3752,7 @@ BEGIN
 
    msp_location := '275';
    MEME_UTILITY.drop_it('table','new_srp');
-   local_exec('CREATE TABLE new_srp NOLOGGING AS '||
+   local_exec('CREATE TABLE new_srp AS '||
       'SELECT * FROM sr_predicate '||
       'WHERE source = '''||safe_replacement.source||'''');
 
@@ -3735,7 +3765,7 @@ BEGIN
 
       msp_location := '280';
       local_exec
-	 ('CREATE TABLE ' || t_repl || ' NOLOGGING AS 
+	 ('CREATE TABLE ' || t_repl || ' AS 
   	   SELECT * FROM t_mom_safe_replacement');
 
       msp_location := '285';
@@ -3743,7 +3773,7 @@ BEGIN
 
       msp_location := '290';
       local_exec
-	 ('CREATE TABLE ' || t_cs || ' NOLOGGING AS 
+	 ('CREATE TABLE ' || t_cs || ' AS 
 	   SELECT DISTINCT atom_id_1 AS row_id
 	   FROM ' || t_repl || '
 	   WHERE rank = 1 AND status_1 != ''N''');
@@ -3783,7 +3813,7 @@ BEGIN
 
       msp_location := '300';
       local_exec
-	 ('CREATE TABLE ' || t_cs || ' NOLOGGING AS 
+	 ('CREATE TABLE ' || t_cs || ' AS 
   	   SELECT DISTINCT atom_id_1 as row_id
 	   FROM ' || t_repl || '
 	   WHERE rank = 2 AND status_1 != ''U''');
@@ -3828,7 +3858,7 @@ BEGIN
 
       msp_location := '310';
       local_exec(
-	  'CREATE TABLE ' || t_cs || ' NOLOGGING AS
+	  'CREATE TABLE ' || t_cs || ' AS
 	   SELECT DISTINCT atom_id_1 as row_id
 	   FROM ' || t_repl || '
 	   WHERE rank = 3 AND status_1 != ''R''');
@@ -3919,7 +3949,7 @@ BEGIN
 
    msp_location := '10';
    MEME_UTILITY.drop_it('table','t_reset_sr');
-   local_exec('CREATE TABLE t_reset_sr NOLOGGING AS '||
+   local_exec('CREATE TABLE t_reset_sr AS '||
       'SELECT DISTINCT source FROM mom_safe_replacement '||
       'WHERE source = '''||source||'''');
 
@@ -3930,7 +3960,7 @@ BEGIN
 
    msp_location := '20';
    MEME_UTILITY.drop_it('table','t_reset_sr');
-   local_exec('CREATE TABLE t_reset_sr NOLOGGING AS '||
+   local_exec('CREATE TABLE t_reset_sr AS '||
       'SELECT distinct source FROM sr_predicate '||
       'WHERE source = '''||source||'''');
 
@@ -3975,8 +4005,7 @@ IS
    retval		NUMBER;
    source_repl_exc	EXCEPTION;
 
-   before_ct        NUMBER;
-   repl_ct        NUMBER;
+   before_ct		NUMBER;
    after_ct		NUMBER;
    pct_replaced		NUMBER(10,2);
    cui_prefix		VARCHAR2(10);
@@ -4004,9 +4033,6 @@ BEGIN
    --
    IF UPPER(table_name) = 'C' OR UPPER(table_name) = 'ALL' THEN
 
-       msp_location := '10.01';
-       MEME_UTILITY.drop_it('table','source_replacement_c'); 
-
        --
        -- Generate "before" count
        --
@@ -4014,40 +4040,41 @@ BEGIN
        FROM source_classes_atoms WHERE switch='R';
 
        --
-       -- Compare atoms and move replacements to source_replacement_c
+       -- Compare atoms and move replacements to source_replacement
        -- AUI, SUPPRESS, and LAST_RELEASE_CUI (if not null) must match
        --
        msp_location := '10.1';
        EXECUTE IMMEDIATE
-           'CREATE TABLE source_replacement_c 
-                    (atom_id, sg_meme_data_type, sg_meme_id, new_sg_meme_id) NOLOGGING
-            AS SELECT /*+ USE_HASH(a) */
+           'INSERT into source_replacement
+	     (atom_id, sg_meme_data_type, sg_meme_id, new_sg_meme_id)
+            SELECT /*+ USE_HASH(a) PARALLEL(a) */ distinct
                   a.atom_id, ''C'', a.atom_id, b.atom_id
             FROM classes a, source_classes_atoms b, source_version c
             WHERE a.aui=b.aui AND a.source=previous_name
-              AND b.source=current_name
-	          AND a.suppressible = b.suppressible
-	          AND NVL(NVL(b.last_release_cui,a.last_release_cui),''null'') = 
-		          NVL(a.last_release_cui,''null'')
-              AND a.tobereleased in (''Y'',''y'')';
-
-       MEME_UTILITY.put_message('Done loading source_replacement_c - ' || SQL%ROWCOUNT);
-       COMMIT;
-
+            AND b.source=current_name
+	    AND a.suppressible = b.suppressible
+	    AND NVL(NVL(b.last_release_cui,a.last_release_cui),''null'') = 
+		NVL(a.last_release_cui,''null'')
+            AND a.tobereleased in (''Y'',''y'')';
        --
-       -- Index for efficiency (cannot be unique because old version source may have dups)
+       -- update source_id_map
+       -- AUI, SUPPRESS, and LAST_RELEASE_CUI (if not null) must match
        --
-       MEME_UTILITY.drop_it('index','x_sr_new_id'); 
        msp_location := '10.2';
+       MEME_UTILITY.drop_it('table',tmp);
        EXECUTE IMMEDIATE
-           'CREATE INDEX x_sr_new_id ON source_replacement_c (new_sg_meme_id) TABLESPACE MIDI 
-     	    COMPUTE STATISTICS PARALLEL NOLOGGING';
+           'CREATE TABLE ' || tmp || ' AS
+            SELECT to_number(new_sg_meme_id) as old_atom_id,
+		   atom_id as new_atom_id
+	    FROM source_replacement';
 
+       --
+       -- Index for efficiency
+       --
        msp_location := '10.3';
-		-- Soma Changing for 10g 
-       --MEME_SYSTEM.analyze('source_replacement_c');
-       MEME_UTILITY.put_message('Done indexing source_replacement_c');
-
+       EXECUTE IMMEDIATE
+           'CREATE INDEX x_' || tmp || ' ON ' || tmp || ' (old_atom_id) TABLESPACE MIDI 
+     	    COMPUTE STATISTICS PARALLEL';
        
        --
        -- Fix the references in source_id_map (for contexts)
@@ -4056,33 +4083,26 @@ BEGIN
        -- This query may report a duplicate row in single-row subquery error.
        -- If so, it is a problem with the data in classes.  
        -- DON'T change this query.
+
        msp_location := '10.4';
        EXECUTE IMMEDIATE
-           'UPDATE source_id_map a
+           'UPDATE /*+ PARALLEL(a) */ source_id_map a
              SET local_row_id = 
-                (SELECT sg_meme_id FROM source_replacement_c b 
-                 WHERE local_row_id = new_sg_meme_id)
-             WHERE local_row_id IN (select new_sg_meme_id FROM source_replacement_c)
-             AND table_name=''C''
-          AND source = :x'
-       USING authority;
+                (SELECT new_atom_id FROM ' || tmp || ' b 
+		 WHERE local_row_id = old_atom_id)
+             WHERE local_row_id IN (select old_atom_id FROM ' || tmp || ')
+             AND table_name=''C''';
 
-       MEME_UTILITY.put_message('Done updating source_id_map - ' || SQL%ROWCOUNT);
-
-       --
-       -- No need to touch atom_ordering as it is handled later
-       --
       
        --
        -- delete replacements from source_classes_atoms
        --
        msp_location := '10.5';
        EXECUTE IMMEDIATE
-           'DELETE FROM source_classes_atoms a
+           'DELETE /*+ PARALLEL(a) */ FROM source_classes_atoms a
             WHERE atom_id IN
-             (SELECT new_sg_meme_id FROM source_replacement_c
-              WHERE sg_meme_data_type = ''C'' )';
-       MEME_UTILITY.put_message('Done deleting from source_classes_atoms - ' || SQL%ROWCOUNT);
+             (SELECT new_sg_meme_id FROM source_replacement
+	      WHERE sg_meme_data_type = ''C'' )';
 
        --
        -- Compute new source, termgroup values for classes
@@ -4091,12 +4111,11 @@ BEGIN
        MEME_UTILITY.drop_it('table',tmp);
        msp_location := '20';
        EXECUTE IMMEDIATE
-           'CREATE TABLE ' || tmp || ' NOLOGGING AS
-           -- Haining, Siebel C17ND, remove ORDERED USE_HASH for 10g
-            SELECT 
+           'CREATE TABLE ' || tmp || ' AS
+     	    SELECT /*+ ORDERED USE_HASH(a,b) PARALLEL(a) */ 
 		distinct a.atom_id, current_name as source,
     	       current_name || ''/'' || tty as termgroup
-    	    FROM classes a, source_replacement_c b, source_version c
+    	    FROM classes a, source_replacement b, source_version c
             WHERE a.source = c.previous_name
     	    AND a.atom_id = b.sg_meme_id
    	    AND b.sg_meme_data_type=''C''';
@@ -4106,12 +4125,10 @@ BEGIN
        --
 
        msp_location := '25';
-       -- Soma Changing for Oracle 10g performance ADDING UNIQUE
        EXECUTE IMMEDIATE
-           'ALTER TABLE ' || tmp || ' ADD PRIMARY KEY (atom_id)';
-       
-        -- Soma Changing for 10g performance
-    	--MEME_SYSTEM.analyze(tmp);
+           'CREATE INDEX x_' || tmp || ' ON ' || tmp || ' (atom_id) TABLESPACE MIDI 
+     	COMPUTE STATISTICS PARALLEL';
+    
        --
        --  Update source,termgroup in classes for replacements
        --  WE are not updating classes.rank, but it will get picked up
@@ -4121,12 +4138,11 @@ BEGIN
        IF MEME_UTILITY.exec_count(tmp) > 0 THEN
     	msp_location := '40.1';
     	EXECUTE IMMEDIATE
-    	    'UPDATE (SELECT a.source, a.termgroup, 
-                            b.source new_source, b.termgroup new_termgroup
-                     FROM classes a, ' || tmp || ' b
-                     WHERE a.atom_id = b.atom_id)
-             SET source = new_source, termgroup = new_termgroup';
-           MEME_UTILITY.put_message('Done updating source_classes_atoms - ' || SQL%ROWCOUNT);
+    	    'UPDATE /*+ PARALLEL(a) */ classes a 
+	     SET (source,termgroup) =
+    	      (SELECT source,termgroup FROM ' || tmp || ' b
+    	       WHERE a.atom_id = b.atom_id)
+             WHERE atom_id IN (SELECT atom_id FROM ' || tmp || ')';
     
        END IF;
 
@@ -4137,18 +4153,29 @@ BEGIN
        SELECT value INTO cui_prefix FROM code_map
        WHERE type = 'ui_prefix' AND code='CUI'; 
        msp_location :='10.16';
-       EXECUTE IMMEDIATE 
-           'INSERT INTO mom_safe_replacement(
-               old_atom_id, new_atom_id, last_release_cui, source, rank)
-           SELECT /*+ USE_HASH(a) */
-	         a.atom_id, a.atom_id, b.last_release_cui, b.source,
-               ''113'' || lpad(replace(translate(b.last_release_cui,:x,''XXXXXXX''),''X'',''''),10,0) ||
-               lpad(a.atom_id, 10, 0) || lpad(a.atom_id, 10, 0)
-           FROM source_replacement_c a, classes b
-           WHERE a.atom_id = b.atom_id'
-       USING cui_prefix;
-       MEME_UTILITY.put_message('Done loading mom_safe_replacement - ' || SQL%ROWCOUNT);
+       INSERT INTO mom_safe_replacement(
+           old_atom_id, new_atom_id, last_release_cui, source, rank)
+       SELECT /*+ USE_HASH(a,b) PARALLEL(a) */
+	     a.atom_id, a.atom_id, b.last_release_cui, b.source,
+           '113' || lpad(replace(translate(b.last_release_cui,cui_prefix,'XXXXXXX'),'X',''),10,0) ||
+           lpad(a.atom_id, 10, 0) || lpad(a.atom_id, 10, 0)
+       FROM source_replacement a, classes b
+       WHERE a.atom_id = b.atom_id;
 
+       --
+       -- Set ranks of old version things lower to fake that they are lower ranking
+       --
+       UPDATE classes a set rank = to_number('3'||substr(to_char(rank),2))
+       WHERE source in 
+          (SELECT DISTINCT previous_name FROM source_classes_atoms b, source_version c
+      	   WHERE current_name = b.source); 
+       MEME_UTILITY.put_message(SQL%ROWCOUNT || ' classes ranks lowered.');
+       MEME_UTILITY.sub_timing_stop;
+       MEME_UTILITY.log_operation
+          (authority,'MEME_SOURCE_PROCESSING.source_replacement',
+	   SQL%ROWCOUNT || ' classes ranks lowered.',
+	   0,work_id,MEME_UTILITY.sub_elapsed_time);
+    
        --
        -- Generate "after" count
        --
@@ -4170,7 +4197,7 @@ BEGIN
           (authority,'MEME_SOURCE_PROCESSING.source_replacement',
            pct_replaced || '% atoms replaced.',0,work_id,MEME_UTILITY.sub_elapsed_time);
 
-       MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::source_safe_replacement',
+   	MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::source_safe_replacement',
    		'Done atom source_safe_replacement',work_id,0,20);
 
    END IF;
@@ -4192,23 +4219,20 @@ BEGIN
    --
    IF UPPER(table_name) = 'A' OR UPPER(table_name) = 'ALL' THEN     
 
-       msp_location := '10.01';
-       MEME_UTILITY.drop_it('table','source_replacement_a'); 
-
        --
        -- Generate "before" count
        --
        SELECT count(*) INTO before_ct
        FROM source_attributes WHERE switch='R';
-		
+
        --
        -- compare attributes and move replacements to source_replacement
        --
        msp_location := '260.1';
        EXECUTE IMMEDIATE    
-            'CREATE TABLE source_replacement_a
-                 (atom_id, sg_meme_data_type, sg_meme_id, new_sg_meme_id) NOLOGGING AS
-             SELECT /*+ USE_HASH(a) */
+            'INSERT into source_replacement
+	     (atom_id, sg_meme_data_type, sg_meme_id, new_sg_meme_id)
+             SELECT /*+PARALLEL(a) USE_HASH(a,b) */ 
                     a.atom_id, ''A'', a.attribute_id, b.attribute_id
              FROM attributes a, source_attributes b, source_version c
              WHERE a.tobereleased in (''Y'',''y'') 
@@ -4216,175 +4240,93 @@ BEGIN
 	       AND a.suppressible = b.suppressible 
                AND a.source=previous_name and b.source=current_name';
 
-       MEME_UTILITY.put_message('Done loading source_replacement_a - ' || SQL%ROWCOUNT);
        COMMIT;
 
        --
 	   -- Handle unreleasable case
 	   --
-       msp_location := '263';
+       msp_location := '260.1b';
        EXECUTE IMMEDIATE    
-            'INSERT into source_replacement_a
-                (atom_id, sg_meme_data_type, sg_meme_id, new_sg_meme_id)
-             SELECT 
+            'INSERT into source_replacement
+	     (atom_id, sg_meme_data_type, sg_meme_id, new_sg_meme_id)
+             SELECT /*+ PARALLEL(a) USE_HASH(a,b) */ 
                     a.atom_id, ''A'', a.attribute_id, b.attribute_id
              FROM attributes a, source_attributes b, source_version c
              WHERE a.tobereleased in (''N'',''n'')
-	         AND b.tobereleased in (''N'',''n'')
-             AND a.atom_id = b.atom_id
-	         AND a.attribute_name = b.attribute_name 
-	         AND a.hashcode = b.hashcode
-	         AND a.attribute_level = ''S''
-	         AND b.attribute_level = ''S''
-             AND a.source=previous_name 
-             AND b.source=current_name';
-
-       MEME_UTILITY.put_message('Done loading source_replacement_a (unreleasable atts) - ' || SQL%ROWCOUNT);
-
+	       AND b.tobereleased in (''N'',''n'')
+               AND a.atom_id = b.atom_id
+	       AND a.attribute_name = b.attribute_name 
+	       AND a.hashcode = b.hashcode
+	       AND a.attribute_level = b.attribute_level
+               AND a.source=previous_name and b.source=current_name';
+	
        COMMIT;
       
        -- 
        -- SEMANTIC_TYPE case
        --
-       msp_location := '264';
+       msp_location := '260.1c';
        EXECUTE IMMEDIATE    
-            'INSERT into source_replacement_a
-                (atom_id, sg_meme_data_type, sg_meme_id, new_sg_meme_id)
-             SELECT /*+ USE_HASH(a) */ DISTINCT
+            'INSERT into source_replacement
+	     (atom_id, sg_meme_data_type, sg_meme_id, new_sg_meme_id)
+             SELECT /*+PARALLEL(a) USE_HASH(a,b) */ DISTINCT
                     a.atom_id, ''A'', a.attribute_id, b.attribute_id
              FROM attributes a, source_attributes b
              WHERE a.tobereleased in (''Y'',''y'') 
-               AND a.attribute_value = b.attribute_value 
-               AND a.concept_id = b.concept_id
-               AND a.attribute_name=''SEMANTIC_TYPE''
-               AND b.attribute_name=''SEMANTIC_TYPE''';
-       MEME_UTILITY.put_message('Done loading source_replacement_a (STYs) - ' || SQL%ROWCOUNT);
+               AND a.atui=b.atui and a.concept_id = b.concept_id
+               AND a.attribute_name=''SEMANTIC_TYPE''';
 
        COMMIT;
-		
-       --
-       -- Index for efficiency (cannot be unique because old version source may have dups)
-       --
-       MEME_UTILITY.drop_it('index','x_sr_new_id'); 
-       msp_location := '261';
-       EXECUTE IMMEDIATE
-           'CREATE INDEX x_sr_new_id ON source_replacement_a (new_sg_meme_id) TABLESPACE MIDI 
-     	    COMPUTE STATISTICS PARALLEL NOLOGGING';
-
-       msp_location := '262';
-       --MEME_SYSTEM.analyze('source_replacement_a');
 
        --
        -- delete replacements from source_attributes
        --
---       msp_location := '265';
-       --EXECUTE IMMEDIATE
-         --  'DELETE FROM source_attributes a
-           -- WHERE attribute_id IN
---             (SELECT new_sg_meme_id
-              --FROM source_replacement_a 
-              --WHERE sg_meme_data_type=''A'') '; 
-       --MEME_UTILITY.put_message('Done deleting from source_attributes - ' || SQL%ROWCOUNT);
-       
-       msp_location := '265a';
-       
-       MEME_UTILITY.drop_it('table','tmp_sa');
-       
-       msp_location := '265b';
-       
+       msp_location := '260.2';
        EXECUTE IMMEDIATE
-       		'CREATE table tmp_sa as
-             select * from source_attributes where attribute_id NOT IN 
+           'DELETE FROM source_attributes a
+            WHERE attribute_id IN
              (SELECT new_sg_meme_id
-              FROM source_replacement_a 
-              WHERE sg_meme_data_type=''A'')';
-              
-    	COMMIT;
-       msp_location := '265c';    	
-	    MEME_UTILITY.drop_it('table','source_attributes');
-       msp_location := '265a';	    
-    	EXECUTE IMMEDIATE
-    		'RENAME tmp_sa TO source_attributes';
-   		
-       msp_location := '265d';
-    	EXECUTE IMMEDIATE
-        	'CREATE INDEX x_sa_1 on source_attributes (attribute_id)
-PCTFREE 10 STORAGE (INITIAL 50M) TABLESPACE MIDI';
-        
-        EXECUTE IMMEDIATE 'GRANT ALL ON source_attributes TO MID_USER';              
-       		
-        MEME_UTILITY.put_message('Done deleting from source_attributes');
-       		
+	      FROM source_replacement 
+              WHERE sg_meme_data_type=''A'') '; 
 
        --
        -- delete replacements from source_stringtab
        --
-       msp_location := '266';
---       EXECUTE IMMEDIATE
---           'DELETE FROM source_stringtab
---            WHERE string_id IN
---             (SELECT string_id from source_stringtab
---              minus
---              SELECT to_number(substr(attribute_value,20)) 
---	      FROM source_attributes
---              WHERE attribute_value like ''<>Long_Attribute<>:%'') ';
-
-       MEME_UTILITY.drop_it('table','tmp_sst');
-       
-       msp_location := '266a';
-       
+       msp_location := '260.3';
        EXECUTE IMMEDIATE
-       		'CREATE table tmp_sst as
-             select * from source_stringtab a where exists 
-             (select 1 from source_attributes b where a.string_id= TO_NUMBER (SUBSTR (b.attribute_value, 20)) 
-             and b.attribute_value LIKE ''<>Long_Attribute<>:%'')';
-              
-    	COMMIT;
-       msp_location := '266b';    	
-	    MEME_UTILITY.drop_it('table','source_stringtab');
-       msp_location := '266c';	    
-    	EXECUTE IMMEDIATE
-    		'RENAME tmp_sst TO source_stringtab';
-   		
-        EXECUTE IMMEDIATE 'GRANT ALL ON source_stringtab TO MID_USER';   
-       
-       
-       MEME_UTILITY.put_message('Done deleting from source_stringtab');
+           'DELETE FROM source_stringtab
+            WHERE string_id IN
+             (SELECT string_id from source_stringtab
+              minus
+              SELECT to_number(substr(attribute_value,20)) 
+	      FROM source_attributes
+              WHERE attribute_value like ''<>Long_Attribute<>:%'') ';
 
        --
        -- Compute new source values for replacement attributes
      	-- Handles unreleasable case also
        --
-       msp_location := '267';
+       msp_location := '265';
        MEME_UTILITY.drop_it('table',tmp);
        msp_location := '270';
-       
-       -- Soma Changing for 10g performance Adding NO LOGGING
-
        EXECUTE IMMEDIATE
-           'CREATE TABLE ' || tmp || ' NOLOGGING AS
-            SELECT attribute_id, current_name as source
+           'CREATE TABLE ' || tmp || ' AS
+            SELECT /*+PARALLEL(a)*/ attribute_id, current_name as source
     	    FROM attributes a, source_version b 
     	    WHERE attribute_level=''S'' 
     	      AND attribute_id IN 
-    	        (SELECT sg_meme_id from source_replacement_a
+    	        (SELECT sg_meme_id from source_replacement
     	         WHERE sg_meme_data_type=''A'')
     	      AND a.source = previous_name';
 
        --
-       -- Index for efficiency (cannot be unique because old version source may have dups)
+       -- Index for efficiency
        --
        msp_location := '280';
-       -- Soma Changing for 10g performance Adding UNIQUE
-
        EXECUTE IMMEDIATE
-           'ALTER TABLE ' || tmp || ' ADD PRIMARY KEY (attribute_id)';
+           'CREATE INDEX x_' || tmp || ' ON ' || tmp || ' (attribute_id) TABLESPACE MIDI 
+     	COMPUTE STATISTICS PARALLEL';
     
-       EXECUTE IMMEDIATE           
-           'ALTER SESSION ENABLE PARALLEL DML';
-           
-       -- Soma Changing for 10g performance
-       --MEME_SYSTEM.analyze(tmp);
        --
        -- Update source of replacement attributes
        --
@@ -4392,12 +4334,11 @@ PCTFREE 10 STORAGE (INITIAL 50M) TABLESPACE MIDI';
        IF MEME_UTILITY.exec_count(tmp) > 0 THEN
     	msp_location := '290.1';
     	EXECUTE IMMEDIATE
-    	    'MERGE /*+ first_rows parallel(a) parallel(new) */ INTO attributes a
-             USING ' || tmp || ' new ON (a.attribute_id = new.attribute_id)
-             WHEN MATCHED THEN UPDATE SET
-             source = new.source';
-           MEME_UTILITY.put_message('Done updating attributes - ' || SQL%ROWCOUNT);
-
+    	    'UPDATE /*+ parallel(a) */  attributes a SET source =
+    	      (SELECT source FROM ' || tmp || ' b
+    	       WHERE a.attribute_id = b.attribute_id)
+             WHERE attribute_id IN (SELECT attribute_id FROM ' || tmp || ')';
+    
        END IF;
     
        --
@@ -4413,14 +4354,14 @@ PCTFREE 10 STORAGE (INITIAL 50M) TABLESPACE MIDI';
        msp_location := '300.2';
        pct_replaced := ((before_ct - after_ct)*100) / (before_ct+.0000001);
 
-       msp_location := '400';
-       MEME_UTILITY.drop_it('table',tmp);
-       MEME_UTILITY.sub_timing_stop;
-       MEME_UTILITY.put_message(pct_replaced || '% attributes replaced.');
-       MEME_UTILITY.log_operation
+        msp_location := '400';
+        MEME_UTILITY.drop_it('table',tmp);
+  	MEME_UTILITY.sub_timing_stop;
+	MEME_UTILITY.put_message(pct_replaced || '% attributes replaced.');
+        MEME_UTILITY.log_operation
           (authority,'MEME_SOURCE_PROCESSING.source_replacement',
            pct_replaced || '% attributes replaced.',	
-	       0,work_id,MEME_UTILITY.sub_elapsed_time);
+	   0,work_id,MEME_UTILITY.sub_elapsed_time);
     
 
    	MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::source_safe_replacement',
@@ -4439,9 +4380,6 @@ PCTFREE 10 STORAGE (INITIAL 50M) TABLESPACE MIDI';
    --   
    IF UPPER(table_name) = 'R' OR UPPER(table_name) = 'ALL' THEN
 
-       msp_location := '10.01';
-       MEME_UTILITY.drop_it('table','source_replacement_r'); 
-            
        --
        -- Generate "before" count
        --
@@ -4453,84 +4391,53 @@ PCTFREE 10 STORAGE (INITIAL 50M) TABLESPACE MIDI';
        --
        msp_location := '110.1';
        EXECUTE IMMEDIATE    
-            'CREATE TABLE source_replacement_r
-              (atom_id, sg_meme_data_type, sg_meme_id, new_sg_meme_id) NOLOGGING AS
-             SELECT /*+ USE_HASH(a) */ a.atom_id_1, ''R'', a.relationship_id, b.relationship_id
-             FROM relationships a, source_relationships b, source_version c
-             WHERE a.tobereleased in (''Y'',''y'') 
-		       AND a.rui = b.rui AND a.suppressible = b.suppressible
-	  	       AND a.atom_id_1=b.atom_id_1 AND a.atom_id_2=b.atom_id_2
-	 	       AND nvl(a.relationship_group,0) = nvl(b.relationship_group,0)
-               AND a.source=previous_name AND b.source=current_name';
-        MEME_UTILITY.put_message('Done loading source_replacement_r - ' || SQL%ROWCOUNT);
-
-        -- Soma chanfing for 10g performance
-        COMMIT;
-
-        --
-        -- Index for efficiency (cannot be unique because old version source may have dups)
-        --
-        MEME_UTILITY.drop_it('index','x_sr_new_id'); 
-        msp_location := '110.3';
-        EXECUTE IMMEDIATE
-           'CREATE INDEX x_sr_new_id ON source_replacement_r (new_sg_meme_id) TABLESPACE MIDI 
-     	    COMPUTE STATISTICS PARALLEL NOLOGGING';
-
-        msp_location := '110.3b';
-        --MEME_SYSTEM.analyze('source_replacement_r');
-
-
-        -- Assumes there are not left over records from prior insertions (no source= cla
-        msp_location := '110.4';
-        EXECUTE IMMEDIATE
-        'UPDATE source_id_map a
-         SET local_row_id =
-            (SELECT sg_meme_id FROM source_replacement_r b
-            WHERE local_row_id = new_sg_meme_id)
-         WHERE local_row_id IN (select new_sg_meme_id FROM source_replacement_r)
-           AND table_name=''R'''; 
-        MEME_UTILITY.put_message('Done updating source_id_map - ' || SQL%ROWCOUNT);
-
+            'INSERT into source_replacement
+	     (atom_id, sg_meme_data_type, sg_meme_id, new_sg_meme_id)
+                SELECT a.atom_id_1, ''R'', a.relationship_id, b.relationship_id
+                FROM relationships a, source_relationships b, source_version c
+                WHERE a.tobereleased in (''Y'',''y'') 
+		  AND a.rui = b.rui AND a.suppressible = b.suppressible
+	  	  AND a.atom_id_1=b.atom_id_1 AND a.atom_id_2=b.atom_id_2
+	 	  AND nvl(a.relationship_group,0) = nvl(b.relationship_group,0)
+                  AND a.source=previous_name AND b.source=current_name';
+      
        --
        -- delete replacements from source_relationships
        --
        msp_location := '110.2';
        EXECUTE IMMEDIATE
-           'DELETE FROM source_relationships a
+           'DELETE FROM source_relationships
             WHERE relationship_id IN
-             (SELECT new_sg_meme_id FROM source_replacement_r
-              WHERE sg_meme_data_type=''R'')';
-        MEME_UTILITY.put_message('Done deleting from source_rels - ' || SQL%ROWCOUNT);
-              
+             (SELECT new_sg_meme_id
+              FROM source_replacement
+	      WHERE sg_meme_data_type=''R'')';
+
        --
        -- Compute new source values for replacement relationships
        --
        msp_location := '115';
        MEME_UTILITY.drop_it('table',tmp);
        msp_location := '120';
-       -- Soma Changing for 10g performance Adding NOLOGGING
        EXECUTE IMMEDIATE
-           'CREATE TABLE ' || tmp || ' NOLOGGING AS
-    	    SELECT a.relationship_id, b.current_name source, 
+           'CREATE TABLE ' || tmp || ' AS
+    	    SELECT /*+PARALLEL(a)*/ a.relationship_id, b.current_name source, 
     	       c.current_name as source_of_label
     	    FROM relationships a, source_version b, source_version c
             WHERE relationship_level=''S'' 
       	      AND a.source = b.previous_name 
               AND source_of_label = c.previous_name
     	      AND relationship_id IN
-    	       (SELECT sg_meme_id FROM source_replacement_r
+    	       (SELECT sg_meme_id FROM source_replacement
     	        WHERE sg_meme_data_type=''R'')';
     
        --
        -- Index for efficiency
        --
        msp_location := '127';
-       -- Soma Changing for 10g performance Adding UNIQUE
        EXECUTE IMMEDIATE
-           'ALTER TABLE ' || tmp || ' ADD PRIMARY KEY (relationship_id)';
+           'CREATE INDEX x_' || tmp || ' ON ' || tmp || ' (relationship_id) TABLESPACE MIDI 
+     	COMPUTE STATISTICS PARALLEL';
     
-       -- Soma Changing for 10g performance
-		--MEME_SYSTEM.analyze(tmp);
        --
        -- Update source, source_of_label to new values for replacement rels
        --
@@ -4538,14 +4445,29 @@ PCTFREE 10 STORAGE (INITIAL 50M) TABLESPACE MIDI';
        IF MEME_UTILITY.exec_count(tmp) > 0 THEN
       	msp_location := '140.1';
     	EXECUTE IMMEDIATE
-    	    'UPDATE (SELECT a.source, a.source_of_label,
-                            b.source new_source, b.source_of_label new_sl
-                     FROM relationships a, ' || tmp || ' b
-                     WHERE a.relationship_id = b.relationship_id)
-             SET source = new_source, source_of_label = new_sl';
-        MEME_UTILITY.put_message('Done updating relationships - ' || SQL%ROWCOUNT);
+    	    'UPDATE /*+ PARALLEL(a) */
+               relationships a SET (source,source_of_label) =
+    	      (SELECT source,source_of_label FROM ' || tmp || ' b
+    	       WHERE a.relationship_id = b.relationship_id)
+                 WHERE relationship_id IN 
+                    (SELECT relationship_id FROM ' || tmp || ')';
+    
        END IF;
     
+       --
+       -- Set ranks of old version things lower to fake that they are lower ranking
+       --
+       UPDATE relationships a set rank = to_number('3'||substr(to_char(rank),2))
+       WHERE source in 
+          (SELECT DISTINCT previous_name FROM source_relationships b, source_version c
+      	   WHERE current_name = b.source); 
+       MEME_UTILITY.put_message(SQL%ROWCOUNT || ' relationships ranks lowered.');
+       MEME_UTILITY.sub_timing_stop;
+       MEME_UTILITY.log_operation
+          (authority,'MEME_SOURCE_PROCESSING.source_replacement',
+	   SQL%ROWCOUNT || ' relationships ranks lowered.',
+	   0,work_id,MEME_UTILITY.sub_elapsed_time);
+
        --
        -- Generate "after" count
        --
@@ -4584,9 +4506,6 @@ PCTFREE 10 STORAGE (INITIAL 50M) TABLESPACE MIDI';
    --   
    IF UPPER(table_name) = 'CR' OR UPPER(table_name) = 'ALL' THEN
     
-       msp_location := '10.01';
-       MEME_UTILITY.drop_it('table','source_replacement_cr'); 
-   
        --
        -- Generate "before" count
        --
@@ -4597,83 +4516,41 @@ PCTFREE 10 STORAGE (INITIAL 50M) TABLESPACE MIDI';
        -- compare context_relationships and move 
        -- replacements to source_replacement
        --
-       msp_location := '200';
-       EXECUTE IMMEDIATE 
-            'CREATE TABLE source_replacement_cr
-                (atom_id, sg_meme_data_type, sg_meme_id, new_sg_meme_id) NOLOGGING AS
-             SELECT /*+ USE_HASH(a) */ 
-                a.atom_id_1, ''CR'', a.relationship_id, b.relationship_id
-             FROM context_relationships a, 
-		          source_context_relationships b, source_version c
-             WHERE a.tobereleased in (''Y'',''y'') 
-               AND a.rui=b.rui
-	 	       AND a.atom_id_1 = b.atom_id_1 AND a.atom_id_2 = b.atom_id_2
-		       AND nvl(a.parent_treenum,''null'') = 
+       msp_location := '210.1';
+       EXECUTE IMMEDIATE    
+            'INSERT into source_replacement
+	     (atom_id, sg_meme_data_type, sg_meme_id, new_sg_meme_id)
+                SELECT DISTINCT
+                  a.atom_id_1, ''CR'', a.relationship_id, b.relationship_id
+                FROM context_relationships a, 
+		     source_context_relationships b, source_version c
+                WHERE a.tobereleased in (''Y'',''y'') 
+                  AND a.rui=b.rui
+	 	  AND a.atom_id_1 = b.atom_id_1 AND a.atom_id_2 = b.atom_id_2
+		  AND nvl(a.parent_treenum,''null'') = 
                       nvl(b.parent_treenum,''null'')
-		       AND nvl(a.relationship_group,0) = nvl(b.relationship_group,0)
-               AND a.source=previous_name and b.source=current_name
-			AND nvl(a.HIERARCHICAL_CODE,''null'') = nvl(b.HIERARCHICAL_CODE,''null'')';
+		  AND nvl(a.relationship_group,0) = nvl(b.relationship_group,0)
+                  AND a.source=previous_name and b.source=current_name';
       
-       repl_ct := SQL%ROWCOUNT;
-        MEME_UTILITY.put_message('Done loading source_replacement_cr - ' || repl_ct);
-       -- Soma Changing for 10g performance
-       COMMIT;
-
-        --
-        -- Index for efficiency
-        --
-        MEME_UTILITY.drop_it('index','x_sr_new_id'); 
-        msp_location := '201';
-        EXECUTE IMMEDIATE
-           'CREATE INDEX x_sr_new_id ON source_replacement_cr (new_sg_meme_id) TABLESPACE MIDI 
-     	    COMPUTE STATISTICS PARALLEL NOLOGGING';
-
-        msp_location := '202';
-        --MEME_SYSTEM.analyze('source_replacement_cr');
-        
        --
        -- delete replacements from source_context_relationships
        --
-       IF (repl_ct *  2) > before_ct AND repl_ct > 1000000 THEN
-           msp_location := '210.2';
-           tmp := MEME_UTILITY.get_unique_tablename;
-           msp_location := '210.2b';
-           EXECUTE IMMEDIATE
-           'CREATE TABLE ' || tmp || ' NOLOGGING AS
-            SELECT * FROM source_context_relationships
-            WHERE relationship_id IN
-               (SELECT relationship_id FROM source_context_relationships
-                MINUS 
-                SELECT new_sg_meme_id FROM source_replacement_cr
-                WHERE sg_meme_data_type = ''CR'') ';
-           MEME_UTILITY.put_message('Done creating new source_context_rels');
-           msp_location := '210.2c';
-           MEME_SYSTEM.truncate('source_context_relationships');
-           EXECUTE IMMEDIATE     
-           'INSERT /*+ APPEND */ INTO source_context_relationships 
-            SELECT * FROM ' || tmp;
-           MEME_UTILITY.put_message('Done loading new source_context_rels - ' || SQL%ROWCOUNT);
-          
-       ELSE
-           EXECUTE IMMEDIATE
+       msp_location := '210.2';
+       EXECUTE IMMEDIATE
            'DELETE FROM source_context_relationships a
             WHERE relationship_id IN
-               (SELECT new_sg_meme_id FROM source_replacement_cr
-                WHERE sg_meme_data_type = ''CR'')';
-            MEME_UTILITY.put_message('Done deleting from source_context_rels - ' || SQL%ROWCOUNT);
-       END IF;
-       COMMIT;
-
-        --
+               (SELECT new_sg_meme_id
+                FROM source_replacement
+		WHERE sg_meme_data_type = ''CR'')';
+       --
        -- Compute new source values for replacement cxt rels
        --
        msp_location := '215';
        MEME_UTILITY.drop_it('table',tmp);
        msp_location := '220';
-       -- Soma changing for 10g performance Adding NOLOGGING
        EXECUTE IMMEDIATE
-           'CREATE TABLE ' || tmp || ' NOLOGGING AS
-    	    SELECT a.relationship_id, b.current_name source, 
+           'CREATE TABLE ' || tmp || ' AS
+    	    SELECT /*+PARALLEL(a)*/ a.relationship_id, b.current_name source, 
     	       c.current_name as source_of_label
     	    FROM context_relationships a, 
 	       source_version b, source_version c
@@ -4681,36 +4558,31 @@ PCTFREE 10 STORAGE (INITIAL 50M) TABLESPACE MIDI';
       	    AND a.source = b.previous_name 
             AND source_of_label = c.previous_name
     	    AND a.relationship_id IN
-    	      (SELECT sg_meme_id FROM source_replacement_cr
+    	      (SELECT sg_meme_id FROM source_replacement
     	       WHERE sg_meme_data_type=''CR'')';
 
        --
        -- Index for efficiency
        --
        msp_location := '227';
-       -- Soma changing for 10g performance Adding UNIQUE
        EXECUTE IMMEDIATE
-           'ALTER TABLE ' || tmp || ' ADD PRIMARY KEY (relationship_id)';
-           
-       -- Soma changing for 10g performance 
-	   MEME_SYSTEM.analyze(tmp);
-		
-       EXECUTE IMMEDIATE
-           'ALTER SESSION ENABLE PARALLEL DML';           
-           
+           'CREATE INDEX x_' || tmp || ' ON ' || tmp || ' (relationship_id) TABLESPACE MIDI 
+     	COMPUTE STATISTICS PARALLEL';
+    
        --
        -- Update to new source values for replacement cxt rels
        --
        msp_location := '230';
-       IF repl_ct > 0 THEN
+       IF MEME_UTILITY.exec_count(tmp) > 0 THEN
       	msp_location := '240.1';
     	EXECUTE IMMEDIATE
-    	     'MERGE /*+ first_rows parallel(a) parallel(new) */ INTO context_relationships a
-                 USING ' || tmp || ' new ON (a.relationship_id = new.relationship_id)
-                 WHEN MATCHED THEN UPDATE SET
-                 source = new.source, source_of_label = new.source_of_label';
-            MEME_UTILITY.put_message('Done updating context_relationships - ' || SQL%ROWCOUNT);
-
+    	    'UPDATE /*+ PARALLEL(a) */ context_relationships a 
+	     SET (source,source_of_label) =
+    	      (SELECT source,source_of_label FROM ' || tmp || ' b
+    	       WHERE a.relationship_id = b.relationship_id)
+                 WHERE relationship_id IN 
+		(SELECT relationship_id FROM ' || tmp || ')';
+    
        END IF;
     
        --
@@ -4729,36 +4601,18 @@ PCTFREE 10 STORAGE (INITIAL 50M) TABLESPACE MIDI';
        msp_location := '250';
        MEME_UTILITY.drop_it('table',tmp);
        MEME_UTILITY.sub_timing_stop;
-       MEME_UTILITY.put_message(pct_replaced || '% context_relationships replaced.');
+	MEME_UTILITY.put_message(pct_replaced || '% context_relationships replaced.');
        MEME_UTILITY.log_operation
           (authority,'MEME_SOURCE_PROCESSING.source_replacement',
            pct_replaced || '% context_relationships replaced.',
-           0,work_id,MEME_UTILITY.sub_elapsed_time);
+	   0,work_id,MEME_UTILITY.sub_elapsed_time);
 
        MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::source_safe_replacement',
    		'Done context relationship source_safe_replacement',work_id,0,80);
 
    END IF;
 
-
-       
-   msp_location := '1030';
-   EXECUTE IMMEDIATE
-      'UPDATE src_qa_samples a
-       SET sample_id = 
-           (SELECT sg_meme_id FROM source_replacement_' ||table_name|| ' b 
-            WHERE sample_id = new_sg_meme_id
-              AND a.id_type = b.sg_meme_data_type)
-       WHERE (sample_id,id_type) IN 
-         (select new_sg_meme_id, sg_meme_data_type FROM source_replacement_' || table_name || ')';
-
-   MEME_UTILITY.put_message('Done updating src_qa_samples - ' || SQL%ROWCOUNT);
-
    COMMIT;
-
-   msp_location := '2000';
-   MEME_UTILITY.drop_it('index','x_sr_new_id'); 
-   MEME_UTILITY.drop_it('table','source_replacement_'||table_name);
 
    MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::source_safe_replacement',
    	'Done process source_safe_replacement',work_id,0,100);
@@ -4831,8 +4685,8 @@ BEGIN
 
    MEME_UTILITY.sub_timing_start;
 
-   --MEME_SYSTEM.analyze(termgroup_table_1);
-   --MEME_SYSTEM.analyze(termgroup_table_2);
+   MEME_SYSTEM.analyze(termgroup_table_1);
+   MEME_SYSTEM.analyze(termgroup_table_2);
 
    initialize_trace('GENERATE_FACTS');
 
@@ -4928,20 +4782,9 @@ BEGIN
       END IF;
 
       -- set up from and where clause
-      IF upper(table_name) = 'SOURCE_CLASSES_ATOMS' THEN
-         from_clause := ' FROM source_classes_atoms a, 
-            (select atom_id,code,source,termgroup,isui,sui,lui,
-              source_cui,source_dui,source_aui,concept_id,tobereleased from classes
-             union all
-             select atom_id,code,source,termgroup,isui,sui,lui,
-              source_cui,source_dui,source_aui,concept_id,tobereleased from source_classes_atoms
-             where switch != ''I'') b, '|| termgroup_table_1||' c, '||
-            termgroup_table_2||' d';
-      ELSE
-         from_clause := ' FROM classes a, classes b, '||
-            termgroup_table_1||' c, '||
-            termgroup_table_2||' d';
-      END IF;
+      from_clause := ' FROM '||LOWER(table_name)||' a, classes b, '||
+	 termgroup_table_1||' c, '||
+	 termgroup_table_2||' d';
 
       where_clause := string_clause||
 	 ' a.concept_id != b.concept_id'||
@@ -4952,8 +4795,7 @@ BEGIN
 
       IF UPPER(string_parameter) IN ('NORM','EXACT','BOTH') THEN
 	 where_clause := where_clause||
-	    ' AND a.lui !=
-	        (SELECT min(lui) FROM string_ui WHERE norm_string IS NULL AND language=''ENG'')';
+	    ' AND a.lui != ''L0028429''';
       END IF;
 
       IF UPPER(string_parameter) = 'EXACT' THEN
@@ -5085,7 +4927,7 @@ BEGIN
    	'Done norm string',work_id,0,90);
 
    msp_location := '170';
-   --MEME_SYSTEM.analyze('mom_candidate_facts');
+   MEME_SYSTEM.analyze('mom_candidate_facts');
 
    msp_location := '180';
    -- log operation
@@ -5216,7 +5058,7 @@ BEGIN
       select_clause := 
 	'(SELECT a.atom_id FROM classes a, attributes b, semantic_types c ' ||
 	' WHERE a.concept_id=b.concept_id ' ||
-	' AND attribute_name=''SEMANTIC_TYPE'' ' ||
+	' AND attribute_name||''''=''SEMANTIC_TYPE'' ' ||
 	' AND attribute_value = semantic_type ' ||
 	' AND is_chem = ''Y'' ) ';
       where_clause1 :=
@@ -5228,7 +5070,7 @@ BEGIN
       select_clause := 
 	'(SELECT a.atom_id FROM classes a, attributes b, semantic_types c ' ||
 	' WHERE a.concept_id=b.concept_id ' ||
-	' AND attribute_name=''SEMANTIC_TYPE'' ' ||
+	' AND attribute_name||''''=''SEMANTIC_TYPE'' ' ||
 	' AND attribute_value = semantic_type ' ||
 	' AND is_chem != ''Y'' ) ';
       where_clause1 :=
@@ -5240,7 +5082,7 @@ BEGIN
       select_clause := 
 	'(SELECT a.atom_id FROM classes a, attributes b, ' || arg_1 || ' c
 	  WHERE a.concept_id=b.concept_id
-	  AND attribute_name=''SEMANTIC_TYPE''
+	  AND attribute_name||''''=''SEMANTIC_TYPE''
 	  AND attribute_value = semantic_type ) ';
       where_clause1 :=
 	'atom_id_1 ' || not_clause1 || ' IN ' || select_clause;
@@ -5313,7 +5155,7 @@ BEGIN
       select_clause := 
 	'(SELECT a.atom_id FROM classes a, attributes b, semantic_types c ' ||
 	' WHERE a.concept_id=b.concept_id ' ||
-	' AND attribute_name=''SEMANTIC_TYPE'' ' ||
+	' AND attribute_name||''''=''SEMANTIC_TYPE'' ' ||
 	' AND attribute_value = semantic_type ' ||
 	' AND is_chem = ''Y'' ) ';
       where_clause2 :=
@@ -5325,7 +5167,7 @@ BEGIN
       select_clause := 
 	'(SELECT a.atom_id FROM classes a, attributes b, semantic_types c ' ||
 	' WHERE a.concept_id=b.concept_id ' ||
-	' AND attribute_name=''SEMANTIC_TYPE'' ' ||
+	' AND attribute_name||''''=''SEMANTIC_TYPE'' ' ||
 	' AND attribute_value = semantic_type ' ||
 	' AND is_chem != ''Y'' ) ';
       where_clause2 :=
@@ -5337,7 +5179,7 @@ BEGIN
       select_clause := 
 	'(SELECT a.atom_id FROM classes a, attributes b, ' || arg_2 || ' c
 	  WHERE a.concept_id=b.concept_id
-	  AND attribute_name=''SEMANTIC_TYPE''
+	  AND attribute_name||''''=''SEMANTIC_TYPE''
 	  AND attribute_value = semantic_type ) ';
       where_clause2 :=
 	'atom_id_2 ' || not_clause2 || ' IN ' || select_clause;
@@ -5411,7 +5253,7 @@ BEGIN
    msp_location := '120';
    local_exec(
 	'DELETE /*+ PARALLEL(a) */ 
- 	 FROM mom_candidate_facts a ' || 
+ 	 FROM mom_candidate_facts ' || 
 	 reverse_where_clause);
  
    MEME_UTILITY.put_message(msp_method||' successfully completed.');
@@ -5482,7 +5324,7 @@ BEGIN
    MEME_UTILITY.drop_it('table','mom_merge_facts_h1');
    msp_location := '15.2';
    EXECUTE IMMEDIATE
-      'CREATE TABLE mom_merge_facts_h1 NOLOGGING AS
+      'CREATE TABLE mom_merge_facts_h1 AS
        SELECT atom_id, concept_id FROM classes a, mom_candidate_facts b
        WHERE atom_id_1 = atom_id
        UNION
@@ -5507,7 +5349,7 @@ BEGIN
    MEME_UTILITY.drop_it('table','mom_merge_facts_h2');
    msp_location := '15.5';
    EXECUTE IMMEDIATE
-      'CREATE TABLE mom_merge_facts_h2 NOLOGGING AS
+      'CREATE TABLE mom_merge_facts_h2 AS
        SELECT min(m.rowid) as row_id
        FROM mom_candidate_facts m, mom_merge_facts_h1 a, mom_merge_facts_h1 b
        WHERE a.concept_id != b.concept_id
@@ -5655,7 +5497,7 @@ BEGIN
    MEME_UTILITY.sub_timing_start;
 
    msp_location := '10';
-   --MEME_SYSTEM.analyze('mom_merge_facts');
+   MEME_SYSTEM.analyze('mom_merge_facts');
 
    msp_location := '20';
    merge_set_pre := replacement_merges.merge_set || '-PRE';
@@ -5689,7 +5531,7 @@ BEGIN
    --	where a.source = b.source and status !='M')
 
    local_exec(
-       'CREATE TABLE ' || tmp1 || ' NOLOGGING AS
+       'CREATE TABLE ' || tmp1 || ' AS
         SELECT atom_id_1 AS atom_id
         FROM mom_merge_facts WHERE merge_set = ''' || merge_set_pre || '''
         UNION
@@ -5700,10 +5542,10 @@ BEGIN
    tmp2 := MEME_UTILITY.get_unique_tablename;
 
    msp_location := '125';
-   --MEME_SYSTEM.analyze(tmp1);
+   MEME_SYSTEM.analyze(tmp1);
 
    local_exec(
-       'CREATE TABLE ' || tmp2 || ' NOLOGGING AS
+       'CREATE TABLE ' || tmp2 || ' AS
         SELECT atom_id, concept_id FROM classes
         WHERE atom_id IN (SELECT atom_id FROM ' || tmp1 || ') 
         UNION 
@@ -5714,10 +5556,10 @@ BEGIN
    tmp3 := MEME_UTILITY.get_unique_tablename;
 
    msp_location := '135';
-   --MEME_SYSTEM.analyze(tmp2);
+   MEME_SYSTEM.analyze(tmp2);
 
    local_exec(
-	'CREATE TABLE ' || tmp3 || ' NOLOGGING AS
+	'CREATE TABLE ' || tmp3 || ' AS
 	 SELECT /*+ PARALLEL(a) */ b.concept_id as concept_id_1,
 	        c.concept_id as concept_id_2
 	 FROM mom_merge_facts a, ' || tmp2 || ' b, ' || tmp2 || ' c
@@ -5743,7 +5585,7 @@ BEGIN
    IF normalization_flag = '1' THEN
       msp_location := '140';
       local_exec(
-	'CREATE TABLE ' || tmp4 || '_2 NOLOGGING AS
+	'CREATE TABLE ' || tmp4 || '_2 AS
 	 SELECT a.concept_id AS concept_id_1, b.concept_id as concept_id_2
 	 FROM ' || tmp4 || ' a, 
 	  (SELECT min(concept_id) as concept_id, cluster_id
@@ -5753,7 +5595,7 @@ BEGIN
    ELSE
       msp_location := '150';
       local_exec(
-	'CREATE TABLE ' || tmp4 || '_2 NOLOGGING AS
+	'CREATE TABLE ' || tmp4 || '_2 AS
 	 SELECT a.concept_id AS concept_id_1, b.concept_id as concept_id_2
 	 FROM ' || tmp4 || ' a, 
 	  (SELECT max(concept_id) as concept_id, cluster_id
@@ -5805,11 +5647,8 @@ BEGIN
     msp_location := '180.1';
     EXECUTE IMMEDIATE
 	'CREATE INDEX x_' || tmp4 || '_2 on ' || tmp4 || '_2 (concept_id_1) TABLESPACE MIDI
-	 COMPUTE STATISTICS PARALLEL NOLOGGING';
+	 COMPUTE STATISTICS PARALLEL';
 
-    -- Soma changing for 10g Performance
-    --MEME_SYSTEM.analyze(tmp4);
-	
     msp_location := '180.2';
     EXECUTE IMMEDIATE
         'UPDATE source_classes_atoms a
@@ -5819,7 +5658,6 @@ BEGIN
 	 WHERE concept_id IN
 	    (SELECT b.concept_id_1 FROM ' || tmp4 || '_2 b)';
     MEME_UTILITY.put_message(SQL%ROWCOUNT || ' source_classes_atoms rows updated.');
-	COMMIT;
 
     MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::replacement_merges',
    	'Done updating source_classes_atoms',work_id,0,60);
@@ -5845,9 +5683,7 @@ BEGIN
     MEME_UTILITY.put_message(ct || ' source_classes_atoms rows updated.');
     CLOSE curvar;
 *****/
-	-- Soma changing for 10g performance
-    --MEME_SYSTEM.analyze('source_classes_atoms');
-    
+
     msp_location := '210';
     local_exec(
 	'UPDATE source_concept_status SET switch = ''N''
@@ -5856,12 +5692,10 @@ BEGIN
            WHERE switch != ''N''
            MINUS SELECT concept_id FROM source_classes_atoms) ');
 
-    --MEME_SYSTEM.analyze('source_concept_status');
-	
     msp_location := '220';
     MEME_UTILITY.drop_it('table',tmp2);
     local_exec(
-      'CREATE TABLE ' || tmp2 || ' NOLOGGING AS
+      'CREATE TABLE ' || tmp2 || ' AS
        SELECT atom_id, concept_id FROM classes
        WHERE atom_id IN (SELECT atom_id FROM ' || tmp1 || ') 
        UNION 
@@ -5870,22 +5704,22 @@ BEGIN
 
     MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::replacement_merges',
    	'Done updating source_concept_status',work_id,0,70);
-	
+
    -- create and use the index
    msp_location := '230';
    local_exec(
       'CREATE INDEX x_' || tmp2 || ' ON ' || tmp2 || ' (atom_id) TABLESPACE MIDI
-       COMPUTE STATISTICS PARALLEL NOLOGGING');
+       COMPUTE STATISTICS PARALLEL');
 
    msp_location := '240';
-   --MEME_SYSTEM.analyze(tmp2);
+   MEME_SYSTEM.analyze(tmp2);
 
    msp_location := '250';
    local_exec
       ('UPDATE mom_merge_facts SET status = ''M'' 
 	WHERE merge_set = ''' || merge_set_pre || ''' 
 	  AND (atom_id_1, atom_id_2) IN
-	   (SELECT a.atom_id, b.atom_id
+	   (SELECT /*+ USE_NL(a,b) */ a.atom_id, b.atom_id
 	    FROM ' || tmp2 || ' a, ' || tmp2 || ' b
 	    WHERE a.concept_id = b.concept_id
 	      AND atom_id_1 = a.atom_id
@@ -5898,7 +5732,6 @@ BEGIN
    MEME_UTILITY.drop_it('table',tmp2);
    MEME_UTILITY.drop_it('table',tmp3);
    MEME_UTILITY.drop_it('table',tmp4);
-   MEME_UTILITY.drop_it('table',tmp4||'_2');
 
    msp_location := '260';
    MEME_UTILITY.put_message(msp_method||' successfully completed.');
@@ -5922,7 +5755,6 @@ EXCEPTION
       MEME_UTILITY.drop_it('table',tmp2);
       MEME_UTILITY.drop_it('table',tmp3);
       MEME_UTILITY.drop_it('table',tmp4);
-      MEME_UTILITY.drop_it('table',tmp4||'_2');
       error_log(msp_method,msp_location,msp_error_code,SQLERRM);
       RAISE msp_exception;
 
@@ -5958,7 +5790,7 @@ BEGIN
    	MEME_UTILITY.drop_it('table','mom_precomputed_facts_t1');
    	msp_location := '100.2';
    	EXECUTE IMMEDIATE
-	    'CREATE TABLE mom_precomputed_facts_t1 NOLOGGING AS
+	    'CREATE TABLE mom_precomputed_facts_t1 AS
    	     SELECT * FROM mom_precomputed_facts
 	     WHERE merge_set = ''' || merge_set || ''' ';
 
@@ -5973,7 +5805,7 @@ BEGIN
 
    -- Analyze mom_precomputed_facts
    msp_location := '110';
-   --MEME_SYSTEM.analyze('mom_precomputed_facts');
+   MEME_SYSTEM.analyze('mom_precomputed_facts');
 
    MEME_SOURCE_PROCESSING.map_sg_fields(
       table_name => 'mom_precomputed_facts',
@@ -6099,7 +5931,6 @@ IS
    FROM source_termgroup_rank a, source_source_rank b, source_rank c
    WHERE substr(a.high_termgroup,1,instr(a.high_termgroup,'/')-1) = b.high_source
      AND substr(a.low_termgroup,1,instr(a.low_termgroup,'/')-1) = c.source (+)
-     AND a.high_termgroup NOT IN (SELECT termgroup FROM termgroup_rank)
    UNION
    SELECT a.*, b.stripped_source||'/'||a.tty as high_root_termgroup, 
 	NVL(c.stripped_source,b.stripped_source)||'/'||
@@ -6107,15 +5938,14 @@ IS
    FROM source_termgroup_rank a, source_rank b, source_rank c
    WHERE substr(a.high_termgroup,1,instr(a.high_termgroup,'/')-1) = b.source
      AND substr(a.low_termgroup,1,instr(a.low_termgroup,'/')-1) = c.source (+)
-     AND a.high_termgroup NOT IN (SELECT termgroup FROM termgroup_rank);
+;
 
    ir_strec ir_strcur%ROWTYPE;
 
    CURSOR ir_ssrcur IS 
    SELECT a.*, NVL(b.stripped_source,a.stripped_source) low_root_source
    FROM source_source_rank a, source_rank b
-   WHERE a.low_source = b.source(+)
-     AND a.high_source NOT IN (SELECT source FROM source_rank);
+   WHERE a.low_source = b.source(+);
 
    ir_ssrrec ir_ssrcur%ROWTYPE;
 
@@ -6417,7 +6247,7 @@ BEGIN
 		license_info, character_set,
 		rel_directionality_flag)
 	       VALUES 
-	       (ir_ssrrec.high_source, sysdate, -1,
+	       (ir_ssrrec.high_source, sysdate, to_number(to_char(sysdate,'YYYY'))+1,
 		ir_ssrrec.source_official_name, ir_ssrrec.nlm_contact,
 		ir_ssrrec.acquisition_contact, ir_ssrrec.content_contact,
 		ir_ssrrec.license_contact, ir_ssrrec.inverter_contact,
@@ -6456,132 +6286,52 @@ BEGIN
    MEME_UTILITY.put_message('Update source_version.');
    l_start := DBMS_UTILITY.get_time;
 
-   -- Soma : Removing the dependency on vsab with stripped source.
    -- Delete old row
    msp_location := '110';
    msp_error_code := 1;
    msp_error_detail := 'Error deleting from source_version';
-     DELETE FROM source_version WHERE source IN
-    (SELECT a.stripped_source
-     FROM source_source_rank a, source_rank b
-     WHERE a.stripped_source = b.stripped_source
-       AND a.low_source = b.source);
+   DELETE FROM source_version WHERE source IN
+    (SELECT stripped_source 
+     FROM source_source_rank
+     WHERE high_source like stripped_source||'%'
+       AND low_source like stripped_source||'%'
+       AND stripped_source IS NOT NULL);
 
     MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::insert_ranks',
-        'Done with source_rank',0,work_id,0,90);
+    	'Done with source_rank',0,work_id,0,90);
 
    -- Insert all new sources
    -- This is so complex because of things like MSH2001PA
    -- and the fact that HCPCS and CPT have multiple sources.
    msp_location := '110';
    msp_error_detail := 'Error inserting into source_version';
- --  INSERT INTO source_version (source,current_name,previous_name)
- --  SELECT DISTINCT a.stripped_source, a.normalized_source, b.normalized_source
- --  FROM source_source_rank a, source_rank b
-  -- WHERE a.normalized_source like a.stripped_source||'%'
- --  AND b.normalized_source like a.stripped_source||'%'
-  -- AND a.low_source = b.source;
+   INSERT INTO source_version (source,current_name,previous_name)
+   SELECT DISTINCT a.stripped_source, a.normalized_source, b.normalized_source
+   FROM source_source_rank a, source_rank b
+   WHERE a.normalized_source like a.stripped_source||'%'
+   AND b.normalized_source like a.stripped_source||'%'
+   AND a.low_source = b.source;
 
    msp_location := '111';
    msp_error_detail :='Error inserting into source_version';
    INSERT INTO source_version (source,current_name,previous_name)
-   SELECT DISTINCT a.stripped_source, a.high_source, a.low_source
+   SELECT DISTINCT a.stripped_source, a.high_source, b.source
    FROM source_source_rank a, source_rank b
-   WHERE a.stripped_source = b.stripped_source
+   WHERE a.high_source like a.stripped_source||'%'
+   AND b.source like a.stripped_source||'%'
    AND a.low_source = b.source
-   MINUS
-   SELECT source, current_name, previous_name FROM source_version;
+   AND a.high_source != a.normalized_source;
 
    msp_location := '115';
    msp_error_detail := 'Error inserting into source_version (new)';
    INSERT INTO source_version (source,current_name,previous_name)
    SELECT DISTINCT a.stripped_source, a.normalized_source, ''
    FROM source_source_rank a
-   WHERE stripped_source not in
-        (select stripped_source from source_rank b
-         where a.normalized_source != b.normalized_source)
-   MINUS
-   SELECT source, current_name, previous_name FROM source_version;
+   WHERE a.normalized_source like a.stripped_source||'%'
+   AND stripped_source not in 
+	(select stripped_source from source_rank b
+	 where a.normalized_source != b.normalized_source);
 
-   msp_location := '118';
-   msp_error_detail := 'Error setting source_official_name';
-   
-    UPDATE sims_info
-    SET source_official_name = (SELECT min(pt) FROM 
-    (SELECT a.atom_name ab, b.atom_name pt
-        FROM atoms a, atoms b, classes c, classes d
-        WHERE a.atom_id=c.atom_id AND b.atom_id=d.atom_id
-        AND c.source='SRC' AND d.source='SRC'
-        AND c.tobereleased ='Y'
-        AND d.tobereleased='Y'
-        AND c.termgroup='SRC/VAB'
-        AND d.termgroup='SRC/VPT'
-        AND c.concept_id=d.concept_id
-	UNION
-	SELECT c.atom_name ab, d.atom_name pt
-        FROM source_classes_atoms c, source_classes_atoms d
-        WHERE c.source='SRC' AND d.source='SRC'
-        AND c.tobereleased ='Y'
-        AND d.tobereleased='Y'
-        AND c.termgroup='SRC/VAB'
-        AND d.termgroup='SRC/VPT'
-        AND c.code = d.code
-	UNION
-	SELECT a.atom_name ab, b.atom_name pt
-        FROM atoms a, atoms b, classes c, classes d
-        WHERE a.atom_id=c.atom_id AND b.atom_id=d.atom_id
-        AND c.source='SRC' AND d.source='SRC'
-        AND c.tobereleased ='Y'
-        AND d.tobereleased='Y'
-        AND c.termgroup='SRC/RAB'
-        AND d.termgroup='SRC/RPT'
-        AND c.concept_id=d.concept_id
-    AND a.atom_name IN ('SRC','MTH','NLM-MED')) tmp_tf
-    WHERE source=ab)
-    WHERE source IN
-        (SELECT high_source from source_source_rank);
-    
-   msp_location := '119';
-   msp_error_detail := 'Error setting source_short_name';
-       
-    UPDATE sims_info
-    SET source_short_name = (SELECT min(pt) FROM
-    (SELECT
-      (SELECT current_name FROM source_version
-       WHERE source=a.atom_name) ab, b.atom_name pt
-    FROM atoms a, atoms b, classes c, classes d
-    WHERE a.atom_id=c.atom_id AND b.atom_id=d.atom_id
-    AND c.source='SRC' AND d.source='SRC'
-    AND c.tobereleased ='Y'
-    AND d.tobereleased='Y'
-    AND c.termgroup='SRC/RAB'
-    AND d.termgroup='SRC/SSN'
-    AND c.concept_id=d.concept_id
-	UNION
-	SELECT
-      (SELECT current_name FROM source_version
-       WHERE source=c.atom_name) ab, d.atom_name pt
-    FROM source_classes_atoms c, source_classes_atoms d
-    WHERE c.source='SRC' AND d.source='SRC'
-    AND c.tobereleased ='Y'
-    AND d.tobereleased='Y'
-    AND c.termgroup='SRC/RAB'
-    AND d.termgroup='SRC/SSN'
-    AND c.code = d.code
-	UNION
-	SELECT a.atom_name ab, b.atom_name pt
-    FROM atoms a, atoms b, classes c, classes d
-    WHERE a.atom_id=c.atom_id AND b.atom_id=d.atom_id
-    AND c.source='SRC' AND d.source='SRC'
-    AND c.tobereleased ='Y'
-    AND d.tobereleased='Y'
-    AND c.termgroup='SRC/RAB'
-    AND d.termgroup='SRC/SSN'
-    AND c.concept_id=d.concept_id
-    AND a.atom_name IN ('SRC','MTH','NLM-MED')) tmp_sn
-    WHERE source=ab)
-    WHERE source IN (SELECT high_source from source_source_rank);
-    
    l_end := DBMS_UTILITY.get_time;
    MEME_UTILITY.log_operation(
        authority => authority,
@@ -6714,7 +6464,7 @@ BEGIN
     -- Generate temporary table <source>_atoms.
     MEME_UTILITY.drop_it('table',l_source||'_atoms');
     local_exec (
-	'CREATE TABLE ' || l_source || '_atoms NOLOGGING AS 
+	'CREATE TABLE ' || l_source || '_atoms AS 
 	 SELECT /*+ PARALLEL(a) */ atom_id FROM classes a
 	 WHERE source LIKE ''' || report_tables.source || '%''
 	 AND tobereleased in (''Y'',''y'')'
@@ -6728,22 +6478,24 @@ BEGIN
     MEME_UTILITY.drop_it('table',l_source||'_demotions');
     local_exec(
 	'CREATE TABLE ' || l_source || '_demotions AS
-          WITH rels AS (SELECT concept_id_1, concept_id_2, atom_id_1, atom_id_2 FROM relationships
-                        WHERE status = ''D'')
-	 SELECT concept_id_1 AS concept_id FROM rels
-	 WHERE atom_id_1 IN
+	 SELECT concept_id_1 AS concept_id FROM relationships
+	 WHERE status = ''D''
+	    AND	atom_id_1 IN
 	    (SELECT * FROM ' || l_source || '_atoms)
 	 UNION
-	 SELECT concept_id_2 FROM rels
-	 WHERE atom_id_1 IN
+	 SELECT concept_id_2 AS concept_id FROM relationships
+	 WHERE status = ''D''
+	    AND atom_id_1 IN
 	    (SELECT * FROM ' || l_source || '_atoms)
 	 UNION
-	 SELECT concept_id_2 FROM rels
-	 WHERE atom_id_2 IN
+	 SELECT concept_id_2 AS concept_id FROM relationships
+	 WHERE status = ''D''
+	    AND	atom_id_2 IN
 	    (SELECT * FROM ' || l_source || '_atoms)
 	 UNION
-	 SELECT concept_id_1 FROM rels
-	 WHERE atom_id_2 IN
+	 SELECT concept_id_1 AS concept_id FROM relationships
+	 WHERE status = ''D''
+	    AND	atom_id_2 IN
 	    (SELECT * FROM ' || l_source || '_atoms) '
     );
 
@@ -6757,12 +6509,22 @@ BEGIN
 	 'CREATE TABLE  ' || l_source || '_merges AS
 	  SELECT DISTINCT concept_id FROM classes
 	  WHERE source LIKE ''' || report_tables.source || '%''
-	  AND authority LIKE ''ENG-%''
-          MINUS SELECT concept_id FROM  ' || l_source || '_demotions'
+	  AND authority LIKE ''ENG-%'''
     );
 
    MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::report_tables',
     	'Done generating table <source>_merges',0,work_id,0,20);
+
+    msp_location := '122';
+    -- Remove records that already processed in source_demotions.
+    local_exec(
+	'DELETE FROM ' || l_source || '_merges
+	 WHERE concept_id IN
+	    (SELECT * FROM ' || l_source || '_demotions)'
+    );
+
+   MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::report_tables',
+    	'Done removing records that already processed in source_demotions',0,work_id,0,25);
 
     msp_location := '130';
     -- Generate table <source>_need_review.
@@ -6771,13 +6533,33 @@ BEGIN
 	'CREATE TABLE ' || l_source || '_need_review AS
 	 SELECT DISTINCT concept_id FROM classes
 	 WHERE source LIKE ''' || report_tables.source || '%''
-	    AND status = ''N'' AND tobereleased in (''Y'',''y'') 
-         MINUS SELECT concept_id FROM ' || l_source || '_demotions
-         MINUS SELECT concept_id FROM ' || l_source || '_merges'
+	    AND status = ''N'' AND tobereleased in (''Y'',''y'') '
     );
 
    MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::report_tables',
     	'Done generating table <source>_need_review',0,work_id,0,30);
+
+    msp_location := '132';
+    -- Remove records that already processed in source_demotions.
+    local_exec(
+	'DELETE FROM ' || l_source || '_need_review
+	 WHERE concept_id IN
+	    (SELECT * FROM ' || l_source || '_demotions)'
+    );
+
+   MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::report_tables',
+    	'Done removing records that already processed in source_demotions',0,work_id,0,35);
+
+    msp_location := '134';
+    -- Remove records that already processed in source_merges.
+    local_exec (
+	'DELETE FROM ' || l_source || '_need_review
+	 WHERE concept_id IN
+	    (SELECT * FROM ' || l_source || '_merges)'
+    );
+
+   MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::report_tables',
+    	'Done removing records that already processed in source_merges',0,work_id,0,40);
 
     msp_location := '140';
     -- Generate table <source>_replaced.
@@ -6786,17 +6568,45 @@ BEGIN
 	'CREATE TABLE ' || l_source || '_replaced AS
 	 SELECT DISTINCT concept_id FROM classes
 	 WHERE source LIKE ''' || report_tables.source || '%''
-	    AND status != ''N'' AND tobereleased in (''Y'',''y'')
-         MINUS SELECT concept_id FROM ' || l_source || '_demotions
-         MINUS SELECT concept_id FROM ' || l_source || '_merges
-         MINUS SELECT concept_id FROM ' || l_source || '_need_review'
+	    AND status != ''N'' AND tobereleased in (''Y'',''y'') '
     );
 
    MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::report_tables',
     	'Done generating table <source>_replaced',0,work_id,0,45);
 
+    msp_location := '142';
+    -- Remove records that already processed in source_demotions
+    local_exec (
+	'DELETE FROM ' || l_source || '_replaced
+	 WHERE concept_id IN
+	    (SELECT * FROM ' || l_source || '_demotions) '
+    );
+
    MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::report_tables',
-    	'Done removing records that already processed in source_need_review',0,work_id,0,60);
+    	'Done removing records that already processed in source_demotions',0,work_id,0,50);
+
+    msp_location := '144';
+    -- Remove records that already processed in source_merges.
+    local_exec (
+	'DELETE FROM ' || l_source || '_replaced
+	 WHERE concept_id IN
+	    (SELECT * FROM ' || l_source || '_merges) '
+    );
+
+   MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::report_tables',
+    	'Done removing records that already processed in source_merges',0,work_id,0,55);
+
+    msp_location := '146';
+    -- Remove records that already processed in source_need_review.
+    local_exec (
+	 'DELETE FROM ' || l_source || '_replaced
+	  WHERE concept_id IN
+	    (SELECT * FROM ' || l_source || '_need_review) '
+    );
+    
+    
+   MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::report_tables',
+    	'Done removing records that already processed in source_needs_review',0,work_id,0,60);
 
     -- Sample each merge set
     --  By source
@@ -6868,26 +6678,25 @@ BEGIN
 	     '', MERGE STATUS '' || ms ||
              '', IS_CHEM '' || is_chem reason
     	 FROM (
-           SELECT 
-                  a.concept_id, merge_set, a.status cs,
-                  b.status ms, is_chem,
-                  row_number() over
-             (PARTITION BY merge_set, a.status, b.status, is_chem
-              ORDER BY dbms_random.value) rn
-           FROM (SELECT DISTINCT a.concept_id,
-                        DECODE((SELECT count(*) FROM semantic_types 
-                                WHERE b.attribute_value = semantic_type),0,''N'',''Y'') is_chem,
-                        a.status, a.atom_id
-                 FROM classes a, attributes b
-                 WHERE b.attribute_name = ''SEMANTIC_TYPE''
-                   AND a.concept_id = b.concept_id
-                   AND a.source = :source
-                   AND a.status in (''R'',''N'') ) a, mom_facts_processed b
-           WHERE a.atom_id = b.atom_id_1
+      	   SELECT /*+ INDEX(a,classes_pk) INDEX(c,x_attr_cid) */
+		  a.concept_id, merge_set, a.status cs, 
+	          b.status ms, is_chem,
+        	  row_number() over 
+	     (PARTITION BY merge_set, a.status, b.status, is_chem 
+	      ORDER BY dbms_random.value) rn
+      	   FROM classes a, mom_facts_processed b, attributes c, semantic_types d
+      	   WHERE a.atom_id in (b.atom_id_1, b.atom_id_2)
              AND b.authority = :source
+             AND a.source = :source
              AND b.merge_set like :root_source
-             AND b.status in (''D'',''M'') )
-         WHERE rn < :threshold'
+             AND a.status in (''R'',''N'')
+             AND b.status in (''D'',''M'')
+             AND a.concept_id = c.concept_id
+             AND c.attribute_name||'''' = ''SEMANTIC_TYPE''
+             AND c.attribute_value = d.semantic_type
+             AND d.is_chem in (''Y'',''N'')
+             )
+    	 WHERE rn < :threshold'
     USING source, source, root_source||'%', threshold;
     
     msp_location := '148.5';
@@ -6903,62 +6712,7 @@ BEGIN
     
    MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::report_tables',
     	'Done ambiguous SUI (by source)',0,work_id,0,85);
-    	
-    msp_location := '148.7';
-    -- Generate table <source>_nosty
-    MEME_UTILITY.drop_it('table',l_source||'_nosty');
-    EXECUTE IMMEDIATE 
-	 'CREATE TABLE ' || l_source || '_nosty
-	  (concept_id NUMBER(12))';    
 
-
-    msp_location := '148.71';
-    --new concepts without STY
-    EXECUTE IMMEDIATE
-        'INSERT into ' || l_source || '_nosty
-    	 SELECT concept_id 
-               FROM classes a
-               WHERE atom_id IN
-	             (SELECT * FROM ' || l_source || '_atoms)
-         MINUS 
-         SELECT /*+ X_ATTR_AN*/ concept_id 
-                     FROM attributes x 
-                    WHERE attribute_name = ''SEMANTIC_TYPE''';
-                    
-   MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::report_tables',
-    	'Done generating table <source>_nosty',0,work_id,0,65);                    
-                                
-    	
-    msp_location := '148.8';
-    -- Generate table <source>_bad_merge.
-    MEME_UTILITY.drop_it('table',l_source||'_bad_merge');
-    EXECUTE IMMEDIATE 
-	 'CREATE TABLE ' || l_source || '_bad_merge
-	  (concept_id NUMBER(12))';    
-
-   MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::report_tables',
-    	'Done generating table <source>_bad_merge',0,work_id,0,65);
-    	
-
-    msp_location := '148.81';
-    --concepts with multiple CUIs
-    EXECUTE IMMEDIATE
-        'INSERT into ' || l_source || '_bad_merge
-    	 SELECT concept_id
-    FROM (SELECT concept_id, last_release_cui
-            FROM classes a
-           WHERE     EXISTS
-                        (SELECT 1
-                           FROM classes b
-                          WHERE     a.concept_id = b.concept_id
-                                AND b.authority = :authority
-                                AND last_release_cui IS NOT NULL)
-                 AND last_release_cui IS NOT NULL)
-GROUP BY concept_id
-  HAVING COUNT (DISTINCT last_release_cui) > 1'
-                                USING authority;                                
-    	
-    	
     msp_location := '150';
     -- Drop temporary table <source>_atoms.
     MEME_UTILITY.drop_it('table', l_source || '_atoms');
@@ -6988,14 +6742,6 @@ GROUP BY concept_id
 	('SELECT COUNT(*) FROM ' || l_source || '_sample');
     MEME_UTILITY.put_message
 	(ct||' rows inserted in table ' || l_source || '_sample');
-    ct := MEME_UTILITY.exec_select
-	('SELECT COUNT(*) FROM ' || l_source || '_nosty');
-    MEME_UTILITY.put_message
-	(ct||' rows inserted in table ' || l_source || '_nosty');
-    ct := MEME_UTILITY.exec_select
-	('SELECT COUNT(*) FROM ' || l_source || '_bad_merge');
-    MEME_UTILITY.put_message
-	(ct||' rows inserted in table ' || l_source || '_bad_merge');
     MEME_UTILITY.put_message(msp_method ||' successfully completed.');
 
    MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::report_tables',
@@ -7042,6 +6788,7 @@ BEGIN
 
    msp_location := '100';
    retval := 0;
+
    --
    -- Find all old version atoms
    --
@@ -7051,7 +6798,7 @@ BEGIN
    MEME_UTILITY.drop_it('table',tmp_table_1);
    msp_location := '110.3';
    EXECUTE IMMEDIATE
-      'CREATE TABLE ' || tmp_table_1 || ' NOLOGGING AS
+      'CREATE TABLE ' || tmp_table_1 || ' AS
        SELECT /*+ PARALLEL(a) */ DISTINCT atom_id AS row_id
        FROM classes a
        WHERE source = ''' || old_source || '''';
@@ -7076,14 +6823,11 @@ BEGIN
 
    msp_location := '110.5';
    EXECUTE IMMEDIATE
-       'CREATE UNIQUE INDEX x_' || tmp_table_1 || ' on  ' || tmp_table_1 || ' (row_id) TABLESPACE MIDI
-	COMPUTE STATISTICS PARALLEL NOLOGGING';
+       'CREATE INDEX x_' || tmp_table_1 || ' on  ' || tmp_table_1 || ' (row_id) TABLESPACE MIDI
+	COMPUTE STATISTICS PARALLEL';
 
    MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::update_releasability',
     	'Done old-version SRC atoms',0,work_id,0,20);
-	
-	-- Soma Changing for 10g performance
-   --BAC Removed MEME_SYSTEM.analyze(tmp_table_1);
 
    --
    -- Find attributes attached to old version atoms
@@ -7095,12 +6839,11 @@ BEGIN
    MEME_UTILITY.drop_it('table',tmp_table_2);
    msp_location := '120.3';
    EXECUTE IMMEDIATE
-      'CREATE TABLE ' || tmp_table_2 || ' NOLOGGING AS
+      'CREATE TABLE ' || tmp_table_2 || ' AS
        SELECT /*+ PARALLEL(a) */ attribute_id AS row_id
        FROM attributes a
-       WHERE source != ''' || old_source || '''
-         AND atom_id IN
-           (SELECT row_id FROM ' || tmp_table_1 || ')
+       WHERE atom_id IN
+       (SELECT row_id FROM ' || tmp_table_1 || ')
          AND attribute_level = ''S''
          AND tobereleased != ''' || new_value || '''
          AND ((nvl(sg_type,''null'') NOT IN 
@@ -7115,10 +6858,8 @@ BEGIN
 
    MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::update_releasability',
     	'Done finding attributes attached to old version atoms',0,work_id,0,30);
-	-- Soma Changing for 10g Performance
-   -- BAC removed: MEME_SYSTEM.analyze(tmp_table_2);
 
-    	--
+   --
    -- Find all relationships connected to old atoms
    -- Plus relationships with old source
    --
@@ -7128,11 +6869,10 @@ BEGIN
    MEME_UTILITY.drop_it('table',tmp_table_3);
    msp_location := '130.3';
    EXECUTE IMMEDIATE
-      'CREATE TABLE ' || tmp_table_3 || ' NOLOGGING AS 
+      'CREATE TABLE ' || tmp_table_3 || ' AS 
        SELECT /*+ PARALLEL(r) */ relationship_id AS row_id
        FROM relationships r
-       WHERE source != ''' || old_source || '''
-         AND atom_id_1 IN
+       WHERE atom_id_1 IN
          (SELECT row_id FROM ' || tmp_table_1 || ')
          AND relationship_level = ''S''
          AND tobereleased != ''' || new_value || '''
@@ -7142,16 +6882,15 @@ BEGIN
        UNION
        SELECT /*+ PARALLEL(r) */ relationship_id 
        FROM relationships r
-       WHERE source != ''' || old_source || '''
-         AND atom_id_2 IN
-           (SELECT row_id FROM ' || tmp_table_1 || ')
+       WHERE atom_id_2 IN
+         (SELECT row_id FROM ' || tmp_table_1 || ')
          AND relationship_level = ''S''
          AND tobereleased != ''' || new_value || '''
          AND ((nvl(sg_type_2,''null'') NOT IN
                 (SELECT code FROM code_map WHERE type=''map_sg_type'')) 
          	  OR source = ''SRC'')
        UNION
-       SELECT /*+ PARALLEL(a) */ relationship_id
+       SELECT /*+ parallel(a) */ relationship_id
        FROM relationships a
        WHERE source = ''' || old_source || '''
          AND relationship_level = ''S''
@@ -7159,19 +6898,29 @@ BEGIN
 
    MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::update_releasability',
     	'Done finding all relationships connected to old atoms',0,work_id,0,40);
-	-- Soma Changing for 10g Performance
-    -- BAC removed: MEME_SYSTEM.analyze(tmp_table_3);
-   MEME_UTILITY.put_message('Done finding data to update');
 
-    	
     --
     -- Change releasability of old atoms
     --
     msp_location := '140.1';
-    EXECUTE IMMEDIATE
-       'UPDATE /*+ PARALLEL(c) */ classes c SET tobereleased = ''' || new_value || '''
-        WHERE atom_id IN (SELECT row_id FROM ' || tmp_table_1 || ')';
-   MEME_UTILITY.put_message(SQL%ROWCOUNT || ' atoms updated');
+    IF MEME_UTILITY.exec_count(tmp_table_1)>0 THEN
+      msp_location := '140.2';
+      retval :=
+	 MEME_BATCH_ACTIONS.macro_action(
+	    action => 'T',
+	    id_type => 'C',
+	    authority => authority,
+	    table_name => tmp_table_1,
+	    work_id => work_id,
+	    status => 'R',
+	    new_value => new_value,
+	    set_preferred_flag => MEME_CONSTANTS.NO );
+      IF retval < 0 THEN
+	 msp_error_code := 10;
+	 msp_error_detail := 'action=T,id_type=C,new_value='||new_value;
+       	 RAISE update_releasability_exc;
+      END IF;
+    END IF;
 
    MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::update_releasability',
     	'Done change releasability of old atoms',0,work_id,0,50);
@@ -7180,10 +6929,24 @@ BEGIN
     -- Change releasability of old attributes
     --
     msp_location := '145.1';
-    EXECUTE IMMEDIATE
-       'UPDATE /*+ PARALLEL(a) */ attributes a SET tobereleased = ''' || new_value || '''
-        WHERE attribute_id IN (SELECT row_id FROM ' || tmp_table_2 || ')';
-   MEME_UTILITY.put_message(SQL%ROWCOUNT || ' attributes updated');
+    IF MEME_UTILITY.exec_count(tmp_table_2)>0 THEN
+      msp_location := '145.2';
+      retval :=
+	 MEME_BATCH_ACTIONS.macro_action(
+	    action => 'T',
+	    id_type => 'A',
+	    authority => authority,
+	    table_name => tmp_table_2,
+	    work_id => work_id,
+	    status => 'R',
+	    new_value => new_value );
+      IF retval < 0 THEN
+	 msp_error_code := 10;
+	 msp_error_detail := 'action=T,id_type=A,new_value='||new_value;
+       	 RAISE update_releasability_exc;
+      END IF;
+
+    END IF;
 
    MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::update_releasability',
     	'Done change releasability of old attributes',0,work_id,0,60);
@@ -7192,10 +6955,23 @@ BEGIN
     -- Change releasability of old relationships
     --
     msp_location := '150.1';
-    EXECUTE IMMEDIATE
-       'UPDATE /*+ PARALLEL(r) */ relationships r SET tobereleased = ''' || new_value || '''
-        WHERE relationship_id IN (SELECT row_id FROM ' || tmp_table_3 || ')';
-   MEME_UTILITY.put_message(SQL%ROWCOUNT || ' relationships updated');
+    IF MEME_UTILITY.exec_count(tmp_table_3)>0 THEN
+      msp_location := '150.2';
+      retval :=
+	 MEME_BATCH_ACTIONS.macro_action(
+	    action => 'T',
+	    id_type => 'R',
+	    authority => authority,
+	    table_name => tmp_table_3,
+	    work_id => work_id,
+	    status => 'R',
+	    new_value => new_value );
+      IF retval < 0 THEN
+	 msp_error_code := 10;
+	 msp_error_detail := 'action=T,id_type=R,new_value='||new_value;
+       	 RAISE update_releasability_exc;
+      END IF;
+    END IF;
 
    MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::update_releasability',
     	'Done change releasability of old relationships',0,work_id,0,70);
@@ -7207,24 +6983,37 @@ BEGIN
    MEME_UTILITY.drop_it('table',tmp_table_1);
    msp_location := '160.2';
    local_exec
-      ('CREATE TABLE ' || tmp_table_1 || ' NOLOGGING AS
+      ('CREATE TABLE ' || tmp_table_1 || ' AS
         SELECT /*+ PARALLEL(a) */ relationship_id AS row_id
-        FROM context_relationships a
-        WHERE source = ''' || old_source || '''
+	FROM context_relationships a
+	WHERE source = ''' || old_source || '''
           AND tobereleased != ''' || new_value || '''');
 
    MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::update_releasability',
     	'Done all old context rels',0,work_id,0,80);
-	-- Soma Changing for 10g performance
-   -- BAC Removed: MEME_SYSTEM.analyze(tmp_table_1);
+
    -- 
    -- Change releasability of old version context relationships
    -- 
    msp_location := '170.1';
-    EXECUTE IMMEDIATE
-       'UPDATE /*+ PARALLEL(r) */ context_relationships r SET tobereleased = ''' || new_value || '''
-        WHERE relationship_id IN (SELECT row_id FROM ' || tmp_table_1 || ')';
-   MEME_UTILITY.put_message(SQL%ROWCOUNT || ' cxt relationships updated');
+   IF MEME_UTILITY.exec_count(tmp_table_1)>0 THEN
+      	msp_location := '170.2';
+   	retval :=
+          MEME_BATCH_ACTIONS.macro_action(
+	    action => 'T',
+	    id_type => 'CR',
+	    authority => authority,
+	    table_name => tmp_table_1,
+	    work_id => work_id,
+	    status => 'R',
+	    new_value => new_value );
+   	IF retval < 0 THEN
+            msp_error_code := 10;
+            msp_error_detail := 'action=T,id_type=R,new_value='||new_value;
+            RAISE update_releasability_exc;
+   	END IF;
+
+   END IF;
 
    MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::update_releasability',
     	'Done change releasability of old version context relationships',0,work_id,0,90);
@@ -7313,6 +7102,7 @@ BEGIN
 
    -- Check E- sab also, restrict to 20 chars
    e_source := 'E-' || source;
+   e_source := substr(e_source,1,20);
    l_source := substr(source,1,20);
 
    MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::resolve_stys',
@@ -7327,49 +7117,46 @@ BEGIN
    MEME_UTILITY.drop_it('table',tmp_table_1);
    msp_location := '100.3';
    EXECUTE IMMEDIATE
-       'CREATE TABLE ' || tmp_table_1 || ' NOLOGGING AS
-        SELECT concept_id
+       'CREATE TABLE ' || tmp_table_1 || ' AS
+        SELECT /*+ PARALLEL(a) FULL(a) */ concept_id
         FROM attributes a
         WHERE attribute_name = ''SEMANTIC_TYPE''
-          AND source in (''' || substr(e_source,1,20) || ''', ''' || l_source || ''', ''' 
-            || source || ''', ''' || e_source || ''')';
+          AND source in (''' || l_source || ''', ''' || e_source || ''')';
 
    MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::resolve_stys',
     	'Done get source owned STYs',0,work_id,0,50);
 
    -- Get non source owned STYs
    msp_location := '110.1';
-   --MEME_SYSTEM.analyze(tmp_table_1);
+   MEME_SYSTEM.analyze(tmp_table_1);
    msp_location := '110.2';
    tmp_table_2 := MEME_UTILITY.get_unique_tablename;
    msp_location := '160.2';
    MEME_UTILITY.drop_it('table',tmp_table_2);
    msp_location := '160.3';
    EXECUTE IMMEDIATE
-       'CREATE TABLE ' || tmp_table_2 || ' NOLOGGING AS
+       'CREATE TABLE ' || tmp_table_2 || ' AS
         SELECT concept_id
         FROM attributes a
-        WHERE attribute_name = ''SEMANTIC_TYPE''
-        AND source not in (''' || substr(e_source,1,20) || ''', ''' || l_source || ''', ''' 
-            || source || ''', ''' || e_source || ''')
+        WHERE attribute_name||'''' = ''SEMANTIC_TYPE''
+        AND source not in (''' || l_source || ''', ''' || e_source || ''')
         AND concept_id IN
             (SELECT concept_id FROM ' || tmp_table_1 || ') ';
 
    msp_location := '120.1';
-   --MEME_SYSTEM.analyze(tmp_table_2);
+   MEME_SYSTEM.analyze(tmp_table_2);
    msp_location := '120.2';
    tmp_table_3 := MEME_UTILITY.get_unique_tablename;
    msp_location := '120.2';
    MEME_UTILITY.drop_it('table',tmp_table_3);
    msp_location := '120.3';
    EXECUTE IMMEDIATE
-       'CREATE TABLE ' || tmp_table_3 || ' NOLOGGING AS
+       'CREATE TABLE ' || tmp_table_3 || ' AS
         SELECT DISTINCT attribute_id as row_id
         FROM attributes a, ' || tmp_table_2 || ' b
-        WHERE attribute_name = ''SEMANTIC_TYPE''
+        WHERE attribute_name||'''' = ''SEMANTIC_TYPE''
         AND source ' || qry_condition || ' 
-		(''' || substr(e_source,1,20) || ''', ''' || l_source || ''', ''' 
-            || source || ''', ''' || e_source || ''')
+		(''' || l_source || ''', ''' || e_source || ''')
         AND a.concept_id = b.concept_id ';
    
    MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::resolve_stys',
@@ -7456,8 +7243,6 @@ BEGIN
    MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::delete_demotions',
     	'Starting delete_demotions',0,work_id,0,1);
 
-   MEME_UTILITY.sub_timing_start;
-
    initialize_trace('DELETE_DEMOTIONS');
 
    msp_location := '100';
@@ -7465,38 +7250,32 @@ BEGIN
    MEME_UTILITY.drop_it('table',tmp_table_1);
    msp_location := '110';
    EXECUTE IMMEDIATE
-      'CREATE TABLE ' || tmp_table_1 || ' NOLOGGING AS
-       WITH tmpd AS (
-               SELECT /*+ PARALLEL(r)*/  relationship_id AS row_id, atom_id_1, atom_id_2,
-                  concept_id_1, concept_id_2, last_molecule_id
-               FROM relationships r
-               WHERE status = ''D'' AND source = ''' || source || '''),
-            msp as (SELECT /*+ PARALLEL(a) */ new_atom_id FROM mom_safe_replacement a 
-               WHERE source = ''' || source || ''')
-       SELECT row_id, concept_id_1, concept_id_2, last_molecule_id
-       FROM tmpd a where atom_id_1 in 
-           (SELECT * FROM msp)
+      'CREATE TABLE ' || tmp_table_1 || ' AS
+       SELECT relationship_id AS row_id, concept_id_1, concept_id_2, last_molecule_id
+       FROM relationships
+       WHERE status = ''D'' AND source = '||''''||delete_demotions.source||'''
+         AND atom_id_2 IN (SELECT new_atom_id FROM mom_safe_replacement)
        UNION
-       SELECT row_id, concept_id_1, concept_id_2, last_molecule_id
-       FROM tmpd a where atom_id_2 in 
-           (SELECT * FROM msp) ';
-   MEME_UTILITY.put_message('Done Creating table of demotions');
+       SELECT relationship_id AS row_id, concept_id_1, concept_id_2, last_molecule_id
+       FROM relationships
+       WHERE status = ''D'' AND source = '||''''||delete_demotions.source||'''
+         AND atom_id_1 IN (SELECT new_atom_id FROM mom_safe_replacement) ';
+
+   msp_location := '130';
+   MEME_SYSTEM.analyze(tmp_table_1);
 
    --
    -- Keep only rows where concept level rels are present.
-   -- Delete cases where there is no matching C level rel
    --
    msp_location := '200';
    EXECUTE IMMEDIATE
       'DELETE FROM ' || tmp_table_1 || ' a
-       WHERE (concept_id_1, concept_id_2) NOT IN (
-          SELECT concept_id_1, concept_id_2 FROM relationships b
-          WHERE relationship_level = ''C'' AND a.concept_id_1 = b.concept_id_1
-          UNION ALL
-          SELECT concept_id_2, concept_id_1 FROM relationships b
-          WHERE relationship_level = ''C'' AND a.concept_id_2 = b.concept_id_1)';
-
-   MEME_UTILITY.put_message('Done removing cases where C level rels do not exist');
+       WHERE NOT EXISTS (
+         SELECT * FROM relationships b WHERE relationship_level = ''C''
+         AND a.concept_id_1 = b.concept_id_1 AND a.concept_id_2 = b.concept_id_2
+         UNION
+         SELECT * FROM relationships b WHERE relationship_level = ''C''
+         AND a.concept_id_2 = b.concept_id_1 AND a.concept_id_1 = b.concept_id_2)';
 
    MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::delete_demotions',
     	'Done keeping only rows where concept level rels are present',0,work_id,0,20);
@@ -7507,19 +7286,18 @@ BEGIN
    msp_location := '300';
    MEME_UTILITY.drop_it('table',tmp_table_1 || '_2');
    EXECUTE IMMEDIATE
-      'CREATE TABLE ' || tmp_table_1 || '_2 NOLOGGING AS
+      'CREATE TABLE ' || tmp_table_1 || '_2 AS
        SELECT relationship_id AS row_id, concept_id_1, concept_id_2
        FROM relationships 
        WHERE relationship_level = ''C''
 	 AND (concept_id_1,concept_id_2,last_molecule_id) IN
 	    (SELECT concept_id_1, concept_id_2,last_molecule_id 
-	     FROM ' || tmp_table_1 || ' UNION ALL
+	     FROM ' || tmp_table_1 || ' UNION
 	     SELECT concept_id_2, concept_id_1,last_molecule_id 
   	     FROM ' || tmp_table_1 || ')';
 
    MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::delete_demotions',
     	'Done concept level relationship status back to R',0,work_id,0,40);
-   MEME_UTILITY.put_message('Done finding C level rels to convert back to status R');
 
    -- Delete the remaining rows 
    -- These are relationships which are demotions (status=D) 
@@ -7546,22 +7324,8 @@ BEGIN
 
    --
    -- Change status of concept level rels back to R
-   -- First, remove cases where there is still a demotion!
    --
-   msp_location := '500a';
-   EXECUTE IMMEDIATE
-      'DELETE FROM ' || tmp_table_1 || '_2 a
-       WHERE (concept_id_1, concept_id_2) IN
-        (SELECT concept_id_1,concept_id_2 FROM relationships  b
-         WHERE status=''D'' AND a.concept_id_1 = b.concept_id_1)';
-   msp_location := '500a2';
-   EXECUTE IMMEDIATE
-      'DELETE FROM ' || tmp_table_1 || '_2 a
-       WHERE (concept_id_2, concept_id_1) IN
-        (SELECT concept_id_1,concept_id_2 FROM relationships  b
-         WHERE status=''D'' AND a.concept_id_2 = b.concept_id_1)';
-
-   msp_location := '500b';
+   msp_location := '500';
    retval := MEME_BATCH_ACTIONS.macro_action(
       action => 'S',
       id_type => 'R',
@@ -7581,10 +7345,9 @@ BEGIN
     	'Done changing status of concept level rels back to R',0,work_id,0,80);
 
    msp_location := '500';
-   MEME_UTILITY.sub_timing_stop;
    MEME_UTILITY.log_operation
       (authority,'MEME_SOURCE_PROCESSING.delete_demotions',
-       'Delete relationships',retval,work_id,MEME_UTILITY.sub_elapsed_time);
+       'Delete relationships',retval,work_id,0);
  
    MEME_UTILITY.drop_it('table',tmp_table_1);
    MEME_UTILITY.drop_it('table',tmp_table_1 || '_2');
@@ -7731,6 +7494,13 @@ BEGIN
 
    IF UPPER(table_name) = 'C' OR UPPER(table_name) = 'ALL' THEN
 
+      msp_location := '120.7';
+      assign_auis (
+	table_name => 'SC',
+	authority => authority,
+	work_id => work_id );
+
+      COMMIT; 
       initialize_trace('CORE_TABLE_INSERT');
 
       msp_location := '114';
@@ -7759,6 +7529,15 @@ BEGIN
 
    IF UPPER(table_name) = 'R' OR UPPER(table_name) = 'ALL' THEN
 
+      msp_location := '120.7';
+      assign_ruis (
+	table_name => 'SR',
+	authority => authority,
+	work_id => work_id );
+
+      COMMIT; 
+      initialize_trace('CORE_TABLE_INSERT');
+
       msp_location := '122';
       retval :=
 	 MEME_BATCH_ACTIONS.macro_action(
@@ -7783,6 +7562,13 @@ BEGIN
 
    IF UPPER(table_name) = 'CR' OR UPPER(table_name) = 'ALL' THEN
 
+      msp_location := '123.5';
+      assign_ruis (
+	table_name => 'SCR',
+	authority => authority,
+	work_id => work_id );
+
+      COMMIT;
       initialize_trace('CORE_TABLE_INSERT');
 
       msp_location := '124';
@@ -7808,6 +7594,14 @@ BEGIN
 
    IF UPPER(table_name) = 'A' OR UPPER(table_name) = 'ALL' THEN
 
+      -- Error if there are any null sg_ids
+      msp_location := '131';
+      assign_atuis(
+  	table_name => 'SA',
+	authority => authority,
+	work_id => work_id );
+
+      COMMIT;
       initialize_trace('CORE_TABLE_INSERT');
 
       msp_location := '133';
@@ -7924,14 +7718,14 @@ BEGIN
    MEME_UTILITY.drop_it('table',tmp_table_1);
    msp_location := '102';
    l_query :=
-      'CREATE TABLE ' || tmp_table_1 || ' NOLOGGING AS
+      'CREATE TABLE ' || tmp_table_1 || ' AS
        SELECT atom_id FROM classes a, source_version b
        WHERE b.source = ''' || map_obsolete_rels.stripped_source || '''
        AND a.source = b.previous_name ';
    local_exec(l_query);
 
    msp_location := '103';
-   --MEME_SYSTEM.analyze(tmp_table_1);
+   MEME_SYSTEM.analyze(tmp_table_1);
 
    MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::map_obsolete_rels',
     	'Done finding atoms of an old version of a source',0,work_id,0,20);
@@ -7944,23 +7738,29 @@ BEGIN
    MEME_UTILITY.drop_it('table',tmp_table_2);
    msp_location := '112';
    l_query :=
-      'CREATE TABLE ' || tmp_table_2 || ' NOLOGGING AS 
+      'CREATE TABLE ' || tmp_table_2 || ' AS 
        SELECT a.*
        FROM relationships a, source_version b, ' || tmp_table_1 || ' c
        WHERE b.source = ''' || map_obsolete_rels.stripped_source || '''	
          AND a.source NOT LIKE b.previous_name || ''%''
          AND a.relationship_level = ''S''
          AND a.atom_id_1 = c.atom_id
+	 AND NVL(sg_type_1,''null'') NOT IN
+	   (SELECT code FROM code_map WHERE type = ''map_sg_type''
+	    MINUS SELECT code FROM code_map WHERE type = ''no_remap_sg_type'')
        UNION SELECT a.*
        FROM relationships a, source_version b, ' || tmp_table_1 || ' c
        WHERE b.source = ''' || map_obsolete_rels.stripped_source || '''
          AND a.source NOT LIKE b.previous_name || ''%''
          AND a.relationship_level = ''S''
-         AND a.atom_id_2 = c.atom_id ';
+         AND a.atom_id_2 = c.atom_id
+	 AND nvl(sg_type_2,''null'') NOT IN
+	   (SELECT code FROM code_map WHERE type = ''map_sg_type''
+	    MINUS SELECT code FROM code_map WHERE type = ''no_remap_sg_type'')';
    local_exec(l_query);
 
    msp_location := '116';
-   --MEME_SYSTEM.analyze(tmp_table_2);
+   MEME_SYSTEM.analyze(tmp_table_2);
 
    MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::map_obsolete_rels',
     	'Done finding relationships connected to obsolete atoms',0,work_id,0,40);
@@ -7973,7 +7773,7 @@ BEGIN
    MEME_UTILITY.drop_it('table',tmp_table_3);
    msp_location := '122';
    l_query :=
-      'CREATE TABLE ' || tmp_table_3 || ' NOLOGGING AS 
+      'CREATE TABLE ' || tmp_table_3 || ' AS 
        SELECT relationship_id AS row_id, atom_id_1 AS old_value,
               to_number(SUBSTR(max_rank, INSTR(max_rank,''/'')+1)) as new_value
        FROM (SELECT relationship_id, atom_id_1,
@@ -8078,216 +7878,9 @@ EXCEPTION
 
 END map_obsolete_rels;
 
-/* PROCEDURE CREATE_RANK_TABLE *****************************************************
- * 
- * Creat sg_id,sg_qualifier=>atom_id mapping for an sg_type and a table.
- */
-FUNCTION create_rank_table(
-      sg_type             IN VARCHAR2,
-      table_name          IN VARCHAR2,
-      str_pad             IN VARCHAR2
-) RETURN VARCHAR2
-IS
-  l_ret_table     VARCHAR2(50);
-  l_rank_field    VARCHAR2(50);
-  l_id_field      VARCHAR2(50);
-  l_qual_field    VARCHAR2(50);
-  l_qual_clause   VARCHAR2(4000);
-  l_table         VARCHAR2(4000);
-  l_rank_length   INTEGER;
-  l_atom_id_func  VARCHAR2(4000);
-  sui_pre_len     INTEGER;
-  aui_pre_len     INTEGER;
-BEGIN
-
-   msp_location := '100';
-   l_ret_table := MEME_UTILITY.get_unique_tablename;
-
-   --
-   -- Look up id and qualifier fields
-   --
-   msp_location := '110';
-   l_id_field := MEME_UTILITY.get_value_by_code(sg_type,'map_sg_id_field');
-   msp_location := '120';
-   l_qual_field := MEME_UTILITY.get_value_by_code(sg_type,'map_sg_qual_field');
-   IF l_qual_field = '' THEN
-     l_qual_field := 'NULL';
-   END IF;
-   msp_location := '130';
-   l_table := MEME_UTILITY.get_value_by_code(sg_type,'map_sg_table');
-
-   --
-   -- Look up rank length
-   --
-   msp_location := '140';
-   SELECT LENGTH(MEME_RANKS.get_atom_editing_rank(tbr.rank, tr.release_rank, 
-      last_release_rank, sui , aui, atom_id)) INTO l_rank_length
-   FROM classes a, termgroup_rank tr, tobereleased_rank tbr
-   WHERE rownum = 1
-     AND a.termgroup = tr.termgroup
-     AND a.tobereleased = tbr.tobereleased;
-   msp_location := '150';
-
-   --
-   -- Customize table settings
-   --
-   IF l_table = 'classes' THEN
-     IF sg_type like '%ROOT%' THEN
-       l_table := 
-         '(SELECT atom_id, last_release_rank, sui rank_sui, aui rank_aui, termgroup,
-               tobereleased, stripped_source || ''/'' || tty root_termgroup, 
-               stripped_source root_source, ' || l_id_field || '
-           FROM classes a, source_rank b WHERE a.source=b.source
-           UNION ALL
-           SELECT atom_id, last_release_rank, sui, aui, termgroup,
-               tobereleased, stripped_source || ''/'' || tty root_termgroup, 
-               stripped_source root_source, ' || l_id_field || '
-           FROM source_classes_atoms a, source_rank b
-           WHERE switch != ''I'' AND a.source = b.source)';
-     ELSE
-       l_table := 
-         '(SELECT atom_id, last_release_rank, sui rank_sui, aui rank_aui, 
-           tobereleased, termgroup, source, ' || l_id_field || '
-           FROM classes
-           UNION ALL
-           SELECT atom_id, last_release_rank, sui, aui,
-                tobereleased, termgroup, source, ' || l_id_field || '
-           FROM source_classes_atoms
-           WHERE switch != ''I'')';
-     END IF;
-     sui_pre_len := LENGTH(MEME_UTILITY.get_value_by_code('SUI','ui_prefix'))+1;
-     aui_pre_len := LENGTH(MEME_UTILITY.get_value_by_code('AUI','ui_prefix'))+1;
-     -- SPECIAL NOTE: this is an additional implementation to MEME_RANKS.get_atom_editing_rank
-     --  for performance.  If that algorithm changes, this one must also.
-     l_atom_id_func :=
-       'NVL(SUBSTR(MAX(
-              DECODE(a.tobereleased,''Y'',9,''y'',7,''n'',3,1)||LPAD(c.release_rank,4,0)||
-              a.last_release_rank||(999999999-SUBSTR(rank_sui,' || sui_pre_len || ')) ||
-              (999999999-SUBSTR(rank_aui,' || aui_pre_len || '))||LPAD(a.atom_id,10,0)||''/''||a.atom_id),
-              ' || l_rank_length || ' +2),0)';
-     l_rank_field := 'termgroup';
-   ELSE
-     IF sg_type like '%ROOT%' THEN
-       l_table := 
-         '(SELECT atom_id_1, relationship_id, a.source, stripped_source root_source,
-                  tobereleased, ' || l_id_field || '
-           FROM relationships a, source_rank b WHERE a.source=b.source
-           UNION ALL
-           SELECT atom_id_1, relationship_id, a.source, stripped_source root_source,
-                  tobereleased, ' || l_id_field || '
-           FROM source_relationships a, source_rank b WHERE a.source=b.source
-           UNION ALL
-           SELECT atom_id_1, relationship_id, a.source, stripped_source root_source,
-                  tobereleased, ' || l_id_field || '
-           FROM context_relationships a, source_rank b WHERE a.source=b.source
-           UNION ALL
-           SELECT atom_id_1, relationship_id, a.source, stripped_source root_source,
-                  tobereleased, ' || l_id_field || '
-           FROM source_context_relationships a, source_rank b WHERE a.source=b.source)';
-     ELSE
-       l_table := 
-         '(SELECT atom_id_1, relationship_id, source, tobereleased, ' || l_id_field || '
-           FROM relationships
-           UNION ALL
-           SELECT atom_id_1, relationship_id, source, tobereleased, ' || l_id_field || '
-           FROM source_relationships
-           UNION ALL
-           SELECT atom_id_1, relationship_id, source, tobereleased, ' || l_id_field || '
-           FROM context_relationships
-           UNION ALL
-           SELECT atom_id_1, relationship_id, source, tobereleased, ' || l_id_field || '
-           FROM source_context_relationships)';
-     END IF;
-     l_atom_id_func :=
-        'NVL(SUBSTR(MAX(DECODE(a.tobereleased,''Y'',9,''y'',7,''n'',3,1)
-             ||LPAD(c.rank,5,0) || ''/'' || a.atom_id_1),
-             INSTR(MAX(DECODE(a.tobereleased,''Y'',9,''y'',7,''n'',3,1)
-             ||LPAD(c.rank,5,0) || ''/'' || a.atom_id_1),''/'')+1),0)';
-     l_rank_field := 'source';
-   END IF;
-      
-   msp_location := '160';
-
-   --
-   -- CREATE table
-   --
-   IF sg_type = 'SRC_ATOM_ID' THEN
-      --
-      -- Map the SRC_ATOM_ID type
-      --
-      EXECUTE IMMEDIATE
-     	'CREATE TABLE ' || l_ret_table || ' NOLOGGING AS
-        SELECT /*+ PARALLEL(a) */ DISTINCT local_row_id atom_id, 
-             b.sg_id' || str_pad || ' sg_id,
-             b.sg_qualifier' || str_pad || ' sg_qualifier
-        FROM source_id_map a, ' || table_name || ' b
-        WHERE source_row_id = to_number(sg_id' || str_pad || ')
-          AND table_name = ''C''
-          AND b.sg_type' || str_pad || ' = ''SRC_ATOM_ID''';
-   ELSIF sg_type = 'AUI' THEN
-      --
-      -- Map the AUI type
-      --
-      EXECUTE IMMEDIATE
-        'CREATE TABLE ' || l_ret_table || ' NOLOGGING AS
-             SELECT /*+ PARALLEL(a) */ DISTINCT NVL(SUBSTR(MAX(DECODE(a.tobereleased,''Y'',9,''y'',7,''n'',3,1)
-             ||LPAD(c.rank,5,0) || ''/'' || a.atom_id),
-             INSTR(MAX(DECODE(a.tobereleased,''Y'',9,''y'',7,''n'',3,1)
-             ||LPAD(c.rank,5,0) || ''/'' || a.atom_id),''/'')+1),0) atom_id,
-              b.sg_id' || str_pad || ' sg_id,
-              b.sg_qualifier' || str_pad || ' sg_qualifier
-         FROM classes a, ' || table_name || ' b, source_rank c
-         WHERE a.aui = sg_id' || str_pad || '
-           AND a.tobereleased in (''Y'',''y'')
-           AND a.source = c.source
-           AND a.tobereleased in( ''Y'',''y'')
-           AND b.sg_type' || str_pad || ' = ''AUI''
-           GROUP BY sg_id' || str_pad || ', sg_qualifier' || str_pad || '';
-
-   ELSIF sg_type = 'SRC_REL_ID' THEN
-      --
-      -- Map the SRC_REL_ID type
-      --
-      EXECUTE IMMEDIATE
-        'CREATE TABLE ' || l_ret_table || ' NOLOGGING AS
-         SELECT /*+ PARALLEL(a) */ DISTINCT c.atom_id_1 atom_id, 
-              b.sg_id' || str_pad || ' sg_id,
-              b.sg_qualifier' || str_pad || ' sg_qualifier
-         FROM source_id_map a, ' || table_name || ' b, relationships c
-         WHERE source_row_id = to_number(sg_id' || str_pad || ')
-           AND table_name = ''R''
-           AND a.local_row_id = c.relationship_id
-           AND b.sg_type' || str_pad || ' = ''SRC_REL_ID''';
-
-   ELSE
-      IF l_qual_field = 'none' THEN
-         l_qual_clause := 'b.sg_qualifier' || str_pad || ' IS NULL';
-      ELSE
-         l_qual_clause := 'a.' || l_qual_field || ' = b.sg_qualifier' || str_pad;
-      END IF;
-      EXECUTE IMMEDIATE
-        'CREATE TABLE ' || l_ret_table || ' NOLOGGING AS
-         SELECT ' || l_atom_id_func || ' atom_id,
-              b.sg_id' || str_pad || ' sg_id,
-              b.sg_qualifier' || str_pad || ' sg_qualifier
-         FROM ' || l_table || ' a, ' || table_name || ' b,
-              ' || l_rank_field || '_rank c
-         WHERE b.sg_type' || str_pad || ' = ''' || sg_type || '''
-           AND a.' || l_rank_field || ' = c.' || l_rank_field || '
-           AND a.' || l_id_field || ' = b.sg_id' || str_pad || '
-           AND ' || l_qual_clause || '
-         GROUP BY b.sg_id' || str_pad || ', b.sg_qualifier' || str_pad || '';
-   END IF;
-
-   msp_location := '900';
-   EXECUTE IMMEDIATE 'CREATE INDEX x_' || l_ret_table || ' on ' || l_ret_table || ' (sg_id) COMPUTE STATISTICS';
-  
-   RETURN l_ret_table;
-END create_rank_table;
-
 /* PROCEDURE MAP_SG_FIELDS *****************************************************
  * 
- * Maps "native identifiers" to atom ids.
+ * MAps "native identifiers" to atom ids
  *
  * If pair_flag is on it uses atom_id_1, atom_id_2,
  * if concept_Flag is on, it assigns concept_ids also.
@@ -8307,16 +7900,17 @@ IS
     table_column    	DBMS_SQL.VARCHAR2_TABLE;
     str_pad	    	VARCHAR2(10);
 
-    l_query	    	VARCHAR2(4000);
-    l_type	    	VARCHAR2(1000);
-    l_rank_table        VARCHAR2(30);
+    l_query	    	VARCHAR2(1000);
+    l_update	    	VARCHAR2(1000);
+    l_string	    	VARCHAR2(1000);
+
+    retval             	VARCHAR2(30);
+
     l_rowid	    	ROWID;
     l_cui              	VARCHAR2(10);
     l_max_rank	    	VARCHAR2(50);
     l_atom_id         	INTEGER;
     l_concept_id     	INTEGER;
-    l_qual_field        VARCHAR2(50);
-    l_qual_clause       VARCHAR2(1000);
 
     TYPE cur_type IS REF CURSOR;
     cur_var		cur_type;
@@ -8351,58 +7945,62 @@ BEGIN
     FOR loop_ctr IN 1..loop_column.LAST LOOP
 	msp_location := '210';
 	FOR sub_loop_ctr IN 1..2 LOOP
- 	    -- Only one loop if no pair flag (also don't use str_pad)
+
+	    -- Only one loop if no pair flag (also don't use str_pad)
 	    IF map_sg_fields.pair_flag = MEME_CONSTANTS.NO THEN
 
 	    	IF sub_loop_ctr = 2 THEN
 		    EXIT;		    
 	     	END IF;
 	     	table_column(sub_loop_ctr) := loop_column(loop_ctr);
+
 	    -- If pair flag check ###_{1,2} instead of just ###
 	    ELSIF map_sg_fields.pair_flag = MEME_CONSTANTS.YES THEN
 	     	table_column(sub_loop_ctr) := loop_column(loop_ctr) ||
 		 '_'||sub_loop_ctr;
 	    END IF;
-            -- Check field type
+
 	    msp_location := '220';
-	    l_type := MEME_UTILITY.get_field_type(
+	    retval := MEME_UTILITY.get_field_type(
 	 	     UPPER(map_sg_fields.table_name), 
 			  table_column(sub_loop_ctr));
-	    IF l_type = MEME_CONSTANTS.FIELD_NOT_FOUND THEN
+
+	    IF retval = MEME_CONSTANTS.FIELD_NOT_FOUND THEN
 	     	msp_error_code := 20; 
 		msp_error_detail :=
 		   'table_name='||map_sg_fields.table_name||', '||
 		   'column_name='||table_column(sub_loop_ctr)||'.';
 	     	RAISE map_sg_fields_exc;
 	    END IF;
+
 	END LOOP; -- loop counter
+
     END LOOP; -- column validation list
+
    MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::map_sg_fields',
     	'Done validating table structures',0,1,0,70);
 
     --
-    -- LOOP through <>_1 and <>_2
+    -- Map sg fields
     --
     msp_location := '300';
     FOR loop_ctr IN 1..2 LOOP
 
-        --
-        -- Configure str_pad
-        --
+	-- Only one pass if not working with pairs, ignore str_pad
 	IF map_sg_fields.pair_flag = MEME_CONSTANTS.NO THEN
 	    IF loop_ctr = 2 THEN
 	     	EXIT;
 	    END IF;
 	    str_pad := '';
+
+	-- Use str_pad if we have pairs
 	ELSIF map_sg_fields.pair_flag = MEME_CONSTANTS.YES THEN
 	    str_pad := '_'||loop_ctr;
 	END IF;
 
 
-        MEME_UTILITY.put_message(msp_method||' prep table.');
-
 	--
-	-- Reset atom_ids to zero
+	-- Start with atom_id, concept_id set to zero
 	--
 	msp_location := '310';
 	EXECUTE IMMEDIATE 
@@ -8410,9 +8008,62 @@ BEGIN
 	     SET atom_id' || str_pad || ' = 0 
 	     WHERE atom_id' || str_pad || ' != 0';
         COMMIT;
- 
+
+	IF map_sg_fields.concept_flag = MEME_CONSTANTS.YES THEN
+	    msp_location := '312';
+	     EXECUTE IMMEDIATE 
+	        'UPDATE /*+ PARALLEL(a) */ ' || map_sg_fields.table_name || ' a
+		 SET concept_id' || str_pad || ' = 0
+   	         WHERE concept_id' || str_pad || ' != 0';
+            COMMIT;
+	END IF;
+
 	--
-	-- Map any CUI cases through cui_history
+	-- Map the ATOM_ID type
+	--
+	msp_location := '320';
+	trace(msp_method||': Mapping ATOM_ID ...');
+	EXECUTE IMMEDIATE
+   	   'UPDATE /*+ PARALLEL(a) */ ' || map_sg_fields.table_name || ' a
+	    SET a.atom_id' || str_pad || ' = TO_NUMBER(a.sg_id' || str_pad || ')
+	    WHERE sg_type' || str_pad || ' = ''ATOM_ID''';
+
+	COMMIT;
+	
+	--
+	-- Map the CONCEPT_ID type 
+        -- (assumes classes.rank is set properly)
+	--
+	msp_location := '340';
+	trace(msp_method||': Mapping CONCEPT_ID ...');
+	EXECUTE IMMEDIATE
+	'UPDATE ' || map_sg_fields.table_name || ' 
+	    SET (atom_id' || str_pad || ') =
+	      (SELECT SUBSTR(MAX(rank||''/''||atom_id),
+		        INSTR(MAX(rank||''/''||atom_id),''/'')+1)
+		FROM classes
+		WHERE concept_id = TO_NUMBER(sg_id' || str_pad || '))
+	    WHERE sg_type' || str_pad || ' = ''CONCEPT_ID''';
+
+	COMMIT;
+
+	--
+	-- Map the SOURCE_ATOM_ID and SRC_ATOM_ID types
+	--
+	msp_location := '350';
+	trace(msp_method||': Mapping SOURCE_ATOM_ID ...');
+	EXECUTE IMMEDIATE
+      	'UPDATE /*+ PARALLEL(a) */ ' || map_sg_fields.table_name || ' a
+	    SET (atom_id' || str_pad || ') =
+	      (SELECT local_row_id FROM source_id_map
+		WHERE table_name = ''C'' 
+  		AND source_row_id = TO_NUMBER(sg_id' || str_pad || '))
+	    WHERE sg_type' || str_pad || ' IN (''SOURCE_ATOM_ID'',''SRC_ATOM_ID'')';
+
+	COMMIT;
+
+	--
+	-- Map the through cui_history for CUI types 
 	--
 	msp_location := '360';
 	LOOP
@@ -8448,99 +8099,730 @@ BEGIN
 	    EXIT WHEN update_ctr = 0;
 
 	END LOOP;
+
+	COMMIT;
+
+	--
+	-- Map the CUI_SOURCE type
+        -- (assumes classes.rank is set properly)
+	--
+	msp_location := '400a';
+	trace(msp_method||': Mapping CUI_SOURCE ...');
+	l_query :=
+	    'SELECT b.rowid,
+	      MAX(a.rank || ''/'' || LPAD(a.atom_id,10,0) || ''/'' || 
+	    	LPAD(a.concept_id,10,0)) AS max_rank
+	    FROM classes a, ' || map_sg_fields.table_name || ' b
+	    WHERE a.last_release_cui = b.sg_id' || str_pad || '
+	     AND b.sg_type' || str_pad || ' = ''CUI_SOURCE''
+	     AND a.source = b.sg_qualifier' || str_pad || '
+	    GROUP BY b.rowid, a.last_release_cui';
+	OPEN cur_var FOR l_query;
+	LOOP
+
+	  FETCH cur_var INTO l_rowid, l_max_rank;
+	  EXIT WHEN cur_var%NOTFOUND;
+
+	  msp_location := '410a';
+	  l_atom_id := TO_NUMBER(SUBSTR(l_max_rank, INSTR(l_max_rank,'/')+1,10));
+
+	  msp_location := '430a';
+	EXECUTE IMMEDIATE
+	     'UPDATE ' || map_sg_fields.table_name || '
+	      SET atom_id' || str_pad || ' = :x
+	      WHERE rowid = :y'
+	USING l_atom_id, l_rowid;
+
+	END LOOP;
+	CLOSE cur_var;
+
+	COMMIT;
+
+	--
+	-- Map the CUI and CUI_ROOT_SOURCE types
+        -- (assumes classes.rank is set properly)
+	--
+	msp_location := '400';
+	trace(msp_method||': Mapping CUI and CUI_ROOT_SOURCE ...');
+	l_query :=
+ 	   'SELECT b.rowid,
+	     MAX(a.rank || ''/'' || LPAD(a.atom_id,10,0) || ''/'' || 
+		LPAD(a.concept_id,10,0)) AS max_rank
+	    FROM classes a, ' || map_sg_fields.table_name || ' b
+	    WHERE a.last_release_cui = b.sg_id' || str_pad || ' 
+	      AND b.sg_type' || str_pad || ' = ''CUI''
+	    GROUP BY b.rowid, a.last_release_cui
+	    UNION ALL
+	    SELECT b.rowid,
+	      MAX(a.rank || ''/'' || LPAD(a.atom_id,10,0) || ''/'' || 
+	    	LPAD(a.concept_id,10,0)) AS max_rank
+	    FROM classes a, ' || map_sg_fields.table_name || ' b
+	    WHERE a.last_release_cui = b.sg_id' || str_pad || '
+	     AND b.sg_type' || str_pad || ' in (''CUI_STRIPPED_SOURCE'',''CUI_ROOT_SOURCE'')
+	     AND a.source IN
+		(SELECT source FROM source_rank
+		 WHERE stripped_source = b.sg_qualifier' || str_pad || ' )
+	    GROUP BY b.rowid, a.last_release_cui';
+	OPEN cur_var FOR l_query;
+	LOOP
+
+	  FETCH cur_var INTO l_rowid, l_max_rank;
+	  EXIT WHEN cur_var%NOTFOUND;
+
+	  msp_location := '410';
+	  l_atom_id := TO_NUMBER(SUBSTR(l_max_rank, INSTR(l_max_rank,'/')+1,10));
+
+	  msp_location := '430';
+	EXECUTE IMMEDIATE
+	     'UPDATE ' || map_sg_fields.table_name || '
+	      SET atom_id' || str_pad || ' = :x
+	      WHERE rowid = :y'
+	USING l_atom_id, l_rowid;
+
+	END LOOP;
+	CLOSE cur_var;
+
+	COMMIT;
+
+	--
+	-- Map the CODE_SOURCE type
+        -- (assumes classes.rank is set properly)
+	--
+	msp_location := '500b';
+	trace(msp_method||': Mapping CODE_SOURCE ...');
+	EXECUTE IMMEDIATE
+   	   'UPDATE ' || map_sg_fields.table_name || '
+	    SET (atom_id' || str_pad || ') =
+     	      nvl((SELECT SUBSTR(MAX(LPAD(a.termgroup_rank,5,0) || ''/'' || atom_id),
+		 	INSTR(MAX(LPAD(a.termgroup_rank,5,0) || ''/'' || atom_id),''/'')+1)
+		  FROM source_classes_atoms a
+		  WHERE code = sg_id' || str_pad || ' 
+	 	    AND a.switch != ''I''
+	 	    AND source = sg_qualifier' || str_pad || '),0)
+	    WHERE sg_type' || str_pad || ' = ''CODE_SOURCE''
+	      AND atom_id' || str_pad || ' = 0';
+
+	COMMIT;
+
+	msp_location := '500a';
+	trace(msp_method||': Mapping CODE_SOURCE ...');
+	EXECUTE IMMEDIATE
+	   'UPDATE ' || map_sg_fields.table_name || '
+	    SET (atom_id' || str_pad || ') =
+     	      (SELECT
+			NVL(SUBSTR(MAX(rank || ''/'' || atom_id),
+				 INSTR(MAX(rank || ''/'' || atom_id),''/'')+1),0)
+		  FROM classes
+		  WHERE code = sg_id' || str_pad || ' AND source = sg_qualifier' || str_pad || ')
+	    WHERE sg_type' || str_pad || ' = ''CODE_SOURCE''
+	      AND atom_id' || str_pad || ' = 0';
+
+	COMMIT;
+
+	--
+	-- Map the CODE_ROOT_SOURCE type
+        -- (assumes classes.rank is set properly)
+	--
+	msp_location := '600b';
+	trace(msp_method||': Mapping CODE_ROOT_SOURCE ...');
+	EXECUTE IMMEDIATE
+		'UPDATE ' || map_sg_fields.table_name || '
+	    SET (atom_id' || str_pad || ') =  
+	      NVL((SELECT SUBSTR(MAX(LPAD(a.termgroup_rank,5,0) || ''/'' || atom_id),
+				INSTR(MAX(LPAD(a.termgroup_rank,5,0) || ''/'' || atom_id),''/'')+1)
+		FROM source_classes_atoms a
+		WHERE code = sg_id' || str_pad || ' 
+		  AND a.switch != ''I''
+	          AND source =
+  		(SELECT current_name FROM source_version b
+			 WHERE b.source = sg_qualifier' || str_pad || ') ),0)
+	    WHERE sg_type' || str_pad || ' in (''CODE_STRIPPED_SOURCE'',''CODE_ROOT_SOURCE'')
+	      AND atom_id' || str_pad || ' = 0';
+
+	COMMIT;
+
+	msp_location := '600a';
+	trace(msp_method||': Mapping CODE_ROOT_SOURCE ...');
+	EXECUTE IMMEDIATE
+		'UPDATE ' || map_sg_fields.table_name || '
+	    SET (atom_id' || str_pad || ') =  
+	    (SELECT NVL(SUBSTR(MAX(rank || ''/'' || atom_id),
+				INSTR(MAX(rank || ''/'' || atom_id),''/'')+1),0)
+		FROM classes
+		WHERE code = sg_id' || str_pad || ' AND source =
+  		(SELECT current_name FROM source_version b
+			 WHERE b.source = sg_qualifier' || str_pad || ') )
+	    WHERE sg_type' || str_pad || ' in (''CODE_STRIPPED_SOURCE'',''CODE_ROOT_SOURCE'')
+	      AND atom_id' || str_pad || ' = 0';
+
+	COMMIT;
+
+	--
+	-- Map the CODE_TERMGROUP type
+        -- (assumes classes.rank is set properly)
+	--
+	msp_location := '700b';
+	trace(msp_method||': Mapping CODE_TERMGROUP ...');
+	EXECUTE IMMEDIATE
+		'UPDATE ' || map_sg_fields.table_name || '
+	    SET (atom_id' || str_pad || ') =
+	      NVL((SELECT SUBSTR(MAX(LPAD(a.termgroup_rank,5,0) || ''/'' || atom_id),
+			INSTR(MAX(LPAD(a.termgroup_rank,5,0) || ''/'' || atom_id),''/'')+1)
+		FROM source_classes_atoms a
+		WHERE code = sg_id' || str_pad || ' 
+		  AND a.switch != ''I''
+		  AND termgroup = sg_qualifier' || str_pad || '),0)
+	    WHERE sg_type' || str_pad || ' = ''CODE_TERMGROUP''
+	      AND atom_id' || str_pad || ' = 0';
+
+	COMMIT;
+
+	msp_location := '700a';
+	trace(msp_method||': Mapping CODE_TERMGROUP ...');
+	EXECUTE IMMEDIATE
+		'UPDATE ' || map_sg_fields.table_name || '
+	    SET (atom_id' || str_pad || ') =
+	      (SELECT NVL(SUBSTR(MAX(rank || ''/'' || atom_id),
+			      	  INSTR(MAX(rank || ''/'' || atom_id),''/'')+1),0)
+		FROM classes
+		     WHERE code = sg_id' || str_pad || ' 
+		AND termgroup = sg_qualifier' || str_pad || ')
+	    WHERE sg_type' || str_pad || ' = ''CODE_TERMGROUP''
+	      AND atom_id' || str_pad || ' = 0';
+
+	COMMIT;
+
+	--
+	-- Map the CODE_ROOT_TERMGROUP type
+        -- (assumes classes.rank is set properly)
+	--
+	msp_location := '800b';
+	trace(msp_method||': Mapping CODE_ROOT_TERMGROUP ...');
+	EXECUTE IMMEDIATE
+		'UPDATE ' || map_sg_fields.table_name || ' 
+		 SET (atom_id' || str_pad || ') =
+	     NVL((SELECT SUBSTR(MAX(LPAD(a.termgroup_rank,5,0) || ''/'' || atom_id),
+				 INSTR(MAX(LPAD(a.termgroup_rank,5,0) || ''/'' || atom_id),''/'')+1)
+		FROM source_classes_atoms a
+		WHERE code = sg_id' || str_pad || ' 
+	     	  AND a.switch != ''I''
+	          AND termgroup =
+			(SELECT current_name || ''/'' ||
+      			SUBSTR(sg_qualifier' || str_pad || ',
+			      INSTR(sg_qualifier' || str_pad || ',''/'')+1)
+			 FROM source_version b
+			 WHERE b.source = SUBSTR(sg_qualifier' || str_pad || ',
+						 0,INSTR(sg_qualifier' || str_pad || ',''/'')-1) ) ),0)
+	    WHERE sg_type' || str_pad || ' IN (''CODE_STRIPPED_TERMGROUP'',''CODE_ROOT_TERMGROUP'')
+	      AND atom_id' || str_pad || ' = 0';
+
+	COMMIT;
+
+	msp_location := '800a';
+	trace(msp_method||': Mapping CODE_ROOT_TERMGROUP ...');
+	EXECUTE IMMEDIATE
+		'UPDATE ' || map_sg_fields.table_name || ' 
+		 SET (atom_id' || str_pad || ') =
+	     (SELECT NVL(SUBSTR(MAX(rank || ''/'' || atom_id),
+				 INSTR(MAX(rank || ''/'' || atom_id),''/'')+1),0)
+		FROM classes
+		WHERE code = sg_id' || str_pad || ' AND termgroup =
+			(SELECT current_name || ''/'' ||
+      			SUBSTR(sg_qualifier' || str_pad || ',
+			      INSTR(sg_qualifier' || str_pad || ',''/'')+1)
+			 FROM source_version b
+			 WHERE b.source = SUBSTR(sg_qualifier' || str_pad || ',
+						 0,INSTR(sg_qualifier' || str_pad || ',''/'')-1) ) )
+	    WHERE sg_type' || str_pad || ' IN (''CODE_STRIPPED_TERMGROUP'',''CODE_ROOT_TERMGROUP'')
+	      AND atom_id' || str_pad || ' = 0';
+
+	COMMIT;
+
+	--
+	-- Map the AUI type
+        -- (assumes classes.rank is set properly)
+	--
+	msp_location := '804a';
+	trace(msp_method||': Mapping AUI ...');
+	EXECUTE IMMEDIATE
+		'UPDATE ' || map_sg_fields.table_name || ' 
+		 SET (atom_id' || str_pad || ') =
+	     (SELECT max(atom_id)
+		FROM classes a
+		WHERE aui = sg_id' || str_pad || ')
+	    WHERE sg_type' || str_pad || ' IN (''AUI'')
+	      AND atom_id' || str_pad || ' = 0';
+
 	COMMIT;
 
 
 	--
-	-- Loop across sg_types and assign atom ids
+	-- Map the SOURCE_AUI type
+	-- We look in classes, source_classes_atoms
+	-- and then we look in foreign_classes
 	--
-	msp_location := '500';
-        OPEN cur_var FOR 'SELECT distinct sg_type' || str_pad || ' FROM ' || table_name;
-        LOOP
-            FETCH cur_var INTO l_type;
-            EXIT WHEN cur_var%NOTFOUND;
-            msp_error_detail := l_type;
+  	-- We can use min(atom_id) because SOURCE_AUI is an atom id,
+        -- there should only be 1 that is releasable
+        --
+	trace(msp_method||': Mapping SOURCE_AUI, SOURCE_CUI, SOURCE_DUI ...');
+	msp_location := '805.12';
+	EXECUTE IMMEDIATE
+		'UPDATE ' || map_sg_fields.table_name || ' a
+	    SET (atom_id' || str_pad || ') =
+     	      NVL((SELECT nvl(min(b.atom_id),0)
+		  FROM source_classes_atoms b
+		  WHERE b.source_aui = a.sg_id' || str_pad || ' 
+		    AND b.switch != ''I''
+		    AND b.source = a.sg_qualifier' || str_pad || '),0)
+	    WHERE sg_type' || str_pad || ' = ''SOURCE_AUI''
+	      AND atom_id' || str_pad || ' = 0';
 
-            MEME_UTILITY.put_message(msp_method||' create rank table (' || l_type || ').');
-            msp_location := '510';
-            l_rank_table := 
-		create_rank_table(sg_type=>l_type, table_name=>table_name, str_pad=>str_pad);
+	COMMIT;
 
-            msp_location := '515';
-            l_qual_field := MEME_UTILITY.get_value_by_code(l_type,'map_sg_qual_field');
-            IF l_qual_field = 'none' THEN
-               l_qual_clause := '';
-            ELSE
-               l_qual_clause := 'AND a.sg_qualifier' || str_pad || ' = b.sg_qualifier';
-            END IF;
-            --
-            -- Perform these mappings
-            --
-            MEME_UTILITY.put_message(msp_method||' set atom ids (' || l_type || ').');
-            msp_location := '520';
-            EXECUTE IMMEDIATE
-                'UPDATE /*+ PARALLEL(a) */ ' || table_name || ' a
-                 SET atom_id' || str_pad || ' =
-     	          NVL((SELECT atom_id
-                   FROM ' || l_rank_table || ' b
-                   WHERE a.sg_id' || str_pad || ' = b.sg_id
-                     ' || l_qual_clause || '),0)
-                 WHERE sg_type' || str_pad || ' = :x'
-           USING l_type;
+	msp_location := '805.11';
+	EXECUTE IMMEDIATE
+		'UPDATE ' || map_sg_fields.table_name || ' a
+	    SET (atom_id' || str_pad || ') =
+     	      (SELECT nvl(min(b.atom_id),0)
+		  FROM classes b
+		  WHERE b.source_aui = a.sg_id' || str_pad || ' 
+		  AND b.source = a.sg_qualifier' || str_pad || ')
+	    WHERE sg_type' || str_pad || ' = ''SOURCE_AUI''
+	    AND atom_id' || str_pad || ' = 0';
 
-           COMMIT;
+	COMMIT;
 
-           msp_location := '530';
-	   MEME_UTILITY.drop_it('table',l_rank_table);
+	msp_location := '805.13';
+	EXECUTE IMMEDIATE
+		'UPDATE ' || map_sg_fields.table_name || ' a
+	    SET (atom_id' || str_pad || ') =
+     	      (SELECT nvl(min(b.atom_id),0)
+		  FROM foreign_classes b
+		  WHERE b.source_aui = a.sg_id' || str_pad || ' 
+		  AND b.source = a.sg_qualifier' || str_pad || ')
+	    WHERE sg_type' || str_pad || ' = ''SOURCE_AUI''
+	    AND atom_id' || str_pad || ' = 0';
 
-        END LOOP;
+	COMMIT;
 
-        msp_location := '600';
-
-            MEME_UTILITY.put_message(msp_method||' final steps.');
 	--
-	-- Convert the non-null qualifier SRC_ATOM_ID type
-	--    looks in classes only
+	-- Map the ROOT_SOURCE_AUI type
+	-- We look in classes, source_classes_atoms
+	-- and then we look in foreign_classes
+        -- (assumes classes.rank is set properly)
 	--
-	msp_location := '350.1';
-	trace(msp_method||': Mapping SOURCE_ATOM_ID,CODE ...');
+	msp_location := '805.15';
 	EXECUTE IMMEDIATE
-      	'UPDATE /*+ PARALLEL(a) */ ' || map_sg_fields.table_name || ' a
-	    SET (sg_id' || str_pad || ', sg_type' || str_pad || ',sg_qualifier' || str_pad || ' ) =
-	      (SELECT code, ''CODE_SOURCE'', source FROM classes b
-	       WHERE a.atom_id' || str_pad || ' = b.atom_id)
-	    WHERE sg_type' || str_pad || ' = ''SRC_ATOM_ID'' 
-	      AND sg_qualifier' || str_pad || ' = ''CODE''';
+		'UPDATE ' || map_sg_fields.table_name || ' a
+	    SET (atom_id' || str_pad || ') =
+     	       NVL((SELECT	NVL(SUBSTR(MAX(LPAD(b.termgroup_rank,5,0) || ''/'' || b.atom_id),
+			      INSTR(MAX(LPAD(b.termgroup_rank,5,0) || ''/'' || b.atom_id),''/'')+1),0)
+		  FROM source_classes_atoms b, source_rank c
+		  WHERE b.source_aui = a.sg_id' || str_pad || ' 
+		    AND b.switch != ''I''
+		    AND b.source = c.source
+		    AND c.stripped_source = a.sg_qualifier' || str_pad || '),0)
+	    WHERE sg_type' || str_pad || ' IN (''STRIPPED_SOURCE_AUI'',''ROOT_SOURCE_AUI'')
+	      AND atom_id' || str_pad || ' = 0';
+
 	COMMIT;
-	msp_location := '350.2';
-	trace(msp_method||': Mapping SOURCE_ATOM_ID,SOURCE_CUI ...');
+
+	msp_location := '805.14';
 	EXECUTE IMMEDIATE
-      	'UPDATE /*+ PARALLEL(a) */ ' || map_sg_fields.table_name || ' a
-	    SET (sg_id' || str_pad || ', sg_type' || str_pad || ',sg_qualifier' || str_pad || ' ) =
-	      (SELECT source_cui, ''SOURCE_CUI'', source FROM classes b
-	       WHERE a.atom_id' || str_pad || ' = b.atom_id)
-	    WHERE sg_type' || str_pad || ' = ''SRC_ATOM_ID'' 
-	      AND sg_qualifier' || str_pad || ' = ''SOURCE_CUI''';
+		'UPDATE ' || map_sg_fields.table_name || ' a
+	    SET (atom_id' || str_pad || ') =
+     	       (SELECT	NVL(SUBSTR(MAX(b.rank || ''/'' || b.atom_id),
+			      INSTR(MAX(b.rank || ''/'' || b.atom_id),''/'')+1),0)
+		  FROM classes b, source_rank c 
+		  WHERE b.source_aui = a.sg_id' || str_pad || ' 
+		    AND b.source = c.source
+		    AND c.stripped_source = a.sg_qualifier' || str_pad || ')
+	    WHERE a.sg_type' || str_pad || ' IN (''STRIPPED_SOURCE_AUI'',''ROOT_SOURCE_AUI'')
+	    AND a.atom_id' || str_pad || ' = 0';
+
 	COMMIT;
-	msp_location := '350.3';
-	trace(msp_method||': Mapping SOURCE_ATOM_ID,SOURCE_DUI ...');
+
+	msp_location := '805.16';
 	EXECUTE IMMEDIATE
-      	'UPDATE /*+ PARALLEL(a) */ ' || map_sg_fields.table_name || ' a
-	    SET (sg_id' || str_pad || ', sg_type' || str_pad || ',sg_qualifier' || str_pad || ' ) =
-	      (SELECT source_dui, ''SOURCE_DUI'', source FROM classes b
-	       WHERE a.atom_id' || str_pad || ' = b.atom_id)
-	    WHERE sg_type' || str_pad || ' = ''SRC_ATOM_ID'' 
-	      AND sg_qualifier' || str_pad || ' = ''SOURCE_DUI''';
+		'UPDATE ' || map_sg_fields.table_name || ' a
+	    SET (atom_id' || str_pad || ') =
+     	       (SELECT	NVL(SUBSTR(MAX(LPaD(b.termgroup_rank,5,0) || ''/'' || b.atom_id),
+			      INSTR(MAX(LPAD(b.termgroup_rank,5,0) || ''/'' || b.atom_id),''/'')+1),0)
+		  FROM foreign_classes b, source_rank c
+		  WHERE b.source_aui = a.sg_id' || str_pad || ' 
+		AND b.source = c.source
+		  AND c.stripped_source = a.sg_qualifier' || str_pad || ')
+	    WHERE sg_type' || str_pad || ' IN (''STRIPPED_SOURCE_AUI'',''ROOT_SOURCE_AUI'')
+	    AND atom_id' || str_pad || ' = 0';
+
 	COMMIT;
-	msp_location := '350.4';
-	trace(msp_method||': Mapping SOURCE_ATOM_ID,SOURCE_AUI ...');
+
+	--
+	-- Map the SOURCE_CUI type 
+	-- We look in classes, source_classes_atoms
+	-- and then we look in foreign_classes
+        -- (assumes classes.rank is set properly)
+	--
+	msp_location := '805.22';
 	EXECUTE IMMEDIATE
-      	'UPDATE /*+ PARALLEL(a) */ ' || map_sg_fields.table_name || ' a
-	    SET (sg_id' || str_pad || ', sg_type' || str_pad || ',sg_qualifier' || str_pad || ' ) =
-	      (SELECT source_aui, ''SOURCE_AUI'', source FROM classes b
-	       WHERE a.atom_id' || str_pad || ' = b.atom_id)
-	    WHERE sg_type' || str_pad || ' = ''SRC_ATOM_ID'' 
-	      AND sg_qualifier' || str_pad || ' = ''SOURCE_AUI''';
+		'UPDATE ' || map_sg_fields.table_name || ' a
+	    SET (atom_id' || str_pad || ') =
+     	      NVL((SELECT
+			NVL(SUBSTR(MAX(LPAD(b.termgroup_rank,5,0) || ''/'' || atom_id),
+				 INSTR(MAX(LPAD(b.termgroup_rank,5,0) || ''/'' || atom_id),''/'')+1),0)
+		  FROM source_classes_atoms b
+		  WHERE b.source_cui = a.sg_id' || str_pad || ' 
+		    AND b.switch != ''I''
+		    AND b.source = a.sg_qualifier' || str_pad || '),0)
+	    WHERE sg_type' || str_pad || ' = ''SOURCE_CUI''
+	      AND atom_id' || str_pad || ' = 0';
+
+	COMMIT;
+
+	msp_location := '805.21';
+	EXECUTE IMMEDIATE
+		'UPDATE ' || map_sg_fields.table_name || ' a
+	    SET (atom_id' || str_pad || ') =
+     	      (SELECT
+			NVL(SUBSTR(MAX(b.rank || ''/'' || atom_id),
+				 INSTR(MAX(b.rank || ''/'' || atom_id),''/'')+1),0)
+		  FROM classes b
+		  WHERE b.source_cui = a.sg_id' || str_pad || ' 
+		  AND b.source = a.sg_qualifier' || str_pad || ')
+	    WHERE sg_type' || str_pad || ' = ''SOURCE_CUI''
+	    AND atom_id' || str_pad || ' = 0';
+
+	COMMIT;
+
+	msp_location := '805.23';
+	EXECUTE IMMEDIATE
+		'UPDATE ' || map_sg_fields.table_name || ' a
+	    SET (atom_id' || str_pad || ') =
+     	      (SELECT
+			SUBSTR(MAX(rank || ''/'' || atom_id),
+				 INSTR(MAX(rank || ''/'' || atom_id),''/'')+1)
+		  FROM foreign_classes b
+		  WHERE b.source_cui = a.sg_id' || str_pad || ' 
+		  AND b.source = a.sg_qualifier' || str_pad || ')
+	    WHERE sg_type' || str_pad || ' = ''SOURCE_CUI''
+	    AND atom_id' || str_pad || ' = 0';
+
+	COMMIT;
+
+	--
+	-- Map the ROOT_SOURCE_CUI type 
+	-- We look in classes, source_classes_atoms
+	-- and then we look in foreign_classes
+        -- (assumes classes.rank is set properly)
+	--
+	msp_location := '805.25';
+	EXECUTE IMMEDIATE
+		'UPDATE ' || map_sg_fields.table_name || ' a
+	    SET (atom_id' || str_pad || ') =
+     	      NVL((SELECT
+			NVL(SUBSTR(MAX(LPAD(b.termgroup_rank,5,0) || ''/'' || atom_id),
+				 INSTR(MAX(LPAD(b.termgroup_rank,5,0) || ''/'' || atom_id),''/'')+1),0)
+		  FROM source_classes_atoms b, source_rank c
+		  WHERE b.source_cui = a.sg_id' || str_pad || ' 
+		    AND b.switch != ''I''
+		    AND b.source = c.source
+		    AND c.stripped_source = a.sg_qualifier' || str_pad || '),0)
+	    WHERE sg_type' || str_pad || ' IN (''STRIPPED_SOURCE_CUI'',''ROOT_SOURCE_CUI'')
+	    AND atom_id' || str_pad || ' = 0';
+
+	COMMIT;
+
+	msp_location := '805.24';
+	EXECUTE IMMEDIATE
+		'UPDATE ' || map_sg_fields.table_name || ' a
+	    SET (atom_id' || str_pad || ') =
+     	      (SELECT
+			NVL(SUBSTR(MAX(b.rank || ''/'' || atom_id),
+				 INSTR(MAX(b.rank || ''/'' || atom_id),''/'')+1),0)
+		  FROM classes b, source_rank c
+		  WHERE b.source_cui = a.sg_id' || str_pad || ' 
+		  AND b.source = c.source
+		  AND c.stripped_source = a.sg_qualifier' || str_pad || ')
+	    WHERE sg_type' || str_pad || ' IN (''STRIPPED_SOURCE_CUI'',''ROOT_SOURCE_CUI'')
+	    AND atom_id' || str_pad || ' = 0';
+
+	COMMIT;
+
+	msp_location := '805.26';
+	EXECUTE IMMEDIATE
+		'UPDATE ' || map_sg_fields.table_name || ' a
+	    SET (atom_id' || str_pad || ') =
+     	      (SELECT
+			SUBSTR(MAX(b.rank || ''/'' || atom_id),
+				 INSTR(MAX(b.rank || ''/'' || atom_id),''/'')+1)
+		  FROM foreign_classes b, source_rank c
+		  WHERE b.source_cui = a.sg_id' || str_pad || ' 
+		AND b.source = c.source
+		  AND c.stripped_source = a.sg_qualifier' || str_pad || ')
+	    WHERE sg_type' || str_pad || ' IN (''STRIPPED_SOURCE_CUI'',''ROOT_SOURCE_CUI'')
+	    AND atom_id' || str_pad || ' = 0';
+
+	COMMIT;
+
+	--
+	-- Map the SOURCE_DUI type
+	-- We look in classes, source_classes_atoms
+	-- and then we look in foreign_classes
+        -- (assumes classes.rank is set properly)
+	--
+	msp_location := '805.32';
+	EXECUTE IMMEDIATE
+		'UPDATE ' || map_sg_fields.table_name || ' a
+	    SET (atom_id' || str_pad || ') =
+     	      NVL((SELECT
+			NVL(SUBSTR(MAX(LPAD(b.termgroup_rank,5,0) || ''/'' || atom_id),
+				 INSTR(MAX(LPAD(b.termgroup_rank,5,0) || ''/'' || atom_id),''/'')+1),0)
+		  FROM source_classes_atoms b
+		  WHERE b.source_dui = a.sg_id' || str_pad || ' 
+		    AND b.switch != ''I''
+		    AND b.source = a.sg_qualifier' || str_pad || '),0)
+	    WHERE sg_type' || str_pad || ' = ''SOURCE_DUI''
+	    AND atom_id' || str_pad || ' = 0';
+
+	COMMIT;
+
+	msp_location := '805.31';
+	EXECUTE IMMEDIATE
+		'UPDATE ' || map_sg_fields.table_name || ' a
+	    SET (atom_id' || str_pad || ') =
+     	      (SELECT
+			NVL(SUBSTR(MAX(b.rank || ''/'' || atom_id),
+				 INSTR(MAX(b.rank || ''/'' || atom_id),''/'')+1),0)
+		  FROM classes b
+		  WHERE b.source_dui = a.sg_id' || str_pad || ' 
+		  AND b.source = a.sg_qualifier' || str_pad || ')
+	    WHERE sg_type' || str_pad || ' = ''SOURCE_DUI''
+	    AND atom_id' || str_pad || ' = 0';
+
+	COMMIT;
+
+	msp_location := '805.33';
+	EXECUTE IMMEDIATE
+		'UPDATE ' || map_sg_fields.table_name || ' a
+	    SET (atom_id' || str_pad || ') =
+     	      (SELECT
+			SUBSTR(MAX(rank || ''/'' || atom_id),
+				 INSTR(MAX(rank || ''/'' || atom_id),''/'')+1)
+		  FROM foreign_classes b
+		  WHERE b.source_dui = a.sg_id' || str_pad || ' 
+		  AND b.source = a.sg_qualifier' || str_pad || ')
+	    WHERE sg_type' || str_pad || ' = ''SOURCE_DUI''
+	    AND atom_id' || str_pad || ' = 0';
+
+	COMMIT;
+
+	--
+	-- Map the ROOT_SOURCE_DUI type
+	-- We look in classes, source_classes_atoms
+	-- and then we look in foreign_classes
+        -- (assumes classes.rank is set properly)
+	--
+	msp_location := '805.35';
+	EXECUTE IMMEDIATE
+		'UPDATE ' || map_sg_fields.table_name || ' a
+	    SET (atom_id' || str_pad || ') =
+     	      NVL((SELECT
+			NVL(SUBSTR(MAX(LPAD(b.termgroup_rank,5,0) || ''/'' || atom_id),
+				 INSTR(MAX(LPAD(b.termgroup_rank,5,0) || ''/'' || atom_id),''/'')+1),0)
+		  FROM source_classes_atoms b, source_rank c
+		  WHERE b.source_dui = a.sg_id' || str_pad || ' 
+		    AND b.switch = ''I''
+		    AND b.source = c.source
+		    AND c.stripped_source = a.sg_qualifier' || str_pad || '),0)
+	    WHERE sg_type' || str_pad || ' IN (''STRIPPED_SOURCE_DUI'',''ROOT_SOURCE_DUI'')
+	    AND atom_id' || str_pad || ' = 0';
+
+	COMMIT;
+
+	msp_location := '805.34';
+	EXECUTE IMMEDIATE
+		'UPDATE ' || map_sg_fields.table_name || ' a
+	    SET (atom_id' || str_pad || ') =
+     	      (SELECT
+			NVL(SUBSTR(MAX(b.rank || ''/'' || atom_id),
+				 INSTR(MAX(b.rank || ''/'' || atom_id),''/'')+1),0)
+		  FROM classes b, source_rank c
+		  WHERE b.source_dui = a.sg_id' || str_pad || ' 
+		AND b.source = c.source
+		  AND c.stripped_source = a.sg_qualifier' || str_pad || ')
+	    WHERE sg_type' || str_pad || ' IN (''STRIPPED_SOURCE_DUI'',''ROOT_SOURCE_DUI'')
+	    AND atom_id' || str_pad || ' = 0';
+
+	COMMIT;
+
+	msp_location := '805.36';
+	EXECUTE IMMEDIATE
+		'UPDATE ' || map_sg_fields.table_name || ' a
+	    SET (atom_id' || str_pad || ') =
+     	      (SELECT
+			SUBSTR(MAX(b.rank || ''/'' || atom_id),
+				 INSTR(MAX(b.rank || ''/'' || atom_id),''/'')+1)
+		  FROM foreign_classes b, source_rank c
+		  WHERE b.source_dui = a.sg_id' || str_pad || ' 
+		AND b.source = c.source
+		  AND c.stripped_source = a.sg_qualifier' || str_pad || ')
+	    WHERE sg_type' || str_pad || ' IN (''STRIPPED_SOURCE_DUI'',''ROOT_SOURCE_DUI'')
+	    AND atom_id' || str_pad || ' = 0';
+
+	COMMIT;
+
+	--
+	-- Map the SOURCE_RUI type
+	-- We look in relationships, source_relationships, 
+	-- and then context_relationships
+	--
+ 	msp_location := '805.41';
+	EXECUTE IMMEDIATE
+	 	'UPDATE ' || map_sg_fields.table_name || ' a
+	    SET (atom_id' || str_pad || ') =
+     	      (SELECT
+		NVL(SUBSTR(MAX(tbr.rank||LPAD(b.source_rank,5,0) || ''/'' || atom_id_1),
+                  INSTR(MAX(tbr.rank||LPAD(b.source_rank,5,0) || ''/'' || atom_id_1),''/'')+1),0)
+		  FROM relationships b, tobereleased_rank tbr
+		  WHERE b.source_rui = a.sg_id' || str_pad || ' 
+  	          AND b.tobereleased = tbr.tobereleased
+		  AND b.source = a.sg_qualifier' || str_pad || ')
+	    WHERE sg_type' || str_pad || ' = ''SOURCE_RUI''
+	    AND atom_id' || str_pad || ' = 0';
+
+	COMMIT;
+
+	msp_location := '805.42';
+	EXECUTE IMMEDIATE
+		'UPDATE ' || map_sg_fields.table_name || ' a
+	    SET (atom_id' || str_pad || ') =
+     	      (SELECT
+		NVL(SUBSTR(MAX(LPAD(b.source_rank,5,0) || ''/'' || atom_id_1),
+			 INSTR(MAX(LPAD(b.source_rank,5,0) || ''/'' || atom_id_1),''/'')+1),0)
+		  FROM source_relationships b
+		  WHERE b.source_rui = a.sg_id' || str_pad || ' 
+		  AND b.source = a.sg_qualifier' || str_pad || ')
+	    WHERE sg_type' || str_pad || ' = ''SOURCE_RUI''
+	    AND atom_id' || str_pad || ' = 0';
+
+	COMMIT;
+
+	msp_location := '805.43';
+	EXECUTE IMMEDIATE
+		'UPDATE ' || map_sg_fields.table_name || ' a
+	    SET (atom_id' || str_pad || ') =
+     	      (SELECT
+		SUBSTR(MAX(tbr.rank||LPAD(b.source_rank,5,0) || ''/'' || atom_id_1),
+			 INSTR(MAX(tbr.rank||LPAD(b.source_rank,5,0) || ''/'' || atom_id_1),''/'')+1)
+		  FROM context_relationships b, tobereleased_rank tbr
+		  WHERE b.source_rui = a.sg_id' || str_pad || ' 
+  	          AND b.tobereleased = tbr.tobereleased
+		  AND b.source = a.sg_qualifier' || str_pad || ')
+	    WHERE sg_type' || str_pad || ' = ''SOURCE_RUI''
+	    AND atom_id' || str_pad || ' = 0';
+
+	COMMIT;
+
+	--
+	-- Map the ROOT_SOURCE_RUI type
+	-- We look in relationships, source_relationships, 
+	-- and then context_relationships
+	--
+	msp_location := '805.51';
+	EXECUTE IMMEDIATE
+		'UPDATE ' || map_sg_fields.table_name || ' a
+	    SET (atom_id' || str_pad || ') =
+     	      (SELECT
+		NVL(SUBSTR(MAX(tbr.rank||LPAD(c.rank,5,0) || ''/'' || atom_id_1),
+			 INSTR(MAX(tbr.rank||LPAD(c.rank,5,0) || ''/'' || atom_id_1),''/'')+1),0)
+		  FROM relationships b, source_rank c, tobereleased_rank tbr
+		  WHERE b.source_rui = a.sg_id' || str_pad || ' 
+    	 	  AND b.tobereleased = tbr.tobereleased
+    	 	  AND b.source = c.source
+		  AND c.stripped_source = a.sg_qualifier' || str_pad || ')
+	    WHERE sg_type' || str_pad || ' IN (''STRIPPED_SOURCE_RUI'',''ROOT_SOURCE_RUI'')
+	    AND atom_id' || str_pad || ' = 0';
+
+	COMMIT;
+
+	msp_location := '805.52';
+	EXECUTE IMMEDIATE
+		'UPDATE ' || map_sg_fields.table_name || ' a
+	    SET (atom_id' || str_pad || ') =
+     	      (SELECT
+		NVL(SUBSTR(MAX(LPAD(b.source_rank,5,0) || ''/'' || atom_id_1),
+			 INSTR(MAX(LPAD(b.source_rank,5,0) || ''/'' || atom_id_1),''/'')+1),0)
+		  FROM source_relationships b, source_rank c
+		  WHERE b.source_rui = a.sg_id' || str_pad || ' 
+		  AND b.source = c.source
+		  AND c.stripped_source = a.sg_qualifier' || str_pad || ')
+	    WHERE sg_type' || str_pad || ' IN (''STRIPPED_SOURCE_RUI'',''ROOT_SOURCE_RUI'')
+	    AND atom_id' || str_pad || ' = 0';
+
+	COMMIT;
+
+	msp_location := '805.53';
+	EXECUTE IMMEDIATE
+		'UPDATE ' || map_sg_fields.table_name || ' a
+	    SET (atom_id' || str_pad || ') =
+     	      (SELECT
+		SUBSTR(MAX(tbr.rank||LPAD(c.rank,5,0)|| ''/'' || atom_id_1),
+			 INSTR(MAX(tbr.rank||LPAD(c.rank,5,0) || ''/'' || atom_id_1),''/'')+1)
+		  FROM context_relationships b, source_rank c, tobereleased_rank tbr
+		  WHERE b.source_rui = a.sg_id' || str_pad || ' 
+    	 	  AND b.tobereleased = tbr.tobereleased
+		  AND b.source = c.source
+		  AND c.stripped_source = a.sg_qualifier' || str_pad || ')
+	    WHERE sg_type' || str_pad || ' IN (''STRIPPED_SOURCE_RUI'',''ROOT_SOURCE_RUI'')
+	    AND atom_id' || str_pad || ' = 0';
+
+	COMMIT;
+
+	--
+	-- Map the RUI type
+	--
+ 	msp_location := '810.1';
+	EXECUTE IMMEDIATE
+	 	'UPDATE ' || map_sg_fields.table_name || ' a
+	    SET (atom_id' || str_pad || ') =
+    	      (SELECT
+		NVL(SUBSTR(MAX(tbr.rank||LPAD(b.source_rank,5,0) || ''/'' || atom_id_1),
+		 INSTR(MAX(tbr.rank||LPAD(b.source_rank,5,0) || ''/'' || atom_id_1),''/'')+1),0)
+		  FROM relationships b, tobereleased_rank tbr
+		  WHERE b.rui = a.sg_id' || str_pad || ' 
+    	 	  AND b.tobereleased = tbr.tobereleased)
+	    WHERE sg_type' || str_pad || ' = ''RUI''
+	    AND atom_id' || str_pad || ' = 0';
+
+	COMMIT;
+
+	msp_location := '810.2';
+	EXECUTE IMMEDIATE
+		'UPDATE ' || map_sg_fields.table_name || ' a
+	    SET (atom_id' || str_pad || ') =
+     	      (SELECT
+		NVL(SUBSTR(MAX(LPAD(b.source_rank,5,0) || ''/'' || atom_id_1),
+			 INSTR(MAX(LPAD(b.source_rank,5,0) || ''/'' || atom_id_1),''/'')+1),0)
+		  FROM source_relationships b
+		  WHERE b.rui = a.sg_id' || str_pad || ' )
+	    WHERE sg_type' || str_pad || ' = ''RUI''
+	    AND atom_id' || str_pad || ' = 0';
+
+	COMMIT;
+
+	msp_location := '810.3';
+	EXECUTE IMMEDIATE
+		'UPDATE ' || map_sg_fields.table_name || ' a
+	    SET (atom_id' || str_pad || ') =
+     	      (SELECT
+		SUBSTR(MAX(tbr.rank||LPAD(b.source_rank,5,0) || ''/'' || atom_id_1),
+			 INSTR(MAX(tbr.rank||LPAD(b.source_rank,5,0) || ''/'' || atom_id_1),''/'')+1)
+		  FROM context_relationships b, tobereleased_rank tbr
+		  WHERE b.rui = a.sg_id' || str_pad || '
+    	 	  AND b.tobereleased = tbr.tobereleased )
+	    WHERE sg_type' || str_pad || ' = ''RUI''
+	    AND atom_id' || str_pad || ' = 0';
+
 	COMMIT;
 
 
@@ -8551,7 +8833,7 @@ BEGIN
 	-- This takes care of EVERY case without having to deal with 
 	-- them one by one.
 	IF map_sg_fields.concept_flag = MEME_CONSTANTS.YES THEN
-    	 msp_location := '850';
+    	 msp_location := '810';
 	    trace(msp_method||': Mapping CONCEPT_ID which atom_id' || str_pad || ' != 0 ...');
 
 	    EXECUTE IMMEDIATE
@@ -8565,7 +8847,7 @@ BEGIN
 	COMMIT;
 
 	--
-	-- QA Check for null or 0 atom ids
+	-- Check for null or 0 atom ids
 	--
 	msp_location := '900';
 	-- Here there is no "switch" so we try to map both sides
@@ -8584,7 +8866,7 @@ BEGIN
 	END IF;
 
 	--
-	-- QA Check for null or 0 concept ids
+	-- Check for null or 0 concept ids
 	--
 	msp_location := '950';
 	IF map_sg_fields.concept_flag = MEME_CONSTANTS.YES AND
@@ -8618,7 +8900,7 @@ EXCEPTION
 		   MEME_UTILITY.put_message('exc');
 	RAISE msp_exception;
     WHEN OTHERS THEN
-	error_log(msp_method,msp_location,msp_error_code,msp_error_detail||': '||SQLERRM);
+	error_log(msp_method,msp_location,msp_error_code,SQLERRM);
 		   MEME_UTILITY.put_message('exc');
 	RAISE msp_exception;
 
@@ -8655,7 +8937,6 @@ IS
     l_rowid	    	ROWID;
     l_cui              	VARCHAR2(10);
     l_max_rank	    	VARCHAR2(50);
-    l_rank_table    	VARCHAR2(50);
     l_atom_id         	INTEGER;
     l_concept_id     	INTEGER;
 
@@ -8694,39 +8975,40 @@ BEGIN
     --
     msp_location := '200';
     FOR loop_ctr IN 1..loop_column.LAST LOOP
-        msp_location := '210';
-        FOR sub_loop_ctr IN 1..2 LOOP
-            -- Only one loop if no pair flag (also don't use str_pad)
-            IF map_sg_fields_all.pair_flag = MEME_CONSTANTS.NO THEN
-                IF sub_loop_ctr = 2 THEN
-                    EXIT;
-                END IF;
-                table_column(sub_loop_ctr) := loop_column(loop_ctr);
+	msp_location := '210';
+	FOR sub_loop_ctr IN 1..2 LOOP
+	    -- Only one loop if no pair flag (also don't use str_pad)
+	    IF map_sg_fields_all.pair_flag = MEME_CONSTANTS.NO THEN
 
-            -- If pair flag check ###_{1,2} instead of just ###
-            ELSIF map_sg_fields_all.pair_flag = MEME_CONSTANTS.YES THEN
-                  table_column(sub_loop_ctr) := loop_column(loop_ctr) ||
-                  '_'||sub_loop_ctr;
-            END IF;
+	    	IF sub_loop_ctr = 2 THEN
+		    EXIT;
+	     	END IF;
+	     	table_column(sub_loop_ctr) := loop_column(loop_ctr);
 
-            msp_location := '220';
-            retval := MEME_UTILITY.get_field_type(
-               UPPER(map_sg_fields_all.table_name), 
-               table_column(sub_loop_ctr));
+	    -- If pair flag check ###_{1,2} instead of just ###
+	    ELSIF map_sg_fields_all.pair_flag = MEME_CONSTANTS.YES THEN
+	     	table_column(sub_loop_ctr) := loop_column(loop_ctr) ||
+		 '_'||sub_loop_ctr;
+	    END IF;
 
-            IF retval = MEME_CONSTANTS.FIELD_NOT_FOUND THEN
-                msp_error_code := 20; 
-                msp_error_detail :=
-                    'table_name='||map_sg_fields_all.table_name||', '||
-                    'column_name='||table_column(sub_loop_ctr)||'.';
-                    RAISE map_sg_fields_all_exc;
-            END IF;
+	    msp_location := '220';
+	    retval := MEME_UTILITY.get_field_type(
+	 	     UPPER(map_sg_fields_all.table_name), 
+			  table_column(sub_loop_ctr));
 
-        END LOOP; -- loop counter
+	    IF retval = MEME_CONSTANTS.FIELD_NOT_FOUND THEN
+	     	msp_error_code := 20; 
+		msp_error_detail :=
+		   'table_name='||map_sg_fields_all.table_name||', '||
+		   'column_name='||table_column(sub_loop_ctr)||'.';
+	     	RAISE map_sg_fields_all_exc;
+	    END IF;
+
+	END LOOP; -- loop counter
 
     END LOOP; -- column validation list
 
-    MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::map_sg_fields_all',
+   MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::map_sg_fields_all',
     	'Done validating table structures',0,1,0,40);
 
     --
@@ -8741,49 +9023,9 @@ BEGIN
     initialize_trace('MAP_SG_FIELDS_ALL');
     msp_location := '300';
 
-    MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::map_sg_fields_all',
+   MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::map_sg_fields_all',
     	'Done starting out by mapping sg_fields the normal way',0,1,0,80);
 
-    	
-	--
-	-- Create rank table for upcoming comparisons
-	--
- 	msp_location := '400';
-    l_rank_table := MEME_UTILITY.get_unique_tablename;
- 	msp_location := '401';
-	MEME_UTILITY.drop_it('table',l_rank_table);
- 	msp_location := '402';
-	EXECUTE IMMEDIATE
-	 	'CREATE TABLE ' || l_rank_table || ' AS
-         WITH sabs AS 
- 			(SELECT DISTINCT sg_qualifier source FROM source_attributes
-	         WHERE sg_type IN (''SOURCE_RUI'')),
-		      root_sabs AS
- 			(SELECT DISTINCT sg_qualifier root_source FROM source_attributes
-	         WHERE sg_type IN (''ROOT_SOURCE_RUI''))
-		 SELECT tbr.RANK || LPAD (c.RANK, 5, 0) || ''~'' || atom_id_1 || ''/'' || relationship_id rank,
-                r.atom_id_1, r.source, c.stripped_source root_source, source_rui
-         FROM relationships r, source_rank c, tobereleased_rank tbr
-         WHERE r.source = c.source AND r.tobereleased = tbr.tobereleased
-           AND r.relationship_level = ''S'' 
-           AND c.stripped_source IN 
-             (SELECT root_source FROM root_sabs UNION
-   			  SELECT stripped_source FROM source_rank a, sabs b WHERE a.source = b.source)
-	     UNION ALL
-		 SELECT tbr.RANK || LPAD (c.RANK, 5, 0) || ''~'' || atom_id_1 || ''/'' || relationship_id rank,
-                r.atom_id_1, r.source, c.stripped_source root_source, source_rui
-         FROM context_relationships r, source_rank c, tobereleased_rank tbr
-         WHERE r.source = c.source AND r.tobereleased = tbr.tobereleased
-           AND r.relationship_level = ''S'' 
-           AND c.stripped_source IN 
-             (SELECT root_source FROM root_sabs UNION
-   			  SELECT stripped_source FROM source_rank a, sabs b WHERE a.source = b.source)';
-
-        
- 	msp_location := '410';
-    EXECUTE IMMEDIATE
-    	'CREATE INDEX x_' || l_rank_table || ' ON ' || l_rank_table || ' (atom_id_1) COMPUTE STATISTICS';  	
-    	
     --
     -- MAP sg_meme_data_type and sg_meme_id
     --
@@ -8816,12 +9058,10 @@ BEGIN
 	 SET sg_meme_data_type' || str_pad || ' = ''C'',
 	     sg_meme_id' || str_pad || ' = atom_id' || str_pad || '
 	 WHERE sg_type' || str_pad || ' NOT LIKE ''%RUI%''
-	   AND sg_type' || str_pad || ' != ''SRC_REL_ID'' ';
-
-    MEME_UTILITY.put_message('Done setting id and data_type for non RUI - ' || SQL%ROWCOUNT);
+    	';
 
 	COMMIT;
-	
+
 	--
 	-- Map the SOURCE_RUI type
 	-- We look in relationships, source_relationships, 
@@ -8833,16 +9073,19 @@ BEGIN
 	 	'UPDATE ' || map_sg_fields_all.table_name || ' a
 	    SET (sg_meme_data_type' || str_pad || ', sg_meme_id' || str_pad || ') =
      	      (SELECT ''R'', 
-		NVL(SUBSTR(MAX(rank),
-		           INSTR(MAX(rank),''/'')+1),0)
-		  FROM ' || l_rank_table || ' b
+		NVL(SUBSTR(MAX(tbr.rank||LPAD(b.source_rank,5,0) || ''~'' || 
+			       atom_id_1 || ''/'' || 
+			       relationship_id),
+		           INSTR(MAX(tbr.rank||LPAD(b.source_rank,5,0)|| ''~'' || 
+				     atom_id_1 || ''/'' ||
+				     relationship_id),''/'')+1),0)
+		  FROM relationships b, tobereleased_rank tbr
 		  WHERE b.source_rui = a.sg_id' || str_pad || ' 
-		  AND b.source = a.sg_qualifier' || str_pad || '
-          AND b.atom_id_1 = a.atom_id' || str_pad || ')
+		  AND b.tobereleased = tbr.tobereleased
+		  AND b.source = a.sg_qualifier' || str_pad || ')
 	    WHERE sg_type' || str_pad || ' = ''SOURCE_RUI''
-	    AND NVL(sg_meme_id' || str_pad || ',0) = 0';
+	    AND sg_meme_id' || str_pad || ' = 0';
 
-    MEME_UTILITY.put_message('Done setting id and data_type for SOURCE_RUI(r) - ' || SQL%ROWCOUNT);
 	COMMIT;
 
 	msp_location := '805.42';
@@ -8858,12 +9101,10 @@ BEGIN
 				     relationship_id),''/'')+1),0)
 		  FROM source_relationships b
 		  WHERE b.source_rui = a.sg_id' || str_pad || ' 
-		  AND b.source = a.sg_qualifier' || str_pad || '
-		  AND b.atom_id_1 = a.atom_id' || str_pad || ')
+		  AND b.source = a.sg_qualifier' || str_pad || ')
 	    WHERE sg_type' || str_pad || ' = ''SOURCE_RUI''
-	    AND NVL(sg_meme_id' || str_pad || ',0) = 0';
+	    AND sg_meme_id' || str_pad || ' = 0';
 
-    MEME_UTILITY.put_message('Done setting id and data_type for SOURCE_RUI(sr) - ' || SQL%ROWCOUNT);
 	COMMIT;
 
 	msp_location := '805.43';
@@ -8871,16 +9112,19 @@ BEGIN
 	 	'UPDATE ' || map_sg_fields_all.table_name || ' a
 	    SET (sg_meme_data_type' || str_pad || ', sg_meme_id' || str_pad || ') =
      	      (SELECT ''R'', 
-		NVL(SUBSTR(MAX(rank),
-		           INSTR(MAX(rank),''/'')+1),0)
-		  FROM ' || l_rank_table || ' b
+		NVL(SUBSTR(MAX(tbr.rank||LPAD(b.source_rank,5,0) || ''~'' || 
+			       atom_id_1 || ''/'' ||
+			       relationship_id),
+		           INSTR(MAX(tbr.rank||LPAD(b.source_rank,5,0) || ''~'' || 
+				     atom_id_1 || ''/'' ||
+				     relationship_id),''/'')+1),0)
+		  FROM context_relationships b, tobereleased_rank tbr
 		  WHERE b.source_rui = a.sg_id' || str_pad || ' 
-		  AND b.source = a.sg_qualifier' || str_pad || '
-		  AND b.atom_id_1 = a.atom_id' || str_pad || ')
+		  AND b.tobereleased = tbr.tobereleased
+		  AND b.source = a.sg_qualifier' || str_pad || ')
 	    WHERE sg_type' || str_pad || ' = ''SOURCE_RUI''
-	    AND nvl(sg_meme_id' || str_pad || ',0) = 0';
+	    AND sg_meme_id' || str_pad || ' = 0';
 
-    MEME_UTILITY.put_message('Done setting id and data_type for SOURCE_RUI(cr) - ' || SQL%ROWCOUNT);
 	COMMIT;
 
 	--
@@ -8889,24 +9133,23 @@ BEGIN
 	-- and then context_relationships
 	--
 	msp_location := '805.51';
-	
-	EXECUTE IMMEDIATE           
-        'ALTER SESSION ENABLE PARALLEL DML';
-	
 	EXECUTE IMMEDIATE
-		'UPDATE /*+ first_rows parallel(a) parallel(b)*/ ' || map_sg_fields_all.table_name || ' a
+		'UPDATE ' || map_sg_fields_all.table_name || ' a
 	    SET (sg_meme_data_type' || str_pad || ', sg_meme_id' || str_pad || ') =
      	      (SELECT ''R'',
-		NVL(SUBSTR(MAX(rank),
-		 	   INSTR(MAX(rank),''/'')+1),0)
-		  FROM ' || l_rank_table || ' b 
+		NVL(SUBSTR(MAX(tbr.rank||LPAD(c.rank,5,0) || ''~'' || 
+			       atom_id_1 || ''/'' ||
+			       relationship_id),
+		 	   INSTR(MAX(tbr.rank||LPAD(c.rank,5,0) || ''~'' || 
+				     atom_id_1 || ''/'' ||
+				     relationship_id),''/'')+1),0)
+		  FROM relationships b, source_rank c, tobereleased_rank tbr
 		  WHERE b.source_rui = a.sg_id' || str_pad || ' 
-		  AND b.root_source = a.sg_qualifier' || str_pad || '
-		  AND b.atom_id_1 = a.atom_id' || str_pad || ')
+		  AND b.tobereleased = tbr.tobereleased
+		  AND b.source = c.source
+		  AND c.stripped_source = a.sg_qualifier' || str_pad || ')
 	    WHERE sg_type' || str_pad || ' IN (''STRIPPED_SOURCE_RUI'',''ROOT_SOURCE_RUI'')
-	    AND NVL(sg_meme_id' || str_pad || ',0) = 0';
-
-    MEME_UTILITY.put_message('Done setting id and data_type for ROOT_SOURCE_RUI(r) - ' || SQL%ROWCOUNT);
+	    AND sg_meme_id' || str_pad || ' = 0';
 
 	COMMIT;
 
@@ -8923,13 +9166,11 @@ BEGIN
 				     relationship_id),''/'')+1),0)
 		  FROM source_relationships b, source_rank c
 		  WHERE b.source_rui = a.sg_id' || str_pad || ' 
-            AND b.source = c.source
-		    AND c.stripped_source = a.sg_qualifier' || str_pad || '
-		    AND b.atom_id_1 = a.atom_id' || str_pad || ')
+		AND b.source = c.source
+		  AND c.stripped_source = a.sg_qualifier' || str_pad || ')
 	    WHERE sg_type' || str_pad || ' IN (''STRIPPED_SOURCE_RUI'',''ROOT_SOURCE_RUI'')
-	    AND NVL(sg_meme_id' || str_pad || ',0) = 0';
+	    AND sg_meme_id' || str_pad || ' = 0';
 
-    MEME_UTILITY.put_message('Done setting id and data_type for ROOT_SOURCE_RUI(sr) - ' || SQL%ROWCOUNT);
 	COMMIT;
 
 	msp_location := '805.53';
@@ -8937,21 +9178,24 @@ BEGIN
 		'UPDATE ' || map_sg_fields_all.table_name || ' a
 	    SET (sg_meme_data_type' || str_pad || ', sg_meme_id' || str_pad || ') =
      	      (SELECT ''R'',
-		NVL(SUBSTR(MAX(rank),
-		 	   INSTR(MAX(rank),''/'')+1),0)
-		  FROM ' || l_rank_table || ' b
+		NVL(SUBSTR(MAX(tbr.rank||LPAD(c.rank,5,0) || ''~'' || 
+			       atom_id_1 || ''/'' ||
+			       relationship_id),
+		 	   INSTR(MAX(tbr.rank||LPAD(c.rank,5,0) || ''~'' || 
+				     atom_id_1 || ''/'' ||
+				     relationship_id),''/'')+1),0)
+		  FROM context_relationships b, source_rank c, tobereleased_rank tbr
 		  WHERE b.source_rui = a.sg_id' || str_pad || ' 
-		  AND b.root_source = a.sg_qualifier' || str_pad || '
-		  AND b.atom_id_1 = a.atom_id' || str_pad || ')
+		  AND b.tobereleased = tbr.tobereleased
+		  AND b.source = c.source
+		  AND c.stripped_source = a.sg_qualifier' || str_pad || ')
 	    WHERE sg_type' || str_pad || ' IN (''STRIPPED_SOURCE_RUI'',''ROOT_SOURCE_RUI'')
-	    AND NVL(sg_meme_id' || str_pad || ',0) = 0';
+	    AND sg_meme_id' || str_pad || ' = 0';
 
-    MEME_UTILITY.put_message('Done setting id and data_type for ROOT_SOURCE_RUI(cr) - ' || SQL%ROWCOUNT);
 	COMMIT;
 
 	--
 	-- Map the RUI type
-	-- TODO; this could be optimized too, but we never have data for these cases, so not worth it yet
 	--
  	msp_location := '810.1';
 	EXECUTE IMMEDIATE
@@ -8966,12 +9210,10 @@ BEGIN
 				     relationship_id),''/'')+1),0)
 		  FROM relationships b, tobereleased_rank tbr
 		  WHERE b.rui = a.sg_id' || str_pad || ' 
-		    AND b.tobereleased = tbr.tobereleased 
-		  AND b.atom_id_1 = a.atom_id' || str_pad || ')
+		    AND b.tobereleased = tbr.tobereleased )
 	    WHERE sg_type' || str_pad || ' = ''RUI''
-	    AND nvl(sg_meme_id' || str_pad || ',0) = 0';
+	    AND sg_meme_id' || str_pad || ' = 0';
 
-    MEME_UTILITY.put_message('Done setting id and data_type for RUI(r) - ' || SQL%ROWCOUNT);
 	COMMIT;
 
 	msp_location := '810.2';
@@ -8986,12 +9228,10 @@ BEGIN
 				     atom_id_1 || ''/'' ||
 				     relationship_id),''/'')+1),0)
 		  FROM source_relationships b
-		  WHERE b.rui = a.sg_id' || str_pad || '
-		  AND b.atom_id_1 = a.atom_id' || str_pad || ')
+		  WHERE b.rui = a.sg_id' || str_pad || ' )
 	    WHERE sg_type' || str_pad || ' = ''RUI''
-	    AND nvl(sg_meme_id' || str_pad || ',0) = 0';
+	    AND sg_meme_id' || str_pad || ' = 0';
 
-    MEME_UTILITY.put_message('Done setting id and data_type for RUI(r) - ' || SQL%ROWCOUNT);
 	COMMIT;
 
 	msp_location := '810.3';
@@ -9007,30 +9247,14 @@ BEGIN
 				     relationship_id),''/'')+1),0)
 		  FROM context_relationships b, tobereleased_rank tbr
 		  WHERE b.rui = a.sg_id' || str_pad || ' 
-		    AND b.tobereleased = tbr.tobereleased
-		  AND b.atom_id_1 = a.atom_id' || str_pad || ')
+		    AND b.tobereleased = tbr.tobereleased )
 	    WHERE sg_type' || str_pad || ' = ''RUI''
-	    AND nvl(sg_meme_id' || str_pad || ',0) = 0';
+	    AND sg_meme_id' || str_pad || ' = 0';
 
-    MEME_UTILITY.put_message('Done setting id and data_type for RUI(r) - ' || SQL%ROWCOUNT);
 	COMMIT;
 
-	--
-	-- Map the SRC_REL_ID type
-	--
-	msp_location := '820';
-	EXECUTE IMMEDIATE
-		'UPDATE ' || map_sg_fields_all.table_name || ' a
-	     SET (sg_meme_data_type' || str_pad || ', sg_meme_id' || str_pad || ') =
-     	      (SELECT ''R'',local_row_id FROM source_id_map m
-     	       	WHERE m.table_name = ''R''
-     	          AND m.source_row_id = a.sg_id' || str_pad || '
-     	       )
-      	WHERE sg_type' || str_pad || ' = ''SRC_REL_ID'' ';
 
-    MEME_UTILITY.put_message('Done setting id and data_type for SRC_REL_ID - ' || SQL%ROWCOUNT);
-
-    --
+	--
 	-- Check for 0 sg_meme_ids
 	--
 	msp_location := '900';
@@ -9038,7 +9262,7 @@ BEGIN
 	-- if any went unmapped that should've been mapped it is an error
 	l_query := 
 	 'SELECT COUNT(*) FROM ' || map_sg_fields_all.table_name || '
-	  WHERE NVL(sg_meme_id' || str_pad ||',0) = 0 
+	  WHERE sg_meme_id' || str_pad ||' = 0 
    	    AND sg_type' || str_pad || ' not like ''CUI%'' ';
 
 	row_count := MEME_UTILITY.exec_select(l_query);
@@ -9050,11 +9274,7 @@ BEGIN
 
     END LOOP;
 
- 	msp_location := '1000';
-	MEME_UTILITY.drop_it('table',l_rank_table);
-
-    
-    MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::map_sg_fields_all',
+   MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::map_sg_fields_all',
     	'Done process map_sg_fields_all',0,1,0,100);
 
     msp_location := '999';
@@ -9090,14 +9310,13 @@ IS
    l_id_type       VARCHAR2(50);
    l_sg_qualifier  VARCHAR2(50) := 'sg_qualifier';
    l_sg_type       VARCHAR2(20) := 'sg_type';
-   l_sg_id         VARCHAR2(100) := 'sg_id';
+   l_sg_id         VARCHAR2(50) := 'sg_id';
    l_atom_id       VARCHAR2(50) := 'atom_id';
    sg_table	   DBMS_SQL.VARCHAR2_TABLE;
-   sty_clause	   DBMS_SQL.VARCHAR2_TABLE;
    tmp_table_1	   VARCHAR2(50);
    tmp_table_2	   VARCHAR2(50);
    l_row_id	   INTEGER;
-   l_authority	   VARCHAR2(50);
+   l_authority	   VARCHAR2(20);
    retval          INTEGER;
    map_sg_data_exc EXCEPTION;
 BEGIN
@@ -9121,8 +9340,6 @@ BEGIN
    msp_location := '10';
    sg_table(1) := 'attributes';
    sg_table(2) := 'relationships';
-   sty_clause(1) := ' and attribute_name != ''SEMANTIC_TYPE''';
-   sty_clause(2) := '';
 
    -- Reset default loop variables
    l_sg_type := 'sg_type';
@@ -9163,25 +9380,30 @@ BEGIN
          tmp_table_1 := MEME_UTILITY.get_unique_tablename;
          MEME_UTILITY.drop_it('table',tmp_table_1);
 
+         EXECUTE IMMEDIATE
+            'CREATE TABLE ' || tmp_table_1 || ' (
+	 	' || l_table_id || ' NUMBER(12),
+                atom_id NUMBER(12),
+                sg_id VARCHAR2(50),
+                sg_type VARCHAR2(20),
+                sg_qualifier VARCHAR2(50)
+	    )';
+
 	 --
 	 -- Re-map all "mappable" types
 	 -- except for SOURCE_[CADR]UI
 	 -- !attention If the source of the thing is different
 	 --            from the sg_qualifier, we should probably re-map it
-     --	  	e.g. MEDLINEPLUS connecting to MSH, or SNOMEDCT connecting to ICD
+         --	  	e.g. MEDLINEPLUS connecting to MSH, or SNOMEDCT connecting to ICD
 	 --		Or should we rely on "map obsolete data" to handle it?
-         EXECUTE IMMEDIATE
-            'CREATE TABLE ' || tmp_table_1 || ' (
-	 	' || l_table_id || ' ,
-                atom_id ,
-                sg_id ,
-                sg_type ,
-                sg_qualifier 
-	    ) NOLOGGING as
-	       SELECT /*+ PARALLEL(a) */  ' || l_table_id || ', cast(0 as NUMBER(12)), ' || l_sg_id || ', 
+         --
+         msp_location := '20.12';
+	 EXECUTE IMMEDIATE
+            'INSERT INTO ' || tmp_table_1 || '
+             SELECT /*+ PARALLEL(a) */  ' || l_table_id || ', 0, ' || l_sg_id || ', 
 		    ' || l_sg_type || ', ' || l_sg_qualifier || '
              FROM ' || sg_table(loop_ctr_1) || ' a
-             WHERE tobereleased in (''Y'',''y'')  ' || sty_clause(loop_ctr_1) || '
+             WHERE tobereleased in (''Y'',''y'')
 	       AND ' || l_sg_type || ' IN
                (SELECT code FROM code_map WHERE type = ''map_sg_type'' 
 	        AND code NOT IN (SELECT code FROM code_map WHERE type = ''no_remap_sg_type'')) '; 
@@ -9189,10 +9411,10 @@ BEGIN
 	 COMMIT;
 
          msp_location := '20.13';
-         --MEME_SYSTEM.analyze(tmp_table_1);
+         MEME_SYSTEM.analyze(tmp_table_1);
 
 	 --
-     -- Call map_sg_fields
+         -- Call map_sg_fields
 	 --
          msp_location := '20.13';
          MEME_UTILITY.put_message
@@ -9205,7 +9427,7 @@ BEGIN
 
          msp_method := 'MAP_SG_DATA';
 
-         --MEME_SYSTEM.analyze(tmp_table_1);
+         MEME_SYSTEM.analyze(tmp_table_1);
 
          -- Check where the current atom_id (1 or 2) are different in the */
          -- current table (relationships or attributes) and current tmp_table (1 or 2) */
@@ -9223,11 +9445,15 @@ BEGIN
 	 msp_location := '20.14.1';
 	 EXECUTE IMMEDIATE
             'CREATE TABLE '||tmp_table_2||' (
-		row_id,
-		old_value,
-		new_value,
-		authority ) 
-		NOLOGGING AS SELECT /*+ PARALLEL(a) USE_NL(a,b) */ a.' || l_table_id || ' AS row_id,
+		row_id		NUMBER(12) NOT NULL,
+		old_value	NUMBER(12) NOT NULL,
+		new_value	NUMBER(12) NOT NULL,
+		authority	VARCHAR2(20) NOT NULL )';
+
+	 msp_location := '20.14.2';
+	 EXECUTE IMMEDIATE
+	    'INSERT INTO ' || tmp_table_2 || '
+             SELECT /*+ PARALLEL(a) USE_NL(a,b) */ a.' || l_table_id || ' AS row_id,
               	    b.' || l_atom_id || ' AS old_value,
 	      	    a.atom_id AS new_value, b.authority 
              FROM ' || tmp_table_1 || ' a, ' || l_table_name || ' b
@@ -9294,8 +9520,13 @@ BEGIN
             (msp_method||': Finding cases where current atom_id could not be mapped ...');
 	 msp_location := '20.16.1';
          EXECUTE IMMEDIATE
-            'CREATE TABLE ' || tmp_table_2 || ' 
-		     NOLOGGING AS SELECT ' || l_table_id || ' AS row_id
+            'CREATE TABLE ' || tmp_table_2 || ' (
+		row_id		NUMBER(12) NOT NULL ) ';
+
+	 msp_location := '20.16.2';
+	 EXECUTE IMMEDIATE
+	    'INSERT INTO ' || tmp_table_2 || '
+             SELECT ' || l_table_id || ' AS row_id
              FROM ' || l_table_name || '
              WHERE tobereleased NOT IN (''N'', ''n'')
              AND ' || l_table_id || ' IN
@@ -9367,8 +9598,8 @@ EXCEPTION
 END map_sg_data;
 
 /* PROCEDURE CREATE_INSERTION_INDEXES *********************************
- * Does NOTHING, indexes made permanent.
- * Call is left around for backwards compatability.
+ * Create indexes used only during insertion
+ *
  */
 PROCEDURE create_insertion_indexes (
    authority	   IN VARCHAR2,
@@ -9376,13 +9607,67 @@ PROCEDURE create_insertion_indexes (
 )
 IS
 BEGIN
-	-- DO NOTHING
+    
+    MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::create_insertion_indexes',
+	'Starting create_insertion_indexes',0,work_id,0,1);
+    IF MEME_UTILITY.object_exists('index','x_classes_scui') = 0 THEN
+        EXECUTE IMMEDIATE
+          'CREATE INDEX x_classes_scui ON classes (source_cui) TABLESPACE MIDI COMPUTE STATISTICS PARALLEL';
+    END IF;
+    MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::create_insertion_indexes',
+    	'Created x_classes_scui',0,work_id,0,10);
+    IF MEME_UTILITY.object_exists('index','x_classes_sdui') = 0 THEN
+        EXECUTE IMMEDIATE
+          'CREATE INDEX x_classes_sdui ON classes (source_dui) TABLESPACE MIDI COMPUTE STATISTICS PARALLEL';
+    END IF;
+    MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::create_insertion_indexes',
+    	'Created x_classes_sdui',0,work_id,0,20);
+    IF MEME_UTILITY.object_exists('index','x_classes_saui') = 0 THEN
+        EXECUTE IMMEDIATE
+          'CREATE INDEX x_classes_saui ON classes (source_aui) TABLESPACE MIDI COMPUTE STATISTICS PARALLEL';
+    END IF;
+    MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::create_insertion_indexes',
+    	'Created x_classes_saui',0,work_id,0,30);
+    IF MEME_UTILITY.object_exists('index','x_classes_aui') = 0 THEN
+        EXECUTE IMMEDIATE
+          'CREATE INDEX x_classes_aui ON classes (aui) TABLESPACE MIDI COMPUTE STATISTICS PARALLEL';
+    END IF;
+    MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::create_insertion_indexes',
+    	'Created x_classes_aui',0,work_id,0,50);
+    IF MEME_UTILITY.object_exists('index','x_fclasses_scui') = 0 THEN
+        EXECUTE IMMEDIATE
+          'CREATE INDEX x_fclasses_scui ON foreign_classes (source_cui) TABLESPACE MIDI COMPUTE STATISTICS PARALLEL';
+    END IF;
+    MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::create_insertion_indexes',
+    	'Created x_fclasses_scui',0,work_id,0,60);
+    IF MEME_UTILITY.object_exists('index','x_fclasses_sdui') = 0 THEN
+        EXECUTE IMMEDIATE
+          'CREATE INDEX x_fclasses_sdui ON foreign_classes (source_dui) TABLESPACE MIDI COMPUTE STATISTICS PARALLEL';
+    END IF;
+    MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::create_insertion_indexes',
+    	'Created x_fclasses_dcui',0,work_id,0,70);
+    IF MEME_UTILITY.object_exists('index','x_fclasses_saui') = 0 THEN
+        EXECUTE IMMEDIATE
+          'CREATE INDEX x_fclasses_saui ON foreign_classes (source_aui) TABLESPACE MIDI COMPUTE STATISTICS PARALLEL';
+    END IF;
+    MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::create_insertion_indexes',
+    	'Created x_fclasses_saui',0,work_id,0,80);
+    IF MEME_UTILITY.object_exists('index','x_rels_srui') = 0 THEN
+        EXECUTE IMMEDIATE
+          'CREATE INDEX x_rels_srui ON relationships (source_rui) TABLESPACE MIDI COMPUTE STATISTICS PARALLEL';
+    END IF;
+    MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::create_insertion_indexes',
+    	'Created x_rels_srui',0,work_id,0,90);
+    IF MEME_UTILITY.object_exists('index','x_cxt_rels_srui') = 0 THEN
+        EXECUTE IMMEDIATE
+          'CREATE INDEX x_cxt_rels_srui ON context_relationships (source_rui) TABLESPACE MIDI COMPUTE STATISTICS PARALLEL';
+    END IF;
     MEME_UTILITY.reset_progress(work_id => work_id);
 END create_insertion_indexes;
 
 /* PROCEDURE DROP_INSERTION_INDEXES *********************************
- * Does NOTHING, indexes made permanent.
- * Call is left around for backwards compatability.
+ * Drop indexes used only during insertion
+ *
  */
 PROCEDURE drop_insertion_indexes(
    authority	   IN VARCHAR2,
@@ -9390,155 +9675,17 @@ PROCEDURE drop_insertion_indexes(
 )
 IS
 BEGIN
-	-- DO NOTHING
-    MEME_UTILITY.reset_progress(work_id => work_id);
+    MEME_UTILITY.drop_it('index','x_classes_scui');
+    MEME_UTILITY.drop_it('index','x_classes_sdui');
+    MEME_UTILITY.drop_it('index','x_classes_saui');
+    MEME_UTILITY.drop_it('index','x_classes_aui');
+    MEME_UTILITY.drop_it('index','x_fclasses_scui');
+    MEME_UTILITY.drop_it('index','x_fclasses_sdui');
+    MEME_UTILITY.drop_it('index','x_fclasses_saui');
+    MEME_UTILITY.drop_it('index','x_rels_srui');
+    MEME_UTILITY.drop_it('index','x_cxt_rels_srui');
+    MEME_UTILITY.drop_it('index','x_ssui_string');
 END drop_insertion_indexes;
-
-
-/* PROCEDURE SET_ATOM_ORDERING ******************************************************
- * This procedure inserts atoms with their appropriate order_id into atom_ordering.
- * The "ordering" parameter should take the form of:
- * 'DEPTH-FIRST,{CODE|SDUI|SCUI|NONE}' or '{STRING|CODE|SDUI|SCUI|NONE}'
- */
-PROCEDURE set_atom_ordering(
-   source    IN VARCHAR2,
-   ordering  IN VARCHAR2,
-   authority IN VARCHAR2,
-   work_id   IN INTEGER
-)
-IS
-   rsab	 VARCHAR2(50);
-   start_id  INTEGER := 1000000000;
-   order_clause VARCHAR2(80);
-   equiv_clause VARCHAR2(80);
-   l_ordering VARCHAR2(50);
-   set_atom_ordering_exc EXCEPTION;
-
-BEGIN
-
-   MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::set_atom_ordering',
-        'Starting set_atom_ordering',0,work_id,0,1);
-   MEME_UTILITY.sub_timing_start;
-   initialize_trace('SET_ATOM_ORDERING');
-
-   msp_location :='10.0';
-   -- Initialize any needed variables
-   SELECT stripped_source INTO rsab
-   FROM source_rank WHERE source = set_atom_ordering.source;
-   l_ordering := ordering;
-
-   msp_location :='10.1';
-   -- Delete any atom_ordering that already exists
-   DELETE FROM atom_ordering WHERE root_source = set_atom_ordering.rsab;
-
-   msp_location := '10.21';
-
-   -- Depth-first based ordering, if any; otherwise proceed to next section
-
-   IF (l_ordering LIKE 'DEPTH%') THEN
-
-      -- prune ordering down to second ordering criterion
-       msp_location := '10.21b';
-       l_ordering := SUBSTR(l_ordering,instr(l_ordering,',')+1);
-
-       msp_location := '10.21c';
-       equiv_clause :=
-          CASE l_ordering
-             WHEN 'CODE' THEN ' AND NVL(a.code,''null'') = NVL(c.code,''null'')'
-             WHEN 'SCUI' THEN ' AND NVL(a.source_cui,''null'') = NVL(c.source_cui,''null'')'
-             WHEN 'SDUI' THEN ' AND NVL(a.source_dui,''null'') = NVL(c.source_dui,''null'')'
-             ELSE ' AND a.atom_id = c.atom_id'
-          END;
-
-       msp_location := '10.21d';
-       EXECUTE IMMEDIATE
-       'INSERT INTO atom_ordering
-       SELECT atom_id, :x1 AS root_source,rownum + '||start_id||' as order_id FROM
-           (SELECT atom_id FROM
-               (SELECT MIN(parent_treenum) as ptr, c.aui a1, a.aui a2, a.atom_id
-                FROM classes a, context_relationships b, classes c
-                WHERE a.source = :x2 AND a.tobereleased in (''Y'',''y'')
-                AND b.source = a.source AND b.tobereleased in (''Y'',''y'')
-                AND c.source = a.source AND c.tobereleased in (''Y'',''y'')
-                '|| equiv_clause ||'
-                AND b.atom_id_1 = c.atom_id
-                AND b.relationship_name=''PAR''
-                GROUP BY c.aui, a.aui, a.atom_id)
-            ORDER BY ptr,a1)'
-       USING rsab, source;
-
-       msp_location := '10.21e';
-       SELECT NVL(MAX(TO_NUMBER(order_id)),0) INTO start_id FROM atom_ordering
-       WHERE root_source = rsab;
-       
-       msp_location := '10.21f';
-       dbms_output.put_line(start_id || 'depth-first atom_ordering entries added for ' || rsab || '.'); 
-       
-   END IF;
-
-
-   msp_location := '10.22';
-
-   -- Identifier based ordering:
-   -- Check for STRING first (requires join on atoms), then catch all other identifiers.
-   -- Unsupported identifiers will default to NONE.
-
-
-   IF (l_ordering = 'STRING') THEN
-      msp_location := '10.22a';
-      EXECUTE IMMEDIATE
-     'INSERT INTO atom_ordering
-      SELECT atom_id, root_source, rownum + :x1 AS order_id FROM
-        (SELECT c.atom_id, :x2 AS root_source
-         FROM atoms a, classes c
-         WHERE c.source = :x3
-         AND c.atom_id NOT IN (SELECT atom_id FROM atom_ordering)
-         AND a.atom_id = c.atom_id ORDER BY lower(atom_name))'
-      USING start_id, rsab, source;
-
-   ELSE
-       msp_location := '10.22b';
-       order_clause :=
-          CASE l_ordering
-             WHEN 'CODE' THEN ' ORDER BY code, atom_id'
-             WHEN 'SCUI' THEN ' ORDER BY source_cui, atom_id'
-             WHEN 'SDUI' THEN ' ORDER BY source_dui, atom_id'
-             ELSE ''
-          END;
-
-       msp_location := '10.22c';
-       EXECUTE IMMEDIATE
-       'INSERT INTO atom_ordering
-        SELECT atom_id, root_source, rownum + :x1 AS order_id FROM
-          (SELECT c.atom_id, :x2 AS root_source
-           FROM classes c
-           WHERE c.source = :x3
-           AND c.atom_id NOT IN (SELECT atom_id FROM atom_ordering)'
-           || order_clause || ')'
-        USING start_id, rsab, source;
-   END IF;
-
-   msp_location := '10.22d';
-   MEME_UTILITY.log_progress('MTH','MEME_SOURCE_PROCESSING::set_atom_ordering',
-        'Done process resolve_stys',0,work_id,0,100);
-
-   msp_location := '10.22e';
-   MEME_UTILITY.put_message(msp_method||' successfully completed.');
-
-   COMMIT;
-
-EXCEPTION
-
-   WHEN set_atom_ordering_exc THEN
-      error_log(msp_method,msp_location,msp_error_code,msp_error_detail);
-      RAISE msp_exception;
-
-   WHEN OTHERS THEN
-      error_log(msp_method,msp_location,msp_error_code,SQLERRM);
-      RAISE msp_exception;
-
-END set_atom_ordering;
-
 
 END meme_source_processing;
 /

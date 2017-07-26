@@ -32,13 +32,10 @@
 # the positive terms are existentially qualified (i.e., there exists an STY that matches..) while the
 # negation is universally qualified (i.e., there are no STYs that match..) as is usual.
 
-BEGIN
-{
 unshift @INC, "$ENV{ENV_HOME}/bin";
 require "env.pl";
-unshift @INC, "$ENV{EMS_HOME}/lib";
-unshift @INC, "$ENV{EMS_HOME}/bin";
-}
+
+use lib "$ENV{EMS_HOME}/lib";
 
 use OracleIF;
 use EMSUtils;
@@ -60,7 +57,7 @@ EMSUtils->loadConfig;
 
 $db = $opt_d || Midsvcs->get('editing-db');
 $user = $main::EMSCONFIG{ORACLE_USER};
-$password = GeneralUtils->getOraclePassword($user,$db);
+$password = GeneralUtils->getOraclePassword($user);
 $dbh = new OracleIF("db=$db&user=$user&password=$password");
 die "Cannot connect to $db" unless $dbh;
 
@@ -69,7 +66,7 @@ die "Cannot connect to $db" unless $dbh;
 if ($opt_e) {
   $expression = $opt_e;
 } elsif ($opt_c) {
-  $configfile = join("/", $ENV{EMS_HOME}, "etc", $opt_c);
+  $configfile = join("/", $ENV{EMS_HOME}, "data", $opt_c);
   open(CONFIG, $configfile) || die "Need a config file in -c or an expression in -e\n";
   while (<CONFIG>) {
     chomp;

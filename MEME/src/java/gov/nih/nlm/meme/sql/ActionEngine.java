@@ -3,10 +3,6 @@
  * Package: gov.nih.nlm.meme.sql
  * Object:  ActionEngine
  * Changes
- * 02/24/2009 BAC (1-GCLNT): Batch insert actions use change status=false.
- * 04/17/2007 BAC (1-E0JWB): Changes to support inserting of atoms with null norm strings.
- * 03/22/2007 BAC (1-D0BIJ): Changes to report log action exceptions better. 
- *   Also include a space before "FOR UPDATE" in logAction
  *   03/01/2006 BAC (1-AIKFN): logAction should handle exceptional case without
  *      passing the action object or raw exception to the ActionException
  *      that will be thrown.  Instead it can reference info about these things 
@@ -219,7 +215,7 @@ public interface ActionEngine {
         atom.setSUI(string.getSUI());
         atom.setISUI(string.getISUI());
         atom.setLUI(string.getLUI());
-        atom.setNormalizedString(string.getNormalizedString() == null ? "" : string.getNormalizedString());
+        atom.setNormalizedString(string.getNormalizedString());
         found = true;
       }
       if (!found) {
@@ -246,7 +242,7 @@ public interface ActionEngine {
           final MEMEString string = (MEMEString) iterator.next();
           atom.setISUI(string.getISUI());
           atom.setLUI(string.getLUI());
-          atom.setNormalizedString(string.getNormalizedString() == null ? "" : string.getNormalizedString());
+          atom.setNormalizedString(string.getNormalizedString());
           iterator.remove();
           found = true;
           break;
@@ -275,38 +271,29 @@ public interface ActionEngine {
         if (norm_string == null) {
           norm_string = "";
         }
-				atom.setNormalizedString(norm_string);
-        if (!norm_string.equals("")) {
-					final SearchParameter nstr_sp = new SearchParameter.Single(
-							"norm_string", norm_string);
-					try {
-						iterator = data_source.findStrings(new SearchParameter[] { nstr_sp,
-								lat_sp });
-					} catch (DataSourceException dse) {
-						throw new ActionException("Failed to find matching string.",
-								action, dse);
-					}
-					found = false;
-					while (iterator.hasNext()) {
-						final MEMEString string = (MEMEString) iterator.next();
-						atom.setLUI(string.getLUI());
-						iterator.remove();
-						found = true;
-						break;
-					}
-					if (!found) {
-						atom.setSUI(null);
-						atom.setISUI(null);
-						atom.setLUI(null);
-					}
-				} else {
-					try {
-					  atom.setLUI(data_source.getNullLUI());
-					} catch (DataSourceException dse) {
-						throw new ActionException("Failed to find null LUI.",
-								action, dse);
-					}			
-				}
+        atom.setNormalizedString(norm_string);
+        final SearchParameter nstr_sp = new SearchParameter.Single(
+            "norm_string", norm_string);
+        try {
+          iterator = data_source.findStrings(new SearchParameter[] {nstr_sp,
+                                             lat_sp});
+        } catch (DataSourceException dse) {
+          throw new ActionException(
+              "Failed to find matching string.", action, dse);
+        }
+        found = false;
+        while (iterator.hasNext()) {
+          final MEMEString string = (MEMEString) iterator.next();
+          atom.setLUI(string.getLUI());
+          iterator.remove();
+          found = true;
+          break;
+        }
+        if (!found) {
+          atom.setSUI(null);
+          atom.setISUI(null);
+          atom.setLUI(null);
+        }
       }
 
       //
@@ -526,6 +513,9 @@ public interface ActionEngine {
                      new Integer(atom.getConcept().getIdentifier().intValue()));
         ae.setDetail("l_tobereleased", new Character(atom.getTobereleased()));
         ae.setDetail("l_released", new Character(atom.getReleased()));
+        ae.setDetail("l_last_release_rank",
+                     atom.getRank() == null ? new Integer(0) :
+                     new Integer(atom.getRank().intValue()));
         ae.setDetail("l_suppressible", atom.getSuppressible());
         ae.setDetail("l_source_aui", atom.getAUI() == null ? "" :
                      atom.getAUI().toString());
@@ -1072,7 +1062,6 @@ public interface ActionEngine {
           populateConceptStatus(atom);
           final MolecularInsertAtomAction miaa = new MolecularInsertAtomAction(
               atom);
-          miaa.setChangeStatus(false);
           miaa.setAuthority(transaction.getAuthority());
           miaa.setTransactionIdentifier(transaction.getIdentifier());
           miaa.setWorkIdentifier(transaction.getWorkIdentifier());
@@ -1140,7 +1129,6 @@ public interface ActionEngine {
           }
           final MolecularInsertRelationshipAction mira = new
               MolecularInsertRelationshipAction(rel);
-          mira.setChangeStatus(false);
           mira.setAuthority(transaction.getAuthority());
           mira.setTransactionIdentifier(transaction.getIdentifier());
           mira.setWorkIdentifier(transaction.getWorkIdentifier());
@@ -1179,7 +1167,6 @@ public interface ActionEngine {
           populateConceptStatus(attr);
           final MolecularInsertAttributeAction miaa = new
               MolecularInsertAttributeAction(attr);
-          miaa.setChangeStatus(false);
           miaa.setAuthority(transaction.getAuthority());
           miaa.setTransactionIdentifier(transaction.getIdentifier());
           miaa.setWorkIdentifier(transaction.getWorkIdentifier());
@@ -2593,7 +2580,7 @@ public interface ActionEngine {
           final String query =
               "SELECT document FROM action_log WHERE action_id = "
               + action_id
-              + " FOR UPDATE";
+              + "FOR UPDATE";
           pstmt.close();
           final Statement stmt = data_source.createStatement();
           final ResultSet rset = stmt.executeQuery(query);
@@ -2620,7 +2607,6 @@ public interface ActionEngine {
         ae.setDetail("action", la.getActionName());
         ae.setDetail("type", la.getClass().getName());
         ae.setDetail("orig_message", e.getMessage());
-        ae.setEnclosedException(e);
         throw ae;
       }
 

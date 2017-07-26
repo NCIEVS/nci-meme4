@@ -1666,9 +1666,7 @@ public class ObjectXMLSerializer extends DefaultHandler {
         } else if (type == Double.TYPE || type == Double.class) {
           params[j] = new Double(0);
         } else if (type == String.class) {
-            params[j] = "0";
-        } else if (type == List.class) {
-            params[j] = new ArrayList();
+          params[j] = "0";
         } else if (type == c) {
 
           // If the type is the same as the class, we have

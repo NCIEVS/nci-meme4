@@ -9,7 +9,6 @@
 # Description:
 #
 # Changes:
-# 02/27/2009 BAC (1-KM711): expand SRL to 0-9
 # 03/03/2006 RBE (1-AJV1Z): Fixed SQL injection error
 #
 # Version info:
@@ -135,7 +134,7 @@ $date = `/bin/date +%Y%m%d`;
 $cgi = $ENV{"SCRIPT_NAME"};
 $start_time = time;
 $style_sheet = &meme_utils::getStyle;
-$userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl -d $db`;
+$userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl`;
 ($user,$password) = split /\//, $userpass;
 chop($password);
 
@@ -415,7 +414,7 @@ sub PrintFooter {
 	      <address><font size="-2"><a href="/">Meta News Home</a></font></address>
             </td>
 	    <td ALIGN=RIGHT VALIGN=TOP >
-	      <font size="-2"><address>Contact: <a href="mailto:bcarlsen\@msdinc.com">Brian A. Carlsen</a></address>
+	      <font size="-2"><address>Contact: <a href="mailto:carlsen\@apelon.com">Brian A. Carlsen</a></address>
 	      <address>Generated },scalar(localtime),qq{</address>
               <address>This page took $elapsed_time seconds to generate.</address>
 	      <address>};
@@ -458,7 +457,7 @@ sub PrintINDEX {
       <tr><td align="center">
 	<form action="$cgi" method="GET">
 	  <input type="hidden" name="db" value="$db">
-	  <select name="source" size="40"
+	  <select name="source" size="20"
 	     onDblClick='this.form.state.value="EDIT_FORM"; this.form.submit(); return true;'>
 };
 
@@ -720,12 +719,7 @@ sub PrintEDIT_FORM {
 	    <option $rl{"1"}>1</option>
 	    <option $rl{"2"}>2</option>
 	    <option $rl{"3"}>3</option>
-      <option $rl{"4"}>4</option>
-      <option $rl{"5"}>5</option>
-      <option $rl{"6"}>6</option>
-      <option $rl{"7"}>7</option>
-      <option $rl{"8"}>8</option>
-      <option $rl{"9"}>9</option>
+	    <option $rl{"4"}>4</option>
         </select></font></td>
     </tr>
 

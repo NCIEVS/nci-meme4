@@ -13,7 +13,7 @@ import javax.swing.text.PlainDocument;
 /**
  * {@link PlainDocument} implementation that only accepts integer values.
  *
- * @author  Brian Carlsen (bcarlsen@msdinc.com)
+ * @author  Brian Carlsen (bcarlsen@apelon.com)
  */
 public class IntegerDocument extends PlainDocument {
 

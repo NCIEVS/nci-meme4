@@ -45,8 +45,8 @@ public class MEMERelaEditorKitTest extends TestSuite {
     AdminClient admin_client = null;
 
     try {
-      client = new MEMERelaEditorKit("");
-      admin_client = new AdminClient("");
+      client = new MEMERelaEditorKit("apelon");
+      admin_client = new AdminClient("apelon");
 
       //
       // 1.1. Test getRelationshipNames()

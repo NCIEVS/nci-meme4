@@ -3,7 +3,6 @@
  * Package: gov.nih.nlm.mrd.client
  * Object:  FullMRFilesReleaseClient
  * Changes:
- *   03/08/2007 TTN (1-DKB57): Add Finish Release method
  *   01/06/2006 TTN (1-73ETH): Add main method to use from command line
  *
  *****************************************************************************/
@@ -14,7 +13,7 @@ import gov.nih.nlm.meme.exception.*;
 import gov.nih.nlm.meme.MEMEToolkit;
 import java.util.Vector;
 import java.util.Arrays;
-import gov.nih.nlm.meme.common.StageStatus;
+import gov.nih.nlm.mrd.common.StageStatus;
 
 /**
  * Represents a {@link ReleaseClient} capable of generating and running

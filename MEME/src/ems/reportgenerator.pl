@@ -28,13 +28,11 @@
 # -r {NONE|DEFAULT|XR|ALL}
 # -x {NONE|DEFAULT|SIB|ALL}
 
-BEGIN
-{
 unshift @INC, "$ENV{ENV_HOME}/bin";
+
 require "env.pl";
-unshift @INC, "$ENV{EMS_HOME}/lib";
-unshift @INC, "$ENV{EMS_HOME}/bin";
-}
+
+use lib "$ENV{EMS_HOME}/lib";
 
 use Getopt::Std;
 use EMSUtils;
@@ -65,7 +63,7 @@ $optref->{db} = $db;
 $optref->{reporttype} = $type;
 
 $user = $EMSCONFIG{ORACLE_USER};
-$password = GeneralUtils->getOraclePassword($user,$db);
+$password = GeneralUtils->getOraclePassword($user);
 $dbh = new OracleIF({user=>$user, password=>$password, db=>$optref->{db}});
 $optref->{dbh} = $dbh;
 die "Error: Oracle Not Available for database: $db" unless $dbh;

@@ -24,7 +24,7 @@ import javax.swing.SwingUtilities;
  * glass pane (with a wait cursor), and making it
  * invisible returns control to the frame.
  *
- * @author  Brian Carlsen (bcarlsen@msdinc.com)
+ * @author  Brian Carlsen (bcarlsen@apelon.com)
  */
 public class GlassComponent extends JComponent implements AWTEventListener {
 

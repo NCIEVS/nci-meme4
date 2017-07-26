@@ -112,7 +112,7 @@ $ENV{"MEME_HOME"} = $meme_home || $ENV{"MEME_HOME"} || die "\$MEME_HOME must be 
 # Default Settings for CGI parameters
 #
 $mail_to = "nlmumls-l\@list.nih.gov" unless $mail_to;
-$apelon_mailto = "tkao\@msdinc.com" unless $apelon_mailto;
+$apelon_mailto = "tkao\@apelon.com" unless $apelon_mailto;
 $db_name = &meme_utils::midsvcs("editing-db") unless $db_name;
 $req_date = `/bin/date +%m/%d/%Y` unless $req_date;
 @time=local_time;
@@ -333,7 +333,7 @@ sub PrintFooter {
 
         <td align=right valign=top>
         <address>
-	  <font size=-1>Contact: <a href="mailto:bcarlsen\@msdinc.com">Brian A. Carlsen</a><br>},scalar(localtime),qq{<br>};
+	  <font size=-1>Contact: <a href="mailto:bcarlsen\@apelon.com">Brian A. Carlsen</a><br>},scalar(localtime),qq{<br>};
         &PrintVersion("version");
         print qq{</font></address>
 

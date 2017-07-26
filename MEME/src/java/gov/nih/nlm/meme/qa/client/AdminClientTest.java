@@ -3,16 +3,12 @@
  * Package: gov.nih.nlm.meme.qa.client
  * Object:  AdminClientTest
  * 
- * 03/22/2007 BAC (1-D0BIJ): removed calls to authenticate based on hardcoded passwords
- * 12/07/2006 BAC (1-D0BIJ): Fix to refreshMidService call to use real value
- * 06/19/2006 RBE (1-BIC23): Bug fixes
  * 01/30/2006 RBE (1-763IU): File created
  *
  *****************************************************************************/
 
 package gov.nih.nlm.meme.qa.client;
 
-import gov.nih.nlm.meme.MIDServices;
 import gov.nih.nlm.meme.client.AdminClient;
 import gov.nih.nlm.meme.common.EditorPreferences;
 import gov.nih.nlm.meme.exception.MEMEException;
@@ -48,7 +44,7 @@ public class AdminClientTest extends TestSuite {
     AdminClient client = null;
 
     try {
-      client = new AdminClient("");
+      client = new AdminClient("apelon");
 
       //
       // 1.1. Test setMidService(String), getMidService()
@@ -57,8 +53,8 @@ public class AdminClientTest extends TestSuite {
           + "getMidService() ... "
           + date_format.format(timestamp));
 
-      client.setMidService("");
-      if (client.getMidService().equals(""))
+      client.setMidService("apelon");
+      if (client.getMidService().equals("apelon"))
         addToLog("    1.1. Test Passed");
       else {
         addToLog("    1.1. Test Failed");
@@ -238,11 +234,8 @@ public class AdminClientTest extends TestSuite {
       //
       addToLog("    1.13. Test refreshMidServices() ... "
           + date_format.format(timestamp));
-      addToLog("      avoid this test for now..."
-          + date_format.format(timestamp));
 
-      //String db = MIDServices.getService("testsrc-db");
-      //client.refreshMidService(db);
+      client.refreshMidService("apelon");
 
       //
       // Shutdown API
@@ -389,9 +382,14 @@ public class AdminClientTest extends TestSuite {
       //
       addToLog("    1.24. Test authenticate(String, String) ... "
           + date_format.format(timestamp));
-      addToLog("        cannot test due to changing passwords"
-      + date_format.format(timestamp));
 
+      EditorPreferences ep = client.authenticate("mth", "umls_tuttle");
+      if (ep.getUserName().equals("mth"))
+        addToLog("    1.24. Test Passed");
+      else {
+        addToLog("    1.24. Test Failed");
+        thisTestFailed();
+      }
 
       //
       // 1.25. Test setSystemStatus(String, String), getSystemStatus()

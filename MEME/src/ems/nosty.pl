@@ -9,13 +9,11 @@
 # -d <db>
 # -s (restrict to these sources)
 
-BEGIN
-{
 unshift @INC, "$ENV{ENV_HOME}/bin";
+
 require "env.pl";
-unshift @INC, "$ENV{EMS_HOME}/lib";
-unshift @INC, "$ENV{EMS_HOME}/bin";
-}
+
+use lib "$ENV{EMS_HOME}/lib";
 
 use OracleIF;
 use EMSUtils;
@@ -31,7 +29,7 @@ EMSUtils->loadConfig;
 
 $db = $opt_d || Midsvcs->get('editing-db');
 $user = $main::EMSCONFIG{ORACLE_USER};
-$password = GeneralUtils->getOraclePassword($user,$db);
+$password = GeneralUtils->getOraclePassword($user);
 $dbh = new OracleIF("db=$db&user=$user&password=$password");
 
 $logdir = $ENV{EMS_HOME} . "/log";
@@ -51,7 +49,7 @@ WHERE  status = 'N'
 AND    tobereleased in ('Y','y')
 $sourcesql
 AND    not exists (select concept_id from attributes
-                   where  attribute_name = 'SEMANTIC_TYPE'
+                   where  attribute_name || '' = 'SEMANTIC_TYPE'
                    and    concept_id=a.concept_id)
 EOD
 $dbh->selectToFile($sql, \*STDOUT);

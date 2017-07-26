@@ -3,18 +3,20 @@
  * Package: gov.nih.nlm.meme.integrity
  * Object:  MGV_H2
  *
- * 04/07/2006 RBE (1-AV8WP): Removed self-qa test. Test for this check is
- * 							 implemented in gov.nih.nlm.meme.qa.ic package.
- * 							 Extends AbstractMergeMoveInhibitor
- * 
  *****************************************************************************/
 
 package gov.nih.nlm.meme.integrity;
 
+import gov.nih.nlm.meme.MEMEConstants;
+import gov.nih.nlm.meme.MEMEToolkit;
 import gov.nih.nlm.meme.common.Atom;
 import gov.nih.nlm.meme.common.ByStrippedSourceRestrictor;
 import gov.nih.nlm.meme.common.Code;
 import gov.nih.nlm.meme.common.Concept;
+import gov.nih.nlm.meme.common.Source;
+import gov.nih.nlm.meme.exception.InitializationException;
+
+import java.util.Date;
 
 /**
  * Validates merges between two {@link Concept}s where
@@ -24,7 +26,7 @@ import gov.nih.nlm.meme.common.Concept;
  *
  * @author MEME Group
  */
-public class MGV_H2 extends AbstractMergeMoveInhibitor implements MoveInhibitor {
+public class MGV_H2 extends AbstractMergeInhibitor implements MoveInhibitor {
 
   //
   // Constructors
@@ -43,7 +45,22 @@ public class MGV_H2 extends AbstractMergeMoveInhibitor implements MoveInhibitor 
   //
 
   /**
-   * Validates the pair of {@link Concept}s where the specified {@link Atom}s are
+   * Validates the pair of {@link Concept}s.
+   * @param source the source {@link Concept}
+   * @param target the target {@link Concept}
+   * @return <code>true</code> if constraint violated, <code>false</code>
+   * otherwise
+   */
+  public boolean validate(Concept source, Concept target) {
+
+    ByStrippedSourceRestrictor restrictor = new ByStrippedSourceRestrictor(
+        "MSH");
+    Atom[] source_atoms = source.getRestrictedAtoms(restrictor);
+    return validate(source, target, source_atoms);
+  }
+
+  /**
+       * Validates the pair of {@link Concept}s where the specified {@link Atom}s are
    * moving from the source to the target concept.
    * @param source the source {@link Concept}
    * @param target the target {@link Concept}
@@ -56,33 +73,31 @@ public class MGV_H2 extends AbstractMergeMoveInhibitor implements MoveInhibitor 
     //
     // Get MSH atoms from target concept.
     //
-    Atom[] target_atoms = (Atom[])
-    	getRestrictedAtoms(new ByStrippedSourceRestrictor("MSH"), target.getAtoms());
-
-    Atom[] l_source_atoms = (Atom[])
-        getRestrictedAtoms(new ByStrippedSourceRestrictor("MSH"), source_atoms);
+    ByStrippedSourceRestrictor restrictor = new ByStrippedSourceRestrictor(
+        "MSH");
+    Atom[] target_atoms = target.getRestrictedAtoms(restrictor);
 
     //
     // Find cases where releasable current version MSH atoms with
     // different codes (in the specific combinations) are being merged.
     //
-    for (int i = 0; i < l_source_atoms.length; i++) {
-      if (l_source_atoms[i].isReleasable() &&
-          l_source_atoms[i].getSource().getStrippedSourceAbbreviation().equals(
+    for (int i = 0; i < source_atoms.length; i++) {
+      if (source_atoms[i].isReleasable() &&
+          source_atoms[i].getSource().getStrippedSourceAbbreviation().equals(
           "MSH") &&
-          l_source_atoms[i].getSource().isCurrent() &&
-          (l_source_atoms[i].getCode().toString().startsWith("D") ||
-           l_source_atoms[i].getCode().toString().startsWith("C"))) {
+          source_atoms[i].getSource().isCurrent() &&
+          (source_atoms[i].getCode().toString().startsWith("D") ||
+           source_atoms[i].getCode().toString().startsWith("C"))) {
         for (int j = 0; j < target_atoms.length; j++) {
           if (target_atoms[j].isReleasable() &&
               target_atoms[j].getSource().isCurrent() &&
-              ( (l_source_atoms[i].getCode().toString().startsWith("C") &&
+              ( (source_atoms[i].getCode().toString().startsWith("C") &&
                  target_atoms[j].getCode().toString().startsWith("C")) ||
-               (l_source_atoms[i].getCode().toString().startsWith("C") &&
+               (source_atoms[i].getCode().toString().startsWith("C") &&
                 target_atoms[j].getCode().toString().startsWith("D")) ||
-               (l_source_atoms[i].getCode().toString().startsWith("D") &&
+               (source_atoms[i].getCode().toString().startsWith("D") &&
                 target_atoms[j].getCode().toString().startsWith("C"))) &&
-              !target_atoms[j].getCode().equals(l_source_atoms[i].getCode())) {
+              !target_atoms[j].getCode().equals(source_atoms[i].getCode())) {
             return true;
           }
         }
@@ -92,4 +107,172 @@ public class MGV_H2 extends AbstractMergeMoveInhibitor implements MoveInhibitor 
     return false;
   }
 
+  /**
+   * Self-qa test.
+   * @param args command line arguments
+   */
+  public static void main(String[] args) {
+
+    try {
+      MEMEToolkit.initialize(null, null);
+    } catch (InitializationException ie) {
+      MEMEToolkit.handleError(ie);
+    }
+    MEMEToolkit.setProperty(MEMEConstants.DEBUG, "true");
+
+    //
+    // Main Header
+    //
+
+    MEMEToolkit.trace("-------------------------------------------------------");
+    MEMEToolkit.trace("Starting test of MGV_H2 ..." + new Date());
+    MEMEToolkit.trace("-------------------------------------------------------");
+
+    boolean failed = false;
+
+    String test_message = "Testing MGV_H2- validate():";
+    String test_result = null;
+
+    // Create an MGV_H2 object to work with
+    MGV_H2 mgv_h2 = new MGV_H2();
+
+    Concept source = new Concept.Default(1000);
+    Concept target = new Concept.Default(1001);
+
+    Atom atom1 = new Atom.Default(12345);
+    Atom atom2 = new Atom.Default(12346);
+
+    Code code1 = new Code("D00001");
+    Code code2 = new Code("C10001");
+    Code code3 = new Code("C10002");
+
+    atom1.setTobereleased('Y');
+    atom2.setTobereleased('Y');
+
+    atom1.setCode(code1);
+    atom2.setCode(code2);
+
+    Source src = new Source.Default();
+    src.setStrippedSourceAbbreviation("MSH");
+    src.setSourceAbbreviation("MSH2002");
+    src.setIsCurrent(true);
+
+    atom1.setSource(src);
+    atom2.setSource(src);
+
+    test_result = " NO VIOLATION: "; // should return false
+    if (!mgv_h2.validate(source, target)) {
+      test_result += " PASSED: ";
+    } else {
+      test_result += " FAILED: ";
+      failed = true;
+    }
+    MEMEToolkit.trace(test_message + test_result + "Concept has no atom.");
+
+    // Add atom
+    source.addAtom(atom1);
+    target.addAtom(atom2);
+
+    test_result = " VIOLATION:    "; // should return true
+    if (mgv_h2.validate(source, target)) {
+      test_result += " PASSED: ";
+    } else {
+      test_result += " FAILED: ";
+      failed = true;
+    }
+    MEMEToolkit.trace(test_message + test_result + "Merging two concepts both " +
+        "containing releasable, current version MSH atoms with different codes (D-C).");
+
+    test_result = " VIOLATION:    "; // should return true
+    if (mgv_h2.validate(target, source)) {
+      test_result += " PASSED: ";
+    } else {
+      test_result += " FAILED: ";
+      failed = true;
+    }
+    MEMEToolkit.trace(test_message + test_result + "Merging two concepts both " +
+        "containing releasable, current version MSH atoms with different codes (C-D).");
+
+    atom1.setTobereleased('N');
+    atom2.setTobereleased('N');
+
+    test_result = " NO VIOLATION: "; // should return false
+    if (!mgv_h2.validate(source, target)) {
+      test_result += " PASSED: ";
+    } else {
+      test_result += " FAILED: ";
+      failed = true;
+    }
+    MEMEToolkit.trace(test_message + test_result +
+                      "Concept contains non releasable atom.");
+
+    atom1.setTobereleased('Y');
+    atom2.setTobereleased('Y');
+    src.setIsCurrent(false);
+
+    test_result = " NO VIOLATION: "; // should return false
+    if (!mgv_h2.validate(source, target)) {
+      test_result += " PASSED: ";
+    } else {
+      test_result += " FAILED: ";
+      failed = true;
+    }
+    MEMEToolkit.trace(test_message + test_result + "Source is not current.");
+
+    src.setIsCurrent(true);
+    atom1.setCode(new Code("Z00001"));
+
+    test_result = " NO VIOLATION: "; // should return false
+    if (!mgv_h2.validate(source, target)) {
+      test_result += " PASSED: ";
+    } else {
+      test_result += " FAILED: ";
+      failed = true;
+    }
+    MEMEToolkit.trace(test_message + test_result +
+                      "Concept contains code that does not start with D or C.");
+
+    atom1.setCode(code2);
+
+    test_result = " NO VIOLATION: "; // should return false
+    if (!mgv_h2.validate(source, target)) {
+      test_result += " PASSED: ";
+    } else {
+      test_result += " FAILED: ";
+      failed = true;
+    }
+    MEMEToolkit.trace(test_message + test_result + "Merging two concepts both " +
+        "containing releasable, current version MSH atoms with the same codes.");
+
+    atom1.setCode(code3);
+
+    test_result = " VIOLATION:    "; // should return true
+    if (mgv_h2.validate(source, target)) {
+      test_result += " PASSED: ";
+    } else {
+      test_result += " FAILED: ";
+      failed = true;
+    }
+    MEMEToolkit.trace(test_message + test_result + "Merging two concepts both " +
+        "containing releasable, current version MSH atoms with different codes (C-C).");
+
+    //
+    // Main Footer
+    //
+
+    MEMEToolkit.trace("");
+
+    if (failed) {
+      MEMEToolkit.trace("AT LEAST ONE TEST DID NOT COMPLETE SUCCESSFULLY");
+    } else {
+      MEMEToolkit.trace("ALL TESTS PASSED");
+
+    }
+    MEMEToolkit.trace("");
+
+    MEMEToolkit.trace("-------------------------------------------------------");
+    MEMEToolkit.trace("Finished test of MGV_H2 ..." + new Date());
+    MEMEToolkit.trace("-------------------------------------------------------");
+
+  }
 }

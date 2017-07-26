@@ -1,4 +1,4 @@
-#!@PATH_TO_PERL@
+#!/site/bin/perl58
 #
 # File:     medline_parser.pl
 # Author:   Brian Carlsen (2002)
@@ -123,7 +123,7 @@ $ENV{CLASSPATH} = "$ENV{MEME_HOME}/java/xercesImpl.jar:$ENV{MEME_HOME}/java/meme
 #
 # look up user/password
 #
-$userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl -d $db`;
+$userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl`;
 chop($userpass);
 ($user,$pass) = split /\//, $userpass;
 

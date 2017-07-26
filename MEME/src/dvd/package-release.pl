@@ -56,7 +56,7 @@ $cpu = $opt_p || 2;
 	  gzip=>'/share_nfs/usr/bin/gzip',
 	  gunzip=>'/share_nfs/usr/bin/gunzip',
 	  grep=>'/bin/grep',
-	  awk=>'/bin/gawk',
+	  awk=>'/bin/nawk',
 	  find=>'/bin/find',
 	  jar=>"/share_nfs/java/1.4.2/bin/jar",
 	  split=>"/bin/split",
@@ -807,12 +807,9 @@ sub compute_signatures {
     $f = "'" . $_ . "'"; # some file names have spaces!
     push @f, $f;
   }
-  
-  
+
   foreach $f (sort @f) {
-    $filename = $f;
-    $filename =~ s/\'//g;
-    foreach $cmd ("$progpath{cksum} $f | sed 's/ /\t/;s/ /\t/;' >> $chkfile", " { echo -n 'MD5 ($filename) = ' && $progpath{md5} $f | cut -c1-32; }  >> $md5file") {
+    foreach $cmd ("$progpath{cksum} $f >> $chkfile", "$progpath{md5} $f >> $md5file") {
       $status = system $cmd;
       &logger("ERROR: Command: " . $cmd . " had status: " . $status) if ($status >> 8) > 0;
     }
@@ -1527,8 +1524,6 @@ sub append_build_date {
   close(T);
   close(R);
   system "/bin/mv -f $tmpfile $releasedatfile";
-  # Need to write release.dat to config/<release> directory
-  # Need to get release.dat file into mmsys.zip
 }
 
 # copies the directory structure

@@ -3,8 +3,6 @@
  * Package: gov.nih.nlm.meme.qa.client
  * Object:  ContentViewClientTest
  *
- * 03/22/2007 BAC (1-D0BIJ): set algorithm for test of generateContentViewMembers.
- * 06/19/2006 RBE (1-BIC23): Bug fixes
  * 01/30/2006 RBE (1-763IU): File created
  * 
  *****************************************************************************/
@@ -56,7 +54,7 @@ public class ContentViewClientTest extends TestSuite {
     ContentViewClient client = null;
 
     try {
-      client = new ContentViewClient("");
+      client = new ContentViewClient("apelon");
 
 	    //
 	    // 1.1. Test setMidService(String), getMidService()
@@ -65,8 +63,8 @@ public class ContentViewClientTest extends TestSuite {
         + "getMidService() ... "
         + date_format.format(timestamp));
 	
-	    client.setMidService("");
-	    if (client.getMidService().equals(""))
+	    client.setMidService("apelon");
+	    if (client.getMidService().equals("apelon"))
 	      addToLog("    1.1. Test Passed");
 	    else {
 	      addToLog("    1.1. Test Failed");
@@ -574,16 +572,11 @@ public class ContentViewClientTest extends TestSuite {
           + date_format.format(timestamp));
 
       client.addContentViewMember(cvm);
-      ContentViewMember[] cvms = client.getContentViewMembers(cv,0,-1);
-      if (cvms.length > 0) {
-        if (cvms[0].getIdentifier().equals(cvm.getIdentifier()))
-          addToLog("    5.20. Test Passed");
-        else {
-          addToLog("    5.20. Test Failed (id does not match)");
-          thisTestFailed();
-        }
-      } else {
-        addToLog("    5.20. Test Failed (no CV member)");
+      ContentViewMember[] cvms = client.getContentViewMembers(cv);
+      if (cvms[0].getIdentifier().equals(cvm.getIdentifier()))
+        addToLog("    5.20. Test Passed");
+      else {
+        addToLog("    5.20. Test Failed");
         thisTestFailed();
       }
 
@@ -593,10 +586,9 @@ public class ContentViewClientTest extends TestSuite {
       addToLog(
           "    5.30. Test generateContentViewMembers(), getContentViewMembers() ... "
           + date_format.format(timestamp));
-      cv.setAlgorithm("SELECT aui as meta_ui FROM classes WHERE aui is not null AND rownum<110");
-      client.setContentView(cv);
+
       client.generateContentViewMembers(cv);
-      ContentViewMember[] cvms2 = client.getContentViewMembers(cv,0,-1);
+      ContentViewMember[] cvms2 = client.getContentViewMembers(cv);
       if (cvms2.length > 1)
         addToLog("    5.30. Test Passed");
       else {
@@ -612,7 +604,7 @@ public class ContentViewClientTest extends TestSuite {
           + date_format.format(timestamp));
 
       client.removeContentViewMember(cvm);
-      cvms = client.getContentViewMembers(cv,0,-1);
+      cvms = client.getContentViewMembers(cv);
       found = false;
       for (int i=0; i<cvms.length; i++) {
       	if (cvms[i].equals(cvm)) {
@@ -634,7 +626,7 @@ public class ContentViewClientTest extends TestSuite {
           + date_format.format(timestamp));
 
       client.removeContentViewMembers(cv);
-      cvms2 = client.getContentViewMembers(cv,0,-1);
+      cvms2 = client.getContentViewMembers(cv);
       found = false;
       for (int i=0; i<cvms.length; i++) {
       	if (cvms[i].getIdentifier().equals(cv.getIdentifier())) {
@@ -656,7 +648,7 @@ public class ContentViewClientTest extends TestSuite {
           + date_format.format(timestamp));
 
       client.removeContentViewMembers(cvms2);
-      cvms2 = client.getContentViewMembers(cv,0,-1);
+      cvms2 = client.getContentViewMembers(cv);
       if (cvms2.length == 0)
         addToLog("    5.45. Test Passed");
       else {

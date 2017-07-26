@@ -4,15 +4,14 @@ INSTALL
 2. Unzip dist_meow*.zip into $MEME_HOME
 3. Configure properties files
 
-   1. Copy the etc/meme.prop_orig to etc/meme.prop and meme.client.prop_orig to meme.client.prop
+   1. Copy the etc/meme.prop_orig to etc/meme.prop
    2. Edit this properties file.
-   3. Copy the etc/mrd.prop_orig to etc/mrd.prop and mrd.client.prop_orig to mrd.client.prop
+   3. Copy the etc/mrd.prop_orig to etc/mrd.prop
    4. Edit this properties file.
-   5. Copy etc/meme.client.prop to webapps-meme/WEB-INF/classes/meme.prop
-   6. Copy etc/mrd.client.prop to webapps-meme/WEB-INF/classes/mrd.prop
-   7. Copy etc/meme.client.prop to webapps-meme-editors/WEB-INF/classes/meme.prop
-   8. Copy etc/mrd.client.prop to webapps-meme-editors/WEB-INF/classes/mrd.prop
-   9. Link webapps-meme/Sources to "<path to $MEME_HOME>/www/Sources"
+   5. Copy etc/meme.prop to webapps-meme/WEB-INF/classes/meme.prop
+   6. Copy etc/mrd.prop to webapps-meme/WEB-INF/classes/mrd.prop
+   7. Copy etc/meme.prop to webapps-meme-editors/WEB-INF/classes/meme.prop
+   8. Copy etc/mrd.prop to webapps-meme-editors/WEB-INF/classes/mrd.prop
    
 4. Edit $ENV_FILE and set MEME_HOME property to $MEME_HOME path
 5. Configure Apache
@@ -162,33 +161,6 @@ worker.ajp13.type=ajp13
 9. Build tables documentation.  If ant is installed in the environment
    cd to $MEME_HOME/etc and run ant using the supplied build.xml file.
 
-Dependencies
------------------------
-Subsystem Dependencies
-  $ENV_HOME - used by CGI apps
-  $MIDSVCS_HOME - clients used by some .shtml, some CGI
-  $SAFEBOX_HOME - used by some CGI apps
-  $LVG_HOME - for finder services
-  $LVGIF_HOME - for LVG link off main meow page.
-
-Network Dependencies
-  MIDSVCS Server - host/port specified in etc/mrd.prop
-  LVG Server - host/port specified by MIDSVCS (lvg-server-host, lvg-server-port)
-  MEME Server
-  MRD Server
-  Mail Server
-  
-Required Perl Libraries
-  Text::Wrap
-  Mail::Sender
-  DBI
-  DBD::Oracle
-  Socket
-  Net::FTP
-  Getopt::STD
-  Net::SFTP - recommended 
-  CGI
-  
 UPDATE
 ------
 Same as install

@@ -11,13 +11,12 @@
 
 # -d database
 
-BEGIN
-{
 unshift @INC, "$ENV{ENV_HOME}/bin";
+
 require "env.pl";
-unshift @INC, "$ENV{EMS_HOME}/lib";
-unshift @INC, "$ENV{EMS_HOME}/bin";
-}
+
+use lib "$ENV{EMS_HOME}/lib";
+push @INC, "$ENV{EMS_HOME}/bin";
 
 use OracleIF;
 use EMSUtils;
@@ -36,7 +35,7 @@ EMSUtils->loadConfig;
 #$ENV{DBPASSWORD_HOME} = $EMSCONFIG{DBPASSWORD_HOME};
 
 chomp($currentyear = `/bin/date "+%Y"`);
-$logfile = join("/", $ENV{EMS_LOG_DIR}, "log",
+$logfile = join("/", $ENV{EMS_HOME}, "data", "log",
 		join(".", "chemconcepts", $currentyear, "log"));
 unless (-e $logfile) {
   system "/bin/touch $logfile";
@@ -45,7 +44,7 @@ unless (-e $logfile) {
 
 $db = $opt_d || Midsvcs->get('editing-db');
 $user = $main::EMSCONFIG{ORACLE_USER};
-$password = GeneralUtils->getOraclePassword($user,$db);
+$password = GeneralUtils->getOraclePassword($user);
 $dbh = new OracleIF("db=$db&user=$user&password=$password");
 &log_and_die("Database: $db is unavailable") unless $dbh;
 
@@ -64,16 +63,12 @@ if ($batchcutoff && lc($batchcutoff->{valuechar}) ne "no") {
 }
 
 $chemtable = $EMSNames::CHEMCONCEPTSTABLE;
-$clinicaltable = $EMSNames::CLINICALCONCEPTSTABLE;
-$othertable = $EMSNames::OTHERCONCEPTSTABLE;
 $dbh->dropTable($chemtable);
-$dbh->dropTable($clinicaltable);
-$dbh->dropTable($othertable);
 
 $sql = <<"EOD";
 CREATE TABLE $chemtable AS
 SELECT DISTINCT concept_id FROM attributes
-WHERE  attribute_name = 'SEMANTIC_TYPE'
+WHERE  attribute_name || '' = 'SEMANTIC_TYPE'
 AND    attribute_value IN (SELECT semantic_type FROM semantic_types where editing_chem='Y')
 EOD
 $dbh->executeStmt($sql);
@@ -90,50 +85,6 @@ Start date: $startdate
 End date: $enddate
 Time taken: $hms
 Chemical concepts: $count
-EOD
-
-$sql = <<"EOD";
-CREATE TABLE $clinicaltable AS
-SELECT DISTINCT concept_id FROM attributes
-WHERE  attribute_name = 'SEMANTIC_TYPE'
-AND    attribute_value IN (SELECT semantic_type FROM semantic_types where editing_chem='N' and chem_type='C')
-EOD
-$dbh->executeStmt($sql);
-$dbh->createIndex($clinicaltable, 'concept_id');
-
-$sql = "select count(*) from $clinicaltable";
-$count = $dbh->selectFirstAsScalar($sql) || 0;
-
-$hms = GeneralUtils->sec2hms(time-$starttime);
-$enddate = GeneralUtils->date;
-
-&log(<<"EOD");
-Start date: $startdate
-End date: $enddate
-Time taken: $hms
-Clinincal concepts: $count
-EOD
-
-$sql = <<"EOD";
-CREATE TABLE $othertable AS
-SELECT DISTINCT concept_id FROM attributes
-WHERE  attribute_name = 'SEMANTIC_TYPE'
-AND    attribute_value IN (SELECT semantic_type FROM semantic_types where editing_chem='N' and chem_type='O')
-EOD
-$dbh->executeStmt($sql);
-$dbh->createIndex($othertable, 'concept_id');
-
-$sql = "select count(*) from $othertable";
-$count = $dbh->selectFirstAsScalar($sql) || 0;
-
-$hms = GeneralUtils->sec2hms(time-$starttime);
-$enddate = GeneralUtils->date;
-
-&log(<<"EOD");
-Start date: $startdate
-End date: $enddate
-Time taken: $hms
-Other concepts: $count
 EOD
 
 $dbh->disconnect;

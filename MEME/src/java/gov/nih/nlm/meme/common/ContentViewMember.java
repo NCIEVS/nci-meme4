@@ -3,8 +3,6 @@
  * Package: gov.nih.nlm.meme.common
  * Object:  ContentViewMember
  *
- * 10/30/2007 TTN (1-FN4GD): add get/set Atom methods  
- *
  *****************************************************************************/
 
 package gov.nih.nlm.meme.common;
@@ -40,20 +38,6 @@ public interface ContentViewMember {
    * @param meta_ui the {@link Identifier}
    */
   public void setIdentifier(Identifier meta_ui);
-  
-  
-  /**
-   * Returns the {@link Atom}.
-   * @return the {@link Atom}
-   */
-  public Atom getAtom();
-
-  /**
-   * Sets the {@link Atom}.
-   * @param meta_ui the {@link Atom}
-   */
-  public void setAtom(Atom atom);
-  
 
   //
   // Inner Classes
@@ -71,7 +55,6 @@ public interface ContentViewMember {
 
     private ContentView cv = null;
     private Identifier meta_ui = null;
-    private Atom atom = null;
 
     //
     // Constructors
@@ -152,23 +135,7 @@ public interface ContentViewMember {
       this.meta_ui = meta_ui;
     }
 
-    /* 
-	 * Implements {@link ContentViewMember#getAtom()}
-	 */
-	public Atom getAtom() {
-		
-		return atom;
-	}
-
-	/* 
-	 * Implements {@link ContentViewMember#setAtom(Atom)}
-	 */
-	public void setAtom(Atom atom) {
-		this.atom = atom;
-		
-	}
-
-	/**
+    /**
      * Implements {@link Identifier#equals(Object)}.
      */
     public boolean equals(Object object) {

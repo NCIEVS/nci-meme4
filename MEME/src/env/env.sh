@@ -10,11 +10,11 @@ if [ ! -n "$ENV_FILE" ]; then
    exit 1;
 fi
 
-for f in `grep = $ENV_FILE | grep -v '^#'` 
+for f in `grep = $ENV_FILE` 
 do
   var=`echo $f | sed 's/=.*//'`;
   val=`echo $f | sed 's/.*=//'`;
-  eval "$var=`echo $val`";
+  eval "$var=$val";
   export $var;
   #eval 'echo $var $'$var;
 done

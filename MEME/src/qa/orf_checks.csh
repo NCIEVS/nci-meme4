@@ -2,7 +2,7 @@ set orf_dir = $dir
 set rrf_dir = $dir/../META
 set ef = 0
 
-alias awk gawk
+alias awk nawk
 
 echo "----------------------------------------------"
 echo "Starting $0 ... `/bin/date`"
@@ -28,9 +28,10 @@ awk -F\| '{print $1"|"$5"|"$6"|"}' $rrf_dir/MRDEF.RRF | sort -u >! MRDEF.$$
 cp $rrf_dir/MRRANK.RRF MRRANK.$$
 
 cat $rrf_dir/MRREL.RRF | awk -F\| '{print $1"|"$4"|"$5"|"$8"|"$11"|"$12"|"$16"|"}' | sort -u >! MRREL.$$
-awk -F\| '{print $1"|"$2"|"$3"|"$4"|"$5"|"$6"|"$7"|"$8"|"$9"|"$10"|"$11"|"$12"|"$13"|"$14"|"$17"|"$18"|"$20"|"$21"|"$22"|"$23"|"}' $rrf_dir/MRSAB.RRF | sort -u >! MRSAB.$$
 
-cat $rrf_dir/MRSAT.RRF | perl -ne 'split /\|/; print "$_[0]|$_[1]|$_[2]|$_[5]|$_[8]|$_[9]|$_[10]|\n" if ($_[3] !~ /^R/ && $_[8] ne "CV_MEMBER");'| sort -u >! MRSAT.$$
+awk -F\| '{print $1"|"$2"|"$3"|"$4"|"$5"|"$6"|"$7"|"$8"|"$9"|"$10"|"$11"|"$12"|"$13"|"$14"|"$15"|"$16"|"$17"|"$18"|"$19"|"$20"|"$21"|"$22"|"$23"|"}' $rrf_dir/MRSAB.RRF | sort -u >! MRSAB.$$
+
+cat $rrf_dir/MRSAT.RRF | perl -ne 'split /\|/; print "$_[0]|$_[1]|$_[2]|$_[5]|$_[8]|$_[9]|$_[10]|\n";' | sort -u >! MRSAT.$$
 
 awk -F\| '{print $1"|"$2"|"$4"|"}' $rrf_dir/MRSTY.RRF | sort -u >! MRSTY.$$
 
@@ -53,9 +54,9 @@ cp $rrf_dir/MRXW_RUS.RRF MRXW.RUS.$$
 cp $rrf_dir/MRXW_SPA.RRF MRXW.SPA.$$
 cp $rrf_dir/MRXW_SWE.RRF MRXW.SWE.$$
 
-awk -F\| '{print $1"|"$2"|"$3"|"$4"|"substr($5,1,1)"|"$6"|"$15"|"}' $rrf_dir/MRCONSO.RRF | sort -u  >! MRCON.s.$$
+awk -F\| '{print $1"|"$2"|"$4"|"$6"|"$15"|"}' $rrf_dir/MRCONSO.RRF | sort -u  >! MRCON.s.$$
 
-$PATH_TO_PERL -ne 'chop; split /\|/; print "$_[0]|$_[1]|".(uc($_[2]))."|$_[3]|".(substr($_[4],0,1))."|$_[5]|$_[6]|\n"' $orf_dir/MRCON | sort -u >! $orf_dir/MRCON.s
+awk -F\| '{print $1"|"$2"|"$4"|"$6"|"$7"|"}' $orf_dir/MRCON | sort -u >! $orf_dir/MRCON.s
 
 awk -F\| '{print $1"|"$4"|"$6"|"$12"|"$13"|"$14"|"$16"|"}' $rrf_dir/MRCONSO.RRF | sort -u >! MRSO.$$
 
@@ -76,10 +77,6 @@ foreach f1 (`ls *.$$ | grep -v CHANGE`)
    echo "  Verify Compare composed ORF files $f1 $f2"
   if ($base_file == "MRCXT") then
     join -v 1 -v 2 -t '\n' $f1 $f2 >! $base_file.diff.$$
-  endif
-   if ($base_file == "MRSAB") then
-         awk -F\| '{print $1"|"$2"|"$3"|"$4"|"$5"|"$6"|"$7"|"$8"|"$9"|"$10"|"$11"|"$12"|"$13"|"$14"|"$17"|"$18"|"$20"|"$21"|"$22"|"$23"|"}' $f2 | sort -u >! MRSAB_ORF.$$
-     diff $f1 MRSAB_ORF.$$ >! $base_file.diff.$$
   else
     diff $f1 $f2 >! $base_file.diff.$$
   endif
@@ -87,7 +84,7 @@ foreach f1 (`ls *.$$ | grep -v CHANGE`)
   set ct=(`wc -l $base_file.diff.$$`)
   if ($ct[1] != 0) then
     echo "ERROR: Differences detected between $f1 $f2"
-    echo "Please check the file $base_file.diff.$$"
+    echo "Please check the file $base_file.diff.$$
     set ef = 1
   endif
 end
@@ -101,7 +98,7 @@ foreach f1 (`ls *.CHANGE.$$`)
   set ct=(`wc -l $base_file.diff.$$`)
   if ($ct[1] != 0) then
     echo "ERROR: Differences detected between $f1 $f2"
-    echo "Please check the file $base_file.diff.$$"
+    echo "Please check the file $base_file.diff.$$
     set ef = 1
   endif
 end

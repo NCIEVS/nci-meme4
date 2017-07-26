@@ -249,7 +249,7 @@ public class ServerToolkit extends MEMEToolkit {
     if (password == null || password.equals("")) {
       password = getProperty(ServerConstants.MID_PASSWORD);
       if (password == null || password.equals(""))
-        password = MIDServices.getDataSourcePassword(user,service);
+        password = MIDServices.getDataSourcePassword(user);
     }
 
     String connection = MEMEToolkit.getProperty(ServerConstants.MID_CONNECTION);

@@ -21,32 +21,11 @@ unless ($ENV{"ENV_FILE"}) {
 
 open (F,"$ENV{ENV_FILE}") || die "Could not open $ENV{ENV_FILE}: $! $?\n";
 while (<F>) {
-  if (/=/ && ! /^#/) {
+  if (/=/) {
     chop;
     ($var,$val) = split /=/;
-    # Remove leading and trailing quotes if they exist
-    if ($val =~ /^".*"$/) {
-      $val =~ s/^"//;
-      $val =~ s/"$//;
-    }
-    #
-    # Handle the environment variable case (e.g. ${USER})
-    #
-    if ($val =~ /\${[^}]+}/) {
-      $val =~ s/\${/\$ENV{/g;
-      my $x = eval(qq{"$val"});
-      chomp($x);
-      $ENV{$var} = $x;
-    }
-    # Handle the backticks case (e.g. `date`)
-    elsif ($val =~ /^`.*`$/) {
-      my $x = eval($val);
-      chop($x);
-      $ENV{$var} = $x;
-    } else {
-      $ENV{$var} = $val;
-    }
-    #print "ENV{$var} = $ENV{$var}\n";
+    #print "$var = $val\n";
+    $ENV{$var} = $val;
   }
 }
 close (F);

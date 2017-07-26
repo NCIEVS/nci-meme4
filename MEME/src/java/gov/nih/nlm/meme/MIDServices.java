@@ -166,6 +166,8 @@ public class MIDServices implements MEMEConstants {
         db_services.add(all_services[i]);
       }
     }
+    // hard-code LTI databases
+    db_services.add("apelon-db");
     return (String[]) db_services.toArray(new String[0]);
   }
 
@@ -231,15 +233,19 @@ public class MIDServices implements MEMEConstants {
    *                         if an invalid service name is passed
    */
   public static String getService(String service) throws MidsvcsException {
-  	// Following if statement is wrong as the lvg server can exist in different server. Commenting this out. 
-	//if (service.equals("lvg-server-host")) return "localhost";
-  	if (services_cache == null) {
+    if (services_cache == null) {
       refreshCache();
 
     }
     try {
 
       String result = null;
+      // Handle hard-coded names
+      if (service.equals("apelon-jdbc")) {
+        return "jdbc:oracle:thin:@apollo.lexical.com:1521:meme";
+      } else if (service.equals("apelon-db")) {
+        return "apelon";
+      }
       result = (String) services_cache.get(service);
       return (result == null) ? "" : result;
 
@@ -472,17 +478,13 @@ public class MIDServices implements MEMEConstants {
    * @return the password
    * @throws ExecException if $MIDSVCS/bin/get-oracle-pwd.pl fails
    */
-  public static String getDataSourcePassword(String user,String database)
+  public static String getDataSourcePassword(String user)
       throws MidsvcsException {
     try {
-    	String[] new_env = {
-    	          "ENV_FILE="+MEMEToolkit.getProperty(ENV_FILE),
-    	          "ENV_HOME="+MEMEToolkit.getProperty(ENV_HOME) };
-    	 String pwd = MEMEToolkit.exec(new String[] {
+      String pwd = MEMEToolkit.exec(new String[] {
           MEMEToolkit.getProperty("env.MIDSVCS_HOME")
-              + "/bin/get-oracle-pwd.pl", "-u" + user,  "-d" + database }, new_env, false,
+              + "/bin/get-oracle-pwd.pl", user }, new String[] {}, false,
           MEMEToolkit.USE_INPUT_STREAM, false, null);
-      
       return pwd.substring(pwd.indexOf('/') + 1).trim();
     } catch (ExecException e) {
       throw new MidsvcsException("Error calling get-oracle-pwd.pl", e);

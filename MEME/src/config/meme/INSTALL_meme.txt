@@ -34,26 +34,7 @@ INSTALL
   setenv ENV_FILE $ENV_HOME/etc/env.prop
   source $ENV_HOME/bin/env.csh
 
-Dependencies
------------------------
-Subsystem Dependencies
-  $ENV_HOME
-  $EXT_LIB
 
-Network Dependencies
-  MIDSVCS Server - host/port specified in etc/meme.prop
-  LVG Server - host/port specified by MIDSVCS (lvg-server-host, lvg-server-port)
-
-Required Perl Libraries
-  Text::Wrap
-  Mail::Sender
-  DBI
-  DBD::Oracle
-  Socket
-  Net::FTP
-  Getopt::STD
-  Net::SFTP - recommended 
-   
 UPDATE
 ------
 Same as install

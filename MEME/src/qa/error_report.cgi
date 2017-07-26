@@ -4,7 +4,6 @@
 # Author:   Tim Kao 
 # 
 # Changes:
-# 07/18/2006 TK (1-BPC17) : Missing "None" parameters in the states
 # 12/22/2005 BAC (1-719SM): use open ":utf8" added
 #
 # Version info:
@@ -14,7 +13,7 @@
 $release = "4";
 $version = "1.1";
 $version_authority = "TK";
-$version_date = "7/18/2006";
+$version_date = "1/22/2004";
 
 unshift @INC,"$ENV{ENV_HOME}/bin";
 require "env.pl";
@@ -129,9 +128,9 @@ $FATAL = 1;
 	     "INDEX" => 
 	         ["PrintHeader","PrintINDEX","PrintFooter","Error Report","Error Report"],
 	     "MEME_ERROR_DETAIL" =>
-	         ["PrintMEMEErrorDetail", "None", "None"],
+	         ["PrintMEMEErrorDetail"],
 	     "LOG_DETAIL" =>
-	         ["PrintLogDetail", "None", "None"],
+	         ["PrintLogDetail"],
 	     "" => 
 	         ["PrintHeader","None","PrintFooter",""] 
 	     );
@@ -245,7 +244,7 @@ sub PrintFooter {
 	    <td align="right" valign="top">
 	      <font size="-1">
 	       <address>
-	         Contact: <a href="mailto:tkao\@msdinc.com">
+	         Contact: <a href="mailto:tkao\@apelon.com">
 	            Tim Kao</a></address>
 	       <address>Generated on:},scalar(localtime),qq{</address>
                <address>This page took $elapsed_time seconds to generate.
@@ -271,7 +270,7 @@ sub PrintINDEX {
   #
   # Open database connection
   #
-  $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl -d $db`;
+  $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl`;
   ($user,$password) = split /\//, $userpass;
   chop($password);
   $dbh = DBI->connect("dbi:Oracle:$db", "$user", "$password") ||
@@ -494,7 +493,7 @@ $search_str="";
 sub PrintMEMEErrorDetail {
 
 
-  $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl -d $db`;
+  $userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl`;
   ($user,$password) = split /\//, $userpass;
   chop($password);
   $dbh = DBI->connect("dbi:Oracle:$db", "$user", "$password") ||
@@ -569,7 +568,7 @@ sub PrintPopUpFooter {
 	    <td align="right" valign="top">
 	      <font size="-1">
 	       <address>
-	         Contact: <a href="mailto:tkao\@msdinc.com">
+	         Contact: <a href="mailto:tkao\@apelon.com">
 	            Tim Kao</a></address>
 	       <address>Generated on:},scalar(localtime),qq{</address>
                <address>This page took $elapsed_time seconds to generate.

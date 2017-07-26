@@ -1,4 +1,48 @@
+SOS Policy (04/05/2006)
 
-This has been superceded by the SOP document:
+Functional Roles
 
-http://gforge.nci.nih.gov/docman/view.php/53/5784/NCI-MEMESOP.html
+EM: Editing Manager (this is who initiates the SOS)
+L1: Level 1 support team
+L2: Level 2 support team
+
+
+Functional-Organizational Role Mappings
+
+EM: LHC
+L1: Apelon - Bethesda
+L2: Apelon - Alameda
+
+
+Mail Lists
+
+LHC, OCCS: sos@nlm.nih.gov
+Apelon:    sos@apelon.com
+
+
+Life-cycle of an SOS
+
+An SOS condition is initiated by any event that
+prevents editing from taking place.
+
+  1. Anytime prior to 3:00 AM Pacific (6:00 AM Eastern)
+     a. EM waits until 3:00 AM Pacific (6:00 AM Eastern)
+  2. Anytime after 3:00 AM Pacific (6:00 AM Eastern) but
+     before 6:00 AM Pacific (9:00 AM Eastern)
+     a. EM sends the SOS Email, AND
+     b. EM calls the L1 Hotline (numbers at <a href="/HOTLINE">HOTLINE</a>)
+  2. Anytime from 6:00 AM Pacific (9:00 AM Eastern) and later
+     a. EM sends the SOS Email
+  3. L1 will acknowledge receipt of the SOS Email within
+     15 minutes from 6:00 AM Pacific (9:00 AM Eastern) and later
+  4. L1 will advise EM within 30 minutes of the SOS Email whether
+     a. All editing should be halted, or
+     b. What kinds of editing can proceed
+     c. How soon a fix can be expected
+  5. L1 will respond with a fix to the problem as soon as
+     practical, usually within the same day.
+  6. Anytime from 6:00 AM Pacific (9:00 AM Eastern) and later,
+     If L1 cannot handle the problem, it is escalated to L2.
+     L2 takes over handling
+  7. After resolution, L1 and L2 communicate details of problem
+     and resolution.

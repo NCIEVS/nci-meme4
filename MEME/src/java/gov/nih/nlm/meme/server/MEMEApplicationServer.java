@@ -3,8 +3,6 @@
  * Package: gov.nih.nlm.meme.server
  * Object:  MEMEApplicationServer
  *
- * 05/24/2006 RBE (1-BA55P) : Preventing certain errors from sending mail
- * 
  *****************************************************************************/
 
 package gov.nih.nlm.meme.server;
@@ -34,10 +32,7 @@ import java.util.StringTokenizer;
 
 /**
  * The application entry point.  This is <i>the</i> application server.
- * 
- * CHANGES
- * 09/10/2007 JFW (1-DBSLD): Modify isReEntrant call to take a SessionContext argument 
- * 
+ *
  * @author MEME Group
  */
 
@@ -133,7 +128,6 @@ public class MEMEApplicationServer implements InitializationContext {
             "Illegal service name.");
         bve.setDetail("service", request.getService());
         bve.setFatal(false);
-        bve.setInformAdministrator(false);        
         throw bve;
       }
 
@@ -150,7 +144,7 @@ public class MEMEApplicationServer implements InitializationContext {
         throw bve;
       }
 
-      if (service.isReEntrant(context) && service.isRunning()) {
+      if (service.isReEntrant() && service.isRunning()) {
         ConcurrencyException ce = new ConcurrencyException(
             "The service requested is already running.");
         ce.setDetail("service", request.getService());
@@ -268,7 +262,6 @@ public class MEMEApplicationServer implements InitializationContext {
           BadValueException bve = new BadValueException(
               "Illegal session id.");
           bve.setDetail("session_id", String.valueOf(session_id));
-          bve.setInformAdministrator(false);          
           throw bve;
         }
       }

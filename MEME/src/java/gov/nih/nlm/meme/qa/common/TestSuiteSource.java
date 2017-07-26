@@ -577,8 +577,8 @@ public class TestSuiteSource extends TestSuite {
         "    44. Test Source: setApelonPath(), getApelonPath() ... "
         + date_format.format(timestamp));
 
-    source.setApelonPath("PATH");
-    if (source.getApelonPath().equals("PATH"))
+    source.setApelonPath("APELON_PATH");
+    if (source.getApelonPath().equals("APELON_PATH"))
       addToLog("    44. Test Passed");
     else {
       addToLog("    44. Test Failed");

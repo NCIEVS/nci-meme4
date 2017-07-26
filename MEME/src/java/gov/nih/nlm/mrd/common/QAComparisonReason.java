@@ -269,37 +269,37 @@ public class QAComparisonReason extends QAReason.Default {
     // Compare diff counts
     //
     if ("=".equals(getDiffCountOperator()) &&
-        getDiffCount() != qacompare.getDiffCount()) {
+        getDiffCount() != qacompare.getCount() - qacompare.getComparisonCount()) {
       return false;
     }
     if (">".equals(getDiffCountOperator()) &&
-        getDiffCount() > qacompare.getDiffCount()) {
+        getDiffCount() > qacompare.getCount() - qacompare.getComparisonCount()) {
       return false;
     }
     if ("<".equals(getDiffCountOperator()) &&
-        getDiffCount() < qacompare.getDiffCount()) {
+        getDiffCount() < qacompare.getCount() - qacompare.getComparisonCount()) {
       return false;
     }
     if ("abs >".equals(getDiffCountOperator()) &&
         Math.abs(getDiffCount()) >
-        Math.abs(qacompare.getDiffCount())) {
+        Math.abs(qacompare.getCount() - qacompare.getComparisonCount())) {
       return false;
     }
     if ("abs <".equals(getDiffCountOperator()) &&
         Math.abs(getDiffCount()) <
-        Math.abs(qacompare.getDiffCount())) {
+        Math.abs(qacompare.getCount() - qacompare.getComparisonCount())) {
       return false;
     }
     if("% <".equals(getDiffCountOperator()) && (qacompare.getCount() == 0 ||
-    (((qacompare.getDiffCount()) * 100) / qacompare.getCount()) < 0 ||
-     (qacompare.getDiffCount()) < 0 ||
-    getDiffCount() < (((qacompare.getDiffCount()) * 100) / qacompare.getCount()))) {
+    (((qacompare.getCount() - qacompare.getComparisonCount()) * 100) / qacompare.getCount()) < 0 ||
+     (qacompare.getCount() - qacompare.getComparisonCount()) < 0 ||
+    getDiffCount() < (((qacompare.getCount() - qacompare.getComparisonCount()) * 100) / qacompare.getCount()))) {
       return false;
     }
     if("% >".equals(getDiffCountOperator()) && (qacompare.getCount() == 0 ||
-    (((qacompare.getDiffCount()) * 100) / qacompare.getCount()) > 0 ||
-    (qacompare.getDiffCount()) > 0 ||
-    getDiffCount() > (((qacompare.getDiffCount()) * 100) / qacompare.getCount()) )) {
+    (((qacompare.getCount() - qacompare.getComparisonCount()) * 100) / qacompare.getCount()) > 0 ||
+    (qacompare.getCount() - qacompare.getComparisonCount()) > 0 ||
+    getDiffCount() > (((qacompare.getCount() - qacompare.getComparisonCount()) * 100) / qacompare.getCount()) )) {
       return false;
     }
     return true;

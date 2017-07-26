@@ -8,7 +8,9 @@ WHERE relationship_attribute like '%ingredient_of'
   AND b.termgroup like 'RXNORM%/SCDC'
   AND b.tobereleased in ('Y','y')
 MINUS
-SELECT /*+ FULL(a) */ concept_id FROM attributes a
+SELECT concept_id FROM attributes
 WHERE attribute_name = 'SEMANTIC_TYPE'
   AND attribute_value in ('Pharmacologic Substance','Antibiotic')
   AND tobereleased in ('Y','y');
+
+

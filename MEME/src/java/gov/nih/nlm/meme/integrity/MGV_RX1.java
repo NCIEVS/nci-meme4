@@ -66,7 +66,7 @@ public class MGV_RX1 extends AbstractMergeMoveInhibitor {
     	String tty = source_atoms[i].getTermgroup().getTermType();
     	String rsab = source_atoms[i].getSource().getRootSourceAbbreviation();
     	if (rsab.equals("RXNORM") &&
-    		(!tty.equals("OCD") && !tty.equals("OBD") && !tty.equals("SY") && !tty.equals("DF") && !tty.equals("ET")))    			
+    		(!tty.equals("OCD") && !tty.equals("OBD") && !tty.equals("SY")))    			
             sset.add(tty);
     }
        
@@ -76,7 +76,7 @@ public class MGV_RX1 extends AbstractMergeMoveInhibitor {
     	String tty = target_atoms[i].getTermgroup().getTermType();
     	String rsab = target_atoms[i].getSource().getRootSourceAbbreviation();
     	if (rsab.equals("RXNORM") &&
-       		(!tty.equals("OCD") && !tty.equals("OBD") && !tty.equals("SY")&& !tty.equals("DF") && !tty.equals("ET")))    			
+       		(!tty.equals("OCD") && !tty.equals("OBD") && !tty.equals("SY")))    			
             tset.add(tty);
     }
            

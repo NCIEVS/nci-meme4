@@ -57,7 +57,7 @@ sub do_checklist {
     $checklist_suffix =~ s/[^0-9a-zA-Z_]/_/g;
     $checklist_suffix = substr($checklist_suffix, 0, 18);
 
-    $html .= $query->start_form(-method=>'POST', -action=>$query->url(-absolute=>1));
+    $html .= $query->start_form(-method=>'POST', -action=>$query->url());
     if (!$table_name) {
       $html .= "From the contents of the bin " . $query->strong($bin_name) . ", make a checklist with the following parameters.";
       $html .= "Only chemical content from the bin will be included." if lc($content_type) eq "chem";

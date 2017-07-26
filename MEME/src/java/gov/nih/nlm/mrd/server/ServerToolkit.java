@@ -102,8 +102,8 @@ public class ServerToolkit extends gov.nih.nlm.meme.server.ServerToolkit {
     }
     if (password == null || password.equals("")) {
       password = getProperty(ServerConstants.MRD_PASSWORD);
-      if (password == null || password.equals(""))
-        password = MIDServices.getDataSourcePassword(user,service);
+      if (password == null)
+        password = MIDServices.getDataSourcePassword(user);
     }
 
     String connection = MEMEToolkit.getProperty(ServerConstants.MRD_CONNECTION);
@@ -191,7 +191,7 @@ public class ServerToolkit extends gov.nih.nlm.meme.server.ServerToolkit {
     String default_user = MEMEToolkit.getProperty(ServerConstants.MRD_USER);
     String default_pwd = MEMEToolkit.getProperty(ServerConstants.MRD_PASSWORD);
     if (default_pwd == null) {
-      default_pwd = MIDServices.getDataSourcePassword(default_user,service);
+      default_pwd = MIDServices.getDataSourcePassword(default_user);
     }
     
     if ( (service == null || service.equals("") ||

@@ -3,8 +3,6 @@
  * Package:     gov.nih.nlm.mrd.server.handlers
  * Object:      FullMRSABReleaseHandler.java
  *
- * 09/10/2007 TTN (1-F7U7R): MRSAB's contacts information is formalized to use ';' separated fields and should remove emply values in contacts
- *
  ***********************************************************************/
 
 package gov.nih.nlm.mrd.server.handlers;
@@ -15,7 +13,6 @@ import gov.nih.nlm.meme.exception.MEMEException;
 import gov.nih.nlm.meme.sql.DataWriter;
 import gov.nih.nlm.meme.sql.DataWriterConstraints;
 import gov.nih.nlm.meme.sql.StripDuplicateSpacesHandler;
-import gov.nih.nlm.meme.sql.StripDuplicateTokensHandler;
 import gov.nih.nlm.mrd.server.ReleaseHandler;
 import gov.nih.nlm.mrd.sql.FileColumnStatisticsHandler;
 import gov.nih.nlm.util.OrderedHashMap;
@@ -65,8 +62,6 @@ public class FullMRSABReleaseHandler extends ReleaseHandler.Default {
   public void generate() throws MEMEException {
     DataWriterConstraints constr = new DataWriterConstraints();
 
-//    constr.addHandler(new StripDuplicateTokensHandler(";"));
-    
     constr.addHandler(new StripDuplicateSpacesHandler());
 
     OrderedHashMap order = new OrderedHashMap();

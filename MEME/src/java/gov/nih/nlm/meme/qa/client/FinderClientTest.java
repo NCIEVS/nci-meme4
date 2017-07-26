@@ -49,7 +49,7 @@ public class FinderClientTest extends TestSuite {
     FinderClient client = null;
 
     try {
-      client = new FinderClient("");
+      client = new FinderClient("apelon");
 
       String finder = "exact_string";
       String source = "AIR94";
@@ -64,8 +64,8 @@ public class FinderClientTest extends TestSuite {
         + "getMidService() ... "
         + date_format.format(timestamp));
 
-      client.setMidService("");
-      if (client.getMidService().equals(""))
+      client.setMidService("apelon");
+      if (client.getMidService().equals("apelon"))
         addToLog("    1.1. Test Passed");
       else {
         addToLog("    1.1. Test Failed");

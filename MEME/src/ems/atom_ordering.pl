@@ -16,7 +16,7 @@ sub do_atom_ordering {
 
     &printhtml({printandexit=>1, body=>"ERROR: The atom_ordering table was empty."}) unless @rsabs;
 
-    $form .= $query->start_form(-method=>'POST', -action=>$query->url(-absolute=>1));
+    $form .= $query->start_form(-method=>'POST', -action=>$query->url());
     $form .= "Select source: " . $query->popup_menu({-name=>'rsab', -values=>\@rsabs, -onChange=>'submit();'});
     $form .= $query->p;
     $form .= $query->hidden(-name=>'action', -value=>$action, -override=>1);

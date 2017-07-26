@@ -3,8 +3,7 @@
  * Package: gov.nih.nlm.meme.qa.ic
  * Object:  MVS_RX3Test
  * 
- * 12/07/2006 BAC (1-D0BIJ): Replace "RXNORM_2005AC" with current version (via lookup)
-y * 04/07/2006 RBE (1-AV8WP): File created
+ * 04/07/2006 RBE (1-AV8WP): File created
  *
  *****************************************************************************/
 
@@ -17,7 +16,6 @@ import gov.nih.nlm.meme.client.EditingClient;
 import gov.nih.nlm.meme.common.Atom;
 import gov.nih.nlm.meme.common.Attribute;
 import gov.nih.nlm.meme.common.Concept;
-import gov.nih.nlm.meme.common.Source;
 import gov.nih.nlm.meme.exception.MEMEException;
 import gov.nih.nlm.meme.integrity.MVS_RX3;
 import gov.nih.nlm.meme.qa.TestSuite;
@@ -84,21 +82,11 @@ public class MVS_RX3Test extends TestSuite {
 			// Set up source concept
 			source = new Concept.Default();
 
-      Source[] sources = client.getSources();
-      Source src = null;
-      for (int i=0; i<sources.length; i++) {
-      	if (sources[i].getStrippedSourceAbbreviation().equals("RXNORM") &&
-      			sources[i].isCurrent()) {
-      		src = sources[i];
-      	  break;
-      	}
-      }
-      
-      // Create an atom
+			// Create an atom
 			Atom atom = new Atom.Default();
 			atom.setString("RXNORM");
-      atom.setTermgroup(client.getTermgroup(src.getSourceAbbreviation() + "/BN"));
-      atom.setSource(src);
+			atom.setTermgroup(client.getTermgroup("RXNORM_2005AC/ET"));
+			atom.setSource(client.getSource("RXNORM_2005AC"));
 			atom.setStatus('R');
 			atom.setGenerated(true);
 			atom.setReleased('N');

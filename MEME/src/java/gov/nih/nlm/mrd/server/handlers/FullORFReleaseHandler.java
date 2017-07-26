@@ -6,7 +6,6 @@
  * Changes:
  *   02/03/2006 BAC (1-74H2V): Call MMSToolkit.fakeMRDOCSuppressRows().  Fixes
  *      problem where output MRRANK has SUPPRESS alwasys set to N
- *    07/12/2006 SL (1-BNKYE) Commenting out the fakeMRDOCSuppressRows call
  *  
  ***********************************************************************/
 package gov.nih.nlm.mrd.server.handlers;
@@ -21,7 +20,6 @@ import gov.nih.nlm.swing.SwingToolkit;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.lang.reflect.Constructor;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -73,79 +71,95 @@ public class FullORFReleaseHandler extends ReleaseHandler.Default {
    */
   public void generate() throws MEMEException {
     SwingToolkit.setProperty(SwingToolkit.VIEW,"false");
+    File ap_config = new File(release.getBuildUri() +
+                              "/MMSYS/config/mmsys.a.prop");
+    File user_config = new File(release.getBuildUri() +
+                                "/MMSYS/config/mmsys.a.prop");
     try {
       ServerToolkit.logCommentToBuffer(
           "Configure properties objects for MMSYS run", true, log);
+      Properties ap = new Properties();
+      ap.load(new FileInputStream(ap_config));
+      Properties up = new Properties();
+      up.load(new FileInputStream(user_config));
 
-			//
-			// Override user configuration settings
-			//
-			ServerToolkit.logCommentToBuffer(
-					"Configure properties objects for MMSYS run", true, log);
-			Properties subsetConfig = new Properties();
-			subsetConfig.load(new FileInputStream(new File(new File(new File(
-					new File(release.getBuildUri(), "MMSYS"), "config"), release
-					.getName()), "user.a.prop")));
-			subsetConfig.setProperty("mmsys_output_stream",
-					"gov.nih.nlm.umls.mmsys.io.ORFMetamorphoSysOutputStream");
-			subsetConfig.setProperty("mmsys_input_stream",
-					"gov.nih.nlm.umls.mmsys.io.RRFMetamorphoSysInputStream");
-			// keep all sources, assume default config for all other filters
-			subsetConfig
-					.setProperty(
-							"gov.nih.nlm.umls.mmsys.filter.SourceListFilter.remove_selected_sources",
-							"true");
-			subsetConfig
-					.setProperty(
-							"gov.nih.nlm.umls.mmsys.filter.SourceListFilter.selected_sources",
-							"");
-			// re-write config file
-			subsetConfig.store(new FileOutputStream(new File(new File(release
-					.getBuildUri(), "log"), "mmsys.prop")), "MRD configuration");
+      //
+      // Override user configuration settings
+      //
 
-			// To run MetamorphoSys in batch subsetting mode,
-			// it is now way easier to just invoke Java directly.
-			// MRD does not use plugin framework so configuring it would be difficult
-			// TODO: shouldn't hardcode "solaris" in the java command
+      // Output handler
+      up.setProperty("mmsys_output_stream",
+                     "gov.nih.nlm.mms.OriginalMRMetamorphoSysOutputStream");
+
+      // Input handler
+      up.setProperty("mmsys_input_stream",
+                     "gov.nih.nlm.mms.RichMRMetamorphoSysInputStream");
+
+      // keep all sources
+      up.setProperty(
+          "gov.nih.nlm.mms.filters.SourcesToRemoveFilter.remove_selected_sources",
+          "true");
+      up.setProperty(
+          "gov.nih.nlm.mms.filters.SourcesToRemoveFilter.selected_sources", "");
+      up.setProperty(
+          "gov.nih.nlm.mms.OriginalMRMetamorphoSysOutputStream.remove_utf8",
+          "false");
+
+      ServerToolkit.logCommentToBuffer("Load MMSYS classes", true, log);
+      URLClassLoader ucl = URLClassLoader.newInstance(new URL[] {new URL(
+          "file:" + release.getBuildUri() +
+          "/MMSYS/lib/mms.jar"), new URL(
+          "file:" + release.getBuildUri() +
+          "/MMSYS/"),
+          new URL("file:" + release.getBuildUri() +
+                  "/MMSYS/lib/objects.jar")});
+      ServerToolkit.logCommentToBuffer("Set ApplicationConfiguration", true,
+                                       log);
+      Class cl = ucl.loadClass("gov.nih.nlm.mms.ApplicationConfiguration");
+      Constructor constr = cl.getConstructor(new Class[] {ap.getClass()});
+      Object ac = constr.newInstance(new Object[] {ap});
+      String path = release.getBuildUri() + "/MMSYS/config";
+      cl.getMethod("setConfigDirectory", new Class[] {String.class}).invoke(ac,
+          new Object[] {path});
+
+      ServerToolkit.logCommentToBuffer("Set UserConfiguration", true, log);
+      cl = ucl.loadClass("gov.nih.nlm.mms.UserConfiguration");
+      constr = cl.getConstructor(new Class[] {up.getClass()});
+      Object uc = constr.newInstance(new Object[] {up});
+      path = release.getBuildUri() + "/META";
+      cl.getMethod("setSourcePaths", new Class[] {String[].class}).invoke(uc,
+          new Object[] {new String[] {path}
+      });
+      path = release.getBuildUri() + "/METAO";
+      cl.getMethod("setSubsetDirectory", new Class[] {String.class}).invoke(uc,
+          new Object[] {path});
+
+      ServerToolkit.logCommentToBuffer(
+          "Set release.dat file location in MMSToolkit", true, log);
+      cl = ucl.loadClass("gov.nih.nlm.mms.MMSToolkit");
+      path = release.getBuildUri() + "/release.dat";
+      cl.getMethod("setReleaseDatLocation", new Class[] {String.class}).invoke(null,
+          new Object[] {path});
+      cl.getMethod("fakeMRDOCSuppressRows", new Class[0]).invoke(null,
+          new Object[0]);
+
+      ServerToolkit.logCommentToBuffer("Set MetamorphoSys", true, log);
+      cl = ucl.loadClass("gov.nih.nlm.mms.MetamorphoSys");
+      constr = cl.getConstructor(new Class[] {ac.getClass(), uc.getClass()});
+      Object mms = constr.newInstance(new Object[] {ac, uc});
+      cl.getMethod("initializeConfigurables", null).invoke(mms, null);
       ServerToolkit.logCommentToBuffer("Begin Subsetting Operation", true, log);
-      try {
-      ServerToolkit.exec(new String[] {
-					release.getBuildUri() + "/MMSYS/jre/solaris/bin/java",
-					"-Djava.awt.headless=true",
-					"-Djpf.boot.config=" + release.getBuildUri()
-							+ "/MMSYS/etc/subset.boot.properties",
-					"-Dlog4j.configuration=etc/subset.log4j.properties",
-					"-Dscript_type=.sh", "-Dfile.encoding=UTF-8", "-Xms600M",
-					"-Xmx1400M", "-Dinput.uri=" + release.getBuildUri() + "/META",
-					"-Doutput.uri=" + release.getBuildUri() + "/METAO",
-					"-Dmmsys.config.uri=" + release.getBuildUri() + "/log/mmsys.prop",
-					"org.java.plugin.boot.Boot"
-			}, new String[] {
-					"CLASSPATH=" + release.getBuildUri() + "/MMSYS:"
-							+ release.getBuildUri() + "/MMSYS/lib/jpf-boot.jar"
-			}, new File(release.getBuildUri(), "/MMSYS"));
+      PrintStream out = System.out;
+      ByteArrayOutputStream bos = new ByteArrayOutputStream();
+      PrintStream stdout = new PrintStream(bos);
+      System.setOut(stdout);
+      cl.getMethod("subset", null).invoke(mms, null);
+      System.setOut(out);
+      stdout.close();
+      ServerToolkit.logCommentToBuffer(bos.toString(),false,log);
       ServerToolkit.logCommentToBuffer("Finished Subsetting Operation", true,
-          log);
-      } catch (ExecException exece) {
-				// If fails as solaris, try as linux
-        ServerToolkit.exec(new String[] {
-  					release.getBuildUri() + "/MMSYS/jre/linux/bin/java",
-  					"-Djava.awt.headless=true",
-  					"-Djpf.boot.config=" + release.getBuildUri()
-  							+ "/MMSYS/etc/subset.boot.properties",
-  					"-Dlog4j.configuration=etc/subset.log4j.properties",
-  					"-Dscript_type=.sh", "-Dfile.encoding=UTF-8", "-Xms600M",
-  					"-Xmx1400M", "-Dinput.uri=" + release.getBuildUri() + "/META",
-  					"-Doutput.uri=" + release.getBuildUri() + "/METAO",
-  					"-Dmmsys.config.uri=" + release.getBuildUri() + "/log/mmsys.prop",
-  					"org.java.plugin.boot.Boot"
-  			}, new String[] {
-  					"CLASSPATH=" + release.getBuildUri() + "/MMSYS:"
-  							+ release.getBuildUri() + "/MMSYS/lib/jpf-boot.jar"
-  			}, new File(release.getBuildUri(), "/MMSYS"));
-			}
-    } catch (ExecException exece) {
-			throw exece;
+                                       log);
+
     } catch (Exception e) {
       DeveloperException dev = new DeveloperException(
           "Failed to generate the release data", this);

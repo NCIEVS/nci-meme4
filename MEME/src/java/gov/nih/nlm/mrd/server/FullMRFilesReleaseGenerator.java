@@ -4,7 +4,6 @@
  * Object:  FullMRFilesReleaseGenerator
  *
  * Changes:
- *   03/08/2007 TTN (1-DKB57): Add Finish Release method
  *   04/10/2006 RBE (1-AV6XL): add -mrd switch to run medline process in MRD mode
  *   03/24/2006 RBE (1-AQRCB): use MID Services mailing list
  *   01/20/2006 TTN (1-74OL9): bug fix for update
@@ -29,7 +28,7 @@ import gov.nih.nlm.mrd.common.QAReason;
 import gov.nih.nlm.mrd.common.QAReport;
 import gov.nih.nlm.mrd.common.ReleaseInfo;
 import gov.nih.nlm.mrd.common.ReleaseTarget;
-import gov.nih.nlm.meme.common.StageStatus;
+import gov.nih.nlm.mrd.common.StageStatus;
 import gov.nih.nlm.mrd.server.handlers.QAReportParser;
 import gov.nih.nlm.mrd.sql.MRDDataSource;
 
@@ -38,7 +37,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -224,13 +222,6 @@ public class FullMRFilesReleaseGenerator
       request.addReturnValue(
           new Parameter.Default("isFinished", isFinished(release)));
     }
-    else if (function.equals("getReleaseStatus")) {
-      final ReleaseInfo release =
-          data_source.getReleaseInfo(
-              (String) request.getParameter("release_name").getValue());
-      request.addReturnValue(
-          new Parameter.Default("releaseStatus", getReleaseStatus(release)));
-    }
     else if (function.equals("isReadyForPublish")) {
       final ReleaseInfo release =
           data_source.getReleaseInfo(
@@ -243,11 +234,6 @@ public class FullMRFilesReleaseGenerator
           (ReleaseInfo) request.getParameter("releaseinfo").getValue();
       prepareRelease(release, data_source);
     }
-    else if (function.equals("finishRelease")) {
-        final ReleaseInfo release =
-            (ReleaseInfo) request.getParameter("releaseinfo").getValue();
-        finishRelease(release, data_source);
-      }
     else if (function.equals("previewTarget")) {
       final ReleaseInfo release =
           data_source.getReleaseInfo(
@@ -957,66 +943,6 @@ public class FullMRFilesReleaseGenerator
     data_source.addReleaseInfo(release_info);
 
   }
-
-  /**
-   * Prepare the "log/Finished.log" file for the release.
-   * @param release the release name
-   * @param data_source the {@link MRDDataSource}
-   * @throws MEMEException if failed to finish release
-   */
-  public void finishRelease(ReleaseInfo release,
-		  MRDDataSource data_source) throws MEMEException {
-	  try {
-		  File file = new File(release.getBuildUri() + "/log/Finished.log");
-		  final PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(
-              file)));
-          final StringBuffer log = new StringBuffer();
-		  final String mrd_home = ServerToolkit.getProperty(ServerConstants.
-              MRD_HOME);
-          ServerToolkit.logStartTime("FINISH RELEASE");
-          ServerToolkit.logCommentToBuffer("STARTING FINISH RELEASE" , true,
-                                           log);
-          ServerToolkit.logCommentToBuffer("The following QA Report files are generated on " + release.getDocumentationUri() + ":" , true,
-                  log);
-          File docuri = new File(release.getDocumentationUri());
-          String[] files = docuri.list(new FilenameFilter() {
-        	    public boolean accept(File dir, String name) {
-        	        return (name.startsWith("qa_"));
-        	    }
-        	}
-          );
-          for(int i=0; i<files.length; i++) {
-        	  ServerToolkit.logCommentToBuffer("\t" + files[i], true, log);
-          }
-	      final String copy_log =
-		  ServerToolkit.exec(new String[] {
-                             mrd_home +
-                             "/bin/copy_qareasons.csh",
-                             data_source.getDataSourceName()}
-                             ,
-                             new String[] {"MRD_HOME=" +
-                             mrd_home,
-                             "ORACLE_HOME=" +
-                             ServerToolkit.
-                             getProperty(ServerConstants.
-                                         ORACLE_HOME)}
-                             );
-	      ServerToolkit.logCommentToBuffer(copy_log, true, log);
-          ServerToolkit.logCommentToBuffer("FINISHED RELEASE - " +
-                  ServerToolkit.getElapsedTime(
-                      "FINISH RELEASE"), true,
-                  log);
-          out.write(log.toString());
-	      out.close();
-	  }
-	  catch (IOException ioe) {
-		  final ExternalResourceException ere = new ExternalResourceException(
-	      "Failed to crete the finish log file ", ioe);
-	  	ere.setDetail("release", release.getBuildUri());
-	  	throw ere;
-	
-	  }
-}
 
   /**
    * verifies that upload was correct
@@ -1885,14 +1811,15 @@ public class FullMRFilesReleaseGenerator
       MEMEException {
     final String[] target_list = new String[] {
         "MRDOC", "MRSAB", "MRRANK",
-        "MRCONSO", "MRSTY", "MRDEF",
-        "AMBIG", "MRX",
-        "MRHIST", "MRCUI", "MRAUI",
-        "MRHIER",
-        "MRREL", "MRSAT", "MRMAP",
-        "MetaMorphoSys",
+        "MRCONSO", "MRSTY", "MRDEF", "AMBIG",
+        "MRX",
+        "MRMAP", "MRHIST", "MRCUI", "MRAUI",
+        "MRCOC",
+        "MRCXT", "MRHIER",
+        "MRREL", "MRSAT",
         "MRFILESCOLS",
-        "ORF", "DOC", "ActiveSubset","Optimization"};
+        "MetaMorphoSys",
+        "ORF", "DOC"};
     return target_list;
   }
 
@@ -2499,41 +2426,4 @@ public class FullMRFilesReleaseGenerator
     }
     return status;
   }
-  /**
-   * Indicates whether or not the release is finished.
-   * @param release the {@link ReleaseInfo}
-   * @return <code>true</code> if so, <code>false</code> otherwise
-   * @throws MEMEException if failed to process the request
-   */
-  public StageStatus getReleaseStatus(ReleaseInfo release_info) throws MEMEException {
-
-	  StageStatus status = new StageStatus(release_info.getName());
-  try {
-      final File file = new File(release_info.getBuildUri() + "/log",
-                                 "Finished.log");
-      if (file.exists()) {
-        final BufferedReader in = new BufferedReader(new FileReader(file));
-        StringBuffer sb = new StringBuffer();
-        String line = null;
-        while ( (line = in.readLine()) != null) {
-        	if (line.indexOf("ERROR") != -1) {
-                status.setCode(StageStatus.ERROR);
-             }
-        	if (line.indexOf("FINISHED") != -1) {
-        		status.setCode(StageStatus.FINISHED);
-        	}
-        	sb.append(line).append("\n");
-        }
-        status.setLog(sb.toString());
-      }
-  } catch (IOException ioe) {
-      ExternalResourceException ere = new ExternalResourceException(
-              "Failed to read the finish log file", ioe);
-          ere.setDetail("file",
-        		  release_info.getBuildUri() + "/log/Finished.log");
-          throw ere;
-  }
-   return status;
-  }
-
 }

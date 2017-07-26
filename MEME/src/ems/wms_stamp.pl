@@ -59,7 +59,7 @@ EOD
 
     my($form);
 
-    $form .= $query->start_form(-method=>'POST', -action=>$query->url(-absolute=>1));
+    $form .= $query->start_form(-method=>'POST', -action=>$query->url());
     $form .= &toHTMLtable($query, {border=>0, cellspacing=>5, cellpadding=>2}, \@d);
     $form .= $query->hidden(-name=>'action', -value=>$action, -override=>1);
     $form .= $query->hidden(-name=>'worklist', -value=>$worklist, -override=>1);
@@ -121,10 +121,9 @@ sub markasdone_worklist {
   $dbh->updateRow($EMSNames::WORKLISTINFOTABLE, "worklist_name", $dbh->quote($worklist), \%info);
 
 # set other dates if needed
-  my($qw) = $dbh->quote($worklist);
-  $sql = "update $EMSNames::WORKLISTINFOTABLE set return_date=stamp_date where worklist_name=$qw and return_date is null";
+  $sql = "update $WORKLISTINFO set return_date=stamp_date where worklist_name=$qw and return_date is null";
   $dbh->executeStmt($sql);
-  $sql = "update $EMSNames::WORKLISTINFOTABLE set assign_date=stamp_date where worklist_name=$qw and assign_date is null";
+  $sql = "update $WORKLISTINFO set assign_date=stamp_date where worklist_name=$qw and assign_date is null";
   $dbh->executeStmt($sql);
 
   @d = ();
@@ -307,7 +306,7 @@ EOD
   $n = 0;
   foreach $concept_id (@d) {
     $n++;
-    $url = $query->a({href=>$main::EMSCONFIG{MIDEMS3CONCEPTREPORTURL} . "?action=search&subaction=concept_id&arg=$concept_id&$DBget"}, $concept_id);
+    $url = $query->a({href=>$main::EMSCONFIG{MIDCONCEPTREPORTURL} . "?action=search&subaction=concept_id&arg=$concept_id&$DBget"}, $concept_id);
     $reason = ($x1{$concept_id} ? "Newer content" :
                $x2{$concept_id} ? "Extinct" : "");
     push @d1, [$n, $url, $reason, $d{$concept_id}];
@@ -337,7 +336,7 @@ EOD
   $n=0;
   foreach $concept_id (@d) {
     $n++;
-    $url = $query->a({href=>$main::EMSCONFIG{MIDEMS3CONCEPTREPORTURL} . "?action=search&subaction=concept_id&arg=$concept_id&$DBget"}, $concept_id);
+    $url = $query->a({href=>$main::EMSCONFIG{MIDCONCEPTREPORTURL} . "?action=search&subaction=concept_id&arg=$concept_id&$DBget"}, $concept_id);
     push @d1, [$n, $url, $d{$concept_id}];
   }
   $html .= &toHTMLtable($query, {border=>1, cellpadding=>5, cellspacing=>0}, \@d1);

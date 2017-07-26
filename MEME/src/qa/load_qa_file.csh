@@ -66,7 +66,7 @@ endif
 set db=$1
 set file=$2
 set table=$3
-set mu=`$MIDSVCS_HOME/bin/get-oracle-pwd.pl -d $db`
+set mu=`$MIDSVCS_HOME/bin/get-oracle-pwd.pl`
 
 #
 # Create & load QA table

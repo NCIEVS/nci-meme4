@@ -14,13 +14,12 @@
 # -f (force data to be re-collected)
 # -n (catches up data collection for the previous n days)
 
-BEGIN
-{
 unshift @INC, "$ENV{ENV_HOME}/bin";
+
 require "env.pl";
-unshift @INC, "$ENV{EMS_HOME}/lib";
-unshift @INC, "$ENV{EMS_HOME}/bin";
-}
+
+use lib "$ENV{EMS_HOME}/lib";
+push @INC, "$ENV{EMS_HOME}/bin";
 
 use OracleIF;
 use EMSUtils;
@@ -65,7 +64,7 @@ unless (-e $logfile) {
 
 $db = $opt_d || Midsvcs->get('editing-db');
 $oracleuser = $EMSCONFIG{ORACLE_USER};
-$oraclepassword = GeneralUtils->getOraclePassword($oracleuser,$db);
+$oraclepassword = GeneralUtils->getOraclePassword($oracleuser);
 $dbh = new OracleIF("db=$db&user=$oracleuser&password=$oraclepassword");
 die "ERROR: Database $db is unavailable\n" unless $dbh;
 
@@ -187,7 +186,7 @@ EOD
 INSERT INTO $SNAPSHOTTABLE (snapshot_date, snapshot_type, snapshot_attr, snapshot_count)
 SELECT to_date($ymd, $fmt), 'STY', a.attribute_value, count(*) FROM attributes a, $conceptsApprovedTable r
 WHERE  a.concept_id = r.concept_id
-AND    a.attribute_name = 'SEMANTIC_TYPE'
+AND    a.attribute_name || '' = 'SEMANTIC_TYPE'
 GROUP BY a.attribute_value
 EOD
   $dbh->executeStmt($sql);

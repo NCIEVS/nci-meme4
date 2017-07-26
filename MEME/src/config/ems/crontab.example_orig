@@ -2,7 +2,7 @@
 #
 # Generate reports for waiting requests
 #
-0,5,10,15,20,25,30,35,40,45,50,55 * * * 0-6 /usr/bin/env ENV_FILE=<path to ENV_HOME>/etc/env.prop ENV_HOME=<path to ENV_HOME> <path to EMS_HOME>/bin/reportqueueviacron.pl
+0,5,10,15,20,25,30,35,40,45,50,55 * * * * /usr/bin/env ENV_FILE=<path to ENV_HOME>/etc/env.prop ENV_HOME=<path to ENV_HOME> <path to EMS_HOME>/bin/reportqueue.pl
 
 # Daily
 
@@ -19,7 +19,7 @@
 #
 # Accumulate daily snapshot and mail editing report
 #
-30 05 * * * /usr/bin/env ENV_FILE=<path to ENV_HOME>/etc/env.prop ENV_HOME=<path to ENV_HOME> <path to EMS_HOME>/bin/daily.pl
+30 05 * * * /usr/bin/env ENV_FILE=<path to ENV_HOME>/etc/env.prop ENV_HOME=<path to ENV_HOME> <path to EMS_HOME>/bin/daily-snapshot.pl; <path to EMS_HOME>/bin/daily-action-counts.pl; <path to EMS_HOME>/bin/mail-daily-report.pl
 
 # Weekly
 

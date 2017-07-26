@@ -10,13 +10,11 @@
 
 # Command line arguments:
 # -c (EMS CGI arguments, e.g., db=noa_mis2006 action=qa_generate bin_name=nosty)
-BEGIN
-{
 unshift @INC, "$ENV{ENV_HOME}/bin";
+
 require "env.pl";
-unshift @INC, "$ENV{EMS_HOME}/lib";
-unshift @INC, "$ENV{EMS_HOME}/bin";
-}
+use lib "$ENV{EMS_HOME}/lib";
+push @INC, "$ENV{EMS_HOME}/bin";
 
 use Getopt::Std;
 

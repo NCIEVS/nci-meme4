@@ -19,7 +19,7 @@ sub do_sourceinsertion {
 
     my(@years) = (1..5);
 
-    $html .= $query->start_form(-method=>'POST', -action=>$query->url(-absolute=>1));
+    $html .= $query->start_form(-method=>'POST', -action=>$query->url());
     $html .= $DBpost;
 
     $html .= "Show inferred insertion dates for sources in the past: ";
@@ -66,7 +66,7 @@ EOD
       $rsab = MIDUtils->makeVersionlessSAB($dbh, $vsab);
       $description = MIDUtils->officialSABName($dbh, $vsab);
 
-      $url = $query->a({href=>$main::EMSCONFIG{MIDEMS3CONCEPTREPORTURL} . "?action=search&subaction=concept_id&arg=$concept_id&$DBget"}, $concept_id);
+      $url = $query->a({href=>$main::EMSCONFIG{MIDCONCEPTREPORTURL} . "?action=search&subaction=concept_id&arg=$concept_id&$DBget"}, $concept_id);
       push @rows, [$n, $url, $vsab, $rsab, $insertion_date, $description];
     }
 

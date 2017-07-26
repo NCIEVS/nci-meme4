@@ -2,8 +2,6 @@
  * Package: gov.nih.nlm.meme.client
  * Object:  MappingClient
  *
- * 03/04/2009 TTN (1-KO9BH): replace attribute only if it's value changed.
- *
  *****************************************************************************/
 package gov.nih.nlm.meme.client;
 
@@ -284,6 +282,21 @@ public class MappingClient extends ActionClient {
     mapset.addAttribute(attr);
 
     //
+    // Add the required attribute MAPSETID
+    //
+    attr = new Attribute.Default();
+    attr.setSource(mapset_source);
+    attr.setStatus('R');
+    attr.setTobereleased('Y');
+    attr.setReleased('N');
+    attr.setLevel('S');
+    attr.setConcept(mapset);
+    attr.setName("MAPSETID");
+    attr.setValue(mapset_id.toString());
+    attr.setAtom(atom);
+    mapset.addAttribute(attr);
+
+    //
     // Add the required attribute FROMVSAB
     //
     attr = new Attribute.Default();
@@ -416,7 +429,7 @@ public class MappingClient extends ActionClient {
    */
   public void setMapSetIdentifier(MapSet ms, Identifier mapset_id) throws
       MEMEException {
-    setAttribute(ms, mapset_id.toString(), "MAPSETSID", false);
+    setAttribute(ms, mapset_id.toString(), "MAPSETID", false);
   }
 
   /**
@@ -555,31 +568,20 @@ public class MappingClient extends ActionClient {
     // Remove existing attribute
     //
     Attribute[] atts = ms.getAttributesByName(attr_name);
-    Attribute att = null;
     if (atts.length > 0) {
-    	for(int i=0; i < atts.length; i++) {
-    		if(atts[i].getValue() == null || !atts[i].getValue().equals(value)) {
-		      MolecularDeleteAttributeAction mdaa =
-		          new MolecularDeleteAttributeAction(atts[0]);
-		      mdaa.setChangeStatus(false);
-		      processAction(mdaa);
-		      ms.removeAttribute(atts[i]);
-		      att = atts[i];
-	    	}
-    	}
-    }
-    
-    if(value == null || value.isEmpty()) {
-    	return;
+      MolecularDeleteAttributeAction mdaa =
+          new MolecularDeleteAttributeAction(atts[0]);
+      processAction(mdaa);
+      ms.removeAttribute(atts[0]);
     }
 
-    if(atts.length > 0 && att == null) {
-    	return;
-    }
     //
     // Insert new attribute
     //
-    if (att == null) {
+    Attribute att = null;
+    if (atts.length > 0) {
+      att = atts[0];
+    } else {
 
       //
       // Create attribute
@@ -595,13 +597,12 @@ public class MappingClient extends ActionClient {
       att.setStatus('R');
       att.setTobereleased('Y');
       att.setReleased('N');
-      att.setLevel('S');
-      att.setAtom(ms.getPreferredAtom());
+      att.setLevel('C');
     }
+
     att.setValue(value);
     MolecularInsertAttributeAction miaa =
         new MolecularInsertAttributeAction(att);
-    miaa.setChangeStatus(false);
     processAction(miaa);
     ms.addAttribute(att);
   }

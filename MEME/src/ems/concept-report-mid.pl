@@ -9,157 +9,153 @@
 # Ported to Oracle and MEME-III
 # suresh@nlm.nih.gov 3/2000
 
+# Modified for EMS-3
+# - self-contained in EMS_HOME
+# - use ems.config data
+# suresh@nlm.nih.gov 3/2005
+
 # CGI parameters:
-# action={
-#   searchbycui|searchbyconceptid|searchbyatomid|searchbysourcerowid|
-#   searchbynormstr|searchbynormword|
-#   cuisearchform|normstrsearchform|normwordsearchform}
-# color={1}
-# nocolor={1}
-# font=<name>
-# fontsize=<size>
-# meme_home=<the path to the MEME_HOME environment variable, for debug>
+# action={searchform, search, randomatoms}
+# subaction={concept_id, etc}
+#
+# config= (alternate EMS_CONFIG)
 # db=<the database to search in - default is editing-db>
 # service=<Use a different MID service for the TNS name>
-# meme_server=<the MID service for the MEME server params, e.g., meme-server or test-meme-server>
-# user=<set to wth, don't use>
+# meme-server-hostport= where is the MEME server running?
+
 # arg=<the argument value, e.g., concept_id or string to search>
-# source=<array of sources to restrict norm-based searches to>
-# rslimit=<only display these many records from the result of a norm-based search>
+# source=<array of sources to restrict searches to>
+# pagenum=(which page of the result set to show)
+# hitsperpage= (how many results to show per page)
+#
 # ignorerellimit=<Ignore rel limit and get report> rel limit is set to 250
 # format=text|html
-# refreshsourcecache=
+# emsenhanced= (show EMS data for matching concepts)
 
 # These were added to support new options 5/99 suresh@nlm.nih.gov
 # r={DEFAULT|ALL|XR}
 # x={DEFAULT|ALL|XR}
+# lat= list of languages to display in report (default is all)
+# maxreviewedrels=(max number of reviewed relationships to show - default is all)
 
-# $Id$
+# $Id: concept-report-mid.pl,v 1.1.1.1 2006-05-25 16:14:10 aweinrich Exp $
 
-BEGIN
-{
 unshift @INC, "$ENV{ENV_HOME}/bin";
+
 require "env.pl";
-unshift @INC, "$ENV{EMS_HOME}/lib";
-unshift @INC, "$ENV{EMS_HOME}/bin";
-}
+use lib "$ENV{EMS_HOME}/lib";
+push @INC, "$ENV{EMS_HOME}/bin";
 
-#unshift @INC, "/site/umls/scripts";
-#unshift @INC, "/site/umls/lvg";
-#unshift @INC, "/site/umls/oracle/utils";
-#nshift @INC, "/site/umls/oracle/concept-reports";
+use Data::Dumper;
 
-#require "oracleIF.pl";
-use OracleIF;
+use WMSUtils;
 use EMSUtils;
-#require "midsvcs.pl";
-use Midsvcs;
-#require "utils.pl";
-require "conceptutils.pl";
-#require "lvg3.pl";
+use MIDUtils;
 use LVG;
+use OracleIF;
+use Midsvcs;
+use GeneralUtils;
+
+use CGI;
 
 $now = GeneralUtils->date;
 
-# edit these two lines if you decide to change norm versions
-#$lvgversion="lv_1.84e";
-#$lvgversion="lv_1.83d";
-$normfn="luinorm"; # luinorm or norm
-#$normfn="norm"; # luinorm or norm
-
-# read configuration file and set defaults
-#$configfile = "/etc/umls/concept-report-mid.config";
-#&read_config($configfile);
-
-# set the defaults from config file
-#$access = @{ $config{"access"}}->[0]; $access =~ tr/A-Z/a-z/;
-#$rslimit = @{ $config{"rslimit"}}->[0];
-#$rellimit = @{ $config{"rellimit"}}->[0];
-$fontsize="+0";
 $fontsize="-1";
+$na="n/a";
+$defaulthitsperpage = 20;
+
+# currently allowable actions
+%allowableaction = (
+		    searchform=>1,
+		    search=>1,
+		    randomatoms=>1,
+);
+
+# maps a string for human consumption to a subaction
+@searchsubaction = (
+		    [ "a concept_id", 'concept_id' ],
+		    [ "an atom_id", 'atom_id' ],
+		    [ "a CUI", 'cui' ],
+		    [ "a CODE", 'code' ],
+		    [ "a source_row_id", 'source_row_id' ],
+		    [ "an exact string", 'exactstr' ],
+		    [ "a string ignoring case", 'lowerstr' ],
+		    [ "a normalized string", 'normstr' ],
+		    [ "normalized words", 'normword' ],
+		    [ "words (ignoring case)", 'lowerword' ],
+		    [ "a LUI", 'lui' ],
+		    [ "a SUI", 'sui' ],
+		    [ "an AUI", 'aui' ],
+#		    [ "a SAUI", 'saui' ],
+#		    [ "a SCUI", 'scui' ],
+#		    [ "a SDUI", 'sdui' ],
+);
 
 use CGI;
 
 $query = new CGI;
 
+# For backward compatibility, map old parameter names to new
+%compat_actionmap =
+  (
+   searchbyconceptid=>{action=>'search', subaction=>'concept_id'},
+   searchbyatomid=>{action=>'search', subaction=>'atom_id'},
+   searchbycui=>{action=>'search', subaction=>'atom_id'},
+   searchbycode=>{action=>'search', subaction=>'code'},
+   searchbysourcerowid=>{action=>'search', subaction=>'atom_id'},
+   searchbynormstr=>{action=>'search', subaction=>'atom_id'},
+   searchbynormwrd=>{action=>'search', subaction=>'atom_id'},
+   cuisearchform=>{action=>'searchform'},
+   normstrsearchform=>{action=>'searchform'},
+   normwordsearchform=>{action=>'searchform'},
+   meme_server=>'meme-server-hostport',
+   rslimit=>'hitsperpage',
+  );
+
+foreach $old (keys %compat_actionmap) {
+  next unless $query->param($old) || $query->param('action') eq $old;
+
+  if (ref($compat_actionmap{$old})) {
+    my($key, $ref);
+
+    $ref = $compat_actionmap{$old};
+    foreach $key (keys %$ref) {
+      $query->param(-name=>$key, -value=>$ref->{$key});
+    }
+  } else {
+    $query->param(-name=>$compat_actionmap{$old}, -value=>$query->param($old));
+  }
+  $query->param(-name=>$old, -value=>'');
+}
+
+#----------------------------------------
 $ENV{EMS_CONFIG} = $query->param('config') if $query->param('config');
 EMSUtils->loadConfig;
+
+#$ENV{MIDSVCS_HOME} = $EMSCONFIG{MIDSVCS_HOME};
+#$ENV{LVGIF_HOME} = $EMSCONFIG{LVGIF_HOME};
+#$ENV{DBPASSWORD_HOME} = $EMSCONFIG{DBPASSWORD_HOME};
+#$ENV{ENV_HOME} = $EMSCONFIG{ENV_HOME};
+#$ENV{ENV_FILE} = $EMSCONFIG{ENV_FILE};
+
 $user = $main::EMSCONFIG{ORACLE_USER};
-# maps a prompt to an action
-%action_map = (
-  "Search by Identifier" => "cuisearchform",
-  "Normalized String Search" => "normstrsearchform",
-  "Approximate Word Search" => "normwordsearchform",
-  "Random Concepts" => "randomconcepts"
-);
+$password = GeneralUtils->getOraclePassword($user);
 
-# first element is for HTML rest are RGB for enscript
-%colorCodes = (
-	       "RCD" => "#FF0000",
-	       "SNMI" => "#00BF00",
-	       "MSH" => "#0000FF"
-	       );
-
-$mshcolor = $colorCodes{"MSH"};
-$rcdcolor = $colorCodes{"RCD"};
-$snmicolor = $colorCodes{"SNMI"};
-
-$colorHeader = <<"EOD";
-<P>
-Color code for atoms: <SPAN STYLE="color: $mshcolor">MSH</SPAN>, 
-<SPAN STYLE="color: $rcdcolor">RCD</SPAN>, and
-<SPAN STYLE="color: $snmicolor">SNMI</SPAN>
-EOD
-
-
-# ORACLE vars
-#&oracleIF::init_oracle;
-#$oracleUSER = $query->param('user') || @{ $config{"user"} }->[0] || "meow";
-#$oraclePWD = &oracleIF::get_passwd("/etc/umls/oracle.passwd", $oracleUSER);
-#$oracleAUTH = "$oracleUSER/$oraclePWD";
-#$MIDservice = $query->param('service') || "editing-db";
-#$oracleTNS = $mid || $query->param('db') ||
-#    @{ $config{"db"} }->[0] || &midsvcs::get_mid_service($MIDservice);
-#$defaultTABLESPACE = "MID";
-
-#$oracleDBH = &oracleIF::connectDBD($oracleAUTH, $oracleTNS);
-#die "ERROR: Oracle not available for $oracleTNS\n" unless $oracleDBH;
 $db = $query->param('db');
 $db = "" if $db eq $na;
 $db = $db || Midsvcs->get($query->param('service') || 'editing-db');
-$password = GeneralUtils->getOraclePassword($user,$db);
+
 $dbh = new OracleIF({user=>$user, password=>$password, db=>$db});
 unless ($dbh) {
   &print_html("Sorry, the Oracle database: $db is not available at the current time.");
   exit 0;
 }
 
-#modify for time format, alter oracle session
-$dbh->executeStmt("alter session set NLS_DATE_FORMAT='dd-MON-yyyy hh24:mi:ss'");
-
-# Environment
-#$ENV{'PATH'} = "/bin:$ENV{'ORACLE_HOME'}/bin";
-#$ENV{'II_SYSTEM'}="/export/home/oracle";
-$cgi = $ENV{'SCRIPT_NAME'};
-#$emsURL = "/cgi-oracle-meowusers/ems.pl";
-#$wmsURL = "/cgi-oracle-meowusers/wms.pl";
-
 $emsURL = $main::EMSCONFIG{LEVEL0EMSURL};
 $wmsURL = $main::EMSCONFIG{LEVEL0WMSURL};
 
-# file containing all sources
-$sourcefile = "$ENV{'EMS_LOG_DIR'}/log/sources.txt";
-#$sourcefile = "/d3/ems/data/styqa/sources.$oracleTNS.cache";
-#$sourcefile = "/site2/umls-data/concept-report-data/sources.txt" unless -e $sourcefile;
-$allsources = "-- All Sources --";
-
-# want color reports? default is yes
-$color = 1 unless $query->param('color') eq "0" || $query->param('nocolor') eq "1";
-$colorHeader = "" unless $color;
-
 # fonts
 $fontsize = $query->param('fontsize') || $fontsize;
-$fontfamily = $query->param('font-family');
 # font-family : Verdana, Arial, Helvetica, Sans-serif;
 
 $format = $query->param('format') || "html";
@@ -171,1674 +167,892 @@ $midsvcs = Midsvcs->load;
 $lvghost = $midsvcs->{'lvg-server-host'};
 $lvgport = $midsvcs->{'lvg-server-port'};
 
+$action = $query->param('action') || "searchform";
+$action =~ s/\s+//g;
+$action =~ tr/A-Z/a-z/;
 
-$cgi = ($ENV{'SCRIPT_NAME'} || "/cgi-bin/concept-report-mid.pl");
-$cgiraw = ($ENV{'SCRIPT_NAME'} || "/cgi-bin/concept-report-mid.pl");
-$conceptReportRelease = "/cgi-bin/concept-report-mid.pl";
-#$conceptReportRelease = "/cgi-bin/ems2-release-cgi.pl";
-$filestosearch="filestosearch=mrcon,mrso,mrsty,mrrel,mrsat,mrlo,mrdef,mrcxt,mratx";
+$subaction = $query->param('subaction');
+$subaction =~ s/\s+//g;
+$subaction =~ tr/A-Z/a-z/;
 
-$meme_home = $query->param('meme_home') || $ENV{MEME_HOME};
-$meme_server = $query->param('meme_server') || "meme-server";
-
-$action = $action_map{$query->param('actionmap')} if (!$query->param('action') && $query->param('actionmap'));
-$action = $query->param('action') unless $action;
-
-unless ($action eq "randomconcepts") {
-    if ($format eq "text") {
-	&print_cgi_header("text/plain");	
-    } else {
-	&print_cgi_header("text/html");	
-    }
+# which parameters should be sticky
+@stickyparams = (
+		 'db',
+		 'service',
+		 'env-home',
+		 'env-file',
+		 'meme-server-hostport',
+		 'format',
+		 'r',
+		 'x',
+		 'lat');
+foreach $p ($query->param()) {
+  next unless grep { $_ eq $p } @stickyparams;
+  $v = $query->param($p);
+  next unless $v;
+  push @cgiGET,  $p . "=" . $v;
+  push @cgiPOST, $query->hidden(-name=>$p, -value=>$v, -override=>1);
 }
+$cgiGET  = join("&", @cgiGET);
+$cgiPOST = join("\n", @cgiPOST);
 
-if ($access eq "deny") {
-    my($comment) = join(' ', @{ @{ $config{"access"} }->[1] });
-
-    &print_html("Concept Report from MID Unavailable", <<"EOD");
-Concept reports from the MID are unavailable as of <EM>$now</EM>.  Please try again later.
-<P>
-$comment
-EOD
-    &print_trailer;
-    exit(0);
-}
-
-$searchtime = time;
-
-unless ($dbh) {
-    &print_html("Error: Oracle Database Not Available", <<"EOD");
-<EM>Oracle database: $db not available.</EM>
-EOD
-    exit 0;
-}
-
-if ($action) {
-
-    if ($action eq "searchbycui") {
-	&search_by_cui;
-    } elsif ($action eq "searchbyconceptid") {
-	&search_by_conceptid;
-    } elsif ($action eq "searchbyatomid") {
-	&search_by_atomid;
-    } elsif ($action eq "searchbysourcerowid") {
-	&search_by_sourcerowid;
-    } elsif ($action eq "searchbycode") {
-	&search_by_code;
-    } elsif ($action eq "searchbynormstr") {
-	&search_by_normstr;
-    } elsif ($action eq "searchbynormword") {
-	&search_by_normword;
-    } elsif ($action eq "normstrsearchform") {
-	&normstr_search_form;
-    } elsif ($action eq "normwordsearchform") {
-	&normword_search_form;
-    } elsif ($action eq "cuisearchform") {
-	&cui_search_form;
-    } elsif ($action eq "randomconcepts") {
-	&randomconcepts;
-    } elsif ($action eq "searchbyndccode") {
-	&search_by_ndc_code;
-	} elsif ($action eq "searchbyscui") {
-	&search_by_scui;
-	
-    } else {
-	&search_form;
-    }
-
+if ($allowableaction{$action}) {
+  eval { &$action };
 } else {
-    &search_form;
+  $@ = "Action: $action is not currently allowed.  Known actions are: " . join(', ', keys %allowableaction);
+}
+$error = ($@ || $DBI::errstr);
+if ($error) {
+  &print_html($error);
 }
 exit 0;
 
-# Basic search form
-sub search_form {
-  my($servicesHTML);
-  my($dbHTML);
-  my(%db);
+# Provides a form to search for concepts
+sub searchform {
+  my($html);
+  my(@subactionlabels, @subactionvalues);
 
-  
+  my(@services);
+  my(@databases);
+  my(@meme_hostport);
+  my(%default);
+  my(%x);
+  my(@rows);
+
   @databases = split /,/, $midsvcs->{databases};
   push @databases, $na;
   $default{databases} = $na;
-   %x = ();
+
+  %x = ();
   map { $x{$_}++ if /-db$/ } keys %$midsvcs;
   @services = sort keys %x;
   $default{services} = 'editing-db';
+  %servicelabels = map { $_ => $_ . " [" . $midsvcs->{$_} . "]" } @services;
 
-  foreach (@services) {
-    my($service, $database) = split /\|/, $_;
-    next if $service !~ /-db$/;
-    $db{$database}++;
-    $servicesHTML .= "<OPTION VALUE=\"$service\"" . ($service eq "editing-db" ? " SELECTED" : "") . "><FONT SIZE=$fontsize>$service  [$midsvcs->{$service}]</FONT>";
+  %x = ();
+  map { $x{$_}++ } split /,/, $midsvcs->{'meme-server-hostport'};
+  @meme_hostport = sort keys %x;
+  $default{meme_hostport} = join(':', $midsvcs->{'meme-server-host'}, $midsvcs->{'meme-server-port'});
+
+#  %x = ();
+#  map { $x{$midsvcs->{$_}}++ if /meme-server-host/ } keys %$midsvcs;
+#  @meme_hosts = sort keys %x;
+#  $default{meme_hosts} = $midsvcs->{"meme-server-host"};
+
+#  %x = ();
+#  map { $x{$midsvcs->{$_}}++ if /meme-server-port/ } keys %$midsvcs;
+#  @meme_ports = sort keys %x;
+#  $default{meme_ports} = $midsvcs->{"meme-server-port"};
+
+  $html .= $query->start_form(-method=>'POST');
+
+  @rows = ();
+  push @rows, $query->td([
+			  "Using Data source:",
+			  $query->popup_menu(-name=>'service', -values=>\@services, -labels=>\%servicelabels, -default=>$default{services}),
+			  " or database: ",
+			  $query->popup_menu(-name=>'db', -values=>\@databases, -default=>$default{databases})
+			 ]);
+  push @rows, $query->td([
+			  "MEME server on:",
+			  $query->popup_menu(-name=>'meme-server-hostport', -values=>\@meme_hostport, -default=>$default{meme_hostport})
+			  ]);
+  $html .= $query->table({-border=>0}, $query->Tr(\@rows));
+  $html .= $query->hr . $query->p;
+
+  $html .= "Look for " . $query->textfield(-name=>'arg', -size=>20) . " as ";
+
+  %subactionlabels = map { $_->[1] => $_->[0] } @searchsubaction;
+  @subactionvalues = map { $_->[1] } @searchsubaction;
+  $html .= " " . $query->popup_menu(-name=>'subaction', -values=>\@subactionvalues, -labels=>\%subactionlabels);
+
+  my(@sources) = MIDUtils->getClassesSources($dbh);
+  $html .= $query->p;
+  $html .= "Where applicable, restrict results to: ";
+  $html .= $query->scrolling_list(-name=>'source',
+				  -values=>\@sources,
+				  -size=>4,
+				  -multiple=>1,
+				  -valign=>'center');
+
+  $html .= $query->p;
+  $html .= $query->submit(-name=>"action", -value=>"Search");
+
+  $html .= $query->p . $query->hr . $query->p;
+  $html .= "Or, return a random sample: " . $query->submit(-name=>'action', -label=>'Random Atoms');
+
+  $html .= $query->end_form;
+  $html .= $query->end_html;
+
+  &print_html("Concept Report from the MID", $html);
+  return;
+}
+
+# Does the actual search
+sub search {
+  my($subaction) = $query->param('subaction');
+
+  unless (grep { $subaction eq $_->[1] } @searchsubaction) {
+    &print_html("Sorry, the subaction: $subaction for a search is not available at the current time.");
+    exit 0;
   }
-  $servicesHTML .= "<OPTION VALUE=\"\"><FONT SIZE=$fontsize>n/a</FONT>";
-
-  foreach $datbase (@databases) {
-#    next if $db{$datbase};
-    $dbHTML .= "<OPTION VALUE=\"$datbase\"><FONT SIZE=$fontsize>$datbase</FONT>";
-  }
-  $dbHTML .= "<OPTION VALUE=\"\" SELECTED><FONT SIZE=$fontsize>n/a</FONT>";
-
-  $javascript = <<"EOD";
-<SCRIPT LANGUAGE="JavaScript">
-function clearDB() {
-  for (var i=0; i<document.forms[0].db.length; i++) {
-    document.forms[0].db.options[i].selected = false;
-    if (document.forms[0].db.options[i].value == "") {
-      document.forms[0].db.options[i].selected = true;
-    }
-  }
-  return true;
-}
-function clearService() {
-  for (var i=0; i<document.forms[0].service.length; i++) {
-    document.forms[0].service.options[i].selected = false;
-    if (document.forms[0].service.options[i].value == "") {
-      document.forms[0].service.options[i].selected = true;
-    }
-  }
-  return true;
-}
-</SCRIPT>
-EOD
-
-  foreach $m ("meme-server", "test-meme-server") {
-    my($host) = $m . "-host";
-    my($port) = $m . "-port";
-    my($h) = $midsvcs->{$host};
-    my($p) = $midsvcs->{$port};
-    $memeHTML .= "<OPTION VALUE=\"$m\"><FONT SIZE=$fontsize>$m ($h, $p)</FONT>";
-  }
-
-  &print_html("Concept Report from the MID", <<"EOD");
-<FONT SIZE=$fontsize>
-This interface can be used to query the MID for concept reports.
-You can query for concepts using a flexible string matching algorithm or by typing
-in the concept identifiers directly.
-</FONT>
-
-<P>
-
-$javascript
-
-<FORM ACTION="$cgi" METHOD=post>
-
-<P>
-
-<TABLE CELLSPACING=1 CELLPADDING=10 BORDER=0>
-
-<TR>
-<TD>
-<FONT SIZE=$fontsize>Select a MID Service:</FONT>
-</TD>
-<TD>
-<FONT SIZE=$fontsize><SELECT NAME="service" OnChange="clearDB();">$servicesHTML</SELECT></FONT>
-</TD>
-</TR>
-
-<TR>
-<TD>
-<FONT SIZE=$fontsize>or a database:</FONT>
-</TD>
-<TD>
-<FONT SIZE=$fontsize><SELECT NAME="db" OnChange="clearService();">$dbHTML</SELECT></FONT>
-</TD>
-</TR>
-
-<TR>
-<TD>
-<FONT SIZE=$fontsize>MEME server parameters:</FONT>
-</TD>
-<TD>
-<FONT SIZE=$fontsize><SELECT NAME="meme_server">$memeHTML</SELECT></FONT>
-</TD>
-</TR>
-
-<TR>
-<TD VALIGN=top>
-<FONT SIZE=$fontsize>
-<INPUT TYPE=submit NAME="actionmap" VALUE="Search by Identifier">
-</FONT>
-</TD>
-<TD>
-<FONT SIZE=$fontsize>
-Use this if you know the unique identifiers for the concept (CUI or concept_id), the
-atoms within the concept (atom_id) or by source-specific identifiers (code).
-</FONT>
-</TD>
-</TR>
-
-<TR>
-<TD VALIGN=top>
-<FONT SIZE=$fontsize>
-<INPUT TYPE=submit NAME="actionmap" VALUE="Normalized String Search">
-</FONT>
-</TD>
-<TD>
-<FONT SIZE=$fontsize>
-Use this if you know an exact string representation for the concept you are searching for,
-modulo differences in case, inflection and word order.
-</FONT>
-</TD>
-</TR>
-
-<TR>
-<TD VALIGN=top>
-<FONT SIZE=$fontsize>
-<INPUT TYPE=submit NAME="actionmap" VALUE="Approximate Word Search">
-</FONT>
-</TD>
-<TD>
-<FONT SIZE=$fontsize>
-This is the broadest category of searching.  Given an arbitrary query consisting of one or
-more words, the best matching concepts are returned using word level normalization and
-frequency data.
-Use this option if you are looking for missed synonymy, for example.
-</FONT>
-</TD>
-</TR>
-
-<TR>
-<TD VALIGN=top>
-<FONT SIZE=$fontsize>
-<INPUT TYPE=submit NAME="actionmap" VALUE="Random Concepts">
-</FONT>
-</TD>
-<TD>
-<FONT SIZE=$fontsize>
-Use this option if you are not looking for any particular concept but want to browse
-what is there.
-</FONT>
-</TD>
-</TR>
-
-</TABLE>
-
-<INPUT TYPE=hidden NAME="meme_home" VALUE="$meme_home">
-</FORM>
-EOD
-    return;
-}
-
-# Form for normstr search
-sub normstr_search_form {
-    my(@sources);
-    my($sourceHTML);
-
-    $sourceHTML = &source2html();
-
-    &print_html("Concept Report from the MID - Normalized String Search", <<"EOD");
-<FONT SIZE=$fontsize>
-Submitting the following form returns concepts that match your query using a
-flexible, <EM>normalized</EM>
-(see: what is <A HREF="http://www.nlm.nih.gov/research/umls/META4.HTML#s48">normalized</A>?)
-string matching algorithm.
-
-<P>
-
-The string search algorithm uses the normalized string index which contains the normalized forms
-of all the strings in the database.  This is useful in finding concepts with terms whose
-general form is known.
-
-Examples: "<A HREF="$cgi?action=searchbynormstr&arg=blood%20clot&meme_home=$meme_home\#report">blood clot</A>"
-</FONT>
-
-<P>
-
-<FORM ACTION="$cgi" METHOD="post">
-
-<FONT SIZE=$fontsize>
-Enter a string:
-<P>
-<INPUT TYPE="text" NAME="arg" SIZE=40>
-$sourceHTML
-<P>
-<INPUT TYPE="hidden" NAME="action" VALUE="searchbynormstr">
-<INPUT TYPE="hidden" NAME="db" VALUE="$db">
-<INPUT TYPE="hidden" NAME="meme_home" VALUE="$meme_home">
-<INPUT TYPE="hidden" NAME="meme_server" VALUE="$meme_server">
-<INPUT TYPE="submit" VALUE="Get Matching Concepts">
-</FONT>
-</FORM>
-EOD
-    return;
-}
-
-# Form for normword search
-sub normword_search_form {
-    my(@sources);
-    my($sourceHTML);
-
-    $sourceHTML = &source2html();
-
-    &print_html("Concept Report from the MID - Approximate Word Search", <<"EOD");
-<FONT SIZE=$fontsize>
-Submitting the following form returns concepts that match your query using an
-approximate matching algorithm that uses word level normalization
-(see: what is <A HREF="http://www.nlm.nih.gov/research/umls/META4.HTML#s48">normalized</A>?).
-
-<P>
-
-This type of search may be useful for finding concepts that have words in common
-with your query.
-
-Examples: "<A HREF="$cgi?action=searchbynormword&arg=food%20allergies&rslimit=10&meme_home=$meme_home\#report">food allergies</A>".
-</FONT>
-
-<P>
-
-<FORM ACTION="$cgi" METHOD="post">
-
-<FONT SIZE=$fontsize>
-Enter your query:
-<P>
-<INPUT TYPE="text" NAME="arg" SIZE=40>
-$sourceHTML
-<P>
-Show the best <SELECT NAME="rslimit" SIZE=1><OPTION>100<OPTION>75<OPTION>50<OPTION SELECTED>25<OPTION>10<OPTION>5</SELECT> matches.
-<P>
-<INPUT TYPE="hidden" NAME="action" VALUE="searchbynormword">
-<INPUT TYPE="hidden" NAME="db" VALUE="$db">
-<INPUT TYPE="hidden" NAME="meme_home" VALUE="$meme_home">
-<INPUT TYPE="hidden" NAME="meme_server" VALUE="$meme_server">
-<INPUT TYPE="submit" VALUE="Get Matching Concepts">
-</FONT>
-</FORM>
-EOD
-    return;
-}
-
-# UI search form
-sub cui_search_form {
-    &print_html("Concept Report from the MID - Search by Identifier", <<"EOD");
-<FONT SIZE=$fontsize>
-Submitting this form returns a (textual) concept report for the concept
-with the identifier specified.  The identifier can be
-a CUI (Concept Unique Identifier), a concept_id (Concept ID),
-an atom_id (atom ID) source_row_id (internal) or a source\'s code.
-
-Examples:
-CUI: <A HREF="$cgi?action=searchbycui&arg=C0267170&db=$db&meme_home=$meme_home\#report">C0267170</A>,
-concept_id: <A HREF="$cgi?action=searchbyconceptid&arg=1040879&db=$db&meme_home=$meme_home\#report">1040879</A>, and
-atom_id: <A HREF="$cgi?action=searchbyatomid&arg=3397144&db=$db&meme_home=$meme_home\#report">3397144</A>
-
-</FONT>
-
-<P><HR>
-<FORM ACTION="$cgi" METHOD="post">
-
-<FONT SIZE=$fontsize>
-Enter ID: <INPUT TYPE="text" NAME="arg">
-</FONT>
-<BR>
-<FONT SIZE=$fontsize>
-Treat ID as: 
-<INPUT TYPE=radio NAME="action" VALUE="searchbycui">CUI
-<INPUT TYPE=radio checked NAME="action" VALUE="searchbyconceptid">concept_id
-<INPUT TYPE=radio NAME="action" VALUE="searchbyatomid">atom_id
-<INPUT TYPE=radio NAME="action" VALUE="searchbysourcerowid">source_row_id
-<INPUT TYPE=radio NAME="action" VALUE="searchbycode">code
-<INPUT TYPE=radio NAME="action" VALUE="searchbyndccode">NDC code
-<INPUT TYPE=radio NAME="action" VALUE="searchbyscui">source_cui
-<P>
-<INPUT TYPE="submit" VALUE="Get Concept Report">
-<INPUT TYPE="hidden" NAME="db" VALUE="$db">
-<INPUT TYPE="hidden" NAME="meme_home" VALUE="$meme_home">
-<INPUT TYPE="hidden" NAME="meme_server" VALUE="$meme_server">
-</FONT>
-</FORM>
-EOD
-    return;
-}
-
-# random concepts
-sub randomconcepts {
-    print <<"EOD";
-Location: $conceptReportRelease?action=randomcuis&versionscheme=new
-
-EOD
+  $sub = join("_", $action, "by", $subaction);
+  &$sub;
 }
 
 # Retrieves a report by Concept ID
-sub search_by_conceptid {
-    my($conceptid);
-    my($report);
-    my($cui);
+sub search_by_concept_id {
+  my($concept_id) = $query->param('arg');
+  my($report);
+  my($header) = "";
 
-    $conceptid = $query->param('arg');
-    $conceptid =~ s/^\s*//;
-    $conceptid =~ s/\s*$//;
-    $conceptid =~ s/[^$OK_CHARS]/_/go;
-    
-    unless ($conceptid && $conceptid =~ /^[0-9]*$/) {
-	&print_html("Missing or Malformed concept_id", <<"EOD");
-The concept_id you typed (\"$conceptid\") was malformed.  Legitimate concept_id\'s are integers, for example 52076818.
+  $concept_id =~ s/^\s*//;
+  $concept_id =~ s/\s*$//;
+  unless ($concept_id && $concept_id =~ /^[0-9]*$/) {
+    &print_html("Missing or Malformed concept_id", <<"EOD");
+The concept_id you typed (\"$concept_id\") was malformed.  Legitimate concept_id\'s are integers.
 Please refine the query and try again.
-EOD
-	return;
-    }
-
-    $reporttime = time;
-    $report = &report($conceptid);
-
-    if ($format eq "text") {
-	print $report;
-	return;
-    }
-
-    $reporttime = time - $reporttime;
-    $reportsecs = ($reporttime == 1 ? "second" : "seconds");
-
-    @cuis = &conceptutils::conceptid2cuis($dbh, $conceptid);
-    $cui = $cuis[0];
-
-    $colorCoded = <<"EOD";
-<A HREF=\"$cgi?action=searchbyconceptid&arg=$conceptid&color=1&db=$db&meme_home=$meme_home&meme_server=$meme_server\#report\">color-coded</A>
-EOD
-    $notColorCoded = <<"EOD";
-<A HREF=\"$cgi?action=searchbyconceptid&arg=$conceptid&nocolor=1&db=$db&meme_home=$meme_home&meme_server=$meme_server\#report\">not color-coded</A>
-EOD
-
-    $searchtime = time - $searchtime;
-    $searchsecs = ($searchtime == 1 ? "second" : "seconds");
-
-    $rHTML = &ropt2html;
-    $xHTML = &xopt2html;
-    $hiddenHTML = &args2html;
-
-    $onME = join(', ',  $dbh->selectAllAsArray("SELECT DISTINCT bin_name FROM ems_me_bins WHERE concept_id = $conceptid")) || "[none]";
-    $onQA = join(', ', $dbh->selectAllAsArray("SELECT DISTINCT bin_name FROM ems_qa_bins WHERE concept_id = $conceptid")) || "[none]";
-    $onAH = join(', ', $dbh->selectAllAsArray("SELECT DISTINCT bin_name FROM ems_ah_bins WHERE concept_id = $conceptid")) || "[none]";
-    $onWorklists = join(', ', map{ "<A HREF=\"$wmsURL?action=view&worklist=$_\">$_</A>" } $dbh->selectAllAsArray("SELECT DISTINCT worklist_name FROM ems_being_edited WHERE concept_id = $conceptid")) || "[none]";
-    $whyn = $query->a({-href=>"$emsURL?action=whyisthisn&concept_id=$conceptid&db=$db"}, "Why is this concept in N status?");
-
-    &print_html("Concept Report for concept_id: $conceptid", <<"EOD");
-<FONT SIZE=$fontsize>Time to generate report: $searchtime $searchsecs (DB: $reporttime $reportsecs)</FONT><BR>
-<P>
-<FONT SIZE=$fontsize>
-$colorHeader
-</FONT>
-<P>
-
-<HR>
-<H2>Report Display Options</H2>
-
-<FORM ACTION="$cgi" METHOD=POST>
-<FONT SIZE=$fontsize>
-Relationship View: $rHTML Context View: $xHTML <INPUT TYPE=SUBMIT VALUE="Refresh">
-$hiddenHTML
-</FONT>
-</FORM>
-<FORM ACTION="$cgi" METHOD=POST>
-<FONT SIZE=$fontsize>
-CUI-centric report for CUI editing: <INPUT TYPE=SUBMIT VALUE="Get It">
-$hiddenHTML
-<INPUT TYPE=hidden NAME="M" VALUE="1">
-</FONT>
-</FORM>
-
-<P>
-
-<HR>
-<H2>EMS and WMS Information for this Concept</H2>
-<TABLE CELLPADDING=1>
-<TR><TD><FONT SIZE=$fontsize>Concept is in ME bin:</FONT></TD><TD><FONT SIZE=$fontsize>$onME</FONT></TD></TR>
-<TR><TD><FONT SIZE=$fontsize>Concept is in QA bins:</FONT></TD><TD><FONT SIZE=$fontsize>$onQA</FONT></TD></TR>
-<TR><TD><FONT SIZE=$fontsize>Concept is in AH bins:</FONT></TD><TD><FONT SIZE=$fontsize>$onAH</FONT></TD></TR>
-<TR><TD><FONT SIZE=$fontsize>Concept is on worklist:</TD><TD><FONT SIZE=$fontsize>$onWorklists</FONT></TD></TR>
-<TR><TD><FONT SIZE=$fontsize>$whyn</TD><TD><FONT SIZE=$fontsize></FONT></TD></TR>
-</TABLE>
-
-<P>
-<HR>
-<P>
-<FORM ACTION="/cgi-bin/showattributes.pl" METHOD="POST" target="_new">
-<FONT SIZE=$fontsize>
-Click here to view all the attributes of this concept $concept_id  <INPUT TYPE=SUBMIT VALUE="Get All Attributes">
-$hiddenHTML
-</FONT>
-</FORM>
-<P>
-<HR>
-
-<FONT SIZE=$fontsize>
-<A TARGET="sample_report" HREF="/concept-report/sample-report.html">Click here</A> for help on how to read a report (will open a separate window).
-</FONT>
-
-<P>
-<HR>
-<A NAME="report"><P></A>
-
-<TABLE BORDER=1 CELLPADDING=20>
-
-<TD>
-
-<H1>Concept Report</H1>
-$report
-</TD>
-</TABLE>
-
-<P><HR>
-<H1>See Also</H1>
-<FONT SIZE=$fontsize>
-<UL>
-<LI>This report with atoms $colorCoded and $notColorCoded
-</UL>
-
-EOD
-}
-
-sub search_by_atomid {
-    my($atomid);
-    my($tmpfile);
-    my($body);
-    my($conceptid);
-    my(@x);
-    my($SQL);
-    my(@rows);
-    
-    $atomid = $query->param('arg');
-    $atomid =~ s/^\s*//;
-    $atomid =~ s/\s*$//;
-    $atomid =~ s/[^$OK_CHARS]/_/go;
-
-    unless ($atomid && $atomid =~ /^[0-9]*$/) {
-	&print_html("Missing or Malformed atom_id", <<"EOD");
-The atom_id you typed (\"$atomid\") was malformed.  Legitimate atom_id\'s are integers, for example 52076818.
-Please refine the query and try again.
-EOD
-	return;
-    }
-
-  my(@cols) = qw(concept_id atom_id atom_name source termgroup code);
-
-# Get matching concept_id
-    $SQL = <<"EOD";
-SELECT c.concept_id, c.atom_id, a.atom_name, c.source, c.termgroup, c.code FROM classes c, atoms a WHERE
-    c.atom_id = a.atom_id AND
-    c.atom_id = \'$atomid\'
-EOD
-
-   @fields = $dbh->selectFirstAsRef($SQL);
-   $w = $dbh->row2ref(@fields, @cols);
-   $conceptid=$w->{concept_id};
-
-    unless ($conceptid && $conceptid =~ /^\d+/) {
-	&print_html("Concept Report for atom_id: $atomid", <<"EOD");
-<EM>No matching concept for atom_id: $atomid found.</EM>
-EOD
-	return;
-    }
-
-    $reporttime = time;
-    $report = &report($conceptid);
-
-    if ($format eq "text") {
-	print $report;
-	return;
-    }
-
-    $reporttime = time - $reporttime;
-    $reportsecs = ($reporttime == 1 ? "second" : "seconds");
-
-    @cuis = &conceptutils::conceptid2cuis($dbh, $conceptid);
-    $cui = $cuis[0];
-
-    $colorCoded = <<"EOD";
-<A HREF=\"$cgi?action=searchbyconceptid&arg=$conceptid&color=1&db=$db&meme_home=$meme_home&meme_server=$meme_server\#report\">color-coded</A>
-EOD
-    $notColorCoded = <<"EOD";
-<A HREF=\"$cgi?action=searchbyconceptid&arg=$conceptid&nocolor=1&db=$db&meme_home=$meme_home&meme_server=$meme_server\#report\">not color-coded</A>
-EOD
-
-    $searchtime = time - $searchtime;
-    $searchsecs = ($searchtime == 1 ? "second" : "seconds");
-
-    $rHTML = &ropt2html;
-    $xHTML = &xopt2html;
-    $hiddenHTML = &args2html;
-
-    $onME = join(', ', $dbh->selectAllAsArray("SELECT DISTINCT bin_name FROM ems_me_bins WHERE concept_id = $conceptid")) || "[none]";
-    $onQA = join(', ', $dbh->selectAllAsArray("SELECT DISTINCT bin_name FROM ems_qa_bins WHERE concept_id = $conceptid")) || "[none]";
-    $onAH = join(', ', $dbh->selectAllAsArray("SELECT DISTINCT bin_name FROM ems_ah_bins WHERE concept_id = $conceptid")) || "[none]";
-    $onWorklists = join(', ', map{ "<A HREF=\"$wmsURL?action=view&worklist=$_\">$_</A>" } $dbh->selectAllAsArray("SELECT DISTINCT worklist_name FROM ems_being_edited WHERE concept_id = $conceptid")) || "[none]";
-
-    &print_html("Concept Report for atom_id: $atomid (in concept: $conceptid)", <<"EOD");
-<FONT SIZE=$fontsize>Time to generate report: $searchtime $searchsecs (DB: $reporttime $reportsecs)</FONT><BR>
-<P>
-
-<FONT SIZE=$fontsize>
-$colorHeader
-</FONT>
-<P>
-
-<HR>
-<H2>Report Display Options</H2>
-
-<FORM ACTION="$cgi" METHOD=POST>
-<FONT SIZE=$fontsize>
-Relationship View: $rHTML Context View: $xHTML <INPUT TYPE=SUBMIT VALUE="Refresh">
-$hiddenHTML
-</FONT>
-</FORM>
-<FORM ACTION="$cgi" METHOD=POST>
-<FONT SIZE=$fontsize>
-CUI-centric report for CUI editing: <INPUT TYPE=SUBMIT VALUE="Get It">
-$hiddenHTML
-<INPUT TYPE=hidden NAME="M" VALUE="1">
-</FONT>
-</FORM>
-
-<P>
-
-<HR>
-<H2>EMS and WMS Information for this Concept</H2>
-<TABLE CELLPADDING=1>
-<TR><TD><FONT SIZE=$fontsize>Concept is in ME bin:</FONT></TD><TD><FONT SIZE=$fontsize>$onME</FONT></TD></TR>
-<TR><TD><FONT SIZE=$fontsize>Concept is in QA bins:</FONT></TD><TD><FONT SIZE=$fontsize>$onQA</FONT></TD></TR>
-<TR><TD><FONT SIZE=$fontsize>Concept is in AH bins:</FONT></TD><TD><FONT SIZE=$fontsize>$onAH</FONT></TD></TR>
-<TR><TD><FONT SIZE=$fontsize>Concept is on worklist:</TD><TD><FONT SIZE=$fontsize>$onWorklists</FONT></TD></TR>
-</TABLE>
-
-
-<P><HR>
-<P>
-<FORM ACTION="/cgi-bin/showattributes.pl" METHOD="POST" target="_new">
-<FONT SIZE=$fontsize>
-Click here to view all the attributes of this concept $concept_id  <INPUT TYPE=SUBMIT VALUE="Get All Attributes">
-$hiddenHTML
-</FONT>
-</FORM>
-<P>
-<HR>
-<FONT SIZE=$fontsize>
-<A TARGET="sample_report" HREF="/concept-report/sample-report.html">Click here</A> for help on how to read a report (will open a separate window).
-</FONT>
-
-<P>
-<HR>
-<H1>Matching Atom</H1>
-<TABLE BORDER=1 CELLSPACING=1 CELLPADDING=5 WIDTH="90%">
-<TR>
-<TH><FONT SIZE=$fontsize>Atom ID</FONT></TH>
-<TH><FONT SIZE=$fontsize>Atom Name</FONT></TH>
-<TH><FONT SIZE=$fontsize>Source</FONT></TH>
-<TH><FONT SIZE=$fontsize>Termgroup</FONT></TH>
-<TH><FONT SIZE=$fontsize>Code</FONT></TH>
-</TR>
-<TR>
-<TD ALIGN=center><FONT SIZE=$fontsize>$atomid</FONT></TD>
-<TD ALIGN=center><FONT SIZE=$fontsize>$w->{atom_name}</FONT></TD>
-<TD ALIGN=center><FONT SIZE=$fontsize>$w->{source}</FONT></TD>
-<TD ALIGN=center><FONT SIZE=$fontsize>$w->{termgroup}</FONT></TD>
-<TD ALIGN=center><FONT SIZE=$fontsize>$w->{code}</FONT></TD>
-</TR>
-</TABLE>
-<P>
-
-<A NAME="report"><P></A>
-
-<TABLE BORDER=1 CELLPADDING=20>
-
-<TD>
-<H1>Concept Report</H1>
-$report
-</TD>
-</TABLE>
-
-<P><HR>
-<H1>See Also</H1>
-<FONT SIZE=$fontsize>
-<UL>
-<LI>This report with atoms $colorCoded and $notColorCoded
-<LI>Search the last release for this concept (CUI: <A HREF="$conceptReportRelease?action=searchbycui&arg=$cui&$filestosearch">$cui</A>)
-<LI>Show frequently <A HREF="$conceptReportRelease?action=showcooc&arg=$cui&conceptid=$conceptid&db=$db&meme_home=$meme_home">co-occurring concepts</A> from the last release
-<!-- <LI>Raw table data for <A HREF="/cgi-bin/concept-report-raw.pl?db=$db&id=$conceptid">this concept</A> -->
-</UL>
-</FONT>
 EOD
     return;
-}
+  }
 
-# search for concepts by source_row_id
-sub search_by_sourcerowid {
-    my($source_row_id) = $query->param('arg');
-    my($SQL);
-    my(@rows);
-    my(@atomids, $atomid);
-    my($n);
-    
-    $source_row_id =~ s/^\s*//;
-    $source_row_id =~ s/\s*$//;
+  $currentconcept = $concept_id;
+  $reporttime = time;
+  $report = join("\n",
+		 $query->h1("Concept Report for ID: $concept_id"),
+		 &report($concept_id)
+		);
 
-    unless ($source_row_id && $source_row_id =~ /^[0-9]*$/) {
-	&print_html("Missing or Malformed source_row_id", <<"EOD");
-The source_row_id you typed (\"$source_row_id\") was malformed.
-Legitimate source_row_id\'s are integers, for example 47553210.
-Please refine the query and try again.
-EOD
-	return;
-    }
+  $reporttime = time - $reporttime;
+  $reporttime .= ($reporttime == 1 ? " second" : " seconds");
 
-    @atomids = &conceptutils::sourcerowid2atomids($dbh, $source_row_id);
+  $html .= join("\n",
+		$query->start_form(-method=>'POST'),
+		&leader,
+		$query->a({-name=>"report"}, $query->p),
+		$query->table({-border=>1, cellpadding=>20}, $query->Tr($query->td($report))),
+		$query->p,
+		"Time to generate report: $reporttime");
 
-    unless (@atomids) {
-	&print_html("No matching atoms for source_row_id: $source_row_id", <<"EOD");
-<EM>No matching atoms for source_row_id: $source_row_id found.</EM>
-EOD
-	return;
-    }
-
-    foreach $atomid (grep { $U{$_}++ < 1 } sort @atomids) {
-
-	$SQL = <<"EOD";
-SELECT c.concept_id, c.atom_id, a.atom_name, c.source, c.termgroup, c.code FROM classes c, atoms a WHERE
-    c.atom_id = a.atom_id and
-    c.atom_id = \'$atomid\'
-EOD
-        @fields = $dbh->selectFirstAsArray($SQL);
-
-	$n++;
-	$html .= <<"EOD";
-<TR>
-<TD>$n</TD>
-<TD><FONT SIZE=$fontsize>$atomid</FONT><BR></TD>
-<TD><FONT SIZE=$fontsize><A HREF="$cgi?action=searchbyconceptid&arg=$fields[0]&meme_home=$meme_home&meme_server=$meme_server&db=$db\#report">$fields[0]</A></FONT><BR></TD>
-<TD><FONT SIZE=$fontsize>$fields[2]</FONT><BR></TD>
-<TD><FONT SIZE=$fontsize>$fields[4]</FONT><BR></TD>
-<TD><FONT SIZE=$fontsize>$fields[5]</FONT><BR></TD>
-</TR>
-EOD
-    }
-
-    &print_html("Matching atoms for source_row_id: $source_row_id", <<"EOD");
-<FONT SIZE=$fontsize>
-The following atoms were retrieved for the source_row_id: $source_row_id.
-Select the concept ID to see the matching concept report.
-</FONT>
-<P>
-<TABLE CELLSPACING=1 CELLPADDING=5 BORDER=1 WIDTH="90%">
-<TR>
-<TH></TH>
-<TH><FONT SIZE=$fontsize>atom_id</FONT></TH>
-<TH><FONT SIZE=$fontsize>Concept ID</FONT></TH>
-<TH><FONT SIZE=$fontsize>Atom Name</FONT></TH>
-<TH><FONT SIZE=$fontsize>Termgroup</FONT></TH>
-<TH><FONT SIZE=$fontsize>Code</FONT></TH>
-</TR>
-$html
-</TABLE>
-EOD
+  &print_html($header, $html);
 }
 
 sub search_by_cui {
-    my($cui);
-    my($tmpfile);
-    my($body);
-    my($conceptid);
-    
-    $cui = $query->param('arg');
-    $cui =~ s/^\s*//;
-    $cui =~ s/\s*$//;
-    $cui =~ s/[^$OK_CHARS]/_/go;
-    
+  my($cui) = MIDUtils->makeCUI($query->param('arg'));
 
-    unless ($cui && $cui =~ /^[cC][0-9]*$/) {
-	&print_html("Malformed or Missing CUI", <<"EOD");
-The CUI you typed (\"$cui\") was missing or malformed.  CUI\'s consist of a sequence of
-digits preceded by the character 'C'.  Example: C0344595.  Please reformulate your query
-and try again.
-EOD
-        return;
-    }
-
-    $conceptid = &conceptutils::cui2conceptid($dbh, $cui);
-
-    unless ($conceptid && $conceptid =~ /^\d+/) {
-	&print_html("Concept Report for CUI: $cui", <<"EOD");
-<EM>No matching concept for CUI: $cui found.</EM>
-EOD
-        return;
-    }
-
-    $reporttime = time;
-    my($report) = &report($conceptid);
-
-    if ($format eq "text") {
-	print $report;
-	return;
-    }
-
-    $reporttime = time - $reporttime;
-    $reportsecs = ($reporttime == 1 ? "second" : "seconds");
-
-    $colorCoded = <<"EOD";
-<A HREF=\"$cgi?action=searchbyconceptid&arg=$conceptid&color=1&db=$db&meme_home=$meme_home&meme_server=$meme_server\#report\">color-coded</A>
-EOD
-    $notColorCoded = <<"EOD";
-<A HREF=\"$cgi?action=searchbyconceptid&arg=$conceptid&nocolor=1&db=$db&meme_home=$meme_home&meme_server=$meme_server\#report\">not color-coded</A>
-EOD
-
-    $searchtime = time - $searchtime;
-    $searchsecs = ($searchtime == 1 ? "second" : "seconds");
-
-    $rHTML = &ropt2html;
-    $xHTML = &xopt2html;
-    $hiddenHTML = &args2html;
-
-    $onME = join(', ', $dbh->selectAllAsArray("SELECT DISTINCT bin_name FROM ems_me_bins WHERE concept_id = $conceptid")) || "[none]";
-    $onQA = join(', ', $dbh->selectAllAsArray("SELECT DISTINCT bin_name FROM ems_qa_bins WHERE concept_id = $conceptid")) || "[none]";
-    $onAH = join(', ', $dbh->selectAllAsArray("SELECT DISTINCT bin_name FROM ems_ah_bins WHERE concept_id = $conceptid")) || "[none]";
-    $onWorklists = join(', ', map{ "<A HREF=\"$wmsURL?action=view&worklist=$_\">$_</A>" } $dbh->selectAllAsArray("SELECT DISTINCT worklist_name FROM ems_being_edited WHERE concept_id = $conceptid")) || "[none]";
-
-    &print_html("Concept Report for CUI: $cui in concept with concept_id: $conceptid", <<"EOD");
-<FONT SIZE=$fontsize>Time to generate report: $searchtime $searchsecs (DB: $reporttime $reportsecs)</FONT><BR>
-<P>
-<FONT SIZE=$fontsize>
-$colorHeader
-</FONT>
-<P>
-
-<HR>
-<H2>Report Display Options</H2>
-
-<FORM ACTION="$cgi" METHOD=POST>
-<FONT SIZE=$fontsize>
-Relationship View: $rHTML Context View: $xHTML <INPUT TYPE=SUBMIT VALUE="Refresh">
-$hiddenHTML
-</FONT>
-</FORM>
-<P>
-<FORM ACTION="$cgi" METHOD=POST>
-<FONT SIZE=$fontsize>
-CUI-centric report for CUI editing: <INPUT TYPE=SUBMIT VALUE="Get It">
-$hiddenHTML
-<INPUT TYPE=hidden NAME="M" VALUE="1">
-</FONT>
-</FORM>
-
-<P>
-
-<HR>
-<H2>EMS and WMS Information for this Concept</H2>
-<TABLE CELLPADDING=1>
-<TR><TD><FONT SIZE=$fontsize>Concept is in ME bin:</FONT></TD><TD><FONT SIZE=$fontsize>$onME</FONT></TD></TR>
-<TR><TD><FONT SIZE=$fontsize>Concept is in QA bins:</FONT></TD><TD><FONT SIZE=$fontsize>$onQA</FONT></TD></TR>
-<TR><TD><FONT SIZE=$fontsize>Concept is in AH bins:</FONT></TD><TD><FONT SIZE=$fontsize>$onAH</FONT></TD></TR>
-<TR><TD><FONT SIZE=$fontsize>Concept is on worklist:</TD><TD><FONT SIZE=$fontsize>$onWorklists</FONT></TD></TR>
-</TABLE>
-
-<P>
-<HR>
-<P>
-<FORM ACTION="/cgi-bin/showattributes.pl" METHOD="POST" target="_new">
-<FONT SIZE=$fontsize>
-Click here to view all the attributes of this concept $concept_id  <INPUT TYPE=SUBMIT VALUE="Get All Attributes">
-$hiddenHTML
-</FONT>
-</FORM>
-<P>
-<HR>
-
-<FONT SIZE=$fontsize>
-<A TARGET="sample_report" HREF="/concept-report/sample-report.html">Click here</A> for help on how to read a report (will open a separate window).
-</FONT>
-
-<P>
-<A NAME="report"><P></A>
-
-<TABLE BORDER=1 CELLPADDING=20>
-
-<TD>
-<H1>Concept Report</H1>
-$report
-</TD>
-</TABLE>
-
-<P><HR>
-<H1>See Also</H1>
-<FONT SIZE=$fontsize>
-<UL>
-<LI>This report with atoms $colorCoded and $notColorCoded
-<LI>Search the last release for this concept (CUI: <A HREF="$conceptReportRelease?action=searchbycui&arg=$cui&$filestosearch">$cui</A>)
-<LI>Show frequently <A HREF="$conceptReportRelease?action=showcooc&arg=$cui&conceptid=$conceptid&db=$db&meme_home=$meme_home">co-occurring concepts</A> from the last release
-<!-- <LI>Raw table data for <A HREF="/cgi-bin/concept-report-mid.pl?db=$db&id=$conceptid">this concept</A> -->
-</UL>
-</FONT>
+  unless ($cui && $cui =~ /^C\d+$/) {
+    my($usercui) = $query->param('cui');
+    &print_html("Missing or Malformed CUI", <<"EOD");
+The CUI you entered (\"$usercui\") was malformed.  Legitimate CUIs are integers,
+or strings with leading "C" followed by 7 digits, for example C0010221.
+Please refine the query and try again.
 EOD
     return;
+  }
+  $header = "MID concept report for CUI: $cui";
+  $reporttime = time;
+
+  my(@concept_ids) = MIDUtils->cui2concept_id($dbh, $cui);
+  my($concept_id);
+
+  if (@concept_ids) {
+    if (@concept_ids>1) {
+      my($a, @rows);
+
+      $html .= "There are multiple concepts that match this CUI";
+      foreach $concept_id (@concept_ids) {
+	$a = $query->address($query->a({-href=>$query->script_name() . "?action=search&subaction=concept_id&arg=$concept_id&$cgiGET"}, $concept_id));
+	push @rows, $query->td([$a, $cui, MIDUtils->conceptPreferredName($concept_id)]);
+      }
+      $html .= $query->table({-border=>1, -cellpadding=>5, -cellspacing=>0}, $query->Tr(\@rows));
+
+    } else {
+
+      $concept_id = $concept_ids[0];
+      my($a) = $query->script_name() . "?action=search&subaction=concept_id&arg=$concept_id&$cgiGET";
+      print $query->redirect($a);
+    }
+  } else {
+    $html .= "Sorry, no matches were found for CUI: $cui";
+  }
+
+  $reporttime = time - $reporttime;
+  $reporttime .= ($reporttime == 1 ? " second" : " seconds");
+  $html .= $query->p . "Time to generate report: $reporttime";
+  &print_html($header, $html);
 }
 
-sub search_by_ndc_code {
-    my($code) = $query->param('arg');
-    my($tmpfile);
-    my($body);
-    my($conceptid);
-    
-    $code =~ s/^\s*//;
-    $code =~ s/\s*$//;
+sub search_by_atom_id {
+  my($atom_id) = $query->param('arg');
 
-    unless ($code) {
-	&print_html("Malformed or Missing NDC Code", <<"EOD");
-Please reformulate your query and try again.
-EOD
-        return;
-    }
-
-    @atom_ids = &conceptutils::ndccode2atomids($dbh, $code);
-    unless (@atom_ids) {
-	&print_html("No atoms for ndc code: $code", <<"EOD");
-<EM>No matching atoms for ndc code: "$code" found.</EM>
-EOD
-	return;
-    }
-    my(@cols) = qw(concept_id atom_id atom_name source termgroup code);
-
-    foreach $atomid (@atom_ids) {
-	$SQL = <<"EOD";
-SELECT c.concept_id, c.atom_id, a.atom_name, c.source, c.termgroup, c.code FROM classes c, atoms a WHERE
-    c.atom_id = a.atom_id and
-    c.atom_id = \'$atomid\'
-EOD
-        @fields = $dbh->selectFirstAsRef($SQL);
-        $w = $dbh->row2ref(@fields, @cols);
-	$conceptid=$w->{concept_id};
-	$html .= <<"EOD";
-
-<TR>
-<TD ALIGN=right><FONT SIZE=$fontsize><A HREF="$cgi?action=searchbyatomid&arg=$atomid&meme_home=$meme_home&meme_server=$meme_server&db=$db\#report">$atomid</A></FONT></TD>
-<TD><FONT SIZE=$fontsize>$w->{atom_name}</FONT></TD>
-<TD><FONT SIZE=$fontsize>$w->{source}</FONT></TD>
-<TD><FONT SIZE=$fontsize>$w->{termgroup}</FONT></TD>
-<TD><FONT SIZE=$fontsize>$w->{code}</FONT></TD>
-</TR>
-
-EOD
-    }
-
-    $searchtime = time - $searchtime;
-    $searchsecs = ($searchtime == 1 ? "second" : "seconds");
-
-    &print_html("Matching Atoms for NDC Code: $code", <<"EOD");
-<FONT SIZE=$fontsize>Time to generate report: $searchtime $searchsecs</FONT><BR>
-<P>
-<FONT SIZE=$fontsize>
-Select the atom ID to see the matching concept report.
-</FONT>
-<P>
-<TABLE CELLSPACING=1 CELLPADDING=5 BORDER=1 WIDTH="90%">
-<TR>
-<TH><FONT SIZE=$fontsize>Atom ID</FONT></TH>
-<TH><FONT SIZE=$fontsize>Atom Name</FONT></TH>
-<TH><FONT SIZE=$fontsize>Source</FONT></TH>
-<TH><FONT SIZE=$fontsize>Termgroup</FONT></TH>
-<TH><FONT SIZE=$fontsize>Code</FONT></TH>
-</TR>
-$html
-</TABLE>
+  unless ($atom_id && $atom_id =~ /^\d+$/) {
+    &print_html("Missing or Malformed atom_id", <<"EOD");
+The atom_id you entered (\"$atom_id\") was malformed.  Legitimate atom_ids are integers.
+Please refine the query and try again.
 EOD
     return;
+  }
+  $header = "MID concept report for atom_id: $atom_id";
+  $reporttime = time;
+
+  my($info) = MIDUtils->atomInfo($dbh, $atom_id);
+  my($concept_id) = $info->{concept_id};
+  my(@atomrows);
+
+  push @atomrows, $query->th(['name','source','tty','code','language']);
+  push @atomrows, $query->td([$info->{atom_name}, map { $info->{$_} } qw(source tty code language)]);
+  $html .= $query->table({border=>1, cellpadding=>5}, $query->Tr(\@atomrows));
+  $html .= $query->p;
+
+  $report = &report($concept_id);
+
+  $reporttime = time - $reporttime;
+  $reporttime .= ($reporttime == 1 ? " second" : " seconds");
+
+  $html .= $query->table({-border=>1, cellpadding=>20}, $query->Tr($query->td($report))) .
+    $query->p . "Time to generate report: $reporttime";
+  &print_html($header, $html);
 }
 
+# searches by CODE
 sub search_by_code {
-    my($code) = $query->param('arg');
-    my($tmpfile);
-    my($body);
-    my($conceptid);
-    
-    $code =~ s/^\s*//;
-    $code =~ s/\s*$//;
+  my($code) = $query->param('arg');
+  my(@sources) = $query->param('source');
 
-    unless ($code) {
-	&print_html("Malformed or Missing Code", <<"EOD");
-Please reformulate your query and try again.
-EOD
-        return;
-    }
-
-    @atom_ids = &conceptutils::code2atomids($dbh, $code);
-    unless (@atom_ids) {
-	&print_html("No atoms for code: $code", <<"EOD");
-<EM>No matching atoms for code: "$code" found.</EM>
-EOD
-	return;
-    }
-    my(@cols) = qw(concept_id atom_id atom_name source termgroup code);
-
-    foreach $atomid (@atom_ids) {
-	$SQL = <<"EOD";
-SELECT c.concept_id, c.atom_id, a.atom_name, c.source, c.termgroup, c.code FROM classes c, atoms a WHERE
-    c.atom_id = a.atom_id and
-    c.atom_id = \'$atomid\'
-EOD
-        @fields = $dbh->selectFirstAsRef($SQL);
-        $w = $dbh->row2ref(@fields, @cols);
-	$conceptid=$w->{concept_id};
-	$html .= <<"EOD";
-
-<TR>
-<TD ALIGN=right><FONT SIZE=$fontsize><A HREF="$cgi?action=searchbyatomid&arg=$atomid&meme_home=$meme_home&meme_server=$meme_server&db=$db\#report">$atomid</A></FONT></TD>
-<TD><FONT SIZE=$fontsize>$w->{atom_name}</FONT></TD>
-<TD><FONT SIZE=$fontsize>$w->{source}</FONT></TD>
-<TD><FONT SIZE=$fontsize>$w->{termgroup}</FONT></TD>
-<TD><FONT SIZE=$fontsize>$w->{code}</FONT></TD>
-</TR>
-
-EOD
-    }
-
-    $searchtime = time - $searchtime;
-    $searchsecs = ($searchtime == 1 ? "second" : "seconds");
-
-    &print_html("Matching Atoms for Code: $code", <<"EOD");
-<FONT SIZE=$fontsize>Time to generate report: $searchtime $searchsecs</FONT><BR>
-<P>
-<FONT SIZE=$fontsize>
-Select the atom ID to see the matching concept report.
-</FONT>
-<P>
-<TABLE CELLSPACING=1 CELLPADDING=5 BORDER=1 WIDTH="90%">
-<TR>
-<TH><FONT SIZE=$fontsize>Atom ID</FONT></TH>
-<TH><FONT SIZE=$fontsize>Atom Name</FONT></TH>
-<TH><FONT SIZE=$fontsize>Source</FONT></TH>
-<TH><FONT SIZE=$fontsize>Termgroup</FONT></TH>
-<TH><FONT SIZE=$fontsize>Code</FONT></TH>
-</TR>
-$html
-</TABLE>
+  unless ($code) {
+    &print_html("Missing CODE", <<"EOD");
+Please refine the query and try again.
 EOD
     return;
+  }
+  if (uc($code) eq "NOCODE") {
+    &print_html("NOCODE is not an allowed code", <<"EOD");
+Please refine the query and try again.
+EOD
+    return;
+  }
+  $header = "MID concept report for CODE: $code";
+  $reporttime = time;
+
+  my(@atom_ids) = MIDUtils->code2atom_id($dbh, $code, \@sources);
+
+#    if (@atom_ids == 1) {
+#      $atom_id=$atom_ids[0];
+#      $a = $query->script_name() . "?action=search&subaction=atom_id&arg=$atom_id&$cgiGET";
+#      print $query->redirect($a);
+#      return;
+#    }
+
+  $html .= &matching_atoms($dbh, \@atom_ids);
+
+  $reporttime = time - $reporttime;
+  $reporttime .= ($reporttime == 1 ? " second" : " seconds");
+
+  $html .= $query->p . "Time to generate report: $reporttime";
+
+  &print_html($header, $html);
 }
 
-# new - search by source_cui
-sub search_by_scui {
-    my($scui) = $query->param('arg');
-    my($tmpfile);
-    my($body);
-    my($conceptid);
-    
-    $scui =~ s/^\s*//;
-    $scui =~ s/\s*$//;
+sub search_by_source_row_id {
+  my($source_row_id) = $query->param('arg');
 
-    unless ($scui) {
-	&print_html("Malformed or Missing source_cui", <<"EOD");
-Please reformulate your query and try again.
-EOD
-        return;
-    }
-
-    @atom_ids = &conceptutils::scui2atomids($dbh, $scui);
-    unless (@atom_ids) {
-	&print_html("No atoms for source_cui: $scui", <<"EOD");
-<EM>No matching atoms for scui: "$scui" found.</EM>
-EOD
-	return;
-    }
-    my(@cols) = qw(concept_id atom_id atom_name source termgroup code);
-
-    foreach $atomid (@atom_ids) {
-	$SQL = <<"EOD";
-SELECT c.concept_id, c.atom_id, a.atom_name, c.source, c.termgroup, c.code FROM classes c, atoms a WHERE
-    c.atom_id = a.atom_id and
-    c.atom_id = \'$atomid\'
-EOD
-        @fields = $dbh->selectFirstAsRef($SQL);
-        $w = $dbh->row2ref(@fields, @cols);
-	$conceptid=$w->{concept_id};
-	$html .= <<"EOD";
-
-<TR>
-<TD ALIGN=right><FONT SIZE=$fontsize><A HREF="$cgi?action=searchbyatomid&arg=$atomid&meme_home=$meme_home&meme_server=$meme_server&db=$db\#report">$atomid</A></FONT></TD>
-<TD><FONT SIZE=$fontsize>$w->{atom_name}</FONT></TD>
-<TD><FONT SIZE=$fontsize>$w->{source}</FONT></TD>
-<TD><FONT SIZE=$fontsize>$w->{termgroup}</FONT></TD>
-<TD><FONT SIZE=$fontsize>$w->{code}</FONT></TD>
-</TR>
-
-EOD
-    }
-
-    $searchtime = time - $searchtime;
-    $searchsecs = ($searchtime == 1 ? "second" : "seconds");
-
-    &print_html("Matching Atoms for source_cui: $scui", <<"EOD");
-<FONT SIZE=$fontsize>Time to generate report: $searchtime $searchsecs</FONT><BR>
-<P>
-<FONT SIZE=$fontsize>
-Select the atom ID to see the matching concept report.
-</FONT>
-<P>
-<TABLE CELLSPACING=1 CELLPADDING=5 BORDER=1 WIDTH="90%">
-<TR>
-<TH><FONT SIZE=$fontsize>Atom ID</FONT></TH>
-<TH><FONT SIZE=$fontsize>Atom Name</FONT></TH>
-<TH><FONT SIZE=$fontsize>Source</FONT></TH>
-<TH><FONT SIZE=$fontsize>Termgroup</FONT></TH>
-<TH><FONT SIZE=$fontsize>Code</FONT></TH>
-</TR>
-$html
-</TABLE>
+  unless ($source_row_id && $source_row_id =~ /^\d+$/) {
+    &print_html("Missing or Malformed source_row_id", <<"EOD");
+The source_row_id you entered (\"$source_row_id\") was malformed.  Legitimate source_row_ids are integers.
+Please refine the query and try again.
 EOD
     return;
+  }
+  $header = "MID concept report for source_row_id: $source_row_id";
+  $reporttime = time;
+
+  my(@atom_ids) = MIDUtils->source_row_id2atom_id($dbh, $source_row_id);
+  $html .= &matching_atoms($dbh, \@atom_ids);
+
+  $reporttime = time - $reporttime;
+  $reporttime .= ($reporttime == 1 ? " second" : " seconds");
+
+  $html .= $query->p . "Time to generate report: $reporttime";
+
+  &print_html($header, $html);
+}
+
+# searches by LUI
+sub search_by_lui {
+  my($lui) = MIDUtils->makeLUI($query->param('arg'));
+  my(@sources) = $query->param('source');
+
+  unless ($lui && $lui =~ /L\d+$/) {
+    &print_html("Missing or malformed LUI", <<"EOD");
+LUIs are either a sequence of digits or a "L" followed by 8 digits.
+Please refine the query and try again.
+EOD
+    return;
+  }
+  $header = "MID concept report for LUI: $lui";
+  $reporttime = time;
+
+  my(@atom_ids) = MIDUtils->lui2atom_id($dbh, $lui, \@sources);
+  $html .= &matching_atoms($dbh, \@atom_ids);
+
+  $reporttime = time - $reporttime;
+  $reporttime .= ($reporttime == 1 ? " second" : " seconds");
+
+  $html .= $query->p . "Time to generate report: $reporttime";
+
+  &print_html($header, $html);
+}
+
+# searches by SUI
+sub search_by_sui {
+  my($lui) = MIDUtils->makeSUI($query->param('arg'));
+  my(@sources) = $query->param('source');
+
+  unless ($sui && $sui =~ /S\d+$/) {
+    &print_html("Missing or malformed SUI", <<"EOD");
+SUIs are either a sequence of digits or a "S" followed by 8 digits.
+Please refine the query and try again.
+EOD
+    return;
+  }
+  $header = "MID concept report for SUI: $sui";
+  $reporttime = time;
+
+  my(@atom_ids) = MIDUtils->sui2atom_id($dbh, $sui, \@sources);
+  $html .= &matching_atoms($dbh, \@atom_ids);
+
+  $reporttime = time - $reporttime;
+  $reporttime .= ($reporttime == 1 ? " second" : " seconds");
+
+  $html .= $query->p . "Time to generate report: $reporttime";
+
+  &print_html($header, $html);
+}
+
+# searches by AUI
+sub search_by_aui {
+  my($aui) = MIDUtils->makeAUI($query->param('arg'));
+  my(@sources) = $query->param('source');
+
+  unless ($aui && $aui =~ /A\d+$/) {
+    &print_html("Missing or malformed AUI", <<"EOD");
+AUIs are either a sequence of digits or a "A" followed by 8 digits.
+Please refine the query and try again.
+EOD
+    return;
+  }
+  $header = "MID concept report for AUI: $aui";
+  $reporttime = time;
+
+  my(@atom_ids) = MIDUtils->aui2atom_id($dbh, $aui, \@sources);
+  $html .= &matching_atoms($dbh, \@atom_ids);
+
+  $reporttime = time - $reporttime;
+  $reporttime .= ($reporttime == 1 ? " second" : " seconds");
+
+  $html .= $query->p . "Time to generate report: $reporttime";
+
+  &print_html($header, $html);
+}
+
+# search by exact string
+sub search_by_exactstr {
+  my($exactstr) = $query->param('arg');
+  my(@sources) = $query->param('source');
+
+  unless ($exactstr) {
+    &print_html("Missing exact string", <<"EOD");
+There was no query string entered.
+Please refine the query and try again.
+EOD
+    return;
+  }
+  $header = "MID concept report for exact string: $exactstr";
+  $reporttime = time;
+
+  my(@atom_ids) = MIDUtils->str2atom_id($dbh, $exactstr, \@sources);
+  $html .= &matching_atoms($dbh, \@atom_ids);
+
+  $reporttime = time - $reporttime;
+  $reporttime .= ($reporttime == 1 ? " second" : " seconds");
+
+  $html .= $query->p . "Time to generate report: $reporttime";
+
+  &print_html($header, $html);
+}
+
+# search by string ignoring case
+sub search_by_lowerstr {
+  my($querystr) = $query->param('arg');
+  my(@sources) = $query->param('source');
+
+  unless ($querystr) {
+    &print_html("Missing string", <<"EOD");
+There was no query string entered.
+Please refine the query and try again.
+EOD
+    return;
+  }
+  $header = "MID concept report for string ignoring case: $querystr";
+  $reporttime = time;
+
+  my(@atom_ids) = MIDUtils->lowerstr2atom_id($dbh, $querystr, \@sources);
+  $html .= &matching_atoms($dbh, \@atom_ids);
+
+  $reporttime = time - $reporttime;
+  $reporttime .= ($reporttime == 1 ? " second" : " seconds");
+
+  $html .= $query->p . "Time to generate report: $reporttime";
+
+  &print_html($header, $html);
 }
 
 # search for concepts by norm string
 sub search_by_normstr {
-    my($str) = $query->param('arg');
-    my($normstr, $cgistr);
-    my($conceptid);
-    my($matching_ids_ref);
-    
-    if ($query->param('source') && $query->param('source') ne $allsources) {
-	@restrictToSources = $query->param('source');
-    }
+  my($querystr) = $query->param('arg');
+  my($luinormstr) = LVG->luinorm($querystr);
+  my(@sources) = $query->param('source');
+  my($normstr);
 
-#    ($normstr = $str) =~ s/[^$OK_CHARS]/_/go;
-#    $normstr = LVG->norm($normstr);
-#    $normstr = LVG->norm($str);
-    
-    if ($normfn eq "norm") {
-	$normstr = LVG->norm($str);
-    } else {
-	$normstr = LVG->luinorm($str);
-    }
-
-    unless ($normstr) {
-	&print_html("Missing Query String", <<"EOD");
+  unless ($luinormstr) {
+    &print_html("Missing Query String", <<"EOD");
 Your query norm\'ed to an empty string.
 Please refine the query and try again.
 EOD
-	return;
-    }
+    return;
+  }
+  $header = "MID concept report for normalized string: $querystr";
+  $reporttime = time;
 
-    $matching_ids_ref = &get_normstr_matches($normstr);
+  my(@atom_ids);
+  my($atom_id, $concept_id);
 
-    $cgistr = &cgi_safe($str);
+  @atom_ids = MIDUtils->normstr2atom_id($dbh, $luinormstr, \@sources);
+  $html .= &matching_atoms($dbh, \@atom_ids);
 
-    unless (keys %{ $matching_ids_ref }) {
-      $searchtime = time - $searchtime;
-      $searchsecs = ($searchtime == 1 ? "second" : "seconds");
+  $reporttime = time - $reporttime;
+  $reporttime .= ($reporttime == 1 ? " second" : " seconds");
 
-	&print_html("Normalized String Query in MID", <<"EOD");
-<FONT SIZE=$fontsize>Time to search: $searchtime $searchsecs</FONT><BR>
-<P>
-<FONT SIZE=$fontsize>
-<EM>No matching concept for string: "$str" found in the sources selected.</EM>
-</FONT>
-EOD
-	return;
-    }
+  $html .= $query->p . "Time to generate report: $reporttime";
 
-    $n=0;
-    $html="";
-    foreach $conceptid (sort preferredStrSort keys %{ $matching_ids_ref }) {
-	my($tmpstr) = &conceptutils::conceptid2str($dbh, $conceptid);
-	$n++;
-	$html .= <<"EOD";
-<TR>
-<TD ALIGN=right><FONT SIZE=$fontsize>$n</FONT></TD>
-<TD ALIGN=right><FONT SIZE=$fontsize><A HREF=\"$cgi?action=searchbyconceptid&arg=$conceptid&db=$db&meme_server=$meme_server&meme_home=$meme_home\#report\">$conceptid</A></FONT></TD>
-<TD><FONT SIZE=$fontsize>$tmpstr</FONT></TD>
-</TR>
-EOD
-    }
-
-    $searchtime = time - $searchtime;
-    $searchsecs = ($searchtime == 1 ? "second" : "seconds");
-
-    &print_html("Normalized String Query in MID", <<"EOD");
-<FONT SIZE=$fontsize>Time to search: $searchtime $searchsecs</FONT><BR>
-
-<P>
-<FONT SIZE=$fontsize>
-The following string(s) matched.
-Select the concept ID to see the matching concept report.
-</FONT>
-<P>
-<TABLE CELLSPACING=1 CELLPADDING=5 BORDER=1 WIDTH="90%">
-<TR>
-<TH></TH>
-<TH WIDTH="10%"><FONT SIZE=$fontsize>Concept ID</FONT></TH>
-<TH><FONT SIZE=$fontsize>Preferred Atom Name</FONT></TH>
-</TR>
-$html
-</TABLE>
-
-<P><HR>
-<H1>See Also</H1>
-<UL>
-<LI><FONT SIZE=$fontsize>Search the last release for "<A HREF="$conceptReportRelease?action=searchbynormstr&arg=$cgistr&$filestosearch">$str</A>"</FONT>
-<LI><FONT SIZE=$fontsize>Search MEDLINE for "<A HREF=\"http://www.ncbi.nlm.nih.gov/htbin-post/Entrez/query?db=m&form=4&term=$cgistr\">$str</A>" using <A HREF=\"http://www.ncbi.nlm.nih.gov/PubMed\">Pubmed</A></FONT>
-</UL>
-EOD
+  &print_html($header, $html);
 }
 
-# search by normword
+# search for all words ignoring case
+sub search_by_lowerword {
+  my($querystr) = $query->param('arg');
+  my(@sources) = $query->param('source');
+
+  unless ($querystr) {
+    &print_html("Missing Query String", <<"EOD");
+Please refine the query and try again.
+EOD
+    return;
+  }
+  $header = "MID concept report for words ignoring case: $querystr";
+  $reporttime = time;
+
+  my($hitsperpage) = $query->param('hitsperpage') || $defaulthitsperpage;
+  my($pagenum) = $query->param('pagenum') || 0;
+
+  my(@words) = LVG->wordind($querystr);
+  my($outputref) = MIDUtils->lowerword2atom_id($dbh, \@words, \@sources, {hitsperpage=>$hitsperpage, pagenum=>$pagenum, prefix=>$EMSNames::TMPTABLEPREFIX });
+
+  @rows = ();
+  push @rows, $query->td(['Query: ', $querystr]);
+  push @rows, $query->td(['Tokens: ', join(', ', @words)]);
+  if (@sources) {
+    push @rows, $query->td(["Restricted to sources: ", join(", ", @sources)]);
+  }
+  $html .= $query->table({border=>0, cellpadding=>0}, $query->Tr(\@rows));
+  $html .= $query->p;
+
+  my($matches) = $outputref->{matches};
+  my($from) = $pagenum*$hitsperpage+1;
+  my($to) = $from+$hitsperpage-1;
+  $to = $matches if $matches < $to;
+
+  $nextpagenum = $pagenum + 1;
+  $prevpagenum = $pagenum - 1;
+  if ($pagenum > 0) {
+    $prevurl = $query->a({-href=>$query->script_name() . "?action=$action&subaction=$subaction&arg=$querystr&hitsperpage=$hitsperpage&pagenum=$prevpagenum&$cgiGET"}, "Previous $hitsperpage");
+  }
+  if ($to < $matches) {
+    $nexturl = $query->a({-href=>$query->script_name() . "?action=$action&subaction=$subaction&arg=$querystr&hitsperpage=$hitsperpage&pagenum=$nextpagenum&$cgiGET"}, "Next $hitsperpage");
+  }
+  $navtable = $query->table({border=>0,cellpadding=>10}, $query->Tr($query->td({ align=>'left' }, $prevurl), $query->td({ align=>'right' }, $nexturl)));
+
+  if (@{$outputref->{atom_ids}} > 0) {
+    $html .= &matching_atoms($dbh,
+			     $outputref->{atom_ids},
+			     "There were " . $outputref->{matches} . " matching atoms ($from to $to shown)." . $query->p,
+			     $from);
+
+    $html .= $query->p;
+    $html .= $navtable;
+  } else {
+    $html .= "Sorry, no matches were found for your query.";
+  }
+
+  $reporttime = time - $reporttime;
+  $reporttime .= ($reporttime == 1 ? " second" : " seconds");
+
+  $html .= $query->p . "Time to generate report: $reporttime";
+  &print_html($header, $html);
+}
+
+# search for all words using normalization
 sub search_by_normword {
-    my($str) = $query->param('arg');
-    my($normstr, $cgistr);
-    my($conceptid);
-    my($normword, @normwords);
-    my($rslimit) = $query->param('rslimit') || $rslimit || 50;
-    my($exact_ids_ref, $normstr_ids_ref, $word_ids_ref);
+  my($querystr) = $query->param('arg');
+  my(@sources) = $query->param('source');
 
-    if ($query->param('source') && $query->param('source') ne $allsources) {
-	@restrictToSources = $query->param('source');
-    }
-
-#    ($normstr = $str) =~ s/[^$OK_CHARS]/_/go;
-#    $normstr = &lvg::norm($normstr);
-#    $normstr = &lvg::norm($str);
-
-    if ($normfn eq "norm") {
-	$normstr = LVG->norm($str);
-    } else {
-	$normstr = LVG->luinorm($str);
-    }
-
-    unless ($normstr) {
-	&print_html("Missing Query String", <<"EOD");
-Your query norm\'ed to an empty string.
+  unless ($querystr) {
+    &print_html("Missing Query String", <<"EOD");
 Please refine the query and try again.
 EOD
-	return;
+    return;
+  }
+  $header = "Matching atoms";
+  $reporttime = time;
+
+  my($hitsperpage) = $query->param('hitsperpage') || $defaulthitsperpage;
+  my($pagenum) = $query->param('pagenum') || 0;
+
+  my(@words) = LVG->cwordind($lvghost, $lvgport, $querystr);
+  foreach $w (@words) {
+    foreach (LVG->cnorm($lvghost, $lvgport, $w)) {
+      push @normwords, $_;
     }
+  }
 
-    @normwords = split(/\s+/, $normstr);
+  @rows = ();
+  push @rows, $query->td(['Query: ', $querystr]);
+  push @rows, $query->td(['Normalized: ', join(', ', @normwords)]);
+  if (@sources) {
+    push @rows, $query->td(["Restricted to sources: ", join(", ", @sources)]);
+  }
+  $html .= $query->table({border=>0, cellpadding=>0}, $query->Tr(\@rows));
+  $html .= $query->p;
 
-    $exact_ids_ref = &get_exact_matches($str);
-    $normstr_ids_ref = &get_normstr_matches($normstr);
+  my($outputref) = MIDUtils->normword2atom_id($dbh, \@normwords, \@sources, {hitsperpage=>$hitsperpage, pagenum=>$pagenum, prefix=>$EMSNames::TMPTABLEPREFIX });
 
-    foreach $conceptid (keys %{ $normstr_ids_ref }) {
-	delete $normstr_ids_ref->{$conceptid} if $exact_ids_ref->{$conceptid};
-    }
+  my($matches) = $outputref->{matches};
+  my($from) = $pagenum*$hitsperpage+1;
+  my($to) = $from+$hitsperpage-1;
+  $to = $matches if $matches < $to;
 
-    foreach $normword (@normwords) {
-	$word_ids_ref = &get_normword_matches($normword);
-	foreach $conceptid (keys %{ $word_ids_ref }) {
-	    if ($normstr_ids_ref->{$conceptid} || $exact_ids_ref->{$conceptid}) {
-		delete $word_ids_ref->{$conceptid};
-		next;
-	    }
-	    my($x) = &wordfreq($normword) || 10000;
-	    $weight{$conceptid} += 1/$x;
-	}
-    }
+  $nextpagenum = $pagenum + 1;
+  $prevpagenum = $pagenum - 1;
+  if ($pagenum > 0) {
+    $prevurl = $query->a({-href=>$query->script_name() . "?action=$action&subaction=$subaction&arg=$querystr&hitsperpage=$hitsperpage&pagenum=$prevpagenum&$cgiGET"}, "Previous $hitsperpage");
+  }
+  if ($to < $matches) {
+    $nexturl = $query->a({-href=>$query->script_name() . "?action=$action&subaction=$subaction&arg=$querystr&hitsperpage=$hitsperpage&pagenum=$nextpagenum&$cgiGET"}, "Next $hitsperpage");
+  }
+  $navtable = $query->table({border=>0,cellpadding=>10}, $query->Tr($query->td({ align=>'left' }, $prevurl), $query->td({ align=>'right' }, $nexturl)));
 
-    $n_matches = scalar(keys %{ $exact_ids_ref }) +
-	scalar(keys %{ $normstr_ids_ref }) +
-	scalar(keys %weight);
+  if (@{ $outputref->{atom_ids} }) {
+    $html .= &matching_atoms($dbh,
+			     $outputref->{atom_ids},
+			     "There were " . $outputref->{matches} . " matching atoms ($from to $to shown)." . $query->p,
+			     $from);
 
-# only keep the top $rslimit entries to speed things up later
-    foreach $conceptid (keys %weight) {
-	for ($i=$rslimit-1; $i>=0; $i--) {
-	    if ($wt[$i] >= $weight{$conceptid}) {
-		$wt[$i+1] = $weight{$conceptid};
-		$tmpmatch[$i+1] = $conceptid;
-		last;
-	    } else {
-		$wt[$i+1] = $wt[$i];
-		$tmpmatch[$i+1] = $tmpmatch[$i];
-		if ($i>0) {
-		    $wt[$i] = $wt[$i-1];
-		    $tmpmatch[$i] = $tmpmatch[$i-1];
-		} else {
-		    $wt[$i] = $weight{$conceptid};
-		    $tmpmatch[$i] = $conceptid;
-		    last;
-		}
-	    }
-	}
-    }
+    $html .= $query->p;
+    $html .= $navtable;
+  } else {
+    $html .= "Sorry, no matches were found for your query.";
+  }
 
-# create matches
-    foreach (@tmpmatch) {
-	push(@match, $_) if $_;
-    }
+  $reporttime = time - $reporttime;
+  $reporttime .= ($reporttime == 1 ? " second" : " seconds");
 
-    unless ($n_matches) {
-	&print_html("Approximate Word Query in MID", <<"EOD");
-<FONT SIZE=$fontsize>
-Your query: "$str" had no matching concepts in the sources selected.  Please refine the query and try again.
-</FONT>
-EOD
-	return;
-    }
-
-    $n=0;
-    $html="";
-
-    $cgistr = &cgi_safe($str);
-    my($best);
-
-    $best = ($n_matches < $rslimit ? "" : "The following are the best $rslimit.");
-
-    foreach $conceptid (keys %{ $exact_ids_ref }, (sort preferredStrSort keys %{ $normstr_ids_ref }), @match) {
-	last if (++$n > $rslimit);
-	my($tmpstr) = &conceptutils::conceptid2str($dbh, $conceptid);
-	$html .= <<"EOD";
-<TR>
-<TD ALIGN=right><FONT SIZE=$fontsize>$n</FONT></TD>
-<TD ALIGN=right><FONT SIZE=$fontsize><A HREF=\"$cgi?action=searchbyconceptid&arg=$conceptid&db=$db&meme_server=$meme_server&meme_home=$meme_home\#report\">$conceptid<A></FONT></TD>
-<TD><FONT SIZE=$fontsize>$tmpstr</FONT></TD>
-</TR>
-EOD
-    }
-
-    $searchtime = time - $searchtime;
-    $searchsecs = ($searchtime == 1 ? "second" : "seconds");
-
-    $matchstr = ($n_matches == 1 ? "was 1 match" : "were $n_matches matches");
-
-    &print_html("Approximate Word Query in MID", <<"EOD");
-<FONT SIZE=$fontsize>Time to search: $searchtime $searchsecs</FONT><BR>
-
-<P>
-
-<FONT SIZE=$fontsize>
-There $matchstr to your query: "$str". $best
-Select the concept ID to see the matching concept report.
-</FONT>
-
-<P>
-
-<TABLE CELLSPACING=1 CELLPADDING=5 BORDER=1 WIDTH="90%">
-<TR>
-<TH></TH>
-<TH WIDTH="10%"><FONT SIZE=$fontsize>Concept ID</FONT></TH>
-<TH><FONT SIZE=$fontsize>Preferred Atom Name</FONT></TH>
-</TR>
-$html
-</TABLE>
-<P><HR>
-<H1>See Also</H1>
-<UL>
-<LI><FONT SIZE=$fontsize>Search the last release for "<A HREF="$conceptReportRelease?action=searchbynormstr&arg=$cgistr&$filestosearch">$str</A>"</FONT>
-<LI><FONT SIZE=$fontsize>Search MEDLINE for "<A HREF=\"http://www.ncbi.nlm.nih.gov/htbin-post/Entrez/query?db=m&form=4&term=$cgistr\">$str</A>" using <A HREF=\"http://www.ncbi.nlm.nih.gov/PubMed\">Pubmed</A></FONT>
-</UL>
-EOD
+  $html .= $query->p . "Time to generate report: $reporttime";
+  &print_html($header, $html);
 }
 
-# makes a report given a concept_id, title and body
+# helper function that displays matching atoms with links in a HTML table
+sub matching_atoms {
+  my($dbh, $atom_ids, $caption, $from) = @_;
+  my($atom_id, $concept_id);
+  my($html, $n);
+  my($defaultcaption) = "The following atom(s) match your query.  Select links to see the concept report." . $query->p;
+
+  if (@$atom_ids) {
+    my($a, $b, @rows);
+    my($info);
+
+    $n = $from || 1;
+    $html .= $caption || $defaultcaption;
+    push @rows, $query->th(["", "atom_id", "concept_id", "source", "TTY", "Name"]);
+    foreach $atom_id (@$atom_ids) {
+      $info = MIDUtils->atomInfo($dbh, $atom_id);
+      $concept_id=$info->{concept_id};
+      $a = $query->a({-href=>$query->script_name() . "?action=search&subaction=atom_id&arg=$atom_id&$cgiGET"}, $atom_id);
+      $b = $query->a({-href=>$query->script_name() . "?action=search&subaction=concept_id&arg=$concept_id&$cgiGET" . "#report"}, $concept_id);
+      push @rows, $query->td([$n++, $a, $b, $info->{source}, $info->{tty}, $info->{atom_name}]);
+    }
+    $html .= $query->table({-border=>1, -cellpadding=>5, -cellspacing=>0}, $query->Tr(\@rows));
+
+  } else {
+    $html .= "Sorry, no matches were found for your query.";
+  }
+  return $html;
+}
+
+# random atoms
+sub randomatoms {
+  my($sql);
+  my($limit) = $query->param('hitsperpage') || $defaulthitsperpage;
+  my(@allsources) = MIDUtils->getClassesSources($dbh);
+  my(@n) = (10, 20, 50, 100);
+  my($html);
+  my($reporttime) = time;
+  my(@source) = $query->param('source');
+
+  push @n, $default unless grep { $_ == $default } @n;
+
+  $html .= $query->start_form(-method=>'POST');
+  $html .= "Show: " . $query->popup_menu(-name=>'hitsperpage', -values=>\@n, -default=>$limit);
+  $html .= " random atoms";
+  $html .= $query->br;
+  $html .= "Restrict them to one or more sources: ";
+  $html .= $query->scrolling_list(-name=>'source',
+				  -value=>\@allsources,
+				  -size=>4,
+				  -multiple=>1,
+				  -valign=>'center');
+  $html .= $query->p;
+  $html .= $query->submit;
+  $html .= $query->hidden(-name=>'doit', -value=>1, -force=>1);
+  $html .= $query->hidden(-name=>'action', -value=>$action, -force=>1);
+  $html .= $cgiPOST;
+  $html .= $query->end_form;
+
+  if ($query->param('doit')) {
+    my(@atom_ids) = MIDUtils->random_atom_ids($dbh, $limit, \@source);
+
+    $html .= $query->hr;
+    $html .= $query->p;
+
+    if (@source) {
+      $html .= "Sample is restricted to atoms from these source(s): " . join(", ", @source);
+      $html .= $query->p;
+    }
+    $html .= &matching_atoms($dbh, \@atom_ids);
+
+    $reporttime = time - $reporttime;
+    $reporttime .= ($reporttime == 1 ? " second" : " seconds");
+
+    $html .= $query->p . "Time to generate report: $reporttime";
+  }
+  &print_html("Random sample of atoms", $html);
+  return;
+}
+
+# generates a report given a concept id
 sub report {
-    my($conceptid) = @_;
-#    my($CONCEPT) = "/site/umls/oracle/concept-reports/meme4-report.pl";
-    my($cmd);
-    my($report);
-    my($rellimit) = $rellimit || 500; # max rels per report
-#    my($options) = "-d $db -u $oracleUSER -c $conceptid";
-    my($options) = "-d $db -c $conceptid";
-    my($numrels);
-    my($ignorerellimit) = 1 || $query->param('ignorerellimit'); # turned off Suresh 6/27/2001
+  my($concept_id) = @_;
+  my(%optref);
 
-    $meme_home = $meme_home || $ENV{MEME_HOME};
-#    $ENV{'MEME_HOME'} = $meme_home;
+  $optref{ids} = {idtype=>'concept_id', list=>[$concept_id]};
+  $optref{db} = $db;
+  $optref{env_home} = $ENV{ENV_HOME};
+  $optref{env_file} = $ENV{ENV_FILE};
+  $optref{meme_host} = (split /:/, $query->param('meme-server-hostport'))[0];
+  $optref{meme_port} = (split /:/, $query->param('meme-server-hostport'))[1];
+  $optref{outputformat} = $format;
+  $optref{r} = $query->param('r') if ($query->param('r'));
+  $optref{x} = $query->param('x') if ($query->param('x'));
+  $optref{lat} = join(",", $query->param('lat')) if ($query->param('lat'));
+  $optref{maxreviewedrels} = join(",", $query->param('maxreviewedrels')) if ($query->param('maxreviewedrels'));
 
-    $cmd = "$meme_home/bin/xreports.pl -html -c $conceptid -d $db";
-#                    -url_release_for_sty=
-    $cmd .= " -r " . $query->param('r') if $query->param('r');
-    $cmd .= " -x " . $query->param('x') if $query->param('x');
-    if ($meme_server ne "meme_server") {
-      $cmd .= " -host " . $midsvcs->{$meme_server . "-host"};
-      $cmd .= " -port " . $midsvcs->{$meme_server . "-port"};
-    }
-    print STDERR $cmd;
+  $optref{'-url_mid_for_concept_id'} = "'" . $query->escapeHTML($query->script_name() . "?" . join('&', "action=searchbyconceptid", $cgiGET, "arg=")) . "'";
+  $optref{'-url_mid_for_code'} = "'" . $query->escapeHTML($query->script_name() . "?" . join('&', "action=searchbycode", $cgiGET, "arg=")) . "'";
+  $optref{'-url_mid_for_cui'} = "'" . $query->escapeHTML($query->script_name() . "?" . join('&', "action=searchbycui", $cgiGET, "arg=")) . "'";
+  $optref{'-url_release_for_cui'} = "";
+  $optref{'-url_release_for_sty'} = "";
 
-    $report = `$cmd`;
-#    $cmd = "$CONCEPT $options";
-#    open(RPT, "$cmd|") || die "Cannot open report for $cmd";
-#    while (<RPT>) {
-#	$report .= $_;
-#    }
-#    close(RPT);
-    return($report);
-}
-
-# ignores case
-sub get_exact_matches {
-    my($str) = @_;
-    my($normstr);
-    my(%cuis);
-    my($SQL);
-    my($strl);
-    my($c, $s);
-    my($sourceRestriction);
-
-    if (@restrictToSources) {
-	$sourceRestriction = "and c.source in (" . join(',', map { "'$_'" } @restrictToSources) . ")";
-    }
-
-    if ($normfn eq "norm") {
-	$normstr = &LVG->($str);
-    } else {
-	$normstr = LVG->luinorm($str);
-    }
-
-    ($strl = $str) =~ tr/A-Z/a-z/;
-
-    $SQL = <<"EOD";
-SELECT c.concept_id, n.normstr from classes c, normstr n WHERE
-	c.atom_id = n.normstr_id AND n.normstr=\'$normstr\' $sourceRestriction
-EOD
-    my(@rows) = $dbh->selectAllAsRef($SQL);
-    foreach $ref (@rows) {
-	$c = $ref->[0];
-	$s = $ref->[1];
-	$s =~ tr/A-Z/a-z/;
-	next if $s ne $strl;
-	$cuis{$c}++;
-    }
-    return(\%cuis);
-}
-
-sub get_normstr_matches {
-    my($normstr) = @_;
-    my(%cuis);
-    my($SQL);
-    my($sourceRestriction);
-
-    if (@restrictToSources) {
-	$sourceRestriction = "AND c.source IN (" . join(',', map { "'$_'" } @restrictToSources) . ")";
-    }
-
-    $SQL = <<"EOD";
-SELECT DISTINCT c.concept_id FROM classes c, normstr n WHERE
-	c.atom_id = n.normstr_id AND n.normstr=\'$normstr\' $sourceRestriction
-EOD
-
-    my(@cuis) = $dbh->selectAllAsArray($SQL);
-    foreach (@cuis) {
-	$cuis{$_}++;
-    }
-    return(\%cuis);
-}
-
-sub get_normword_matches {
-    my($normword) = @_;
-    my(%cuis);
-    my($SQL);
-    my($sourceRestriction);
-    my($status, $logfile, $tmpfile);
-
-    if (@restrictToSources) {
-	$sourceRestriction = "and c.source in (" . join(',', map { "'$_'" } @restrictToSources) . ")";
-    }
-
-    $SQL = <<"EOD";
-SELECT DISTINCT c.concept_id FROM classes c, normwrd n WHERE c.atom_id = n.normwrd_id AND
-    n.normwrd=\'$normword\' $sourceRestriction
-EOD
-    my(@cuis) = $dbh->selectAllAsArray( $SQL);
-
-    $wordfreq{$normword} = 0;
-    foreach (@cuis) {
-	$cuis{$_}++;
-	$wordfreq{$normword}++;
-    }
-    return(\%cuis);
-}
-
-# makes up HTML for source restrictions in norm searches
-sub source2html {
-    my($html);
-    my($refresh) = $query->param('refreshsourcecache');
-
-    $refresh = 1;
-    if ($refresh) {
-      unlink $sourcefile;
-      my($sql) = "select distinct current_name from source_version order by current_name";
-      $dbh->selectToFile($sql, $sourcefile);
-    }
-
-    if (-e $sourcefile) {
-	my($short, $long);
-	my($srcfd) = gensym;
-
-	$html = <<"EOD";
-<P>
-Restrict matches to sources (<A HREF="/Sources/sources.html">descriptions</A>): <SELECT NAME="source" MULTIPLE SIZE=2>
-EOD
-	open($srcfd, $sourcefile);
-	while (<$srcfd>){
-	    chop;
-	    ($short, $long) = split /\|/, $_;
-	    $html .= ($long ? "<OPTION VALUE=\"$short\">$long" : "<OPTION VALUE=\"$short\">$short");
-	}
-	close($srcfd);
-	$html .= "</SELECT>";
-
-    } else {
-	$html = "";
-    }
-    return($html);
-}
-
-# returns the word frequency in the database (using normwrd)
-sub wordfreq {
-    my($normword) = @_;
-    my($SQL);
-    my($freq);
-
-    return $wordfreq{$normword} if $wordfreq{$normword};
-
-    $SQL = <<"EOD";
-SELECT COUNT(*) FROM normwrd where normwrd = \`$normword\'
-EOD
-
-    $freq = $dbh->selectFirstAsScalar($SQL) || 0;
-    return($freq);
-}
-
-# returns the number of rels that a concept has
-sub num_rels {
-    my($conceptid) = @_;
-    my($SQL);
-    my($n1, $n2);
-
-    $SQL = <<"EOD";
-SELECT COUNT(DISTINCT relationship_id) FROM relationships WHERE concept_id_1 = $conceptid
-EOD
-    $n1 = $dbh->selectFirstAsScalar($SQL) || 0;
-    $SQL = <<"EOD";
-SELECT COUNT(DISTINCT relationship_id) FROM relationships WHERE concept_id_2 = $conceptid
-EOD
-    $n2 = $dbh->selectFirstAsScalar( $SQL) || 0;
-    return($n1+$n2);
+  return WMSUtils->xreports(\%optref);
 }
 
 sub print_trailer {
-    print <<"EOD";
-<P>
-<HR WIDTH=600 ALIGN=left>
-<FONT SIZE=$fontsize>
-<ADDRESS><A HREF="$cgi">Concept reports from current MID</A></ADDRESS>
-<ADDRESS><A HREF="http://unimed.nlm.nih.gov">Meta News Home</A></ADDRESS>
-</FONT>
-</BODY>
-</HTML>
-EOD
+  my($html);
+
+  $html .= $query->p;
+  $html .= $query->hr({-width=>600, -align=>'left'});
+  $html .= $query->address($query->a({-href=>$query->script_name()}, "Concept report from MID"));
+  $html .= $query->address($query->a({-href=>"$main::EMSCONFIG{HOMEPAGEURL}"}, $main::EMSCONFIG{HOMEPAGENAME}));
+  $html .= $query->end_html();
+  print $html;
 }
 
 sub print_cgi_header {
-    my($mime) = @_;
-
-    $mime = "text/html" unless $mime;
-    return if $cgi_header_printed++;
-    print <<"EOD";
-Content-type: $mime
+  my($mime_type) = ($format eq "html" ? "text/html" : "text/plain");
+  return if $cgi_header_printed++;
+  print <<"EOD";
+Content-type: $mime_type
 
 EOD
-    print <<"EOD" if $mime eq "text/html";
+  print <<"EOD" if $mime_type eq "text/html";
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
 EOD
 }
 
 sub print_header {
-    my($title, $header, $bodyargs) = @_;
+  my($title, $header) = @_;
 
-    $title = "Concept Report" unless $title;
-    $header = $title unless $header;
+  $title = "Concept Report" unless $title;
+  $header = $title unless $header;
 
-    &print_cgi_header("");
-    print <<"EOD";
-<HTML>
-<HEAD>
-<TITLE>$title</TITLE>
-
-<STYLE TYPE="text/css">
-    BODY { FONT-SIZE: $fontsize }
-    SELECT { FONT-SIZE: $fontsize }
-    INPUT { FONT-SIZE: $fontsize }
-    BUTTON { FONT-SIZE: $fontsize }
-</STYLE>
-
-</HEAD>
-<BODY $bodyargs>
-
-<TABLE BORDER="0" WIDTH="600" CELLSPACING="0" CELLPADDING="0">
-<TR>
-<TD ALIGN="left">
-<FONT SIZE="-1" COLOR="red">Oracle Database: $db</FONT>
-</TD>
-<TD ALIGN="right">
-<FONT SIZE="-1">$now</FONT>
-</TD>
-</TR>
-</TABLE>
-
-<!-- Horizontal bar -->
-
-<HR WIDTH=600 SIZE=6 NOSHADE ALIGN=left>
-
-<H1>$header</H1>
-
-EOD
-    return;
+  &print_cgi_header;
+  print $query->start_html(-title=>$title);
+  print $query->table({-border=>0, -width=>'100%'},
+		      $query->Tr($query->td({-align=>'left'}, $query->font({-color=>"red"}, "Database: $db")) . $query->td({-align=>'right'}, $now)));
+  print $query->hr({-width=>'100%', -noshade=>1, -align=>'left', -size=>6});
+  print $query->h1($header);
 }
 
 sub print_html {
-    my($title, $html) = @_;
+  my($title, $html) = @_;
 
-    $title = "Concept Report: $action" unless $title;
-    $html = $title unless $html;
-    &print_header($title);
-    print <<"EOD";
+  $title = "Concept Report: $action" unless $title;
+  $html = $title unless $html;
+  &print_header($title);
+  print <<"EOD";
 
 $html
 EOD
-    &print_trailer;
-    return;
+  &print_trailer;
+  return;
 }
 
-# returns the r option in HTML
-sub ropt2html {
-    my($html, $opt);
-    my(@opts) = (
-		[ "DEFAULT" => "Winning Rels" ],
-		[ "XR" => "Winning + XR Rels" ],
-		[ "ALL" => "All Rels" ],
-		);
+# generates all the HTML for the top of the report
+sub leader {
+  my($html);
+  my($h);
 
-    $html = "<SELECT NAME=\"r\" SIZE=\"1\">";
-    my($short, $long, $ropt);
-    $ropt = $query->param('r');
-    foreach $opt (@opts) {
-	$short = $opt->[0];
-	$long = $opt->[1];
-	if ($ropt eq $short) {
-	    $html .= "<OPTION SELECTED VALUE=\"$short\">$long";
-	} else {
-	    $html .= "<OPTION VALUE=\"$short\">$long";
-	}
-    }
-    return $html . "</SELECT>" . "\n";
+  foreach (qw(action subaction arg)) {
+    $h .= $query->hidden(-name=>$_, -value=>$query->param($_), -override=>1) . "\n";
+  }
+  $html .= join("\n",
+		$query->start_form(-method=>'POST'),
+		&latmenu,
+		&relmenu,
+		&roptmenu,
+		&xoptmenu,
+		$query->p,
+		$cgiPOST,
+		$h,
+		$query->submit({-value=>'Resubmit'}),
+		$query->end_form,
+		$query->p, $query->hr,
+		&emsinfo,
+		&helplink,
+		);
+  return $html;
 }
 
-# returns the x option in HTML
-sub xopt2html {
-    my($html, $opt);
-    my(@opts) = (
-		[ "DEFAULT" => "Par+Chd if no Cxt Rels" ],
-		[ "SIB" => "Par+Chd+Sib if no Cxt Rels" ],
-		[ "ALL" => "All Contexts" ],
-		);
+# returns the menu for restriction by LAT
+sub latmenu {
+  my($html);
+  my($sql) = "select distinct language, lat from language";
 
-    $html = "<SELECT NAME=\"x\" SIZE=\"1\">";
+  my(@refs) = $dbh->selectAllAsRef($sql);
+  my(@values) = map { $_->[1] } @refs;
+  my(%labels) = map { $_->[1] => $_->[0] } @refs;
+  my(@defaults) = $query->param('lat');
 
-    my($short, $long, $ropt);
-    $ropt = $query->param('x');
-    foreach $opt (@opts) {
-	$short = $opt->[0];
-	$long = $opt->[1];
-	if ($ropt eq $short) {
-	    $html .= "<OPTION SELECTED VALUE=\"$short\">$long";
-	} else {
-	    $html .= "<OPTION VALUE=\"$short\">$long";
-	}
-    }
-    return $html . "</SELECT>" . "\n";
+  $html .= "In the report only show content from these languages: " . $query->scrolling_list(-name=>'lat', -values=>\@values, -labels=>\%labels, -size=>4, -multiple=>1, -override=>1, -valign=>'center', -default=>\@defaults) . $query->p;
+}
+
+# returns the menu for restricting amount of rels (not used in interactive mode)
+sub relmenu {
+  my($html);
+  return $html;
+}
+
+# returns the r option menu
+sub roptmenu {
+  my($html);
+  my(@opts) = (
+	       [ "DEFAULT", "Winning Rels" ],
+	       [ "XR", "Winning + XR Rels" ],
+	       [ "ALL", "All Rels" ],
+	      );
+  my($values, %labels);
+  @values = map { $_->[0] } @opts;
+  %labels = map { $_->[0] => $_->[1] } @opts;
+
+  $html .= "Relationship view: " . $query->popup_menu(-name=>'r', -values=>\@values, -labels=>\%labels, -default=>'DEFAULT');
+  return $html;
+}
+
+# returns the x option menu
+sub xoptmenu {
+  my($html);
+  my(@opts) = (
+	       [ "DEFAULT", "Par+Chd if no Cxt Rels" ],
+	       [ "SIB", "Par+Chd+Sib if no Cxt Rels" ],
+	       [ "ALL", "All Contexts" ],
+	      );
+
+  my($values, %labels);
+  @values = map { $_->[0] } @opts;
+  %labels = map { $_->[0] => $_->[1] } @opts;
+
+  $html .= ",  context view: " . $query->popup_menu(-name=>'x', -values=>\@values, -labels=>\%labels, -default=>'DEFAULT');
+  return $html;
+}
+
+sub emsinfo {
+  my($html);
+  my($sql);
+  my(@rows, @x);
+  my($concept_id) = $currentconcept;
+
+  return unless $concept_id;
+  $sql = "select distinct bin_name from " . $EMSNames::MEBINSTABLE . " where concept_id=$concept_id";
+  push @rows, $query->td([
+			  "Concept is on ME bins: ",
+			  join(", ", $dbh->selectAllAsArray($sql)) || "[none]",
+			  ]);
+
+  $sql = "select distinct bin_name from " . $EMSNames::QABINSTABLE . " where concept_id=$concept_id";
+  push @rows, $query->td([
+			  "Concept is on QA bins: ",
+			  join(", ", $dbh->selectAllAsArray($sql)) || "[none]",
+			  ]);
+
+  $sql = "select distinct bin_name from " . $EMSNames::AHBINSTABLE . " where concept_id=$concept_id";
+  push @rows, $query->td([
+			  "Concept is on AH bins: ",
+			  join(", ", $dbh->selectAllAsArray($sql)) || "[none]",
+			  ]);
+
+  $sql = "select distinct worklist_name from " . $EMSNames::BEINGEDITEDTABLE . " where concept_id = $concept_id";
+  push @rows, $query->td([
+			  "Concept is on worklist\(s\): ",
+			  join(', ', map{ $query->a({-href=>"$wmsURL?action=view&worklist=$_&db=$db"}, $_) } $dbh->selectAllAsArray($sql)) || "[none]",
+			  ]);
+
+  $html .= $query->table({-border=>0}, $query->Tr(\@rows));
+  $html .= $query->br;
+  $html .= $query->a({-href=>"$emsURL?action=whyisthisn&concept_id=$concept_id&db=$db"}, "Why is this concept in N status?");
+  $html .= $query->p;
+
+  return $html;
+}
+
+# link to a help page that describes how to read concept report
+sub helplink {
+  my($link) = $main::EMSCONFIG{SAMPLEREPORTURL};
+  my($html);
+
+  if ($link) {
+    $html .= $query->a({-href=>$link, -target=>'sample_report'}, "Click here") . " for help on how to read a report (will open in a separate window)";
+  }
+  $html .= $query->p;
+  return $html;
 }
 
 # converts CGI args to hidden fields
@@ -1850,71 +1064,3 @@ sub args2html {
     }
     return $html;
 }
-
-# read configuration file
-sub read_config {
-    my($file) = @_;
-    my($fd) = gensym;
-
-    open($fd, $file) || return;
-    while (<$fd>) {
-	my(@comment);
-
-	chop;
-	next if /^\#/ || /^\s*$/;
-	($slot, $value, @comment) = split /\s+/, $_;
-	$slot =~ tr/A-Z/a-z/;
-	$config{$slot} = [ $value, [ @comment ] ];
-    }
-    close($fd);
-}
-
-# Function to sort by preferred string (lowercased)
-sub preferredStrSort {
-    my($strA, $strB);
-
-    $strA = &conceptutils::conceptid2str($dbh, $a);
-    $strB = &conceptutils::conceptid2str($dbh, $b);
-    $strA =~ tr/A-Z/a-z/;
-    $strB =~ tr/A-Z/a-z/;
-    return $strA cmp $strB;
-}
-
-# returns an array
-sub fmt {
-    my($str, $maxcol) = @_;
-    my(@result);
-    my($i);
-    my($newline)=1;
-    my($word);
-    my($l);
-
-    $maxcol = 72 unless $maxcol;
-
-    $str =~ s/^\s*//;
-    $str =~ s/\s*$//;
-
-    foreach $word (split /\s+/, $str) {
-	$result[$i] .= ($newline ? "" : " ") . $word;
-	$l += ($newline ? 0 : 1) + length($word);
-
-	if ($l >= $maxcol) {
-	    $newline = 1;
-	    $l=0;
-	    $i++;
-	} else {
-	    $newline = 0;
-	}
-    }
-    return(@result);
-}
-
-sub cgi_safe {
-    my($in) = @_;
-
-    $in =~ s/\s/%20/g;
-    $in =~ s/\&/%26/g;
-    $in =~ s/\?/%3f/g;
-    return($in);
-}
-

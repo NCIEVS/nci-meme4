@@ -127,7 +127,7 @@ print "Starting ...",scalar(localtime),"\n";
 print "-----------------------------------------------------------\n";
 
 # set variables
-$userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl -d $dbname`;
+$userpass = `$ENV{MIDSVCS_HOME}/bin/get-oracle-pwd.pl`;
 ($user,$password) = split /\//, $userpass;
 chop($password);
 print "Database:     $dbname\n";

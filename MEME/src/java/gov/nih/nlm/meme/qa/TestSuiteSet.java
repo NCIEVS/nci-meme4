@@ -3,9 +3,6 @@
  * Package: gov.nih.nlm.meme.qa
  * Object:  TestSuiteSet.java
  *
- * Changes:
- * 03/22/2007 BAC (1-D0BIJ): Removed ICTestSuiteSet from list of all sets
- *
  *****************************************************************************/
 
 package gov.nih.nlm.meme.qa;
@@ -46,7 +43,7 @@ abstract public class TestSuiteSet {
     return new TestSuiteSet[] {
         new SequenceTestSuiteSet(),
         new ActionTestSuiteSet(),
-        //new ICTestSuiteSet(),  --handled by JUnit now
+        new ICTestSuiteSet(),
         new EtCeteraTestSuiteSet(),
         new UITestSuiteSet(),
         new ClientTestSuiteSet(),

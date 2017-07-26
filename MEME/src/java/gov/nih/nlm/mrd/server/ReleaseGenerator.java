@@ -3,8 +3,7 @@
  * Package: gov.nih.nlm.mrd.server
  * Object:  ReleaseGenerator
  *
- *   03/08/2007 TTN (1-DKB57): Add Finish Release method
-*****************************************************************************/
+ *****************************************************************************/
 
 package gov.nih.nlm.mrd.server;
 
@@ -16,18 +15,14 @@ import gov.nih.nlm.mrd.common.QAReport;
 import gov.nih.nlm.mrd.common.QAResult;
 import gov.nih.nlm.mrd.common.ReleaseInfo;
 import gov.nih.nlm.mrd.common.ReleaseTarget;
-import gov.nih.nlm.meme.common.StageStatus;
+import gov.nih.nlm.mrd.common.StageStatus;
 import gov.nih.nlm.mrd.sql.MRDDataSource;
-import gov.nih.nlm.meme.server.SessionContext;
 
 import java.io.File;
 
 /**
  * Generically represents a service for producing release files.
- * 
- * CHANGES
- * 09/10/2007 JFW (1-DBSLD): Modify isReEntrant to take a SessionContext argument 
- * 
+ *
  * @author  MEME Group
  */
 public abstract class ReleaseGenerator implements MEMEApplicationService {
@@ -67,14 +62,6 @@ public abstract class ReleaseGenerator implements MEMEApplicationService {
   public boolean isFinished(ReleaseInfo release) {
     return release.isBuilt() && release.isPublished();
   }
-
-  /**
-   * Indicates whether or not the release is finished.
-   * @param release the {@link ReleaseInfo}
-   * @return <code>true</code> if so, <code>false</code> otherwise
-   * @throws MEMEException if failed to process the request
-   */
-  public abstract StageStatus getReleaseStatus(ReleaseInfo release_info) throws MEMEException;
 
   /**
    * Returns all {@link QAResult}s for the specified release target.
@@ -276,16 +263,6 @@ public abstract class ReleaseGenerator implements MEMEApplicationService {
       MEMEException;
 
   /**
-   * Prepare the "log/Finished.log" file for the release.
-   * @param release the release name
-   * @param data_source the {@link MRDDataSource}
-   * @throws MEMEException if failed to finish release
-   */
-  public abstract void finishRelease(ReleaseInfo release,
-                                      MRDDataSource data_source) throws
-      MEMEException;
-
-  /**
    * Returns the first n lines of the specified release target.
    * @param release the release name
    * @param target_name the target name
@@ -445,10 +422,9 @@ public abstract class ReleaseGenerator implements MEMEApplicationService {
 
   /**
    * Returns <code>false</code>.
-   * @param context the {@link SessionContext}
    * @return <code>false</code>
    */
-  public boolean isReEntrant(SessionContext context) {
+  public boolean isReEntrant() {
     return false;
   }
 

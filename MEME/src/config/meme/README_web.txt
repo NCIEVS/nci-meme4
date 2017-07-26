@@ -1,44 +1,6 @@
 Version Information
 -------------------
 RELEASE=4
-VERSION=8.0
-DATE=20060808
-AUTHORITY=BAC
-
-This release of the MEOW-MEME environment should contain everything needed to 
-operate MEME client tools and services.  Notable updates include:
-
- o CODE_SOURCE and CODE_ROOT_SOURCE support added to mapping_errors.cgi
-
- o error_report.cgi has a small change to prevent certain apache errors caused
-   by an empty procedure call.  This does not constitute a functional change
-      
- 
-See INSTALL.txt for installation instructions
-
-Old Release Information
------------------------
-RELEASE=4
-VERSION=7.0
-DATE=20060627
-AUTHORITY=BAC
-
-This release of the MEOW-MEME environment should contain everything needed to 
-operate MEME client tools and services.  Notable updates include:
-
- o New MEDLINE in MID processing interface is ready.
-
- o SourceMetadataReport can be directed to non-default server and now
-   shows database name.
- 
- o Upgraded db_request.cgi.  It now tracks states of the various database
-   and allows for an easy email-URL mechanism for responding to requests.
-   If used properly, it can also track the most recent state of each DB.
- 
- o release_maintenance.cgi has slight improvement for identifying "merged" 
-   concepts.
-
-RELEASE=4
 VERSION=6.0
 DATE=20060511
 AUTHORITY=BAC
@@ -56,6 +18,10 @@ operate MEME client tools and services.  Notable updates include:
 
  o SQL injection issues addressed.
 
+See INSTALL.txt for installation instructions
+
+Old Release Information
+-----------------------
 RELEASE=4
 VERSION=5.0
 DATE=20060331
@@ -91,7 +57,7 @@ AUTHORITY=BAC
 This release of the MEOW-MEME environment should contain everything needed to 
 operate MEME client tools and services.  Notable updates include:
 
- o default db_request.cgi updated to include reg@msdinc.com
+ o default db_request.cgi updated to include reg@apelon.com
 
  o mapping_errors.cgi updated to support ROOT_SOURCE_AUI
 

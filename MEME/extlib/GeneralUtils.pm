@@ -49,7 +49,7 @@ sub new {
 # gets the password for the user; if user is not given,
 # the password for the first user is returned.
 sub getOraclePassword {
-  my($self, $user,$db) = @_;
+  my($self, $user) = @_;
   my($passwordfile) = "/etc/umls/oracle.passwd";
   return "" unless (-e $passwordfile && -r $passwordfile);
 
@@ -57,12 +57,12 @@ sub getOraclePassword {
   while (<P>) {
     chomp;
     next if /^\#/ || /^\s*$/;
-    my($u, $p,$d) = split /\|/, $_;
+    my($u, $p) = split /\|/, $_;
     unless ($user) {
       $password = $p;
       last;
     }
-    next unless ($u eq $user && $d eq $db)
+    next unless $u eq $user;
     $password = $p;
     last;
   }

@@ -30,7 +30,7 @@ start_mrd() {
         x) MS=mrd-db;;
         *) ;;
     esac
-	$MRD_HOME/bin/memerun.pl -view false -port $PORT -prop $MRD_HOME/etc/mrd.prop -mid $MS -mrd $MS gov.nih.nlm.mrd.server.MRDApplicationServer 1>$MRD_HOME/log/`/bin/date +%Y%m%d`.$$.log 2>&1 &
+	$MRD_HOME/bin/memerun.pl -port $PORT -prop $MRD_HOME/etc/mrd.prop -mid $MS -mrd $MS gov.nih.nlm.mrd.server.MRDApplicationServer 1>$MRD_HOME/log/`/bin/date +%Y%m%d`.$$.log 2>&1 &
 }
 
 stop_mrd() {
