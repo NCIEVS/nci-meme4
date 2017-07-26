@@ -1,0 +1,160 @@
+<HTML>
+<HEAD>
+<TITLE>Things to do After Making a Release</TITLE>
+</HEAD>
+
+<BODY>
+
+<P ALIGN=right>suresh@nlm.nih.gov 10/2000
+
+<H1>Things to do After Making a Release</H1>
+
+This is a checklist of things to do after a release is made.
+In the following, $UMLSVERSION is the name of the release, e.g.,
+2002AA, $LVGVERSION is the name of the current LVG release, e.g.,
+lvg2002.
+
+<UL>
+
+<P><LI>
+On smis, unpack the distribution from the TAR file into: /d3/Release/$UMLSVERSION,
+e.g., /d3/Release/2002AA.  If space is a problem, store it in /d4/UMLS/Release but make
+sure there is a link from /d3/Release.
+
+<P><LI>
+Edit the file smis:/d3/Release/config/release.dat and add a row containing
+information about this release.
+
+<P><LI>Create the directory: smis:/d3/Release/QA/$UMLSVERSION
+
+<P><LI>There is now a script called /site/umls/release/post-release.pl that runs all
+the scripts for Q/A.  The results are used by the URIS system.
+This script is described <A HREF="uris-data.html">here</A>.
+
+<P><LI>Load the new release <A HREF="mysql-load.html">into MySQL</A>.
+
+<P><LI>
+If this UMLS version has a new release of LVG, install it on umls-release in ~suresh/LVG
+(This should be a Linux install without MySQL or Oracle databases, just IDB).
+See here for <A HREF="new-lvg.html">information on how to install LVG</A>.
+
+<P><LI> There is a MySQL database called LVG_indexes that contains
+lowercase and luiNorm'ed string and word indexes for the strings in
+the new release.  On umls-release, there is a perl script that will
+create this data from the MRCON table and load it into the MySQL
+database.  The script is /aux/UMLS/lvg-indexes/recompute-lvg-indexes.pl and
+should be run with the -v $UMLSVERSION option for the current version.
+<P>
+If this is a new LVG release, you want to recompute the LVG_indexes tables
+for all prior releases using the new LVG.  Use the -a option to do this.
+This will take a while to run (few hours per release).
+<P>
+
+This reason for this database is it is needed for meow concept reports.  The MRX*
+files that come with the release are computed with <EM>norm</EM>
+whereas searching in the MID and meow is done with <EM>luinorm</EM>
+and so are different.
+
+<P>
+
+Finally, you should also create the data on smis if you still
+need the old style access.  This can be done by running the
+script in smis:/d3/Release/lvg-indexes/recompute-lvg-indexes.pl.
+It should create the luinorm-based MRX* files for this release
+in smis:/d3/Release/lvg-indexes/$LVGVERSION/luinorm/$METAVERSION.
+
+<P><LI>
+Update the documentation in umlsinfo.nlm.nih.gov.  In particular:
+<OL>
+<LI>Generate MySQL load scripts (see /site/umls/mysql/scripts) and put these
+on umlsinfo.
+<LI>Put the METAMSYS/doc contents on umlsinfo
+<LI>Put README_MMS on umlsinfo.
+</OL>
+
+<P>
+<LI> The script /site/umls/release/srdef2rela.pl generates the SRDEF table (with supplementary information)
+from the SRDEF file in the Semantic Network.  This needs to be run by Vladimir on the new release.
+Check with him.
+
+<P>
+<LI> We run the software to create the Pubmed mapping file for SJN (nelson@nlm).
+<P>
+<UL>
+<LI><A HREF="pubmed.usernotes.txt">User notes</A>
+<LI>More detail from the <A HREF="pubmed.readme.html">README</A> file.
+</UL>
+<P>Send mail to Stuart once this is done.
+
+<P><LI>
+Make a small Metathesaurus packaged with the current MetamorphoSys for testing and
+demonstration.  The script is in smis:/d3/Release/small-meta/pack.pl.
+
+<P><LI>
+Create a full subset (i.e., no sources removed) using MetamorphoSys
+and using the Oracle output stream.  This will create the data and control
+files along with a script to run to load into the Oracle database (editing-db).
+The user name for this is 'reluser' with the default table space of
+'RELEASE'.  Make sure there are public synonyms for the tables.
+Here's how.
+<P>
+<UL>
+<LI>Copy the subsetted files over to oa (or run MMSYS on oa
+to begin with) since the loader has to run locally.
+<LI>The MMSYS output includes .dat and .ctl files for each MR file, some
+SQL files and a shell script (populate_oracle_db.csh) that needs to
+be edited thus:
+<P>
+<OL>
+<LI>Set the ORACLE_HOME, user, password and TNS name in the shell
+script.
+<LI>I add the following code at the end of the script
+(before the "Finished" message).  It basically grants privileges
+to all the users on the newly loaded MR tables and creates
+public synonyms for them.
+
+<PRE>
+
+foreach f (*.ctl)
+  set b=`echo $f|sed 's/\..*$//'`
+  echo "Granting permissions and creating synonym for $b"
+  echo "GRANT ALL ON $b TO PUBLIC;"|$ORACLE_HOME/bin/sqlplus -s $user/$password@$tns_name
+  echo "DROP PUBLIC SYNONYM $b;"|$ORACLE_HOME/bin/sqlplus -s $user/$password@$tns_name
+  echo "CREATE PUBLIC SYNONYM $b FOR reluser.$b;"|$ORACLE_HOME/bin/sqlplus -s $user/$password@$tns_name
+end
+
+</PRE>
+
+</OL>
+
+<LI>We are currently loading only on the production DB on oa (oa_mid2004, for example).
+
+<LI>When loaded, change the permissions on the shell script to
+770 (world has no privileges) or remove the entire directory.
+
+</UL>
+
+<P>
+<LI> There is a file of current STY's on meow /export/home/meow/styfile.html.
+	This is generated by feeding the latest SRDEF file to the script:
+	/site/umls/scripts/srdef2html.pl.  But first, you can pull out a file
+	containing all the chemical STYs.  Here are the steps:
+
+<FONT SIZE=-1>
+<PRE>
+
+/site/umls/oracle/scripts/dump_table.pl -q "SELECT semantic_type from semantic_types where editing_chem='Y'" > /tmp/chem.types
+/site/umls/scripts/srdef2html.pl -c /tmp/chem.types &lt; /d3/Release/UMLS2001/NET/SRDEF &gt; /tmp/styfile.html
+
+</PRE>
+</FONT>
+
+	Save the old version of styfile.html on meow and then copy this version to meow.
+	Test to make ensure it looks OK.
+
+
+</OL>
+
+</BODY>
+</HTML>
+

@@ -1,0 +1,135 @@
+
+<html>
+<head>
+   <title>MEME Tables Documentation - inverse_relationships</title>
+    <script language="javascript">
+	function openDescription (thing,dsc) {
+	    var html = "<html><head><title>Description: "+thing;
+	    html = html + "</title></head><body bgcolor=#ffffff>" + dsc + "<center><form><input type=button onClick='window.close(); return true' value='Close'></form></center></body></html>";
+	    var win = window.open("","","scrollbars,width=500,height=250,resizable");
+	    win.document.open();
+	    win.document.write(html);
+	    win.document.close();
+	}; // end openDescription
+    </script>
+</head>
+
+<body text="#000000" bgcolor="#FFFFFF" link="#3333FF" vlink="#999999" alink="#FF0000">
+
+<center>
+
+<h2>MEME Tables</h2></center>
+
+<hr width="100%">
+
+<!-- Nav bar -->
+  <p><center>[ <a href="#overview">overview</a> | <a href="#details">details</a> | <a href="#references">references</a> ]</center></p>
+
+<!-- Image -->
+<p><center><tt><b>inverse_relationships</b></tt><br>
+   <img src="/images/table.gif" alt="Table Icon"></center></p>
+
+<!-- Content section -->
+
+<blockquote>
+
+  <a name="overview"></a><h3>Overview/Objective</h3>
+  This document contains a description of <tt>inverse_relationships</tt> 
+     and its various fields.  It also (may) include information
+  about how this table is used in the various stages of MID processing.
+<br>&nbsp;
+<a name="details"></a><h3>Details</h3>
+
+
+    <p>
+	
+	<!-- inverse_relationships -->
+
+    <a name="inverse_relationships"></a>
+    <center>
+      <table border="0" width="90%">
+        <tr><td valign="top" width="20%"><font size="-1"><b>Table name:</b></font></td><td valign="top" width="80%"><b><tt>inverse_relationships</tt></b></td></tr>
+        <tr><td valign="top"><font size="-1"><b>Table Type:</b></font></td><td valign="top"><font size="-1">
+          <a href="javascript:openDescription('auxiliary,metadata','<p>MID Used for other processes or just general system maintenance.</p><p>MID Used to track high-level information about the system.</p>')">auxiliary,metadata</a></font></td></tr>
+        <tr><td valign="top"><font size="-1"><b>Description:</b></font></td><td valign="top"><font size="-1">Maps relationship names to their inverses.  Additionally it allowed for the ranking of relationship names so that it can participate in the overall rank of the relationship.  The <tt>weak_flag</tt> field can be used to indicate that some relationships (like <tt>RT?</tt>) are <i>weaker</i> relationships than others.  This can be useful in terms of integrity checks like <tt>MGV_E</tt> which may be altered to say that a merge can be stopped if there exists a relationship between two concepts, <i>unless</i> that relationship is a <i>weak</i> relationship.</font></td></tr>
+        <tr><td valign="top"><font size="-1"><b>Fields:</b></font></td><td valign="top">
+	    <table border="1" cellpadding="2" width="90%">
+
+	<tr><td width="20%" valign="top"><tt>relationship_name</tt></td>
+	    <td width="20%" valign="top"><font size="-1"><b>VARCHAR2(20)</b></font></td>
+ 	    <td width="60%" valign="top"><font size="-1">a valid relationship name, primary key&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>inverse_name</tt></td>
+	    <td width="20%" valign="top"><font size="-1"><b>VARCHAR2(20)</b></font></td>
+ 	    <td width="60%" valign="top"><font size="-1">the inverse relationship name, e.g. the inverse of <tt>BT</tt> is <tt>NT</tt>&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>weak_flag</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(20)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">a <tt>Y</tt>/<tt>N</tt> flag indicating whether or not this is a weak type of relationship&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>long_name</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(100)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>release_name</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(20)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>rank</tt></td>
+	    <td width="20%" valign="top"><font size="-1"><b>NUMBER(12)</b></font></td>
+ 	    <td width="60%" valign="top"><font size="-1">the rank of this row, higher values are <i>better</i> ranks&nbsp;</font></td>
+	</tr>
+	    </table>
+        </td></tr>
+        <tr><td valign="top"><font size="-1"><b>Indexes:</b></font></td><td valign="top">
+
+            <font size="-1"><tt>No indexes</tt></font>
+	    
+        </td></tr>
+
+        <tr><td valign="top"><font size="-1"><b>Editing&nbsp;Role:</b></font></td><td valign="top"><font size="-1">When reading a concept from the database for a given <tt>concept_id</tt>, relationships must be read in both directions (where <tt>concept_id_1=concept_id</tt> and where <tt>concept_is_2=concept_id</tt>).  When reading the inverse direction (where the current concept we want is the <tt>concept_id_2</tt> of the relationship), we must reverse the sense of the relationship (e.g. <i>broader</i> becomes <i>narrower</i>) by mapping it through this table.&nbsp;</font></td></tr>
+
+      </table>
+    </center>
+    </p>
+
+<p>
+<a name="references"></a><h3>References/Links</h3>
+Use the following references for related information.
+<ol>
+  <li><a href="../tables_all.html" alt="All Tables Info">All MEME tables</a></li>
+</ol>
+</p>
+</blockquote>
+
+<p><center>[ <a href="#overview">overview</a> | <a href="#details">details</a> | <a href="#references">references</a> ]</center></p>
+
+<hr WIDTH="100%">
+<table BORDER=0 COLS=2 WIDTH="100%" NOSAVE >
+<tr NOSAVE>
+<td ALIGN=LEFT VALIGN=TOP NOSAVE>
+<address>
+<a href="/MEME/">MEME Home</a></address>
+</td>
+
+<td ALIGN=RIGHT VALIGN=TOP NOSAVE>
+<address>
+<font size=-1>Contact: <a href="mailto:bcarlsen@apelon.com">Brian A. Carlsen</a></font></address>
+
+<address>
+<font size=-1>Created: 7/27/2001</font></address>
+
+<address>
+<font size=-1>Last Updated: 03/07/2005</font></address>
+
+</td>
+</tr>
+</table>
+
+</body>
+<!-- These comments are used by the What's new Generator -->
+<!-- Changed On: 2005/03/07 -->
+<!-- Changed by: Brian Carlsen -->
+<!-- Change Note: MEME Schema documentation - inverse_relationships  -->
+<!-- Fresh for: 1 month -->
+</html>

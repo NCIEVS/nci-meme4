@@ -1,0 +1,1006 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"><html><head>
+  
+  
+  
+  
+  <meta http-equiv="Content-Type" content="text/html; charset=utf8">
+
+
+
+
+  
+  
+  
+  
+  <meta name="Author" content="Brian Carlsen">
+  <title>MEME - Developer Guides - Insertion Recipe Model</title>
+
+  
+
+  
+
+  
+
+  
+  
+  
+  
+  <meta name="author" content="Brian Carlsen">
+
+
+
+
+  
+  
+  
+  
+  <meta name="description" content="Describes a methodology for formalizing recipe creation/use.">
+</head><body style="color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);" link="#3333ff" vlink="#999999" alink="#ff0000">
+<h2 style="text-align: center;">Formalizing Insertion Recipes<br>
+</h2>
+
+
+
+
+<hr>
+<h3 style="margin-left: 40px;">
+Objective</h3>
+
+
+
+
+
+<div style="margin-left: 40px;">The development of a sustainable,
+formal model for recipe writing that reduces the possibility of human
+error and shifts the responsibility for determining basic insertion
+semantics from source inserter to source inverter.&nbsp; The end user
+of this formalized recipe will be a web-based application for managing
+the entire source insertion process.<br>
+&nbsp;
+</div>
+
+
+
+
+
+<h3 style="margin-left: 40px;">
+Background</h3>
+
+
+
+
+
+<div style="margin-left: 40px;">The current insertion process starts
+with the writing of an insertion recipe, which is a series of well
+defined steps that indicate how an MID insertion should be
+enacted.&nbsp; The current recipe writer is a fat-client Java Swing
+based wizard-style application run by a source inverter.&nbsp; The
+process starts by reviewing an HTML copy of the previous source
+version's recipe and re-writing it using the new data and ultimately
+producing a UNIX shell (.csh) script for performing the actual
+insertion.&nbsp; This model has a number of problems.<br>
+</div>
+
+
+
+
+
+<ol style="margin-left: 40px;">
+
+
+
+
+
+<li>
+There is no formalization about how to do merging when inserting an update source.</li><li>There is no formalization about how safe replacement algorithms and replacement matching algorithms work.</li>
+  <li>There is no formalization about merge set ordering.</li>
+  <li>There is no formalization about when to use pre-computed (mergefacts.src) vs generated merge facts.<br>
+  </li>
+  <li>Lack of formalization in these areas means that a human (the
+source inverter) who is not necessarily a content expert must make
+semantic decisions about the process of integrating a new version of a
+source with an old one, or a new source with the rest of the
+Metathesaurus.</li>
+  <li>Lack of formalization leads to variation and complexity that reduces sustainability, scalability, and mantainability.</li>
+</ol>
+
+
+
+
+
+<div style="margin-left: 40px;">Through a series of meetings and a
+review of ten recipes of varying complexity, we have come up with a way
+of formalizing what about a recipe needs more information at the time
+of inversion to specify how to insert it.<br>
+</div>
+
+
+
+
+
+<h3 style="margin-left: 40px;">Proposal</h3>
+
+
+
+
+
+<div style="margin-left: 40px;">
+We propose to formalize the recipe writing process to reduce the
+possibility for human error and to make recipes as consistent across
+sources and across time as possible.&nbsp; One expected side benefit of
+this is a reduction in problems associated with test insertions and a
+reduction in the need to re-perform test insertions.&nbsp; Below we
+start with some assumptions and standard rules for representing things,
+state our goals and then detail a formal recipe model that indicates
+exactly where more information<br>
+&nbsp;<br>
+</div>
+
+
+
+
+
+<h3 style="margin-left: 40px;">Goals</h3>
+
+
+
+
+
+<div style="margin-left: 40px;">These are the goals of a software system designed to manage a formal recipe.<br>
+<ol>
+  <li>To provide a simple questionnaire of semantically high-level questions that an inverter would be able to understand and answer.</li>
+  <li>Formalize the implications of those answers.&nbsp; Specifically, how it pertains to <br>
+&nbsp; a. safe replacement algorithms<br>
+&nbsp; b. matching merge step algorithms<br>
+&nbsp; c. adding of entries for data driven IC checks (MGV_B, etc.)<br>
+&nbsp; d. safeness of merge steps.</li>
+  <li>Ability to visualize recipes</li>
+  <li>Ability to update recipes from previous versions</li>
+  <li>Ability to edit recipes in specific ways for minor adjustments</li>
+  <li>Ability to run recipes</li>
+  <li>Mechanism for "approving" recipes.</li>
+</ol>
+&nbsp;<br>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+<h3 style="margin-left: 40px;">
+Merge Set and Matching Standardization<br>
+</h3>
+
+
+
+
+
+
+
+
+
+
+
+<div style="margin-left: 40px;">Before we can formalize the recipe, there are things about merge sets and matching that must be standardized.<br>
+<br>
+<h4>Matching criteria</h4>
+Generated merge sets are produced through the matching process. &nbsp;
+Safe replacement is computed through the matching process.&nbsp;
+Matching for both of these purposes needs to allow matching based on
+all of the following criteria:<br>
+<ul>
+  <li>String: EXACT, NORM, BOTH, NOT, NONE</li>
+  <li>CODE: EXACT, NONE, NOT</li>
+  <li>SAUI: EXACT, NONE, NOT</li>
+  <li>SCUI: EXACT, NONE, NOT</li>
+  <li>SDUI: EXACT, NONE, NOT</li>
+  <li>TTY: EXACT, NONE, NOT<br>
+  </li>
+</ul>
+Each criteria (except for string) supports "EXACT", "NOT", and "NONE"
+modes. String additionally supports "BOTH" and "NORM" to indicate only
+LUI matches or both SUI and LUI matches.<br>
+<br>
+<h4>Ranking of merge facts.&nbsp; </h4>
+Within a generated merge set, we must rank facts in order according to
+how "alike" the atoms in the fact are are.&nbsp; The ranking should be
+in this order (from highest to lowest rank):<br>
+<ul>
+  <li>Same SUI same TTY</li>
+  <li>Same SUI different TTY</li>
+  <li>Same LUI same TTY</li>
+  <li>Same LUI different TTY</li>
+  <li>Different LUI same TTY<br>
+  </li>
+</ul>
+Thus, a generated merge set based on LUI matching, will still allow
+identical SUI cases to merge first.&nbsp;&nbsp; This is an attempt to
+put data in the "right place" when a demotion is to happen to minimize
+the extra editing afterwards.<br>
+<br>
+<h4>Merge Set Names<br>
+</h4>
+Merge sets must now all be named with a VSAB followed by one of a
+variety of suffixes (for example, MSH-SY). The suffixes imply several
+things including:<br>
+<ul>
+  <li>Merge order</li>
+  <li>Guaranteed synonymy (things that
+DEFINITELY should be merged like abbreviations and expanded
+forms).&nbsp; These things are always safe merges.<br>
+</li>
+  <li>Conditional synonymy (contingent upon inverter indicating
+that these steps are safe).&nbsp; These things are safe merges if the
+condition is met.<br>
+  </li>
+</ul>
+The following table lists some standard suffixes and their merge order and SY implications.<br>
+<br>
+<table cellpadding="2" cellspacing="2" border="1" style="text-align: left; width: 90%; margin-left: auto; margin-right: auto;">
+  <tbody>
+    <tr>
+      <th style="vertical-align: top; text-align: center;">SUFFIX<br>
+      </th>
+      <th style="text-align: center; vertical-align: middle;">MERGE ORDER<br>
+      </th>
+      <th style="text-align: center; vertical-align: middle;">GUARANTEED SYNONYMY<br>
+      </th>
+      <th style="text-align: center; vertical-align: middle;">CONDITIONAL SYNONYMY<br>
+      </th>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">SRC<br>
+      </td>
+      <td style="text-align: center; vertical-align: middle;">1<br>
+      </td>
+      <td style="text-align: center; vertical-align: middle;">x<br>
+      </td>
+      <td style="text-align: center; vertical-align: middle;"><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">SY<br>
+      </td>
+      <td style="text-align: center; vertical-align: middle;">1<br>
+      </td>
+      <td style="text-align: center; vertical-align: middle;">x<br>
+      </td>
+      <td style="text-align: center; vertical-align: middle;"><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">AE<br>
+      </td>
+      <td style="text-align: center; vertical-align: middle;">1<br>
+      </td>
+      <td style="text-align: center; vertical-align: middle;">x<br>
+      </td>
+      <td style="text-align: center; vertical-align: middle;"><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">EA<br>
+      </td>
+      <td style="text-align: center; vertical-align: middle;">1<br>
+      </td>
+      <td style="text-align: center; vertical-align: middle;">x<br>
+      </td>
+      <td style="text-align: center; vertical-align: middle;"><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">EX<br>
+      </td>
+      <td style="text-align: center; vertical-align: middle;">1<br>
+      </td>
+      <td style="text-align: center; vertical-align: middle;">x<br>
+      </td>
+      <td style="text-align: center; vertical-align: middle;"><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">SAUI<br>
+      </td>
+      <td style="text-align: center; vertical-align: middle;">1<br>
+      </td>
+      <td style="text-align: center; vertical-align: middle;">x<br>
+      </td>
+      <td style="text-align: center; vertical-align: middle;"><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">CID<br>
+      </td>
+      <td style="text-align: center; vertical-align: middle;">2a<br>
+      </td>
+      <td style="text-align: center; vertical-align: middle;"><br>
+      </td>
+      <td style="text-align: center; vertical-align: middle;">x*<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">SCUI<br>
+      </td>
+      <td style="text-align: center; vertical-align: middle;">2b<br>
+      </td>
+      <td style="text-align: center; vertical-align: middle;"><br>
+      </td>
+      <td style="text-align: center; vertical-align: middle;">x*<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">CODE<br>
+      </td>
+      <td style="text-align: center; vertical-align: middle;">2c<br>
+      </td>
+      <td style="text-align: center; vertical-align: middle;"><br>
+      </td>
+      <td style="text-align: center; vertical-align: middle;">x*<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">SYR<br>
+      </td>
+      <td style="text-align: center; vertical-align: middle;">2d<br>
+      </td>
+      <td style="text-align: center; vertical-align: middle;"><br>
+      </td>
+      <td style="text-align: center; vertical-align: middle;">x*<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">XREF<br>
+      </td>
+      <td style="text-align: center; vertical-align: middle;">2e<br>
+      </td>
+      <td style="text-align: center; vertical-align: middle;"><br>
+      </td>
+      <td style="text-align: center; vertical-align: middle;">x*<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">REPLO<br>
+      </td>
+      <td style="text-align: center; vertical-align: middle;">3a<br>
+      </td>
+      <td style="text-align: center; vertical-align: middle;"><br>
+      </td>
+      <td style="text-align: center; vertical-align: middle;">x*2<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">REPL<br>
+      </td>
+      <td style="text-align: center; vertical-align: middle;">3b<br>
+      </td>
+      <td style="text-align: center; vertical-align: middle;"><br>
+      </td>
+      <td style="text-align: center; vertical-align: middle;">x*2<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">CUI<br>
+      </td>
+      <td style="text-align: center; vertical-align: middle;">4a<br>
+      </td>
+      <td style="text-align: center; vertical-align: middle;"><br>
+      </td>
+      <td style="text-align: center; vertical-align: middle;"><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">SDUI<br>
+      </td>
+      <td style="text-align: center; vertical-align: middle;">4b<br>
+      </td>
+      <td style="text-align: center; vertical-align: middle;"><br>
+      </td>
+      <td style="text-align: center; vertical-align: middle;"><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">MID<br>
+      </td>
+      <td style="text-align: center; vertical-align: middle;">5<br>
+      </td>
+      <td style="text-align: center; vertical-align: middle;"><br>
+      </td>
+      <td style="text-align: center; vertical-align: middle;"><br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+* - Is safe synonymy if inverter answers yes to "Is source conceptness/synonymy safe?"<br>
+*2 - Is safe synonymy if inverter answers yes to "is safe replacement algorithm safe?".
+<br>
+&nbsp;<br>
+<br>
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+<h3 style="margin-left: 40px;">Recipe Categories</h3>
+
+
+
+
+
+
+
+
+
+
+
+<div style="margin-left: 40px;">The recipe steps can be broken down into 3 useful categories. <br>
+<ol>
+  <li>Always the same.&nbsp; The insertion software can process steps in this category in an identical way across all recipes.</li>
+  <li>Implied. The insertion software can compute how these steps should be performed based on answers to inverter questions.</li>
+  <li>Explicit. These are exceptional operations and unusual recipe modifications that must be explicitly indicated by the inverter</li>
+</ol>
+Categories 2 and 3 requires some specialized knowledge of the
+source.&nbsp; In the sections below we will see what steps fall into
+each category and then how a sample questionnaire may provide the
+information needed by the implied and explicit categories.<br>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+<br>
+
+
+
+
+
+
+
+
+
+
+
+<h3 style="margin-left: 40px;">CATEGORY 1: Always the same<br>
+</h3>
+
+
+
+
+
+
+
+
+
+
+
+<div style="margin-left: 40px;">Following are the recipe steps that do not change from insertion to insertion.<br>
+<br>
+<ol>
+  <li>The entire load section, including loading data from .src files
+into the source_* tables, computation of all of the Metathesaurus
+identifiers, the computation of source replacement, and the loading of
+the remaining source_ data into the core tables.&nbsp; While sometimes
+there are pre-insert merging steps between the first and second parts
+of a load section, both parts are always run and always with the same
+types of parameters.</li><li>MID merging.&nbsp; It always involves the same style of termgroup
+selection, matching parameters, and filters.&nbsp; All recipes have a
+standard MID merging step.</li><li>Within-source
+LUI-match demotions.&nbsp; We should always create demotions between
+non-safe-replacement LUI matches after all other merging is complete.<br>
+  </li>
+
+  <li>
+Post merge steps</li>
+  <ol style="list-style-type: lower-alpha;">
+    <li>Resolve STYs.&nbsp; Sources always have default semantic types and they always are removed where there are existing MID STYs</li>
+    <li>Update releasability. All obsolete sources (previous versions) are made unreleasable (tbr=&gt;n). <br>
+    </li>
+  </ol>
+</ol>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+<h3 style="margin-left: 40px;">
+CATEGORY 2: Implied<br>
+</h3>
+
+
+
+
+
+
+
+
+
+
+
+<div style="margin-left: 40px;">
+<ol>
+  <li>Should a merge set be pre-insert merged?&nbsp; For each
+merge set, we have the following three options for pre-insert merging
+(basically computing the correct starting concept for an atom)<br>
+</li><ol style="list-style-type: lower-alpha;"><li>1-1 (should be used if a merge set is "not safe")</li>
+    <li>N-N (used if a merge set is safe).&nbsp; If N-N is used, only pre-insert merging is needed</li>
+    <li>NONE (used if a merge set is REALLY not safe, or if a 1-1 set has already been performed)<br>
+    </li>
+  </ol>
+  <br>
+"Safe Synonymy" merge sets should be merged as N-N.&nbsp; Replacement merge sets (REPL, REPLO) should
+be merged as 1-1.&nbsp; All merge sets performed after a REPL set should be performed as NONE.<br>
+<br>
+  <li>
+Merge parameters.<br><span style="font-family: monospace;">
+change_status</span> flag should be Y for generated sets involving ENG atoms should be N for all other cases<br>
+    <span style="font-family: monospace;">make_demotion</span> flag should always be Y<br>
+&nbsp;<br>
+</li>
+  <li>
+Integrity vectors to use <br>
+</li>
+  <ol style="list-style-type: lower-alpha;">
+    <li>If a set is safe use no ICs</li>
+    <li>if a set is unsafe use all ICs<br>
+      <br>
+    </li>
+  </ol>
+
+  <li>
+Merge set order.&nbsp; This is determined by the table in the "Merge Set and Matching Standardization" section.<br>
+    <br>
+</li>
+  <li>
+Matching to use for replacement (REPL) merge sets. This should be directly implied by the safe
+replacement algorithm according to the rules laid out below.<br>
+    <br>
+    <table cellpadding="2" cellspacing="2" border="0" style="text-align: left; width: 90%;">
+      <tbody>
+        <tr>
+          <th style="text-align: center; vertical-align: middle;">Safe Replacement Algorithm<br>
+          </th>
+          <th style="text-align: center; vertical-align: middle;">REPL Matching Algorithm(s)<br>
+          </th>
+        </tr>
+        <tr>
+          <td style="vertical-align: top;">1. STRING=BOTH<br>
+          </td>
+          <td style="vertical-align: top;">1. STRING=BOTH<br>
+          </td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top;">2. STRING=EXACT<br>
+          </td>
+          <td style="vertical-align: top;">Same as 1<br>
+          </td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top;">3. STRING=BOTH, CODE/S[ACD]UI=EXACT<br>
+          </td>
+          <td style="vertical-align: top;">3a. STRING=BOTH, CODE/S[ACD]UI=EXACT<br>
+3b. STRING=BOTH, CODE/S[ACD]UI=NOT (really not safe)<br>
+ </td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top;">4. STRING=EXACT, CODE/S[ACD]UI=EXACT<br>
+
+
+          </td>
+          <td style="vertical-align: top;">Same as 3<br>
+          </td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top;">5. CODE/S[ACD]UI=EXACT</td>
+          <td style="vertical-align: top;">5a. CODE/S[ACD]UI=EXACT<br>
+5b.  STRING=BOTH, CODE/S[ACD]UI=NOT (really not safe)<br>
+          </td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top;">6. STRING=EXACT,<br>
+&nbsp;&nbsp;&nbsp; CODE/S[ACD]UI=EXACT<br>
+&nbsp;&nbsp;&nbsp; TTY=EXACT<br>
+
+          </td>
+          <td style="vertical-align: top;">Same as 3<br>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+<br>
+    The contents of this table can expressed in rule form as well.<br>
+    <ol>
+      <li>If using STRING, expand to BOTH in REPL algorithm.</li>
+      <li>If using TTY=EXACT, drop this condition in REPL algorithm</li>
+      <li>If
+using CODE/S[ACD]UI=EXACT, perform two sets where the first uses this
+condition and rules #1,2 and a second that uses STRING=BOTH and the
+CODE/S[ACD]UI=NOT (this is to pick up cases where codes changed).&nbsp;
+This second set should always be performed with a pre-insert merge
+setting of NONE.</li>
+    </ol>
+    <br>
+Note: there may be more than one safe replacement step and this
+methodology should be applied for each one.&nbsp; For safe replacement
+steps based on termgroup lists, the REPL algorithm should use the same
+termgroup lists.&nbsp; For safe replacement steps based on whole
+sources, the REPL algorithm should use all termgroups from the sources
+selected.<br>
+
+    <br>
+  </li>
+
+  <li>Matching
+to use for obsolete replacement (REPLO) merge sets.
+The matching algorithm should be based on safe replacement parameters
+for the current version obsolete term types (tty class=obsolete).&nbsp;
+The rules from the previous step should be used, but REPLO steps should
+run before REPL steps, and they should be mutually exclusive.&nbsp; If
+we adopt a practice of either attaching an O before the TTY or using an
+ORIG_TTY attribute to indicate the original TTY of an obsolete
+termgroup, we can directly imply the macthing algorithm for things that
+have become obsolete.&nbsp; It is the safe replacement algorithm with
+the paired TTYs (e.g. OPT with PT).<br>
+<br>
+  </li><li>MID merging step always happens after safe replacement</li>
+</ol>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+<p style="margin-left: 40px;">.
+</p>
+
+
+
+
+
+
+
+
+
+
+
+<h3 style="margin-left: 40px;">
+CATEGORY 3: Explicit<br>
+</h3>
+
+
+
+
+
+
+
+
+
+
+
+<div style="margin-left: 40px;">
+<ol>
+  <li>The inverter will have to specify the details of the safe
+replacement algorithm.&nbsp; It may be that multiple replacement steps
+are required for different TTY sets.&nbsp; If so, these sets of term
+types will also have to be explicitly specified.<br>
+&nbsp;&nbsp;&nbsp; STRING = ?<br>
+&nbsp;&nbsp;&nbsp; CODE = ?<br>
+&nbsp;&nbsp;&nbsp; SCUI = ?<br>
+&nbsp;&nbsp;&nbsp; SAUI = ?<br>
+&nbsp;&nbsp;&nbsp; SDUI = ?<br>
+&nbsp;&nbsp;&nbsp; TTY = ?&nbsp;&nbsp; <br>
+    <br>
+We may be able to imply a safe replacement step between obsolete current and non-obsolete previous version term types.<br><br>
+  </li>
+
+  <li>Additional REPL steps.&nbsp; The safe replacement algorithm
+suggests a certain replacement merging pattern, but certain sources may
+require additional matching steps that can be explicitly added by inverters.<br>
+<br>
+  </li>
+  <li>Additional MID steps.&nbsp; As with REPL steps,
+certain sources may require additional MID merging steps.&nbsp; This
+will especially be true of "new" sources (those not updating a previous
+version).<br>
+    <br>
+  </li>
+  <li>In some cases, the default
+filters for merge facts and the default integrities will not be enough
+to prevent certain known cases of improper merging.&nbsp; The inverter
+should be able to specify additional rules that will impact all
+matching merge sets (REPL, REPLO, and MID).&nbsp; One example of this
+is that GO should not merge with certain semantic types (or their
+children).<br>
+    <br>
+  </li>
+  <li>There may be a need to perform a within-source LUI generated
+merge step.&nbsp; On occasion, it may be desirable to put atoms of a
+source together based on norm forms before computing REPL merging<br>
+    <br>
+  </li>
+
+  <li>Whether
+or not to add this source to certain integrity check lists (MGV_B,
+MGV_I, MGV_K).&nbsp; This can be determined via the answer to questions
+like "Is this source allowed to merge with itself?".</li>
+</ol>
+
+
+
+
+
+
+&nbsp;<br>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+<div style="margin-left: 40px;">
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+<h3 style="margin-left: 40px;">
+Sample Questionnaire<br>
+</h3>
+
+
+
+
+
+
+
+
+
+
+
+<div style="margin-left: 40px;">&nbsp;Here is a starting point for a sample questionnaire.<br>
+<br>
+<form action="javascript:void(0)">
+<table cellpadding="2" cellspacing="2" border="0" style="text-align: left; margin-left: auto; margin-right: auto; width: 90%;">
+  <tbody>
+    <tr>
+      <td>How does this source explicitly represent synonymy?</td>
+      <td><select><option>It does not</option><option>By CODE</option><option>By Source CUI</option><option>By SY relationships</option></select>
+      </td>
+    </tr>
+    <tr>
+      <td>Is this source's view of synonymy trusted?</td>
+      <td>        <select><option>YES</option><option>*YES, with reservations</option><option>NO</option></select>
+</td>
+    </tr>
+    <tr>
+      <td>Are atoms from this source allowed to merge with each other if indicated by matching steps?</td>
+      <td>
+        <select><option>YES</option><option>YES, if codes match</option><option>NO</option></select>
+      </td>
+    </tr>
+    <tr>
+      <td>Which sources should this one not be allowed to merge with (regardless of codes)?
+         (select all that apply) 
+</td>
+      <td>
+        <select multiple="multiple" size="4"><option>AIR93</option><option>ALT2004</option><option>AOD2004</option><option>BI98</option><option>...</option></select>
+      </td>
+    </tr>
+    <tr>
+      <td>Which sources should this one not be allowed to merge with (if codes are different)?
+         (select all that apply) 
+</td>
+      <td>
+        <select multiple="multiple" size="4"><option>AIR93</option><option>ALT2004</option><option>AOD2004</option><option>BI98</option><option>...</option></select>
+      </td>
+    </tr>
+    <tr>
+      <td>Is this source allowed to merge with its previous version if the codes are different?</td>
+      <td>        <select><option>YES</option><option>YES, if previously merged</option><option>NO</option></select>
+</td>
+    </tr>
+    <tr>
+      <td>What criteria are used to indicate that an atom from this version
+          of the source is the "same" as an atom from the previous version?
+         (select all that apply) 
+        
+</td>
+      <td><select multiple="multiple" size="4"><option>SAME String</option><option>SAME String/Norm string</option><option>SAME CODE</option><option>SAME Source CUI</option><option>SAME Source AUI</option><option>SAME Source DUI</option><option>SAME TTY</option></select></td>
+    </tr>
+    
+    <tr>
+      <td>*Are there other specific conditions that should prevent this source from merging with itself or others?<br>
+</td>
+      <td><input type="checkbox">
+</td>
+    </tr>
+    <tr>
+      <td>*Are there any other additional steps required to match and merge this source with itself or others?<br>
+</td>
+      <td><input type="checkbox">
+</td>
+    </tr>
+    <tr>
+      <td><br>
+&nbsp; * <font size="-1">indicates that additional configuration pages will be presented to the user to further specify these steps</font><br>
+</td>
+      <td>.<br>
+</td>
+    </tr>
+  </tbody>
+</table>
+</form>
+</div>
+
+
+
+
+<div style="margin-left: 40px;">A simple questionaire like this will
+probably not meet all of our needs.&nbsp; Likely, we will have a simple
+questionaire that if the user answers yes to certain questions, they
+are guided through a series of other pages where they may specify
+complex safe-replacement algorithms, additional matching/merging sets,
+or needed additional merge set filters..
+</div>
+
+
+
+
+<h3 style="margin-left: 40px;">Test Insertion Checklist</h3>
+
+<div style="margin-left: 40px;">In addition to using this
+questionnairre to drive the recipe writing process, we should have a
+test inseriton checklist that must be approved by an NLM editor before
+we are to perform the real insertion.&nbsp; This checklist should be a
+series of questions that the editor has to answer yes to before we can
+move on.&nbsp;&nbsp; For example:<br>
+<br>
+<div style="text-align: center;">
+<table cellpadding="2" cellspacing="2" border="0" style="text-align: left; width: 90%; margin-left: auto; margin-right: auto;">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top;" rowspan="1" colspan="2">Insertion name <span style="font-weight: bold;">HCPCS2006 (oc_testmisc 10-oct-2006)<br>
+      </span></td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Have the sample concepts been reviewed?<br>
+      </td>
+      <td style="vertical-align: top;"><input type="checkbox"></td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Are the default STY assignments comprehensive and acceptable?<br>
+      </td>
+      <td style="vertical-align: top;"><input type="checkbox"></td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Was replacement merging successful?<br>
+      </td>
+      <td><input type="checkbox"></td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Are the demotions acceptable?<br>
+      </td>
+      <td style="vertical-align: top;"><input type="checkbox"></td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Did MID merging produce good merges?<br>
+      </td>
+      <td style="vertical-align: top;"><input type="checkbox"></td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">? others ?<br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+</div>
+<br>
+Such a checklist would guarantee that at a minimum set of requirements were passed before performing a real insertion.<br>
+</div>
+
+<h3 style="margin-left: 40px;">Conclusion</h3>
+
+
+
+
+
+<div style="margin-left: 40px;">This has been an effort to formalize as
+much of an insretion recipe as possible so as to allow the insertion
+software to make informed decisions about most of the processing and
+leaving as little intellectual effort as is required up to the source
+inverter.&nbsp; Naturally, the eventual system will allow very precise
+refining (tweaking) of the final source recipes to accommodate the
+eventaul exceptions that will creep their way into the spec.<br>
+</div>
+
+
+
+
+&nbsp;
+<center></center>
+
+
+
+
+
+<hr width="100%">
+<table border="0" cols="2" width="100%" nosave="">
+
+
+
+
+<tbody><tr nosave="">
+<td align="left" valign="top" nosave="">
+<address>
+<a href="/MEME/">MEME Home</a></address>
+</td>
+
+<td align="right" valign="top" nosave="">
+<address>
+<font size="-1">Contact: <a href="mailto:bcarlsen@apelon.com">Brian A. Carlsen</a></font></address>
+
+<address>
+<font size="-1">Created: 12/23/2004</font></address>
+
+<address>
+<font size="-1">Last Updated: 01/18/2005</font></address>
+</td>
+</tr>
+</tbody>
+</table>
+<!-- These comments are used by the What's new Generator --><!-- Changed On: 2005/01/18 --><!-- Changed by: Brian Carlsen --><!-- Change Note: MEME - Developer Guides - Insertion Recipe Model --><!-- Fresh for: 1 month -->
+
+
+
+
+</body></html>

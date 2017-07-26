@@ -1,0 +1,301 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+<TITLE>WMS Documentation</TITLE>
+</HEAD>
+
+<BODY>
+
+<H1><A NAME="top">WMS Documentation</A></H1>
+
+<OL>
+<LI> <A HREF="#1">How to make checklists</A>
+<LI> <A HREF="#2">How to make worklist/checklist reports</A>
+<LI> <A HREF="#3">How to print reports on a Postscript printer</A>
+<LI> <A HREF="/vlad-doc/wms/browser_printing.html">Printing standard reports or reports with extended (UTF-8)
+characters using browser</A>
+<LI> <A HREF="#4">What is the Report Queue?</A>
+</OL>
+
+
+<HR>
+<P>
+<H1><A NAME="1">How to Make Checklists</A></H1>
+You can make checklists in the EMS by following the action links in the
+ME, QA or AH page.  But you can also make checklists from a
+file of concept_ids, or optionally, concept_id|cluster_id pairs.
+Simply use:
+
+<PRE>
+
+  /site/umls/oracle/wms-2.1/scripts/make-checklist.pl &lt; file
+
+</PRE>
+
+Optional arguments are:
+
+<UL>
+<LI> -c checklist name (default is chk_&lt;user&gt;)
+<LI> -u who made this checklist (default is the UNIX login)
+<LI> -d Oracle TNS (default is whatever current-editing-tns points to)
+<LI> -m &lt;max&gt; maximum number of clusters in the checklist
+<LI> -i Use this flag is the input consists of CUIs, not concept IDs.
+	The CUIs are mapped to concept_ids from the concept_status table
+	before the checklist is made.
+</UL>
+
+<P>
+
+If the data is in a table, it first needs to be extracted to
+UNIX.  I've written a script /site/umls/oracle/scripts/dump_table.pl
+that will do just this.  It takes two args:
+
+<UL>
+<LI> -t &lt;table name&gt;
+<LI> -u &lt;user/schema name&gt;
+</UL>
+
+<P>
+
+The -t is obvious.  Tables in Oracle are created in user namespaces
+called schemas.  Our default schema is MTH.  To make a MTH table
+visible to other users (e.g., meow), it has to have a public synonym.
+If it doesn't (chances are one-off tables won't), use the -u option
+to specify the schema.
+
+<P>
+
+So let's say LTI creates a table psy97_demotions in the MTH schema
+with a single attribute that is a concept_id.  You can make a checklist
+as follows:
+
+<PRE>
+
+/site/umls/oracle/scripts/dump_table.pl -t psy97_demotions -u MTH |
+/site/umls/oracle/wms-2.0/scripts/make-checklist.pl
+</pre>
+<p>If the database being used is something other than the current_editing_tns,
+the -d option needs to be used after each command.
+<pre>
+
+/site/umls/oracle/scripts/dump_table.pl -d oc_testsw -t VANDF01_replaced -u MTH 
+| /site/umls/oracle/wms-2.0/scripts/make-checklist.pl -d oc_testsw -m 100
+
+</PRE>
+
+If the table contains other attributes and the concept_id is,
+say, the third field, you need an intermediate awk to filter the
+fields:
+
+<PRE>
+
+/site/umls/oracle/scripts/dump_table.pl -t psy97_demotions -u MTH |
+nawk -F'|' '{print $3}' |
+/site/umls/oracle/wms-2.0/scripts/make-checklist.pl
+
+</PRE>
+
+Easy ain't it?
+
+<P>
+
+<A HREF="#top">&lt;Top&gt;</A>
+
+<H1> <A NAME="2">How to make worklist/checklist reports</A> </H1>
+
+A worklist or checklist <EM>report</EM> is a collection of concept reports for all
+the individual concepts on a worklist or checklist in order.  Additionally, clusters
+are identified with the cluster ID a concept's position in the cluster is noted
+(e.g., #2 of 4).
+
+<P>
+
+In the WMS the link marked "Report" in the actions column is the way to make
+reports for worklists and checklists.  This will bring up a form that will
+also let you specify:
+
+<P>
+
+<UL>
+<LI> When you want the report generator to run.  Your choices are the top of
+	the hour for all the remaining hours left in the working day.  Since
+	generating a report for a large worklist could take from 10 minutes to
+	an hour, you have the option of starting this process later.
+<P>
+<LI> An email address for notifying you after your report has been made.
+	This is optional since you can also check the "Report Queue" in the
+	WMS for all the requests submitted to the report generator.  In this
+	display, you can also cancel a pending request.
+<P>
+<LI> The type of report - stick to "Full" for now.
+<P>
+<LI> If you want certain lines in a report highlighted when it is printed,
+	you can specify the pattern (case sensitive string only) here.
+	The default display highlights only the first line of a concept
+	report.
+</UL>
+
+<P>
+Once a report has been generated the WMS records the path to the report
+file either in the mail message to you or in the "Report Queue" listing.
+This is the file that contains your report and can then be printed.
+
+<H2>Making reports for Dead CUI worklists/checklists</H2>
+
+This is an interim strategy for creating reports for deadcui worklists
+and checklists.  On smis, run the script
+<CODE>/site/umls/oracle/concept-reports/deadcui-report.pl</CODE> with
+the -w option set to the worklist or checklist name:
+
+<FONT SIZE=-1>
+<PRE>
+/site/umls/oracle/concept-reports/deadcui-report.pl -w chk_astra
+/site/umls/oracle/concept-reports/deadcui-report.pl -w wrk03a_deadcui01_nc_01
+</PRE>
+</FONT>
+
+The abbreviated reports is printed to the screen which can be stored in a file
+or sent directly to the printer as in:
+
+<FONT SIZE=-1>
+<PRE>
+/site/umls/oracle/concept-reports/deadcui-report.pl -w chk_astra > chk_astra.rpt
+/site/umls/oracle/concept-reports/deadcui-report.pl -w wrk03a_deadcui01_nc_01 | enscript -rG
+</PRE>
+</FONT>
+
+The editing-db database is used by default.  You can use the -d option to set
+to another database (e.g., -d oc_testsrc).  Note that this report also needs
+the MySQL databases from prior releases on umls-release.nlm.nih.gov to be available.
+
+<P>
+
+<A HREF="#top">&lt;Top&gt;</A>
+
+<H1> <A NAME="3">How to print reports on a Postscript printer</A> </H1>
+
+You have several ways to send a worklist or checklist report to the printer.
+We use the program "enscript" to pretty print these reports in a format
+that minimizes paper usage and yet is legible.
+
+<P><FONT color=red>Note: UTF-8 printing added 3/2004</FONT>
+<H2>Printing reports with extended (UTF-8) characters</H2>
+
+The script: /site/umls/scripts/jenscript.pl is a Java implementation
+of enscript that can handle UTF-8 characters.  Make sure that the report
+is generated with HTML escapes to represent whitespace.
+
+You need to specify the printer name (-p) and the report file name (-r)
+as options to jenscript.pl.  Optionally you can have a different header
+on every page by using the -b option.  The default header is the
+name of the worklist or checklist as derived from the report's file name.
+
+<P>
+Options:
+<PRE>
+-r (path to report file) REQUIRED
+-p (printer name, e.g., umlshp) REQUIRED
+-b (alternative header)
+</PRE>
+
+<P>
+Examples:
+<PRE>
+
+/site/umls/scripts/jenscript.pl -p umlshp -r chk_foo
+/site/umls/scripts/jenscript.pl -p umlshp -r /d3/ems/reports/05a/wrk05a_missyn_01.rpt
+
+</PRE>
+
+<P>
+
+<H2>Printing standard reports</H2>
+A script in <CODE>/site/umls/scripts/print-report.pl</CODE> is probably
+what you want if your report was generated in the WMS.  This script
+automatically prints the descriptive information associated with the
+worklist or checklist (if any) on the header of each page.  It also
+is another chance for you to specify another highlight string, in addition
+to the one you specified when you made the report in the WMS.
+
+While it can print from standard output, the -r option should be used
+to specify a report file where known.  The -h option is the highlight
+option.  Here are some examples:
+
+<PRE>
+
+print-report.pl -r /d3/ems/reports/01b/wrk01b_mxsuppr_nc_01.965922282.rpt 
+print-report.pl -r /d3/ems/reports/01b/wrk01b_mxsuppr_nc_01.965922282.rpt -h "PSY97"
+
+</PRE>
+
+You can also use enscript directly to print a worklist report.  Here is
+an example:
+
+<PRE>
+
+enscript -b "Demotions" -2rG -f"Courier7" -e &lt; report.txt
+
+</PRE>
+
+The -e flag to enscript asks it to interpret escape sequences embedded
+in the report file.  This is used by the WMS for highlighting.
+
+<P>
+
+You can use the highlighting script directly to highlight as many
+strings as you want.  The script is in:
+<CODE>/site/umls/scripts/enscript-highlight.pl</CODE>.
+For example, to highlight all lines with the word
+"ICD10AM" and "ICPC2E", and then send the result to the printer:
+
+<PRE>
+
+enscript-highlight.pl -s ATOMS -h "ICD10AM" &lt; chk_astra.rpt |
+enscript-highlight.pl -s ATOMS -h "ICPC2E" &gt; chk_astra.rpt2
+print-report.pl -r chk_astra.rpt2
+
+</PRE>
+
+<A HREF="#top">&lt;Top&gt;</A>
+
+<H1> <A NAME="4">What is the Report Queue?</A> </H1>
+
+In the WMS you can generate worklist and checklist reports by selecting
+the "Report" action once you've found the worklists (or checklists)
+you are interested in.  The request for a report is put in a FIFO
+(first-in-first-out) queue to be processed one at a time by a report daemon.
+The report daemon (in my cron) is constantly monitoring this queue for new requests.
+Requests can be ACTIVE: if the time you want the report to be generated
+is past, but the report daemon has not gotten to the request yet, PENDING:
+you've asked the report to be generated at a later time, or CURRENT: 
+the report is currently being generated.
+<P>
+The report daemon selects the earliest active request
+and generates the report for it and optionally sends mail to the user
+once it has completed.  All reports are archived in a standard location
+and have standardized naming conventions.
+<P>
+The "Report Queue" action shows the status of pending and completed
+requests.  You can "Cancel" PENDING requests (the report will
+not be generated) and "Delete" completed requests (the request
+is simply dequeued, never to be heard from again).
+You cannot delete a CURRENT request.
+<P>
+<A HREF="#top">&lt;Top&gt;</A>
+
+<P>
+<HR>
+<ADDRESS>Contact: <A HREF="mailto:suresh@nlm.nih.gov">Suresh Srinivasan</A></ADDRESS>
+<ADDRESS>Created: Aug 2, 2000</ADDRESS>
+<ADDRESS>Last Updated: Apr 22, 2004</ADDRESS>
+<ADDRESS><A HREF="/index.html">Meta News Home</A></ADDRESS>
+</BODY>
+
+<!-- These comments are used by the What's new Generator -->
+<!-- Changed On: Date in 2004/04/22 format -->
+<!-- Changed by: Suresh -->
+<!-- Change Note: WMS (Oracle) related documentation -->
+<!-- Fresh for: 10 days -->
+
+</BODY>
+</HTML>

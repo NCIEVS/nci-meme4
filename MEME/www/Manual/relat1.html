@@ -1,0 +1,452 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+<TITLE>Relationships in the Metathesaurus</TITLE></HEAD>
+<BODY>
+<CENTER>
+<H1>Relationships in the Metathesaurus</H1></CENTER>
+<H3>1. Sources of relationships</H3>
+<P>Relationships between strings, terms, and concepts (<A
+HREF="http://www.nlm.nih.gov/research/umls/META3.HTML#s31">see Section 3.1 of
+the UMLS Documentation</A>) in the Metathesaurus are (1) derived from source
+vocabularies or (2) added during Metathesaurus construction. In general,
+Metathesaurus editors (hereafter referred to as editors) clarify ambiguous
+relationships taken from source vocabularies (e.g., specify the exact
+relationship between an entry term and a preferred term), but may not otherwise
+change or delete relationships derived from source vocabularies. This ensures
+that the Metathesaurus accurately represents the content of its sources.
+<BR>
+<BR>In most cases, editors are the authority for the relationships that were
+created during Metathesaurus construction. They may add, delete, or change any
+relationship that was introduced during Metathesaurus construction, subject of
+course to the review and sign-off procedures implemented to insure quality and
+consistency in Metathesaurus editing. 
+</P>
+<H3>2. Reason for Adding Relationships to the Metathesaurus</H3>
+<P>Editors add relationships to the Metathesaurus in order to link identical or
+closely related concepts from different source vocabularies. Such links are
+essential to the UMLS goal of assisting the automated retrieval of related
+information from disparate sources that use different vocabularies. In general,
+the objective is to have one link from each Metathesaurus source vocabulary to
+each concept in the Metathesaurus that is present in that vocabulary or is
+similar along some dimension to another concept in that vocabulary.
+<BR>
+<BR>Since the Metathesaurus is not intended to be a comprehensive biomedical
+knowledge base, editors do NOT make specific links between dissimilar concepts
+that have important functional relationships, e.g., AIDS and AZT. Such links
+will appear in the Metathesaurus only if they are present in one or more of its
+source vocabularies or as co-occurrence relationships derived from information
+sources such as MEDLINE. 
+</P>
+<H3>3. Synonymous Relationships</H3>
+<P>Given the purpose of the UMLS, the most important relationship to identify
+and to record in the Metathesaurus is a <STRONG>synonymous relationship</STRONG>
+between strings in the same vocabulary or in different vocabulary sources. To
+allow more intelligible user displays and to reduce the number of specific
+inter-string relationships that must be recorded and maintained, the
+Metathesaurus divides synonymous relationships into two categories: lexical
+variation (linking strings that vary only in singular/plural form,
+direct/indirect form, punctuation, etc.) and synonymy between unlike strings. In
+the Metathesaurus, acronyms are treated as synonyms of the full forms to which
+they refer and not as lexical variants.
+<BR> 
+</P>
+<UL>
+<LI><B>Lexical Variation In the Metathesaurus</B></LI></UL>
+<P>Lexical variants are determined and labeled by a computer algorithm
+supplemented by a set of known exceptions. Editors' only responsibilities
+related to lexical variants are (1) to identify when strings that have been
+linked as lexical variants have different meanings and to break the synonymous
+relationship between them and (2) to report cases when the lexical variation
+algorithm produces obviously anomalous results so the algorithm and/or the set
+of known exceptions can be adjusted. Editors use the hierarchical contexts and
+definitions or scope notes (if present) in different source vocabularies to
+determine whether lexical variants from different sources have the same meaning.
+  
+</P>
+<UL>
+<LI><B>Synonymy between Unlike Strings</B></LI></UL>
+<P>Some vocabulary sources, e.g., MeSH, include explicitly labeled synonymous
+relationships between dissimilar strings. Such relationships are used by the
+automated routines that construct preliminary Metathesaurus entries to detect
+candidate synonymous relationships between strings in other vocabularies, e.g.,
+if vocabulary A indicates that string X = string Y, this relationship is used to
+suggest that string X in vocabulary B = string Y in vocabulary C. In reviewing
+such relationships the editors' job is to determine whether the meanings of
+strings X and Y in vocabularies A, B, and C are indeed equivalent, using the
+same clues (contexts, definitions, scope notes) used to detect differences in
+meaning between lexical variants.
+<BR>
+<BR> In a number of vocabularies, the relationship between an &quot;entry term&quot;
+and the &quot;preferred term&quot; to which it points is not specifically
+labeled. When such vocabularies are incorporated into the Metathesaurus, entry
+terms that are lexical variants may be labeled automatically, but editor
+intervention will usually be needed to determine whether other entry terms are
+synonyms of their preferred terms or mean something different. If there are
+multiple entry terms that are not synonyms of the preferred term to which they
+point, it is also necessary to determine whether they are synonyms of each
+other. The labeling of entry term relationships may occur before these terms are
+incorporated into the Metathesaurus and may be assigned to editors as a special
+task.
+<BR>
+<BR>Although editors do determine synonymy between strings in the same source
+in the case described above, a more usual task is mapping between concepts in
+two source vocabularies or between concepts in a newly incorporated source and
+concepts already present in the Metathesaurus. In all cases when editors attempt
+to identify synonymy, they must use knowledge of the structure and semantics of
+the different vocabularies involved, understanding of the meaning of the
+concepts to be mapped, as well as automated tools provided to search the
+contents of different vocabularies to direct their search for synonymous or
+closely related strings.
+<BR>
+<BR>Deciding whether two strings are synonyms can be a difficult task.
+Unfortunately there are no fool-proof rules to apply. Some general principles
+(which contain contradictory elements) follow:
+<BR> 
+</P>
+<P>a. If two strings have different meanings within a single vocabulary source,
+they generally cannot be linked as synonyms in the Metathesaurus. The few
+exceptions to this rule occur when another more current or biomedically correct
+source indicates that they are synonymous.
+<BR>
+<BR>b. If a slight distinction in meaning between two strings is biomedically
+significant, the two strings should not be labelled as synonyms in the
+Metathesaurus, even if they are used synonymously in some environments. Examples
+of strings that are sometimes used interchangeably, but have biomedically
+significant distinctions in meaning are: Neoplasms, Cancer or Malignant
+Neoplasms; High Blood Pressure, Hypertension.
+<BR>
+<BR>c. Making very fine and biomedically insignificant distinctions in meaning
+between strings in the Metathesaurus actually works against the goals of the
+UMLS.
+<BR>
+<BR>d. There are some particular synonymy issues that apply only to chemical
+concepts. Some specific guidelines are: 
+</P>
+<P>1) Often the singular and plural of chemical names are not synonyms, because
+the plural denotes a group of chemicals and the singular is a specific member of
+the group. In these cases, the singular is has a &quot;narrower than&quot;
+relationship to the class. The singular and plural are synonymous lexical
+variants only when there is no member/class relationship between them.
+<BR>
+<BR>2) A tradename for a chemical product is considered to be a synonym for the
+generic name of its active ingredient, even though the product also contains
+fillers and dyes.
+<BR>
+<BR>3) An N1 name for a chemical almost always has the same meaning as the MeSH
+main heading for the chemical. (It may be identical, a lexical variant, or a
+synonym.)</P>
+<P><BR></P>
+<H3>4. Non-Synonymous Relationships</H3>
+<P><BR>Concepts appearing in one Metathesaurus source vocabulary may have no
+equivalent in all or some of the other vocabularies represented in the
+Metathesaurus. If no synonymous relationship exists, it is useful to link
+concepts from one vocabulary to non-synonymous, but closely related concepts in
+other vocabularies - - again in support of the UMLS goal of enabling automated
+retrieval of related information from disparate sources.
+<BR>
+<BR>This section will discuss the relationships (BRD, NRW, REL, LIKE) and the
+relationship attributes/RelAs (has_part; contains; derivative_of etc.) 
+Currently, editors are not responsible for assigning the RelAs to concepts in
+the metathesaurus. There will probably be some projects in the future to expand
+the list of RelAs and to assign these to concepts in the Metathesaurus. </P>
+<P><BR><B>Order of Precedence of Non-Synonymous Relationships</B>
+<BR>
+<BR>In general, editors attempt to establish the most useful relationship
+between a concept in one vocabulary and the available concepts in another
+vocabulary and then move on to the next concept. In other words, once a
+high-precedence relationship exists, editors should not spend time adding other,
+lower precedence relationships.  
+<BR>As stated previously, synonymy is the most important relationship to make
+between strings in the Metathesaurus. The next most useful relationship is the
+Broader Than (BRD) or Narrower Than relationship (NRW). One is the inverse of
+the other. Editors need only specify the relationship in one direction. The
+inverse relationship is recorded automatically. For the purposes of
+Metathesaurus editing, the definition of Broader Than and Narrower Than is as
+follows: 
+</P>
+<TABLE BORDER="BORDER" CELLSPACING="0" CELLPADDING="0">
+<TR>
+<TD>
+<CENTER><B>Broader Than</B></CENTER>
+</TD>
+<TD>
+<CENTER><B>Narrower Than</B></CENTER>
+</TD></TR>
+<TR>
+<TD>
+<CENTER>inverse is_a
+</CENTER></TD>
+<TD>
+<CENTER>is_a,<BR> i.e., is an<BR> instance of, is a
+<BR> member of a class
+</CENTER>
+</TD></TR>
+<TR>
+<TD>
+<CENTER>has_degree</CENTER>
+</TD>
+<TD>
+<CENTER>degree_of
+</CENTER>
+</TD></TR>
+<TR>
+<TD>
+<CENTER>has_part</CENTER> 
+</TD>
+<TD>
+<CENTER>part_of
+</CENTER></TD></TR>
+<TR>
+<TD>
+<CENTER>has_conceptual_part
+</CENTER></TD>
+<TD>
+<CENTER>conceptual_part of
+</CENTER>
+</TD></TR>
+<TR>
+<TD>
+<CENTER>*has_salt</CENTER>
+</TD>
+<TD>
+<CENTER>salt_of (parent compound)
+</CENTER>
+</TD></TR>
+<TR>
+<TD>
+<CENTER> *has form</CENTER>
+</TD>
+<TD>
+<CENTER>form_of (element) 
+</CENTER></TD></TR></TABLE>
+<P>*These apply to chemicals/elements and are not currently part of the
+Semantic  Network.<BR></P>
+<P>All other non-synonymous relationships between concepts fall into the &quot;Other&quot;
+category in the Metathesaurus. Within this broad designation, however, there are
+some types of relationships that are more likely to contribute to the overall
+UMLS goals than others. There are also some types of &quot;other&quot;
+relationships that usually should NOT be specified.
+<BR>
+<BR><B>a. First Priority &quot;Other&quot; Relationships</B>
+<BR>
+<BR>After the Broader Than/Narrower Than relationship, the next most important
+relationships involve close physical proximity or strong similarity or
+association. These relationships include: 
+</P>
+<P><BR> physically_related_to<BR> contains<BR> surrounds
+<BR>adjacent_to
+<BR>connected_to
+<BR>derivative_of
+<BR>developmental_form_of
+<BR>traverses associated_with
+<BR>co-occurs_with
+<BR>conceptually_related_to
+<BR>issue_in
+<BR>consists_of
+<BR>has_process
+<BR>has_property
+<BR>uses (particularly as descriptive of the relationship between a procedure
+and a medical device used in that procedure)   
+<BR><BR>The following relationships apply to chemicals. They are not in the
+current Semantic Network.<BR>  isomer of 
+<BR>polymer of</P>
+<P>receptor of
+<BR>precursor or progenitor of  
+<B></B>
+<BR><BR><B>b.  Second Priority &quot;Other&quot; Relationships</B>
+<BR>
+<BR>Editors will make connections between concepts that have these
+relationships (or in some cases their inverses) less frequently because the
+relationships usually link dissimilar concepts that have a functional or
+temporal relationship. In some cases, however, connecting concepts that have
+these relationships will serve the UMLS goal of supporting retrieval of
+disparate, but related information from different sources. 
+</P>
+<P><BR>produces
+<BR>affects
+<BR>carries_out
+<BR>exhibits
+<BR>precedes
+<BR>temporally_related_to
+<BR>functionally_related_to
+<BR><BR><B>c. &quot;Other&quot; Relationships Generally NOT Created by
+Editors<BR>
+<BR>
+</B>In general, editors will not link concepts by the following functional
+relationships (or their inverses):
+<BR><BR>  causes
+<BR>diagnoses
+<BR>disrupts
+<BR>assesses
+<BR>effect of
+<BR>complicates
+<BR>indicates
+<BR>manages
+<BR>manifestation_of
+<BR>practices
+<BR>prevents
+<BR>treats
+<BR>method_of
+<BR>result_of
+<BR>measurement_of
+<BR>measures
+<BR>carries_out
+<BR>assesses   
+<BR>Exceptions can be made, but should be very infrequent.<BR><BR>
+<B>XR relationships</B><BR><BR>The relationship Not Related (XR) is not
+released in published version of the Metathesaurus. The primary purpose of XR
+relationships is to prevent editors from having to repeatedly review concepts
+that have similar atom names but do not mean the same thing. An XR relationship
+indicates that these concepts should not be merged. An XR relationship can also
+be used if concepts are merged together and then split apart because the
+concepts do not belong together and are not related.<BR><BR>XR relationships
+should never be created between concepts just to indicate a Not Related
+relationship (ex. Fish is obviously not related to Pharmacist so there is no
+need to created an XR.) XRs may be used when splitting apart atoms or to change
+existing relationships that are wrong. <BR>
+<BR><B>LIK</B>
+<BR>
+<BR>The LIK relationship always appears in the unreviewed/unapproved field of a
+concept. MeSH Supplementary Chemicals and a number of SNMI97 concepts currently
+are assigned this relationship. <BR><BR>Supplementary Chemical concepts that
+are not merged with atoms from other sources are not to be edited at this time<BR>
+<BR><B>General Principles Regarding Non-Synonymous Relationships Created by
+Editors</B>
+<BR>
+<BR>a.) When an editor is assigned the task of mapping between vocabularies
+within the Metathesaurus the focus is on making <STRONG>one</STRONG> or a very
+few of the best possible links. <BR>
+<BR>b.) A valid connection between two source vocabularies is generally better
+than no connection, even if it isn't the best possible connection.
+<BR>
+<BR>c.) At this stage in Metathesaurus construction it is more important to add
+new connections, to delete obviously incorrect relationships, and to relabel
+obviously mislabeled relationships, than it is to ensure consistency in the
+types and number of connections made from concept to concept.
+<BR>
+<BR>d.) When making a new connection to a hierarchical source vocabulary
+connect only at the most closely related level of the hierarchy. (e.g., do not
+connect a child in one vocabulary to both its parent and its grandparent in
+another vocabulary). Looking at the hierarchical context of the term to which
+the connection is to be made will obviously help the editor to find the
+appropriate level for the link.
+<BR>
+<BR>e.) While the &quot;typical&quot; case should be one good connection from a
+concept to a particular source vocabulary, there will be a number of exceptions.
+Some of the common exceptions occur when: 
+</P>
+<P>1) it requires a combination of terms in one vocabulary to represent a
+concept represented by a single term in another vocabulary. Such a combination
+of terms is entered in the &quot;Associated Expression&quot; element of a
+Metathesaurus entry. In general, all preferred terms in the Associated
+Expression will also be linked as related terms. In many cases, one term in the
+expression will have a Broader Than/Narrower Than relationship to the concept
+and another term with have an &quot;Other&quot; relationship.
+<BR>
+<BR>2) several concepts in one vocabulary have a Narrower than relationship to
+a single concept in another vocabulary. This is likely when the first vocabulary
+does not have hierarchical grouping terms that are comparable to the level of
+specificity present in the second vocabulary.<BR><BR>  f.) When an editor is
+reviewing candidate &quot;other&quot; relationships as part of editing an entire
+concept, the focus should be on deleting or relabeling obviously incorrect
+relationships and elevating to reviewed status a limited number of the most
+closely related unreviewed related terms.&nbsp;
+<BR>
+<BR>Editors must remember that they may not change or delete a relationship
+obtained from a source vocabulary, except in the rare case of source conflicts
+regarding synonymy between two terms. See discussion of this issue above. (In
+the short term, the editor may be permitted to enter such an error, but it will
+be reversed in batch processing later. Eventually the editing software will
+return an error message if the editor attempts to take such an action.) For this
+reason and also due to differences in hierarchical perspective in different
+source vocabularies, there will inevitably be some inconsistencies in the set of
+non-synonymous relationships present in the Metathesaurus.
+<BR>
+<BR></P>
+<P><B>Associated MeSH Expressions or ATXs</B>    
+<BR>At this point editors are not assigning ATXs to concepts in the
+Metathesaurus. This is another area where we will need to do further research
+since ATXs have not been worked on for years. It is not necessary to understand
+about ATXs at this point in time in order to do Metathesaurus editing.
+<BR>
+<BR>An associated MeSH expression was created when a combination of MeSH
+concepts provided a more precise connection to MeSH and a better chance of
+retrieving relevant information from a MeSH-indexed database than any single
+MeSH concept would have  provided. Here are some typical cases. (The examples
+that follow include the exact punctuation and syntax that appears in the ATX
+(associated expression) data element in the Metathesaurus. A full explanation of
+this syntax appears in the UMLS Documentation.)
+<BR> 
+</P>
+<P>-- A MeSH main heading/subheading combination provides a much better match
+than a main heading alone.&nbsp;<BR>
+<BR> e.g.,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Lithotripters
+= MeSH: &lt;Lithotripsy&gt;/&lt;instrumentation&gt;
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Copper poisoning = MeSH: &lt;Copper&gt;/&lt;poisoning&gt; 
+</P>
+<P>-- In MeSH, the combination of a anatomic site and another concept or an age
+group and another concept or some analogous combination may provide the best
+match to a &quot;pre- coordinated&quot; concept in another vocabulary.&nbsp;<BR>
+<BR> e.g.,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Thumb Injuries = MeSH: &lt;Thumb&gt;/&lt;injuries&gt;<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Pregnancy in Middle Age = &lt;Pregnancy&gt; AND &lt;Middle Age&gt;<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Protective Eyeglasses = MeSH: &lt;Eyeglasses&gt; AND &lt;Protective Devices&gt;<BR>
+<BR> -- MeSH has no equivalent concept, but has two or more narrower concepts
+that together approximate the meaning of a more general concept in another
+vocabulary.&nbsp;<BR>
+<BR> Because the Metathesaurus is organized by concept, there are separate
+Metathesaurus concepts for a MeSH main heading and its entry term(s) if the they
+are not synonyms. If a MeSH entry term provides the closest relationship to a
+non-MeSH term then the entry term should be used in the Associated expression.
+For example, in MeSH different types of Lithotripsy, including &quot;Ultrasonic
+Lithotripsy&quot;, appear as entry terms to the Main Heading &quot;Lithotripsy&quot;.
+UMDNS has a concept &quot;Ultrasonic Lithotripters&quot;. The appropriate MeSH
+expression for this term in the Metathesaurus is:&nbsp; &lt;Ultrasonic
+Lithotripsy&gt; / &lt;instrumentation&gt;.&nbsp;   
+<BR>When an Associated MeSH expression is created,  the editor must also
+specify its relationship to the concept with which it is associated. The
+expression can be synonymous (S), broader (B), narrower (N), or &quot;other&quot;
+(O). The general guidelines for determining which of these relationships apply
+are the same as those described under Relationships. In determining the proper
+relationship, the editor should consider the type of information likely to be
+retrieved from a MeSH-indexed database by the expression.&nbsp;<BR>
+<BR> After constructing the expression, the editor must also identify which
+components of the expression should also have individual relationships to the
+concept at hand and make these relationships. The general guidelines for this
+process are as follows:&nbsp;
+<BR>
+<BR>1. Do not make individual relationships for the subheading(s) in the
+expression.&nbsp;
+<BR>
+<BR>2. None of the component terms in the expression should have a synonymous
+relationship to the concept at hand. If one of them is a synonym then the
+expression has been created in error.&nbsp;
+<BR>
+<BR>3. &quot;Other&quot; is always the appropriate relationship for any MeSH
+Main Heading or entry term in the expression that is qualified by a subheading.&nbsp;
+<BR>
+<BR>4. In expressions with AND, Main headings or entry terms separated by AND
+may have the same or different relationships to the concept. Often the Main
+heading or entry term on one side of the AND will have a &quot;Broader&quot; or &quot;Narrower&quot;
+relationship to the concept and the Main heading at the other end will have an &quot;Other&quot;
+relationship.&nbsp;
+<BR>
+<BR>5. Unqualified Main Headings or entry terms separated by OR will have the
+same relationship to the concept.&nbsp;
+<BR>
+<BR>6. Beyond these rules, determination of the appropriate relationship for
+components of an expression is guided by the same principles outlined in the
+Relationship Guidelines.&nbsp;
+<BR>
+</P>
+<HR WIDTH="100%">
+<P><BR>Contact:&nbsp; <A HREF="mailto:powell@nlm.nih.gov">Tammy Powell</A>&nbsp;
+<BR>Created:&nbsp; April 28, 1997&nbsp;
+<BR>Last Updated:&nbsp; August 10, 1998&nbsp;
+<BR><A HREF="../index.shtml">Meta News Home</A>&nbsp;
+<BR> 
+</P></BODY></HTML>

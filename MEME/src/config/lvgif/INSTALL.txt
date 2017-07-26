@@ -1,0 +1,25 @@
+INSTALL
+-------
+1. Choose $LVGIF_HOME
+2. Unzip dist_lvgif*.zip into $LVGIF_HOME
+3. Edit $ENV_FILE and set LVGIF_HOME property to $LVGIF_HOME path
+4. Edit $ENV_FILE and set LVG_HOME property to $LVG_HOME path
+5. Edit $MIDSVCS_HOME/etc/mid-services-data to set lvg-server-port
+6. If LVG server is to run in this environment, configure startup script to call 
+   it as the root user. For example,
+
+   /usr/bin/env \
+     ENV_FILE=<path to ENV_HOME>/etc/env.prop \
+     ENV_HOME=<path to ENV_HOME> \
+     <path to LVGIF_HOME>/bin/lvg_server.pl start
+
+Dependencies
+-----------------------
+Subsystem Dependencies
+  $ENV_HOME
+  $LVG_HOME
+  $MIDSVCS_HOME
+
+UPDATE
+------
+Same as install

@@ -1,0 +1,450 @@
+
+	QA Report on /net/apollo/d1/umls/sources/META06/HL7V3
+	For user: Stephanie Lipow
+	Created on: Fri Mar 25 10:44:37 PST 2005
+
+
+Errors are in ERROR_LOG.3
+
+Dir Info :
+-rw-r--r--   1 work     work      800607 Mar 15 09:34 ./attributes.src
+-rw-r--r--   1 work     work      630811 Jan 27 15:52 ./classes_atoms.src
+-rw-r--r--   1 work     work       29436 Mar 15 09:34 ./mergefacts.src
+-rw-r--r--   1 work     work         189 Mar 15 09:34 ./relationships.src
+-rw-r--r--   1 work     work         552 Mar 15 09:34 ./sources.src
+-rw-r--r--   1 work     work          88 Mar 15 09:34 ./termgroups.src
+
+
+SUMMARY INFORMATION
+
+attributes.src
+     0  Bad Field Lengths
+     0  Duplicate Record IDs
+     0  Bad format for IDs - F 2/11
+     0  Bad values in fields
+     0  Incorrect no. of fields
+     0  TBR for CONTEXT or LEXICAL TAG not 'n'
+     0  Semantic Type not Status 'N'
+     0  Semantic Type w/ level not 'C'
+     0  Source not E-<SAB> for Semantic Type (warning)
+     0  Invalid ID Type (Field 11)
+     0  Unknown Values in Semantic Types
+     0  Source Level not Status 'R'
+     0  MD5 ATN/ATV pair count errors
+     0  MD5 value errors
+     0  ATN too long
+    47  Spacing errors in ATV
+     0  No ATV
+   318  Duplicate Attributes
+     0  SOS Attributes Found
+     0  Bad LXT TBR settings Found
+     0  SAIDs NOT found in classes
+     1  Mismatched Parentheses
+
+
+classes_atoms.src
+     0  SAID range errors
+     0  Bad Field Lengths
+    12  Non-ASCII characters in Term Field
+    79  Codes beginning with 'U'
+     0  Codes missing
+     8  Extra spaces in Term Field
+     0  Bad values in fields
+     0  Incorrect no. of fields
+     0  Odd punctuation characters in Term Field
+     0  Duplicate SAIDs
+   872  Duplicate Terms
+   923  Duplicate Terms (Case Insensitive)
+     0  Numbers in Angle Brackets
+     0  HTML/XML character entities
+     0  Potential HTML/XML character entities
+     0  Zero-length Terms
+     1  Multiple Languages
+    24  Mismatched Parentheses
+
+
+mergefacts.src
+     0  Bad field count
+     0  Bad values in fields
+     0  Invalid type (Field 9)
+     0  Invalid ID (Field 8)
+     0  Invalid ID (Field 11)
+     0  Missing Qualifier (Field 10/12)
+     0  Bad Field Lengths
+     0  Bad Merge Set Values
+     0  SAIDs NOT found in classes
+     0  Merges between the same atoms
+
+
+relationships.src
+     0  Bad Field Lengths
+     0  Duplicates in ID field
+     0  Bad field count
+     0  Bad values in fields
+     0  Bad types in ID_TYPE
+     6  Bad ID values in Field 3 or 6
+     0  Source level Rels w/ Stat='N' (Fields 2 & 9)
+     0  Duplicate NTs for same IDs Found (warning)
+     0  Duplicate BTs for same IDs Found (warning)
+     0  Conflicting BT & NT for same IDs
+     0  Same Rel expressed as both NT and BT (warning)
+     0  IDs Missing Qualifiers
+     3  Bad RELAs Found
+     0  REL/RELA Conflicts
+     0  SFO/LFO Rel where TBR != 'Y'
+     0  SFO/LFO Rel w/o a RELA
+     0  NT Rel w/ ATV eq 'mapped_from'
+     0  Invalid REL/RELA combos
+     0  Duplicate Code1/Code2 - id_qualifier1 - id_qualifier2 Combos
+     0  SAIDs NOT found in classes
+
+
+sources.src
+     0  Field Length
+     0  Field Count
+     0  Field  1: Source Name Value
+     1  Field  2: Low Source Value
+     1  Field  3: Restriction Level Value
+     1  Field  4: Norm Source Value
+     1  Field  5: Stripped Source Value
+     0  Field  6: Version Value
+     1  Field  7: Source Family Value
+     0  Field  8: Official Name Value
+     1  Field  9: NLM Contact Value
+     1  Field 10: Acquistion Contact Value
+     1  Field 11: Content Contact Value
+     0  Field 12: License Contact Value
+     0  Field 13: Inverter value
+     0  Field 14: Context Type
+     0  Field 16: Language
+     0  Field 17: Citation String
+
+
+termgroups.src
+     0  Bad Field Lengths
+     0  Bad Field Count
+     1  Bad Field Values
+     0  Bad Termgroups
+     0  Missing Termgroups
+     0  Bad Termtype
+
+
+./cxt/source_atoms.dat
+     0 SAID errors
+     0 Termgroup errors
+
+
+DETAILED REPORT
+
+ATTRIBUTES.SRC
+
+----- Quick Character Count - attributes.src -----
+!	1
+"	305
+#	25
+$	3
+%	24
+&	259
+'	190
+(	1184
+)	1183
+*	61
++	14
+,	4137
+-	742
+.	4610
+/	792
+:	408
+;	469
+<	626
+=	43
+>	626
+?	3
+@	1
+[	266
+]	266
+^	20
+|	55622
+~	1
+	3
+	3
+¢	6
+¬	3
+Ã	3
+â	6
+
+----- Character Checks - attributes.src -----
+Mismatched parens: ( = 1184	) = 1183
+
+----- Checkfields - attributes.src -----
+Fields      Lines
+------      ------
+    15     3973
+=================
+TOTAL        3973
+
+Field       Length Range        nonzero
+-----       ------------        -------
+    1       1  -      4           3973
+    2       1  -      4           3973
+    3       1  -      1           3973
+    4      10  -     10           3973
+    5       1  -   2018           3973
+    6       5  -      5           3973
+    7       1  -      1           3973
+    8       1  -      1           3973
+    9       1  -      1           3973
+   10       1  -      1           3973
+   11       3  -      3           3973
+   12       0  -      0              0
+   13       0  -      0              0
+   14      32  -     32           3973
+   15       0  -      0              0
+
+----- Tally Field Counts - attributes.src -----
+Lv  Attr_Name          SRC            St  TBR  Rel  Sup   Type            Count
+S   DEFINITION         HL7V3          R   Y    N    N     CUI              3973
+====================
+TOTAL		3973 
+
+
+CLASSES_ATOMS.SRC
+
+Language    Count
+-----------------
+     ENG     7555
+     GER        2
+
+ERROR: The SAB 'HL7V3' was not found in 'source_atom_ids'
+
+HL7V3:
+    Lowest SAID:  10000001
+   Highest SAID:  10007557
+
+Count of Terms less than 3 characters
+Length   Count
+------   ----
+    1    32
+    2   108
+
+
+----- Quick Character Count - classes_atoms.src -----
+#	3
+%	12
+&	324
+'	115
+(	262
+)	238
+*	1
++	1
+,	853
+-	1672
+.	1557
+/	7975
+:	52
+;	1210
+<	82
+=	3
+>	82
+[	334
+]	334
+|	105798
+°	10
+±	2
+Â	10
+Ã	2
+
+----- Character Checks - classes_atoms.src -----
+Mismatched parens: ( =  262 	) =  238 
+
+----- Checkfields - classes_atoms.src -----
+Fields      Lines
+------      ------
+    15     7557
+=================
+TOTAL        7557
+
+Field       Length Range        nonzero
+-----       ------------        -------
+    1       8  -      8           7557
+    2       5  -      5           7557
+    3       8  -      9           7557
+    4       1  -     30           7557
+    5       1  -      1           7557
+    6       1  -      1           7557
+    7       1  -      1           7557
+    8       1  -    132           7557
+    9       1  -      1           7557
+   10       0  -      0              0
+   11       5  -     24           7557
+   12       0  -      0              0
+   13       3  -      3           7557
+   14       8  -      8           7557
+   15       0  -      0              0
+
+----- Tally Field Counts - classes_atoms.src -----
+Termgroup              Stat  TBR   Rel   Sup          Count
+HL7V3/CSN              R     Y     N     N              243
+HL7V3/NPT              R     Y     N     N              189
+HL7V3/PT               R     Y     N     N             7125
+====================
+TOTAL		7557 
+
+
+MERGEFACTS.SRC
+
+----- Quick Character Count - mergefacts.src -----
+-	446
+|	5352
+
+----- Character Checks - mergefacts.src -----
+
+----- Checkfields - mergefacts.src -----
+Fields      Lines
+------      ------
+    13      446
+=================
+TOTAL         446
+
+Field       Length Range        nonzero
+-----       ------------        -------
+    1       8  -      8            446
+    2       2  -      2            446
+    3       8  -      8            446
+    4       4  -      4            446
+    5       0  -      0              0
+    6       1  -      1            446
+    7       1  -      1            446
+    8       7  -      7            446
+    9      11  -     11            446
+   10       0  -      0              0
+   11      11  -     11            446
+   12       0  -      0              0
+   13       0  -      0              0
+
+----- Merges between the same atoms - mergefacts.src -----
+0	Merges 
+
+----- Tally Field Counts - mergefacts.src -----
+MLv Src            MD CS MergeSet          Src1            Src2               Count
+SY  MEME           N  N  MEME-SY           SRC_ATOM_ID     SRC_ATOM_ID          446
+====================
+TOTAL		446 
+
+
+RELATIONSHIPS.SRC
+----- Unknown RELAs -----
+ Count RELA
+------ --------
+     3 smaller_than                                                
+
+----- Quick Character Count - relationships.src -----
+|	54
+
+----- Character Checks - relationships.src -----
+
+----- Checkfields - relationships.src -----
+Fields      Lines
+------      ------
+    19        3
+=================
+TOTAL           3
+
+Field       Length Range        nonzero
+-----       ------------        -------
+    1       1  -      1              3
+    2       1  -      1              3
+    3       4  -      4              3
+    4       2  -      2              3
+    5      12  -     12              3
+    6       4  -      4              3
+    7       5  -      5              3
+    8       5  -      5              3
+    9       1  -      1              3
+   10       1  -      1              3
+   11       1  -      1              3
+   12       1  -      1              3
+   13       3  -      3              3
+   14       0  -      0              0
+   15       3  -      3              3
+   16       0  -      0              0
+   17       0  -      0              0
+   18       0  -      0              0
+   19       0  -      0              0
+
+----- Tally Field Counts - relationships.src -----
+L  RN   Rel_Attrib                   Rel_Src    Rel_Label  S  T  R  S    Count
+S  RT   smaller_than                 HL7V3      HL7V3      R  Y  N  N        3
+====================
+TOTAL		3 
+
+
+SOURCES.SRC
+
+----- Checkfields - sources.src -----
+Fields      Lines
+------      ------
+    21        1
+=================
+TOTAL           1
+
+Field       Length Range        nonzero
+-----       ------------        -------
+    1      10  -     10              1
+    2       0  -      0              0
+    3       0  -      0              0
+    4      10  -     10              1
+    5       5  -      5              1
+    6       4  -      4              1
+    7       5  -      5              1
+    8      48  -     48              1
+    9       0  -      0              0
+   10       0  -      0              0
+   11       0  -      0              0
+   12     139  -    139              1
+   13      14  -     14              1
+   14       0  -      0              0
+   15       0  -      0              0
+   16       3  -      3              1
+   17     293  -    293              1
+   18       0  -      0              0
+   19       0  -      0              0
+   20       0  -      0              0
+   21       0  -      0              0
+
+TERMGROUPS.SRC
+
+----- Checkfields - termgroups.src -----
+Fields      Lines
+------      ------
+     7        3
+=================
+TOTAL           3
+
+Field       Length Range        nonzero
+-----       ------------        -------
+    1       8  -      9              3
+    2       7  -      9              3
+    3       1  -      1              3
+    4       1  -      1              3
+    5       1  -      1              3
+    6       2  -      3              3
+    7       0  -      0              0
+
+./CXT/SOURCE_ATOMS.DAT
+
+----- Checkfields - /cxt/source_atoms.dat -----
+Fields      Lines
+------      ------
+     5     7557
+=================
+TOTAL        7557
+
+Field       Length Range        nonzero
+-----       ------------        -------
+    1       8  -      8           7557
+    2       8  -      9           7557
+    3       1  -     30           7557
+    4       1  -    132           7557
+    5       0  -      0              0
+No treepos.dat file, you need to fix this

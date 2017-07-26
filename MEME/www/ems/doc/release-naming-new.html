@@ -1,0 +1,104 @@
+<HTML>
+<HEAD>
+<TITLE>Naming Releases</TITLE>
+</HEAD>
+
+<BODY>
+
+<B>Revised: Nov 2003</B>
+
+<H1>Naming Releases</H1>
+
+This document specifies the convention for the naming of UMLS releases.
+Note that the convention was adopted in 2001 so previous releases will
+not follow these rules.
+
+<P>
+
+A release name follows the format: YYYYVV where:
+
+<P>
+<UL>
+<LI>YYYY is a 4 digit year, e.g., 2001
+<LI>VV is a two letter designation for the version ID starting with "AA", e.g., 2001AA
+</UL>
+
+<P>
+
+The first release of the year will have the version ID of "AA".
+Subsequent releases for that year will have a version ID of "AB", "AC", etc.
+<P>
+When errors are discovered in a release, a revised version of the release
+is made available.  The revised version has a two digit revision ID appended
+to the release name.  A <EM>base</EM> release is a release before any revisions
+are made.
+
+<P>
+Examples:
+<P>
+<UL>
+<LI>2001AA -> First release for 2001
+<LI>2002AC_02 -> second revision of the third release (AC) in 2002
+<LI>2020GD_78 (hope we don't get to this!)
+</UL>
+
+The releases are distributed as compressed files (ZIP and TGZ) whose names
+are constructed as follows: release name followed by a single digit disc ID
+with the file extension "ZIP" or "TGZ" for the ZIP and TGZ formats respectively.
+For example:
+
+<P>
+<UL> 
+<LI>2004AB_1.ZIP (2004AB release, first disc, ZIP compression)
+<LI>2004AB_2.ZIP (2004AB release, second disc, ZIP compression)
+<LI>2005AA_1.TGZ (2005AA release, first disc, TGZ compression)
+<LI>2005AA_2.TGZ (2005AA release, second disc, TGZ compression)<
+<LI>2005AA_3.TGZ (2005AA release, third disc, TGZ compression)
+</UL>
+  
+<H2>Compressed file names for Revisions</H2>
+
+With revisions, there are two kinds of compressed files, one containing only
+the changes accumulated since the base release and the other containing all
+the sequentially applied revisions from a base release.  The letters "C" and
+"F" are used to designate the revision type, standing for "change" and "full".
+The compressed files will have with a "C" preceding the revision ID, e.g.,
+
+<P>
+<UL>
+<LI>2002AA_1_C01.ZIP (2002AA release; first compressed ZIP file; change only; first rev)
+<LI>2004AA_2_C03.TGZ (2004AA release; second compressed TGZ file; change only; third rev)
+<LI>2005AB_1_F01.ZIP (2005AB release; first compressed ZIP file; full release; first rev)
+<LI>2005AB_2_F01.ZIP (2005AB release; second compressed ZIP file; full release; first rev)
+</UL>
+<P>
+
+A change release is unpacked in the same top level directory as a previously
+downloaded base release.  It will overwrite the revised files.
+<P>
+Once unpacked however, the top level directory will have the name of the
+base release, i.e., the name without the revision ID.  Note that
+file timestamps are distinct for each revision.
+
+<H1>Disc Names</H1>
+
+As of Nov 2003, the release is sent to users that requested it on 2 CDs.
+The names of the disc follow a similar convention: release name followed
+by single digit disc ID, followed optionally by the revision type indicator
+and revision ID, and then by "_ZIP" or "_TAR" for the ZIP and TGZ versions
+respectively.  For example,
+
+<P>
+<UL>
+<LI>2003AB_1_ZIP (2003AB release; first disc; ZIP compression)
+<LI>2004AA_2_F02_TAR (2004AA release, second disc, full second revision; TGZ compression)
+</UL>  
+
+<P>
+
+These longer names run afoul of the ISO9660 naming convention but will
+be Joliet compliant.
+
+</BODY>
+</HTML>
+

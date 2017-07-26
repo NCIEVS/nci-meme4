@@ -1,0 +1,31 @@
+<HTML>
+<HEAD>
+<TITLE>Starting a New MID</TITLE>
+</HEAD>
+
+<BODY>
+
+<P ALIGN=right>suresh@nlm.nih.gov 10/2000
+
+<H1>Starting a New MID</H1>
+
+<UL>
+<P><LI>
+Once editing has been frozen in preparation for a release, Apelon, coordinating
+with NLM, will create and initialize a new MID on the production machine.
+The EMS tables (all tables with name like ems_% or wms_% in the meow schema) should
+have been copied over
+(<A HREF="/cgi-oracle-nlmlti/ems.pl?action=table_help&owner=MEOW&likenot=like&subaction=list&like=ems_%">Were they?</A>).
+
+<P><LI>
+Once the DB is ready, start a new editing epoch <A HREF="changing-epoch.html">as described here</A>.
+
+<P><LI>
+Once that is done, editing can begin after a matrix init and a repartition assuming you
+have configured the <A HREF="me_bins.html">ME bins</A>, <A HREF="qa_bins.html">QA bins</A>,
+etc. as needed.
+</UL>
+
+</BODY>
+</HTML>
+

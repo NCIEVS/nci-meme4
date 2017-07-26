@@ -1,0 +1,203 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"><html><head><title>MEME Boot Camp: MEME_HOME Code Hierarchy</title>
+  
+
+  
+
+  
+
+  
+  
+  
+  
+  <script language="JavaScript">
+    <!--
+
+	function newImage(arg) {
+	  if (document.images) {
+	    rslt = new Image();
+	    rslt.src = arg;
+	    return rslt;
+	  }
+	}
+
+	function changeImages() {
+	  if (document.images && (preloadFlag == true)) {
+	    for (var i=0; i<changeImages.arguments.length; i+=2) {
+	      document[changeImages.arguments[i]].src = changeImages.arguments[i+1];
+	    }
+	  }
+	}
+
+	var preloadFlag = false;
+	function preloadImages() {
+	  if (document.images) {
+	    inversion_sims_over = newImage("images/inversion-sims_over.gif");
+	    inversion_srcqa_over = newImage("images/inversion-srcqa_over.gif");
+	    inversion_inversion_over = newImage("images/inversion-inversion_over.gif");
+	    inversion_src_over = newImage("images/inversion-src_over.gif");
+	    inversion_contexts_over = newImage("images/inversion-contexts_over.gif");
+	    inversion_raw3_over = newImage("images/inversion-raw3_over.gif");
+	    preloadFlag = true;
+	  }
+	}
+
+	// -->
+  </script></head><body style="background-color: rgb(255, 255, 255);" onload="preloadImages();">
+
+<h2 align="center">MEME_HOME Code Hierarchy<br>
+</h2>
+<hr><blockquote><span style="font-weight: bold;"><a name="code"></a>Code Hierarchy<br>
+  <br>
+</span>Following is a brief description of $MEME_HOME and associated important code locations:<br>
+  <br>
+  <table nosave="" border="1" cols="2" style="width: 100%;">
+<tbody><tr><th style="vertical-align: top; background-color: rgb(255, 255, 204);">Location<br>
+        </th>
+        <th style="vertical-align: top; background-color: rgb(255, 255, 204);">Description<br>
+        </th>
+      </tr>
+<tr><td style="vertical-align: top;">$MEME_HOME</td>
+            <td>This is the base directory for the MEME
+system.</td>
+          </tr>
+          
+          <tr>
+            <td style="vertical-align: top;">$MEME_HOME/bin</td>
+            <td>Useful executables for starting and stopping the server as well as managing maintenance and QA processes.&nbsp; Location of
+the default
+properties file.</td>
+          </tr>
+          <tr>
+            <td style="vertical-align: top;">$MEME_HOME/cgi-bin</td>
+            <td>CGI applications<br>
+</td>
+          </tr>
+          <tr>
+        <td style="vertical-align: top;">$MEME_HOME/doc<br>
+        </td>
+        <td style="vertical-align: top;">javadoc and tables documentation<br>
+        </td>
+      </tr>
+      <tr>
+        <td style="vertical-align: top;">$MEME_HOME/dump<br>
+        </td>
+        <td style="vertical-align: top;">Data files for loading an empty new MID<br>
+        </td>
+      </tr>
+      <tr>
+        <td style="vertical-align: top;">$MEME_HOME/etc<br>
+        </td>
+        <td style="vertical-align: top;">files for /etc/umls<br>
+        </td>
+      </tr>
+      <tr>
+        <td style="vertical-align: top;">$MEME_HOME/ext<br>
+        </td>
+        <td style="vertical-align: top;">Mechanism
+for "patching" the server.&nbsp; Jar files placed here are given higher
+priority in the CLASSPATH when the server is started.<br>
+        </td>
+      </tr>
+<tr>
+            <td style="vertical-align: top;">$MEME_HOME/java</td>
+            <td>Contains the class files (in a .jar) and the source files expanded in the subdirectories</td>
+          </tr>
+          <tr>
+            <td style="vertical-align: top;">$MEME_HOME/log</td>
+            <td>This is typically where server logs are written to.<br>
+</td>
+          </tr>
+          <tr>
+            <td style="vertical-align: top;">$MEME_HOME/site</td>
+            <td>Contains files for /site. Should be linke to /site on installed machine<br>
+</td>
+          </tr>
+          <tr>
+            <td style="vertical-align: top;">$MEME_HOME/sql</td>
+            <td>&nbsp;Schema scripts for tables, indexes, and PL/SQL packages</td>
+          </tr>
+          <tr>
+        <td style="vertical-align: top;">$MEME_HOME/webapps-meme<br>
+        </td>
+        <td style="vertical-align: top;">JSP web applications<br>
+        </td>
+      </tr>
+      <tr>
+        <td style="vertical-align: top;">$MEME_HOME/www<br>
+        </td>
+        <td style="vertical-align: top;">Copy of meow document root (incomplete)<br>
+        </td>
+      </tr>
+      <tr>
+        <td style="vertical-align: top;">$MEME_HOME/xml<br>
+        </td>
+        <td style="vertical-align: top;">DTDs<br>
+        </td>
+      </tr>
+
+          <tr>
+            <td style="vertical-align: top;">/site/bin</td>
+            <td>Location of <tt>perl5</tt>, <tt>java</tt>,
+and <tt>javac</tt>.</td>
+          </tr>
+          <tr>
+            <td style="vertical-align: top;">/site/package/lvg/current</td>
+            <td>Location of current LVG installation</td></tr>
+          <tr>
+            <td style="vertical-align: top;">$ORACLE_HOME/network/admin/tnsnames.ora</td>
+            <td><span style="font-family: monospace;">Oracle </span><tt>tnsnames.ora</tt>
+file.</td>
+          </tr>
+          <tr>
+            <td style="vertical-align: top;">$ORACLE_HOME/rdbms/admin</td>
+            <td>Directory containing Oracle scripts for
+creating
+catalog tables like <tt>plan_table</tt> (<tt>utlxplan.sql</tt>) or <tt>chained_rows</tt>
+(<tt>utlchain.sql</tt>). (used by schema scripts)</td></tr></tbody>
+  </table>
+  <br>
+<ul></ul>
+
+
+  <p>
+  </p>
+
+
+
+  </blockquote><hr width="100%">
+<div align="center"><br></div>
+
+
+
+
+<table nosave="" border="0" cols="2" width="100%">
+
+
+
+   <tbody>
+      <tr nosave="">
+   <td nosave="" align="left" valign="top">
+      <address> <a href="/Transition/"><br>
+</a></address>
+   </td>
+    <td nosave="" align="right" valign="top">
+      <address> <font size="-1">Contact:
+  <a href="mailto:bcarlsen@apelon.com">Brian A. Carlsen</a></font></address>
+
+      <address> <font size="-1">Created: 10/27/2003</font></address>
+
+      <address> <font size="-1">Last Updated: 03/22/2005</font></address>
+   </td>
+   </tr>
+
+  </tbody>
+</table>
+<!-- These comments are used by the What's new Generator --><!-- Changed On: 2005/03/22 --><!-- Changed by: Brian Carlsen --><!-- Change Note: MIDS - Metathesaurus Life Cycle: Inversion --><!-- Fresh for: 1 month -->
+
+
+
+
+
+
+
+</body></html>

@@ -1,0 +1,55 @@
+
+<HTML>
+<HEAD>
+<TITLE>ICD9-ET Editing Tips</TITLE></HEAD>
+<BODY>
+<H3 ALIGN="CENTER">ICD9-ET (MTHICD9) Editing Tips</H3>
+<UL>
+<LI>MTHICD9 contains ICD-ETs that were created by Apelon from the includes notes
+in ICD9 and reviewed by editors. The ETs will have the same ICD9 code as the PTs
+they correspond to.</LI></UL>
+<PRE>The ICD-ETS are entry terms we created to correspond with an ICD2000/PT. The ETs 
+can be synonymous to the PTs or have another rel like NT, BT, or REL. THe ETs 
+are connected to the PTs by code.
+
+If the code was the same and the strings matched, the ICD-ETs were merged in 
+with the PTs. Otherwise, a rel was created.
+
+The editing that needs to be done is this:
+
+1. Check any merges to make sure they are correct.
+2. Check the STYs. We defaulted the PT STYs to the ETs but they may not always 
+be correct.
+3. Check the ICD-ET rels that were created and change if needed. 
+
+#3 is where it gets tricky. The rels were inserted as NSY C level rels. We did 
+this because we wanted them to be obvious to editors which rels to review. Each 
+C level rel as the original S level rel behind it. 
+
+To review the rels, you need to see the S level rel in order to determine if it 
+is correct or not. In order to facilitate this, the concept reports have been 
+printed in such a way that the NSY C level rel is right next to the S level rel.
+
+So, editors will look at any NSY rels. Then, look at the S level rel that exists 
+with it. An editor is to decide if the S level rel is correct. If so, NOTHING 
+HAS TO BE DONE. If the S level rel is correct, just leave the concept alone and 
+when the concept is approved, the S level rel will win. If the S level rel is 
+wrong, THE EDITOR HAS TO CHANGE THE NSY C LEVEL REL TO THE APPROPRIATE REL. This 
+will then override the incorrect S level rel. THese NSY rels will appear as N in 
+the editing interface.
+
+There is one other editing task. We have clustered the concepts so that all 
+concepts that contain ICD atoms with the same code are together. It is very 
+possible that there is missed synoymy among the ICD-ETs. SO, an editor needs to 
+pay attention to see if any of the ICD-ETs can be merged with each other. If 
+they are synonymous, go ahead and merge them.
+
+
+</PRE>
+<HR>
+<ADDRESS>Contact: <A HREF="mailto:lad@nlm.nih.gov">Laura Roth</A></ADDRESS>
+<ADDRESS>Created: August 22, 2001</ADDRESS>
+<ADDRESS>Last Updated: August  22, 2001</ADDRESS><!-- These comments are used by
+the What's new Generator --><!-- Changed On: 2000/05/22--><!-- Changed by: Laura
+Roth --><!-- Change Note: MTHICD9  information page created --><!-- Fresh for: 2
+week --></BODY></HTML>

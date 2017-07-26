@@ -1,0 +1,125 @@
+#!/bin/csh -f
+#
+# Performs nightly tasks to the production-db.
+#
+# Changes
+#  05/08/2006 BAC (1-B4JGB): nightly set_preference call
+#
+
+#
+# Configure environment
+#
+setenv ENV_HOME /umls_prod/umls_apps/env
+setenv ENV_FILE $ENV_HOME/etc/env.prop.midp.chin
+source $ENV_HOME/bin/env.csh
+setenv LOG_HOME /umls_prod/log_root/meme/
+set date=`/bin/date +%Y%m%d`
+set logfile="${LOG_HOME}/nightly_tasks.$date.log"
+
+echo "=--------------------------------------=" >>&! $logfile
+echo "Starting... `/bin/date`" >>&! $logfile
+echo "=--------------------------------------=" >>&! $logfile
+echo >>&! $logfile
+
+#
+# Remove old logs
+#
+echo "TASK: Remove log files more than 7 days old... `/bin/date`" >>&! $logfile
+find $LOG_HOME -mtime +7 -exec /usr/bin/rm {} \; >>&! $logfile
+echo "TASK DONE: Remove log files more than 7 days old `/bin/date`" >>&! $logfile
+echo >>&! $logfile
+
+#
+# Get database and user info
+#
+
+set database=`$MIDSVCS_HOME/bin/midsvcs.pl -s editing-db`
+echo "database: $database" >>&! $logfile
+set user=`$MIDSVCS_HOME/bin/get-oracle-pwd.pl -d $database`
+#
+# Save state of dba_cutoff and cutoff editing
+#
+set dba = `echo "select edit from dba_cutoff;" | $ORACLE_HOME/bin/sqlplus -s $user@$database | /usr/bin/egrep -i "y|n"`
+echo "STATUS: dba_cutoff: $dba" >>&! $logfile
+echo "update dba_cutoff set edit='n';" | $ORACLE_HOME/bin/sqlplus -s $user@$database | sed 's/^/      /' >>&! $logfile
+
+set dow=`date +%w`
+echo "STATUS: Date of Week is: $dow" >>&! $logfile
+
+if ($dow == 0) then
+    echo "Today is Sunday, no daily tasks today." >>&! $logfile
+    echo >>&! $logfile
+    exit 0
+else
+
+    #
+    # Nightly load of packages to pick up updated packages
+    #
+    echo "TASK: Reload MEME packages ...`/bin/date`" >>&! $logfile
+    echo "@${MEME_HOME}/etc/sql/meme_packages.sql;" | $ORACLE_HOME/bin/sqlplus -s $user@$database | sed 's/^/      /' >>&! $logfile
+    echo "TASK DONE: Reload MEME packages `/bin/date`" >>&! $logfile
+echo >>&! $logfile
+
+    #
+    # Shutdown/Restart MEME Server
+    #
+    echo "TASK: Shutting down server ...`/bin/date`" >>&! $logfile
+    set port=`$MIDSVCS_HOME/bin/midsvcs.pl -s meme-server-port`
+    $MEME_HOME/bin/meme_server_occs.sh stop $port | sed 's/^/      /' >>&! $logfile
+    echo "TASK DONE: Shutting down server `/bin/date`" >>&! $logfile
+	echo >>&! $logfile
+    echo "TASK: Staring down server ...`/bin/date`" >>&! $logfile
+    $MEME_HOME/bin/meme_server_occs.sh start $port $database | sed 's/^/      /' >>&! $logfile
+    echo "TASK DONE: Staring down server `/bin/date`" >>&! $logfile
+	echo >>&! $logfile
+
+    #
+    # Run Matrix Initializer
+    #
+    echo "TASK: Run matrix initializer ...`/bin/date`" >>&! $logfile
+    $MEME_HOME/bin/matrixinit.pl -I $database | sed 's/^/      /' >>&! $logfile
+    echo "TASK DONE: Run matrix initializer `/bin/date`" >>&! $logfile
+	echo >>&! $logfile
+	
+    #
+    # Run CUI assignment
+    #
+#    echo "TASK: Run CUI assignment ...`/bin/date`" >>&! $logfile
+#    $MEME_HOME/bin/assign_cuis.pl $database | sed 's/^/      /' >>&! $logfile
+#    echo "TASK DONE: Run CUI assignment `/bin/date`" >>&! $logfile
+#	echo >>&! $logfile
+    #
+    # Recompute preferred names
+    #
+    echo "TASK: Remove redundant MTH/TMs ...`/bin/date`" >>&! $logfile
+    $MEME_HOME/bin/mthtm.pl -d MERGED $database MTH | sed 's/^/      /' >>&! $logfile
+    echo "TASK DONE: Remove redundant MTH/TMs ...`/bin/date`" >>&! $logfile
+    #
+    # Recompute preferred names
+    #
+    echo "TASK: Compute preferred names ...`/bin/date`" >>&! $logfile
+    echo "exec meme_ranks.set_preference" | $ORACLE_HOME/bin/sqlplus -s $user@$database | sed 's/^/      /' >>&! $logfile
+    echo "TASK DONE: Compute preferred names ...`/bin/date`" >>&! $logfile
+
+    #
+    # Refresh stale stats for MTH and generate MEOW stats
+    #
+    echo "TASK: Refreshing stale stats...`/bin/date`" >>&! $logfile
+    echo "@${MEME_HOME}/etc/sql/stale_stats.sql;" | $ORACLE_HOME/bin/sqlplus -s $user@$database | sed 's/^/      /' >>&! $logfile
+    echo "TASK DONE: Refreshing stale stats...`/bin/date`" >>&! $logfile
+	echo >>&! $logfile
+
+endif
+
+#
+# Restore state of dba_cutoff
+#
+echo "TASK: Reset dba_cutoff ... `/bin/date`" >>&! $logfile
+echo "update dba_cutoff set edit='$dba';" | $ORACLE_HOME/bin/sqlplus -s $user@$database | sed 's/^/      /' >>&! $logfile
+echo "select edit from dba_cutoff;" | $ORACLE_HOME/bin/sqlplus -s $user@$database | sed 's/^/      /' >>&! $logfile
+echo "TASK DONE: Reset dba_cutoff `/bin/date`" >>&! $logfile
+echo >>&! $logfile
+
+echo "=--------------------------------------=" >>&! $logfile
+echo "Finished... `/bin/date`" >>&! $logfile
+echo "=--------------------------------------=" >>&! $logfile

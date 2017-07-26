@@ -1,0 +1,26 @@
+# Generate the what's new file on meow every hour
+#
+
+# Run nightly tasks
+
+#
+00 03 * * 1-6 ENV_FILE=/umls_s/umls_apps/env/etc/env.prop.webapps;ENV_HOME=/umls_s/umls_apps/env/;. $ENV_HOME/bin/env.sh;/umls_s/umls_apps/meme/etc/pwd_expire.csh
+00 04 * * 1-6 /umls_s/umls_apps/meme/etc/nightly_tasks.csh
+
+
+#5 12,22 * * * /site/umls/scripts/whatsnew.pl -c /export/home/meow/whatsnew/meow.cfg > /export/home/meow/whatsnew/whatsnew.log.new;/bin/mv  /export/home/meow/whatsnew/whatsnew.log.new  /export/home/meow/whatsnew/whatsnew.log
+
+# Run this hourly during work hours
+
+# Compute MID Validation report each Saturday
+0 13 * * 6 /umls_s/umls_apps/meme/etc/cronvalidate.csh
+
+# EMS3
+* * * * * ENV_FILE=/umls_s/umls_apps/env/etc/env.prop.webapps; ENV_HOME=/umls_s/umls_apps/env/ ; . $ENV_HOME/bin/env.sh; $EMS_HOME/bin/reportqueueviacron.pl
+02 05 * * * ENV_FILE=/umls_s/umls_apps/env/etc/env.prop.webapps; ENV_HOME=/umls_s/umls_apps/env/ ; . $ENV_HOME/bin/env.sh; $EMS_HOME/bin/chemconcepts.pl
+02 06 * * * ENV_FILE=/umls_s/umls_apps/env/etc/env.prop.webapps; ENV_HOME=/umls_s/umls_apps/env/ ; . $ENV_HOME/bin/env.sh; $EMS_HOME/bin/daily.pl
+20 06 * * * ENV_FILE=/umls_s/umls_apps/env/etc/env.prop.webapps; ENV_HOME=/umls_s/umls_apps/env/ ; . $ENV_HOME/bin/env.sh; $EMS_HOME/bin/batchpartition.pl
+00 20 * * * ENV_FILE=/umls_s/umls_apps/env/etc/env.prop.webapps; ENV_HOME=/umls_s/umls_apps/env/ ; . $ENV_HOME/bin/env.sh; $EMS_HOME/bin/batchtestchecklist.pl
+00 22 * * 1-4 ENV_FILE=/umls_s/umls_apps/env/etc/env.prop.webapps; ENV_HOME=/umls_s/umls_apps/env/ ; . $ENV_HOME/bin/env.sh; $EMS_HOME/bin/sourcestats-generator.pl -n 2
+00 22 * * 5,6 ENV_FILE=/umls_s/umls_apps/env/etc/env.prop.webapps; ENV_HOME=/umls_s/umls_apps/env/ ; . $ENV_HOME/bin/env.sh; $EMS_HOME/bin/sourcestats-generator.pl -n 5
+#00 10 * * 6 ENV_FILE=/umls_s/umls_apps/env/etc/env.prop.webapps; ENV_HOME=/umls_s/umls_apps/env/ ; . $ENV_HOME/bin/env.sh;$EMS_HOME/bin/batchgenerate.pl -t QA

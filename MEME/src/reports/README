@@ -1,0 +1,17 @@
+
+README - 07/11/2005
+
+  R - Reports
+
+File				Description
+-----------------------------	----------------------------------------------
+
+cui_report.csh		R	Makes a CUI report from release files
+
+editing.csh		R	Makes editing for action harvester
+
+reports.pl		R	old-style concept report call
+
+showrel.pl		R	Generates rel view for cui reports
+
+xreports.pl		R	extended concept report call

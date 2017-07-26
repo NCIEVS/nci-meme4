@@ -1,0 +1,13 @@
+# Define groups as roles
+
+# All users allowed access to main meow site
+meowusers: mth meow editor
+
+# Administrators only here
+nlmlti: mth meow
+admin: mth meow
+
+# all editors
+editors: mth meow editor
+
+

@@ -1,0 +1,291 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head><title>RECIPE -- NCI2005_12F</title></head>
+<body>        <h2>Load Section</h2>
+        <ol>
+          <li>
+            <h3>Load Data into Core Tables</h3>
+            <p>source name : NCI2005_12F<br>
+            </p><p>old source name : NCI2005_10E<br>
+            source language : ENG<br>
+            </p><ul>
+            <li>Concepts are being inserted.
+            </li><li>Atoms are being inserted.
+            </li><li>Attributes are being inserted.
+            </li><li>Relationships are being inserted.
+            </li></ul>
+          <br>
+          </li>
+        </ol>
+        <h2>Update Merge Section</h2>
+        <ol>
+          <li>
+            <h3>Merge Step - mergefacts.src</h3>
+            <table align="center" border="1" cellpadding="2" cellspacing="1" width="90%">
+              <tbody><tr><th colspan="2">Merge Parameters</th></tr>
+              <tr>
+                <td><b>Merge Set:</b></td><td>NCI-SRC</td>
+              </tr>
+              <tr>
+                <td><b>Integrity Vector:</b></td><td><br>
+</td>
+              </tr>
+              <tr>
+                <td><b>Demote:</b></td><td>Yes</td>
+              </tr>
+              <tr>
+                <td><b>Change Status:</b></td><td>No</td>
+              </tr>
+              <tr>
+                <td><b>Pre Insert:</b></td><td>N to N</td>
+              </tr>
+            </tbody></table>
+          <br>
+          </li><li><h3>Merge Step - mergefacts.src</h3>
+            <table align="center" border="1" cellpadding="2" cellspacing="1" width="90%">
+              <tbody><tr><th colspan="2">Merge Parameters</th></tr>
+              <tr>
+                <td><b>Merge Set:</b></td><td>NCI-SY</td>
+              </tr>
+              <tr>
+                <td><b>Integrity Vector:</b></td><td><br>
+</td>
+              </tr>
+              <tr>
+                <td><b>Demote:</b></td><td>Yes</td>
+              </tr>
+              <tr>
+                <td><b>Change Status:</b></td><td>No</td>
+              </tr>
+              <tr>
+                <td><b>Pre Insert:</b></td><td>N to N</td>
+              </tr>
+            </tbody></table>
+          <br>
+          </li>
+          <li>
+            
+    <h3>Insert a Unary Integrity Check</h3>
+
+              
+               
+    <table align="center" border="1" width="90%">
+<tbody><tr>
+                <th>Name</th>
+                <th>Type<br>
+</th>
+                <th>Value<br>
+</th>
+                
+                
+                
+               </tr><tr>
+                <td align="center">MGV_I</td>
+                <td align="center">SOURCE</td>
+                <td align="center">NCI2005_12F<br>
+</td>
+                
+                
+                </tr></tbody>
+    </table>
+</li><li>
+    <h3>Merge Step - Replace all termgroups</h3>
+
+            <table border="1" cellpadding="2" cellspacing="1" width="90%">
+              <tbody><tr><th colspan="2">Merge Parameters</th></tr>
+              <tr>
+                <td><b>Merge Set:</b></td><td>NCI-REPL</td>
+              </tr>
+              <tr>
+                <td><b>String Match:</b></td><td>BOTH</td>
+              </tr>
+              <tr>
+                <td><b>Code Match:</b></td><td>EXACT</td>
+              </tr>
+              <tr>
+                <td><b>Source AUI Match:</b></td><td>NONE</td>
+              </tr>
+              <tr>
+                <td><b>Source CUI Match:</b></td><td>NONE</td>
+              </tr>
+              <tr>
+                <td><b>Source DUI Match:</b></td><td>NONE</td>
+              </tr>
+              <tr>
+                <td><b>Term Type Match:</b></td><td>NONE</td>
+              </tr>
+              <tr>
+                <td><b>Source Termgroups:</b></td><td>NCI2005_12F/* </td>
+              </tr>
+              <tr>
+                <td><b>Source Options:</b></td><td>                  <ul>
+                    <li>Use Exclude List</li>
+                    <li>Use Norm-Exclude List</li>
+                    <li>Include termgroups in list</li>
+                  </ul>
+                </td>
+              </tr>
+              <tr>
+                <td><b>Target Termgroups:</b></td><td>NCI2005_10E/* </td>
+              </tr>
+              <tr>
+                <td><b>Target Options:</b></td><td>                  <ul>
+                    <li>Use Exclude List</li>
+                    <li>Use Norm-Exclude List</li>
+                    <li>Include termgroups in list</li>
+                  </ul>
+                </td>
+              </tr>
+              <tr>
+                <td><b>Integrity Vector:</b></td><td>ALL</td>
+              </tr>
+              <tr>
+                <td><b>Demote:</b></td><td>Yes</td>
+              </tr>
+              <tr>
+                <td><b>Change Status:</b></td><td>Yes</td>
+              </tr>
+              <tr>
+                <td><b>Pre Insert:</b></td><td>One to One</td>
+              </tr>
+              <tr>
+                <td><b>Comments:</b></td><td>Merge all new termgroups with all old termgroups</td></tr>
+            </tbody></table>
+          <br>
+          </li>
+
+        </ol>
+        <h2>Safe Replacement Section</h2>
+        <ol>
+          <li>
+            <h3>Source Safe Replacement</h3>
+            <p>source name : NCI2005_12F<br>
+            old source name : NCI2005_10E<br>
+            string match : BOTH<br>
+            code match : EXACT<br>
+            source aui match : NONE<br>
+            source cui match : NONE<br>
+            source dui match : NONE<br>
+            term type match : NONE<br>
+            </p><ul>
+            <li>Change Status.
+            </li></ul>
+          <br>
+          </li>
+          </ol>
+        <h2>New Merge Section</h2>
+        <ol>
+          <li>
+            <h3>Merge Step - MID Merging</h3>
+            <table border="1" cellpadding="2" cellspacing="1" width="90%">
+              <tbody><tr><th colspan="2">Merge Parameters</th></tr>
+              <tr>
+                <td><b>Merge Set:</b></td><td>NCI-MID</td>
+              </tr>
+              <tr>
+                <td><b>String Match:</b></td><td>BOTH</td>
+              </tr>
+              <tr>
+                <td><b>Code Match:</b></td><td>NONE</td>
+              </tr>
+              <tr>
+                <td><b>Source AUI Match:</b></td><td>NONE</td>
+              </tr>
+              <tr>
+                <td><b>Source CUI Match:</b></td><td>NONE</td>
+              </tr>
+              <tr>
+                <td><b>Source DUI Match:</b></td><td>NONE</td>
+              </tr>
+              <tr>
+                <td><b>Term Type Match:</b></td><td>NONE</td>
+              </tr>
+              <tr>
+                <td><b>Source Termgroups:</b></td><td>NCI2005_12F/*</td></tr><tr><td><b>Source Options:</b></td><td>                  <ul>
+                    <li>Use Exclude List</li>
+                    <li>Use Norm-Exclude List</li>
+                    <li>Restrict to New Atoms Only</li>
+                    <li>Include termgroups in list</li>
+                  </ul>
+                </td>
+              </tr>
+              <tr>
+                <td><b>Target Termgroups:</b></td><td>NCI2005_10E/* </td>
+              </tr>
+              <tr>
+                <td><b>Target Options:</b></td><td>                  <ul>
+                    <li>Use Exclude List</li>
+                    <li>Use Norm-Exclude List</li>
+                    <li>Exclude termgroups in list</li>
+                  </ul>
+                </td>
+              </tr>
+              <tr>
+                <td><b>Integrity Vector:</b></td><td>ALL</td>
+              </tr>
+              <tr>
+                <td><b>Demote:</b></td><td>Yes</td>
+              </tr>
+              <tr>
+                <td><b>Change Status:</b></td><td>Yes</td>
+              </tr>
+              <tr>
+                <td><b>Pre Insert:</b></td><td>None</td>
+              </tr>
+              <tr>
+                <td><b>Filters:</b></td><td>                  <ol>
+                 <li>Exclude safe replacement atoms from source.</li>
+                  </ol>
+                </td>
+              </tr>
+            </tbody></table>
+          <br>
+          </li>
+        </ol>
+        <h2>Post-Merge Section</h2>
+        <ol>
+          <li>
+            <h3>Resolve Semantic Types</h3>
+            <table align="center" border="1" cellpadding="2" cellspacing="1" width="90%">
+              <tbody><tr><td><b>Sources:</b></td><td>
+                   NCI2005_12F
+              </td></tr>
+              <tr><td><b>Win or Lose:</b></td><td>
+                 Lose</td></tr>
+            </tbody></table>
+          <br>
+          </li>
+          <li>
+            <h3>Update Source Releasability</h3>
+            <table align="center" border="1" cellpadding="2" cellspacing="1" width="90%">
+              <tbody><tr><td><b>Sources:</b></td><td>NCI2005_10E<br>
+</td></tr><tr><td><b>TBR:</b></td><td>
+                 n</td></tr>
+            </tbody></table>
+          <br>
+          </li>
+          <li>
+            <h3>Standard Post Merge Steps</h3>
+            <table align="center" border="1" cellpadding="2" cellspacing="1" width="90%">
+              <tbody><tr>
+                <td><b>Map sg and obsolete relationships. </b></td></tr>
+              <tr>
+                <td><b>Handle 'NEC in' atoms</b></td></tr>
+              <tr>
+                <td><b>Update String/Word Indexes</b></td></tr>
+              <tr>
+                <td><b>Run matrix initializer</b></td></tr>
+              <tr>
+                <td><b>Generate standard report tables</b></td></tr>
+              <tr>
+                <td><b>Set Core Table Ranks</b></td></tr>
+              </tbody></table>
+          <br>
+          </li>
+        </ol>
+        <p>
+         <!-- These comments are used by the What's new Generator -->
+         <!-- Changed On: 2005/07/20 -->
+         <!-- Changed by: MEME Team -->
+         <!-- Change Note: This page moved to NLM. -->
+         <!-- Fresh for: 1 month -->
+    </p></body></html>

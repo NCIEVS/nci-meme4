@@ -1,0 +1,74 @@
+<HTML>
+<HEAD>
+<TITLE>CCPSS Editing Tips</TITLE></HEAD>
+<BODY>
+<H3 ALIGN="CENTER">CCPSS Editing Tips</H3>
+<PRE>Editing Guidelines for CCPSS
+
+
+Official Source Name:
+
+        Canonical Clinical Problem Statement System
+
+
+Termgroups:
+
+Problems:  PT 
+Term class:  TC 
+Modifier: MP 
+synthesized &quot;problems&quot; for TCs:  TX  
+
+
+1. CCPSS source level relationships were inserted as Reviewed RT? rels. DO NOT
+EDIT THESE RELATIONSHIPS. They will stay source level relationships and will
+be released as CCPSS source rels.
+
+2. We are taking the CCPSS terms on face value. If CCPSS has the term Haiti, we
+are taking it to mean the country. If CCPSS has the term Kidney, we are taking
+that to mean the body part. So, merging between CCPSS and other sources can and
+will occur.
+
+3. There are some concepts in CCPSS that are not apparent as to meaning. For
+example:
+
+ID
+FM
+Data
+
+If an editor finds a CCPSS atom like this and can not determine meaning, copy
+the concept into an e-mail message and send it to Tammy and Laura. Do not
+edit it. If it has already merged into a concept with other atoms and you are
+not sure of the meaning, send us e-mail with the concept (same as above).
+
+4. We created a termgroup called TX. These terms were problems that we
+fully specified, like Liver became Liver Problem:
+
+CN# 847675  Liver problem
+CUI C0577060	Concept Status needs Review
+STY Finding   R
+ATOMS
+             R []  Liver problem [RCD99/PT/Xa7UW] 
+             R         {Liver problem [RCD98/PT/Xa7UW]} 
+  M          N       LIVER PROBLEM [CCPSS99/TX/U000046] 
+  M          N         LIVER PROBLEM [CCPSS99/PT/0052733] 
+DMS          N []  LIVER [CCPSS99/TC/U000046] 
+ DM          N         LIVER [CCPSS99/PT/0050526] 
+ 
+
+The TCs and TXs should always remain together. They will have the same code. In
+the example above, the TC and TX both have the code of U000046.
+
+If a concept has a CCPSS PT, this term should be taken on face value. Some
+PTs may be in the wrong concept. In the example above, there are two PTs. One is
+Liver Problem and should stay in the concept. The other is Liver and should be 
+split out. The Liver PT term refers to the body part and should be merged with
+the concept that already exists in the Metathesaurus for Liver the body part.
+Note, the TC term of Liver does not get split out since it stays with its
+corresponding TX.</PRE>
+<HR>
+<ADDRESS>Contact: <A HREF="mailto:lad@nlm.nih.gov">Laura Roth</A></ADDRESS>
+<ADDRESS>Created: August 30, 1999</ADDRESS>
+<ADDRESS>Last Updated: August 23, 2001</ADDRESS><!-- These comments are used by
+the What's new Generator --><!-- Changed On: 1999/08/30--><!-- Changed by: Laura
+Roth --><!-- Change Note: Information on editing CCPSS. --><!-- Fresh for: 2
+week --></BODY></HTML>

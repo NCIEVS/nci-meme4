@@ -1,0 +1,159 @@
+
+<html>
+<head>
+   <title>MEME Tables Documentation - editing_matrix</title>
+    <script language="javascript">
+	function openDescription (thing,dsc) {
+	    var html = "<html><head><title>Description: "+thing;
+	    html = html + "</title></head><body bgcolor=#ffffff>" + dsc + "<center><form><input type=button onClick='window.close(); return true' value='Close'></form></center></body></html>";
+	    var win = window.open("","","scrollbars,width=500,height=250,resizable");
+	    win.document.open();
+	    win.document.write(html);
+	    win.document.close();
+	}; // end openDescription
+    </script>
+</head>
+
+<body text="#000000" bgcolor="#FFFFFF" link="#3333FF" vlink="#999999" alink="#FF0000">
+
+<center>
+
+<h2>MEME Tables</h2></center>
+
+<hr width="100%">
+
+<!-- Nav bar -->
+  <p><center>[ <a href="#overview">overview</a> | <a href="#details">details</a> | <a href="#references">references</a> ]</center></p>
+
+<!-- Image -->
+<p><center><tt><b>editing_matrix</b></tt><br>
+   <img src="/images/table.gif" alt="Table Icon"></center></p>
+
+<!-- Content section -->
+
+<blockquote>
+
+  <a name="overview"></a><h3>Overview/Objective</h3>
+  This document contains a description of <tt>editing_matrix</tt> 
+     and its various fields.  It also (may) include information
+  about how this table is used in the various stages of MID processing.
+<br>&nbsp;
+<a name="details"></a><h3>Details</h3>
+
+
+    <p>
+	
+	<!-- editing_matrix -->
+
+    <a name="editing_matrix"></a>
+    <center>
+      <table border="0" width="90%">
+        <tr><td valign="top" width="20%"><font size="-1"><b>Table name:</b></font></td><td valign="top" width="80%"><b><tt>editing_matrix</tt></b></td></tr>
+        <tr><td valign="top"><font size="-1"><b>Table Type:</b></font></td><td valign="top"><font size="-1">
+          <a href="javascript:openDescription('qa','<p>MID Used to perform Conservation of Mass and Semantic QA.</p>')">qa</a></font></td></tr>
+        <tr><td valign="top"><font size="-1"><b>Description:</b></font></td><td valign="top"><font size="-1">Tracks aggregate status information for a concept.  This table is used primarily by the <a href="/MEME/Training/glossary.html#matrix_initializer">matrix initializer</a> to aggregate status information about a concepts classes, attributes, and relationships.  Furthermore, it tracks any integrity violations that are found at the time of the matrix calculation.</font></td></tr>
+        <tr><td valign="top"><font size="-1"><b>Fields:</b></font></td><td valign="top">
+	    <table border="1" cellpadding="2" width="90%">
+
+	<tr><td width="20%" valign="top"><tt>concept_id</tt></td>
+	    <td width="20%" valign="top"><font size="-1"><b>NUMBER(12)</b></font></td>
+ 	    <td width="60%" valign="top"><font size="-1">must be in <a href="classes.html"><tt>classes.concept_id</tt></a>&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>classes_status</tt></td>
+	    <td width="20%" valign="top"><font size="-1"><b>VARCHAR2(1)</b></font></td>
+ 	    <td width="60%" valign="top"><font size="-1">an indicator of the status of all atoms/terms within a concept&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>attributes_status</tt></td>
+	    <td width="20%" valign="top"><font size="-1"><b>VARCHAR2(1)</b></font></td>
+ 	    <td width="60%" valign="top"><font size="-1">an indicator of the status of all attributes within a concept&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>relationships_status</tt></td>
+	    <td width="20%" valign="top"><font size="-1"><b>VARCHAR2(1)</b></font></td>
+ 	    <td width="60%" valign="top"><font size="-1">an indicator of the status of all relationships within a concept&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>integrity_status</tt></td>
+	    <td width="20%" valign="top"><font size="-1"><b>VARCHAR2(1)</b></font></td>
+ 	    <td width="60%" valign="top"><font size="-1">an indicator of the overall integrity status of a concept&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>integrity_vector</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(2000)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">a vector of violations of integrity checks , e.g. <tt>&lt;DT_M1:V&gt;&lt;DT_PN1:W&gt;</tt>&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>clean_molecule_id</tt></td>
+	    <td width="20%" valign="top"><font size="-1">NUMBER(12)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">the id of the last action which left this concept in a <i>clean</i> state, must be in <a href="molecular_actions.html"><tt>molecular_actions.molecule_id</tt></a>&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>last_app_change</tt></td>
+	    <td width="20%" valign="top"><font size="-1">DATE</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">the timestamp of the last approved action&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>last_app_change_by</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(50)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">the authority of the last approved action&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>last_unapp_change</tt></td>
+	    <td width="20%" valign="top"><font size="-1">DATE</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">not used&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>last_unapp_change_by</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(50)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">not used&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>concept_status</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(1)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">the overall status of the concept, used to determine if the concept needs to be edited&nbsp;</font></td>
+	</tr>
+	    </table>
+        </td></tr>
+        <tr><td valign="top"><font size="-1"><b>Indexes:</b></font></td><td valign="top">
+
+	     <li><tt>editing_matrix_pk ON concept_id</tt></li>
+
+        </td></tr>
+
+        <tr><td valign="top"><font size="-1"><b>Editing&nbsp;Role:</b></font></td><td valign="top"><font size="-1">The matrix initializer is run daily to determine which concepts still need editing.  The results of its run are (partially) stored in this table, including the aggregated status of the atoms, attributes, and relationships as well as the overall integrity state for each concept.  Concepts that require editing of any of their core elements or require editing for integrity reasons are <i>unapproved</i> by this process.  Generally, if one wants to know why something was unapproved, this table can provide the answer.&nbsp;</font></td></tr>
+
+      </table>
+    </center>
+    </p>
+
+<p>
+<a name="references"></a><h3>References/Links</h3>
+Use the following references for related information.
+<ol>
+  <li><a href="../tables_all.html" alt="All Tables Info">All MEME tables</a></li>
+</ol>
+</p>
+</blockquote>
+
+<p><center>[ <a href="#overview">overview</a> | <a href="#details">details</a> | <a href="#references">references</a> ]</center></p>
+
+<hr WIDTH="100%">
+<table BORDER=0 COLS=2 WIDTH="100%" NOSAVE >
+<tr NOSAVE>
+<td ALIGN=LEFT VALIGN=TOP NOSAVE>
+<address>
+<a href="/MEME/">MEME Home</a></address>
+</td>
+
+<td ALIGN=RIGHT VALIGN=TOP NOSAVE>
+<address>
+<font size=-1>Contact: <a href="mailto:bcarlsen@apelon.com">Brian A. Carlsen</a></font></address>
+
+<address>
+<font size=-1>Created: 7/27/2001</font></address>
+
+<address>
+<font size=-1>Last Updated: 03/07/2005</font></address>
+
+</td>
+</tr>
+</table>
+
+</body>
+<!-- These comments are used by the What's new Generator -->
+<!-- Changed On: 2005/03/07 -->
+<!-- Changed by: Brian Carlsen -->
+<!-- Change Note: MEME Schema documentation - editing_matrix  -->
+<!-- Fresh for: 1 month -->
+</html>

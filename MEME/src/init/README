@@ -1,0 +1,11 @@
+
+README - 03/04/2005
+
+File                    Description
+----------------------  -------------------------------------------------
+
+*dat			Data files for certain tables
+
+*ctl			Control files for certain tables
+
+load.csh		Sample script for loading control files

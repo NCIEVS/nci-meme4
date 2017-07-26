@@ -1,0 +1,19 @@
+<HTML>
+<HEAD>
+<TITLE>Local Information</TITLE>
+</HEAD>
+<BODY>
+
+Current time: <B><!--#echo var="DATE_LOCAL" --></B><BR>
+Document last modified: <B><!--#echo var="LAST_MODIFIED" --></B>
+<P>
+
+<H1>MID Services Settings</H1>
+
+<PRE>
+
+<!--#exec cmd="/bin/csh -c 'source $ENV_HOME/bin/env.csh; $MIDSVCS_HOME/bin/midsvcs.pl | grep db\|'" -->
+
+</PRE>
+</BODY>
+</HTML>

@@ -1,0 +1,357 @@
+<!DOCTYPE HTML PUBLIC "-//SoftQuad//DTD draft HTML 3.2 + extensions for HoTMetaL PRO 3.0 19960923//EN"
+ "hmpro3.dtd">
+<HTML>
+<HEAD>
+<TITLE>Editing Information</TITLE></HEAD>
+<BODY>
+<H1 ALIGN="CENTER">General Editing Information</H1>
+<HR>
+<P>Welcome to the Metathesaurus Editing Information page.  This page will try
+to answer questions posed by the UMLS Metathesaurus editors. As new questions
+emerge, this page will be updated with new information which will eventually be
+placed in the editing manual. Please contact
+<A HREF="mailto:powell@nlm.nih.gov">Tammy Powell</A> or
+<A HREF="mailto:lad@nlm.nih.gov">Laura Roth</A> if there are any questions or
+concerns.</P>
+<P><BR></P>
+<UL>
+<LI><B>Editing Source Level Relationships (8/31/99)</B></LI></UL>
+<P>Editors should not edit source level relationships. They come directly from
+a  source and will be attributed to that source upon release. Even if you do not
+ agree with the rel, do not edit it. All that will do is create a concept level 
+relationship that will be attributed to the Metathesaurus. 
+</P>
+<P>
+For the most part, the source level rels exist in the concept reports to provide
+ information to editors and to provide connections between main heading and
+entry  terms in sources.  
+</P>
+<P>The only time source level rels should be edited is if an editor is told to 
+specifically in an editing task. Right now, none of the worklists require this.</P>
+<P><BR></P>
+<UL>
+<LI><B>RT? relationships (8/31/99)</B></LI></UL>
+<P>Sometimes, relationships are inserted with a relationship type of RT?. This
+means that the correct relationship could not be determined during insertion. If
+an editor feels the relationship should be something other than Related, the
+relationship can be edited as normal. If an editor thinks the relationship
+should be Related, no action needs to be taken. Upon approval or stamping, RT?
+relationships become REL (related) relationships.</P>
+<P><BR></P>
+<UL>
+<LI><B>**New rules for editing of atoms enclosed in {} (6/18/99)</B></LI></UL>
+<P>Atoms that are set as &quot;not to be released&quot; are enclosed in curly
+brackets '{}' on concept reports. They also appear in the Classes Screen on the
+editing interface in green. NLM has made a change to the editing policy for
+these atoms.</P>
+<P>In the past, we have told editors that they could generally ignore the atoms
+that are marked as tbr=n (the green atoms in the classes screen or the ones in
+{} on concept reports) when doing splits or merges. These atoms are usually old
+versions of a source that we have not removed from the database yet (like
+RCD95).</P>
+<P>NLM has always asserted in its release files that a CUI stays with the same
+concept through its life. NLM has started to implement new ways to ensure that
+the same CUI stays with the appropriate concepts throughout the concept's
+history. We have discovered that not editing the green atoms can cause some
+errors in CUI maintenance.
+</P>
+<P>Therefore, we would like editors to start splitting out the green atoms when
+appropriate. Editors can treat the tbr=n atoms the same as atoms that are
+released. For example, in the concept below:</P>
+<PRE>CN# 130858  Composer
+CUI C0335072	Concept Status is Reviewed
+STY Occupation or Discipline   R
+ATOMS
+             R []  Composer [SNMI98/PT/J-17120] 
+             R         Composer [RCD99/PT/0451.] 
+             R         Composer [SNM2/PT/J-17120] 
+             R         {Composer [RCD98/PT/0451.]} 
+             R []  Composer - music [RCD99/SY/0451.] 
+             R         {Composer - music [RCD98/SY/0451.]} 
+             R []  Musical composer NOS [RCD99/OP/045Z.] 
+             R         {Musical composer NOS [RCD98/OP/045Z.]} 
+</PRE>
+<P>Say you as an editor decided that &quot;musical composer NOS&quot; should be
+split out (I know this is not the case but this is just an example). In the
+past, an editor could just split out the RCD99 atom and not worry about the
+RCD98 atom. Now, we would like an editor to split out both atoms into a new
+concept. We don't want to leave the RCD98 residue behind. 
+</P>
+<P>It is very easy to make sure this is accomplished. When an editor is in the
+classes screen, do a sort of the atoms by Code or source. This will group the
+atoms and clearly show which atoms need to stay together.  As mentioned before,
+we already have told editors that they can merge concepts with only tbr=n atoms
+in order to solve demotions.  If ANY of this is not clear, please let NLM know
+before trying to edit these kind of concepts.</P>
+<P>The only exception to this is the Dorland atoms. Editors still do not need
+to worry about these atoms. If a concept ONLY has Dorland atoms in the wrong
+place, just leave them and don't worry about them. If an editor has a concept
+where they are splitting out other atoms and a Dorland atom is also present,
+then an editor can include it in a split. Basically, NLM does not want editors
+to spend time on Dorland atoms that are by themselves since they have lost all
+meaning long ago. In the Example below, an editor would not have to worry about
+moving the Dorland atom:</P>
+<PRE>CN# 1263078  Triad
+CUI C0076994	Concept Status is Reviewed
+STY Biomedical or Dental Material   R
+DEF [Do not release]
+  DOR27/DT|1. any trivalent element. 2. a group of three entities or objects, as 
+an association of three symptoms. Dorland's Illustrated Medical Dictionary 27th 
+edition; entry for triad.
+DEF [Do not release]
+  MSH99/NM|denture base resin
+SOS [Release]
+  MSH99/NM|denture base resin
+ATOMS
+             R [ TRD]  Triad [MSH99/NM/C060386] 
+             R         Triad [MMSL99/BN/2882] 
+             R       {triad [DOR27/DT/U019407]} 
+
+EZ/RN:EC NUMBER(S)
+   RN 108570-51-0  {MSH99}
+
+REVIEWED RELATED CONCEPT(S)
+[NOT]  rosamicin [MSH99/CE|MTH|MSH99] {495394} C
+[NRW]  Triad, 325 mg-50 mg-40 mg oral capsule [MMSL99/BD|MMSL99|E-TWD] {1700469} 
+C</PRE>
+<P><BR></P>
+<UL>
+<LI><B>Proposed new Clinical Drug definition and usage</B> (added 4/23/99)</LI></UL>
+<PRE>Currently Clinical Drug is defined as:
+
+ A pharmaceutical preparation as produced by the manufacturer. The name usually
+includes the substance, its strength, and the form, but may include the 
+substance and only one of the other two items. 
+
+So if you read the definition you think something like:  Valium Pill is
+a Clinical Drug, Valium is not, and neither is Sleeping Pill (since it
+doesn't include the substance). Oral Valium gives you the substance but not
+the strength or form so under the current definition that wouldn't be clinical
+drug.
+
+Stuart and I talked about this and we decided that the official definition 
+of Clinical Drug needs to be broadened.  Below I have a proposed new definition.
+Even though we don't have an official new definition, you should type concepts
+as though we have already approved a new, broadened form of it.
+
+New Proposed Def:
+A pharmaceutical preparation as produced by the manufacturer.  The name may
+include only the form or the substance, its strength, route, and the form, but
+may include the substance and only one of the other three items.
+
+Usage Note:
+Do not double type with Pharmacologic Substance, Antibiotic, or other
+chemical semantic types. If the name only contains the substance such as
+Diazepam, do not use &quot;Clinical Drug&quot;.
+
+Here are some examples of things that should be clinical drug that may not
+currently have that type:  
+
+Eye Drops, Tablets, Capsules, Oral Valium
+
+There's a large section of MeSH called &quot;Dosage Forms&quot; and most of that
+will need to be changed from &quot;Pharmacologic Substance&quot; to &quot;Clinical Drug&quot;
+
+</PRE>
+<UL>
+<LI><B>New STYs</B> (added 10/7/98)
+<P>We need to wait til Alexa sends the official STY file but here is the
+information for the new STYs that will be added. Once we have Alexa's file, the
+STY page on Meow will be updated to reflect these additions.</P>
+<UL>
+<LI>
+<PRE>UI:
+STY: Clinical Drug
+STN: A.3.3
+DEF: A pharmaceutical preparation as produced by the manufacturer. The name 
+usually includes the substance, its strength, and the form, but may include the
+substance and only one or the other two items. 
+EX: Valium 5mg tablets; Diazepam 5mg tablets; oral acetaminophen; liquid 
+Tylenol;
+GENTAMICIN SULFATE/SODIUM CHLORIDE 0.8 MG/ML-0.9% injection 
+UN: Do not double type with Pharmacologic Substance, Antibiotic, or other 
+Chemical semantic types. 
+HL: {isa} Manufactured Object</PRE></LI></UL>
+<UL>
+<LI>
+<PRE>UI:
+STY: Clinical Attribute
+STN: A.2.3.1
+DEF: An observable or measurable property or state of an organism of clinical 
+interest. 
+EX: Heart rate; Forced Expiratory Volume in 1 second; Serum Gentamycin level;
+EXOXACIN:MASS CONCENTRATION:POINT IN TIME:SERUM:QUANTITATIVE
+HL: {isa} Organism Attribute</PRE></LI></UL></LI></UL>
+<UL>
+<LI><B>Atoms enclosed in {} or marked as NEVER (revised 6/18/99)</B>
+<P>Atoms that are set as &quot;not to be released&quot; are enclosed in curly
+brackets '{}' on concept reports. They also appear in the Classes Screen on the
+editing interface in green. Atoms that are set for deletion appear with the word
+NEVER next to them on concept reports but do not appear in the editing
+interface.</P>
+<P>Atoms set for deletion are NEVER edited. They are going to be removed from
+the database entirely at some point in the future. Concepts tagged as not to be
+released are still in the database but are not released when the Metathesaurus
+is produced. As a rule, if a concept is from an older version of a source where
+a newer version has been inserted, the atoms from the old version are marked as
+not to be released.</P></LI></UL>
+<UL>
+<LI><B>Merging concepts that include a group and a group with examples</B>
+<P>In general, concepts that name  a group of items (e.g. Fruits) should be
+merged with concepts that also refer to the same group of items but also include
+specific examples (e.g. Fruits, including apples). Adding an example does not
+change the meaning of the concept.</P></LI></UL>
+<UL>
+<LI><B>Synonymy of concepts with NOS, unspecified, site not specified, etc.</B>
+<PRE>Disease X , Disease X, Site unspecified, Disease X, unspecified, and Disease X, NOS are viewed in the
+Metathesaurus as synonyms and should be merged together. 
+
+I think you will find that most (or at least enough) make the case
+that these &quot;Site Unspecified&quot; names come from vocabularies like the
+ICDs which require coding at the leaf, so they repeat the parent's
+meaning by adding &quot;NOS&quot; or &quot;Site Unspecified&quot;.
+
+An example of atoms from a concept that follows this rule is provided below: 
+
+Benign Neoplasm
+Benign Neoplasm, NOS ('NOS' refers to 'Not Otherwise Specified')
+Benign neoplasm of unspecified site (or Benign Neoplasm, Site Unspecified)
+Benign neoplasm, unspecified.</PRE></LI></UL>
+<UL>
+<LI><B>Concepts with matching strings that do not merge</B>
+<P>When editors find two concepts that have  matching strings that were not
+automatically merged after an insertion, they should inform NLM (especially if
+an editor sees a pattern of non-merges occurring). There may be a valid
+explanation as to why the two were not merged, but this may also represent a
+software error that merits further evaluation.</P></LI></UL>
+<UL>
+<LI><B>ATXs</B>
+<P>ATXs refer to Associated Expressions. They are not current and new ones are
+not being added at this time so editors can ignore them when editing.  The
+history of ATXs is that 4-5 years ago editors mapped MeSH to other sources like
+ICD.  ATXs were used to represent this mapping but problems with resources and
+software prevented the project from continuing.  So, editors do not need to
+worry about ATXs when editing.</P></LI></UL>
+<UL>
+<LI><B>Dorland's</B>
+<P>A couple of years ago, Dorland was added into the Metathesaurus. Some of the
+definitions were reviewed when they merged into a concept for accuracy. Some
+definitions were not good matches and were marked as not to be released. They
+were never matched to the correct concepts. Then,  for legal reasons, it was
+determined that we could not release Dorland  and every Dorland atom was marked
+as  not to be released (they are enclosed in {}). So, there may be Dorland atoms
+and definitions that do not match the concept they are in. <STRONG>Editors
+should not edit Dorland atoms</STRONG>. NLM is in the process of deciding
+whether to remove them from the database all together.</P></LI></UL>
+<UL>
+<LI><B>Stamping vs. Approval</B>
+<P>When an editor gets a worklist, they can do all the editing on paper. If
+nothing needs to be changed on a concept, the editor does not need to go into
+the editing interface and manually approve concepts. When the worklist is
+stamped, the concepts will automatically be approved unless something has
+changed in the concept since the time the editor was assigned the worklist (ex.
+an insertion was done and a new atom was inserted in a concept after an editor
+received the worklist). If something has changed in the concept since the editor
+has been assigned the worklist, the concept will stay as Needs Review and will
+show up on another worklist. An editor does not have to worry about going back
+and looking at the concept again.</P>
+<P>If a concept on a worklist needs changing, the editor has to go into the
+editing interface. Once the changes are made, an editor <B>MUST</B> Approve the
+concept. When a concept is approved, the editor is responsible for everything
+that is in the concept. Before approval, an editor needs to check all atoms,
+relationships, STYs, etc. in the concept. An approval means that an editor feels
+that everything is okay  in the concept. If an editor has a question about
+something, the concept should not be approved.</P>
+<P>If an editor edits a concept that was not on a worklist, the editor needs to
+manually Approve the concept. The stamping mechanism will not pick up concepts
+that are not on a worklist so automatic approval can not occur.</P></LI></UL>
+<UL>
+<LI><B>Definition of STY - Untyped</B>
+<P>This STY was originally created for editors to assign to concepts when they
+had no idea what STY to use. It was <EM>not</EM> meant to be used when a
+decision could not be made between two STYs. This STY was a way to indicate that
+someone had looked at the concept and did not know what to assign it. This has
+not been used for the past several years.</P></LI></UL>
+<UL>
+<LI><B>Definition of IMN</B>
+<P>IMN is an internal MeSH note used by the MeSH staff. It is a way for them to
+store information that is not seen by the public (similar to meta notes/concept
+notes/atom notes). </P>
+<P>Examples: If a thesaurus specialist goes to a lot of trouble to verify a
+definition or consult an expert in the field on a controversial subject, this
+information may be included.  There is also information to indicate
+relationships between entry terms since the current MeSH maintenance system does
+not allow this. </P>
+<P>Only concepts in the Metathesaurus that contain atoms from MeSH descriptors
+will have this field. IMNs can be viewed from the Concept screen in the editing
+interface (if an IMN exists, the button will be red) and are also printed on the
+concept reports.</P>
+</LI></UL>
+<UL>
+<LI><B>Atom Note vs. Meta Note vs. Concept Note</B>
+<P>Meta Notes were used in MEME-I as a way for an editor to supply information
+about a concept that should not been seen by the public but should be seen by
+the editors. For MEME-II, these will become Concept Notes. Information in a
+Concept Note will stay with the concept.</P>
+<P>Atom Notes are notes about a specific atom as opposed to a Concept Note
+which is about the entire concept. Atom Notes will stay with the atom that they
+are attached to. If an atom is split out of a concept, the note will go with it.</P></LI></UL>
+<UL>
+<LI><B>Creating and Saving an Edit List File</B>
+<P>Edit list files can be created from concepts that are in the Select Frame. 
+</P>
+<P>Begin by transferring all concepts you wish to have in your edit list, into
+SEL.  Then click on Save: Edit List to File.  You will receive a prompt to type
+in the name for the file.  After you type in the name, click 'OK&quot;. 
+</P>
+<P>When you are ready to edit the file again, bring up the SEL frame. Type in
+the Name of the file next to &quot;Read Edit List from file&quot; then  click on
+&quot;Add&quot;.  The file will be transferred back to SEL. 
+</P>
+<P>Note: You must use the same machine to retrieve the file that you saved it
+on.  The file is saved to the hard drive of the machine you are working on.</P></LI></UL>
+<UL>
+<LI><B>Search using Finder</B>
+<P>When using Finder, the search terms entered need to be at least 3 letters.
+If less than 3 are used, no results are displayed. Also, Finder does not use any
+type of wildcard.</P></LI></UL>
+<UL>
+<LI><B>Prompt for more than 100 Rels</B>
+<P>If a concept has more than 100 relationships, a pop-up message appears
+asking if all of the relationships should be displayed. If not, the default of
+100 are shown.</P>
+<P>This option was implemented because of the time it can take to load more
+than 100 relationships. It is recommended that all of the Rels be viewed only if
+the editor is working on relationships. Otherwise, an editor should choose to
+view only 100.</P></LI></UL>
+<UL>
+<LI><B>Pop-up messages</B>
+<P>When  a pop-up message appears on the screen, please acknowledge it. These
+messages are usually prompts for actions to be taken or error messages.  Please
+make sure to read what the message says. Usually, clicking on OK will make the
+message disappear. </P>
+<P>If the pop-up message is not acknowledged and another screen is brought to
+the front, the pop-up message will still be waiting  in the background and will
+not allow editing to occur.</P></LI></UL>
+<UL>
+<LI><B>ICD91/MX</B>
+<P>ICD91/MX Matching term: These terms were created purely for matching
+purposes and  are not released. ICD/MX terms are chemicals like &quot;XYZ&quot;
+whose atoms were generated   from REAL ICD terms like &quot;Poisoning by XYZ&quot;.
+The MX term has an RT relationship to  the REAL ICD term ... and is used purely
+for matching (MXing) to REAL chemical atoms  in other sources. (This information
+is also in the ICD Source information page.)</P></LI></UL>
+<UL>
+<LI><B>Concepts with no STYs or Atoms (marked with NEVER)</B>
+<P>There are some concepts that are not going to be released and are marked for
+removal. They are marked with the word &quot;NEVER&quot; next to the atoms (as
+seen on the concept report).  This means this atom is on death row and is never
+going to be released.  Therefore, there is <B>no</B> point in editing it
+because it will die.</P></LI></UL>
+<HR>
+<ADDRESS>Contact: <A HREF="mailto:lad@nlm.nih.gov">Laura Roth</A></ADDRESS>
+<ADDRESS>Created: December 9, 1997</ADDRESS>
+<ADDRESS>Last Updated: August 31, 1999</ADDRESS><!-- These comments are used by
+the What's new Generator --><!-- Changed On: 1999/08/31 --><!-- Changed by:
+Laura Roth --><!-- Change Note: Information about ediitng rules for source level
+rels --><!-- Fresh for: 2 week --></BODY></HTML>

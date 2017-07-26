@@ -1,0 +1,154 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"><html><head>
+
+  <meta http-equiv="Content-Type" content="text/html; charset=utf8">
+  <title>MEME - Recipe Writing and Source Insertion</title>
+</head><body alink="#ff0000" style="background-color: rgb(255, 255, 255); color: rgb(0, 0, 0);" link="#3333ff" vlink="#999999">
+
+<center><h2>Recipe Writing and Source Insertion<br>
+</h2></center>
+
+<hr width="100%">
+<blockquote>
+  <h3>Instructor</h3>
+JFW: Joanne Wong<br>
+    <h3>Attendees</h3>
+    <table style="text-align: left; width: 100%;" border="0" cellpadding="0" cellspacing="0">
+  <tbody>
+      <tr>
+        <td style="vertical-align: top;">BAC: Brian Carlsen</td><td style="vertical-align: top;"><a href="mailto:bcarlsen@apelon.com">bcarlsen@apelon.com</a></td>
+      </tr>
+      <tr>
+        <td style="vertical-align: top;">TK: Tim Kao</td><td style="vertical-align: top;"><a href="mailto:tkao@apelon.com">tkao@apelon.com</a></td>
+      </tr>
+      <tr>
+        <td style="vertical-align: top;">SBM: Stuart Mayhugh</td><td style="vertical-align: top;"><a href="mailto:smayhugh@mail.nlm.nih.gov">smayhugh@mail.nlm.nih.gov</a></td>
+      </tr>
+      <tr>
+        <td style="vertical-align: top;">&nbsp;</td><td style="vertical-align: top;">&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="vertical-align: top;"><span style="font-weight: bold;">OCCS</span></td><td style="vertical-align: top;"></td>
+      </tr>
+      <tr>
+        <td style="vertical-align: top;">KC: Karen Casey</td><td style="vertical-align: top;"><a href="mailto:caseyk@mail.nlm.nih.gov">caseyk@mail.nlm.nih.gov</a></td>
+      </tr>
+      <tr>
+        <td style="vertical-align: top;">CK: Chandrakanth Chebiyyam</td><td style="vertical-align: top;"><a href="mailto:chebiyc@mail.nlm.nih.gov">chebiyc@mail.nlm.nih.gov</a></td>
+      </tr>
+      <tr>
+        <td style="vertical-align: top;">NH: Naveen Hota</td><td style="vertical-align: top;"><a href="mailto:hotan@mail.nlm.nih.gov">hotan@mail.nlm.nih.gov</a></td>
+      </tr>
+      <tr>
+       <td style="vertical-align: top;">SL: Simon Liu</td><td style="vertical-align: top;"><a href="mailto:lius@mail.nlm.nih.gov">lius@mail.nlm.nih.gov</a></td>
+      </tr>
+      <tr>
+        <td style="vertical-align: top;">WM: Wei Ma</td><td style="vertical-align: top;"><a href="mailto:maw@mail.nlm.nih.gov">maw@mail.nlm.nih.gov</a></td>
+      </tr></tbody>
+  </table>
+
+  <h3>Goals</h3>
+  <ul>
+    <li><span style="font-weight: bold;">What you should learn:</span></li>
+    <ul>
+      <li>The major steps involved in source insertion</li><br>
+    </ul>
+    <li><span style="font-weight: bold;">What you should be able to do:</span></li>
+    <ul>
+      <li>Recognize the .src format</li>
+      <li>Write a basic recipe</li>
+    </ul>
+  </ul>
+  <h3>Handouts / Links</h3>
+  <ul>
+    <li><a href="/Transition/images/insertion%20use%20case.JPG">Diagram: Insertion Use Case</a></li>
+    <li><a href="/Transition/images/insertion%20data%20arch.jpg">Diagram: Insertion Data Architecture</a></li>
+    <li><a href="/Transition/images/source%20insertion%20tables.JPG">Diagram: Source Insertion tables</a></li>
+    <li><a href="/Sources/RECIPE.icd9cm_2005.html">Sample Recipe: ICD9CM_2005</a></li>
+    <br>
+    <li><a href="/Sources/?P=RECIPE*html&C=N&O=A">Repository of all recipes in HTML</a></li>
+    <li><a href="/MIDS/insertion.html">Source Insertion Documentation</a></li>
+  </ul>
+  <h3>Lecture Outline</h3>
+  <ol type="I">
+    <li><b>Recipe Writing</b>
+      <ol type="A">
+        <li>New source: new recipe
+        </li>
+        <li>Update source: update recipe
+        </li>
+        <li>Recipe Writer Java application
+        </li>
+        <li>The Anatomy of a Recipe (XML, HTML, or .csh)
+          <ol type="1">
+            <li>Load data
+            <li>Perform matching/merging
+            <li>Post-merge steps
+          </ol>
+        </li>
+        <li>Future Recipe Writer Web application
+        </li>
+      </ol>
+    </li>
+    <br>
+    <li><b>Source Insertion</b>
+        <ol type="A">
+          <li>Preparation
+            <ol type="1">
+              <li>Receive .src files</li>
+              <li>Create recipe</li>
+              <li>Upload .src files and recipe .csh script</li>
+            </ol>
+          </li>
+          <li>Test insertion
+            <ol type="1">
+              <li>Perform test insertion</li>
+              <li>Apelon review
+              </li>
+              <li>NLM review
+              </li>
+              <li>Redo test insertion if necessary</li>
+            </ol>
+          </li>
+          <li>Real insertion
+            <ol type="1">
+              <li>Perform real insertion</li>
+              <li>Apelon review</li>
+              <li>NLM review</li>
+              <li>Perform patch operations if necessary</li>
+            </ol>
+          </li>
+        </ol>
+    </li>
+  </ol>
+
+  <h3>Hands On Experience</h3>
+Run recipe writer application and write a recipe.<br>
+
+</blockquote>
+
+<p>
+</p>
+<br>
+
+<hr width="100%">
+<table border="0" cols="2" width="100%">
+
+ <tbody><tr>
+  <td align="left" valign="top">
+   <address>
+    <a href="/MEME/">MEME Home</a>
+   </address>
+  </td>
+  <td align="right" valign="top">
+   <address>
+    <font size="-1">
+     Contact: <a href="mailto:jwong@apelon.com">Joanne Wong</a>
+    </font>
+   </address>
+   <address><font size="-1">Created: 03/21/2005</font></address>
+   <address><font size="-1">Last Updated: 03/28/2005</font></address>
+  </td>
+ </tr>
+</tbody>
+</table>
+</body></html>

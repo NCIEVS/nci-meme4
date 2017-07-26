@@ -1,0 +1,66 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.51 [en] (X11; I; SunOS 5.6 sun4u) [Netscape]">
+</head>
+<body>
+Mapping of Deleted CUIs
+<br>&nbsp;
+<p>You will be given Excel files that contain CUIs that have been deleted
+from the Metathesaurus.&nbsp; You will need to relate the delted CUI to
+at least one CUI that currently exists in the Metathesaurus.&nbsp; In addition
+you will need to pick one of the following relationship below other than
+unassigned.
+<p>--unassigned--this is the default and implies the editor has not worked
+on this concept.
+<br>--Synonym--
+<br>--has NRW REL&nbsp;to--
+<br>--has BRD REL to--
+<br>--Other--Concept 1 has some relationship to concept 2
+<br>--No match--The editor picks this on the RARE occasion that they cannot
+find ANY concept that could even be generally related to the deleted concept.
+These will have to be re-edited.
+<br>--Not Mappable--Where concept 1 is not a useful biomedical concept
+and is not mappable to any current UMLS concept (e.g., &amp;nbsp; in PDQ).&nbsp;
+We anticipate that you will find very few if any of these on your worksheets.
+<p>1.&nbsp; Is there a living concept in the Metathesaurus that has the
+same meaning?
+<br>We found many cases where a source killed something because it contained
+a typo.
+<p>For example:
+<p>LOINC had GLASCOW&nbsp;COMA&nbsp;SCORE.EYE OPENING
+<br>this died but they created GLASGOW&nbsp;COMA&nbsp;SCORE.EYE&nbsp;OPENING
+<br>&nbsp;
+<p>2.&nbsp; Prefer to map to same source (try to find the parent)
+<p>***Should we change this to:
+<br>"If no synonymous concept, try to map to the same source first, prefer
+the parent."
+<br>????
+<p>C0498076
+<br>ONLAY-COMPOSITE/RESIN-PER TOOTH (IN ADDITION TO INLAY-LABORATORY PROCESSED)
+<p>has NRW REL to
+<p>C0498076&nbsp; Inlay/Onlay Restorations
+<p>Both of these concepts were from HCPCs.&nbsp; C0498076 is a Hierarchical
+term from the section that C0498076 came from.
+<br>&nbsp;
+<p>3.&nbsp; Choose something inclusive rather than close in meaning.
+<p>4.&nbsp; Check to make sure you are mapping to a CUI that is still alive.
+<br>(Use the history button)
+<p>5.&nbsp; If the meaning appears to be split (e.g. >1 STY) and all map
+to are 1 STY) then map to multple CUIs.
+<br>Or if the meaning cannot be mapped to any reasonble CUI than map to
+multiple CUIs.
+<p>6.&nbsp; Choose simple (&amp; general) as opposed to complex precoordinated
+expression or multple CUIs.
+<p>7.&nbsp; Start by clicking on the highlighted CUI to view the concept
+report from the release files.&nbsp; If that doesn't yield a good match,
+try using the approximate matching in the mid.
+<p>8.&nbsp; Do NOT spend more than 10 minutes on any concept.&nbsp; After
+10 minutes choose "no match".
+<p>Other hints:
+<p>Ctrl-W closes windows.&nbsp; It can get confusing if you leave too many
+open so close them frequently.
+<br>&nbsp;
+</body>
+</html>

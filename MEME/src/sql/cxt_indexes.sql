@@ -1,0 +1,63 @@
+/*****************************************************************************
+*
+* File:  $INIT_HOME/sql/indexes.sql
+* Author: DSS 
+*
+* Remarks:  This script is used to create the indexes on the tables used
+*            in making contexts.
+*
+* Version Info:
+*   Release 3
+*   Version 3.3
+*   Deborah Shapiro (7/13/2000)
+* 
+*****************************************************************************/
+
+DROP INDEX X_SA_SAID;
+CREATE INDEX X_SA_SAID ON source_atoms(source_atom_id)
+PCTFREE 10 STORAGE (INITIAL 0M) TABLESPACE MIDI;
+
+DROP INDEX X_SA_CODE;
+CREATE INDEX X_SA_CODE ON source_atoms(code)
+PCTFREE 10 STORAGE (INITIAL 40M) TABLESPACE MIDI;
+
+DROP INDEX X_TP_SAID;
+CREATE INDEX X_TP_SAID ON treepos(source_atom_id)
+PCTFREE 10 STORAGE (INITIAL 40M) TABLESPACE MIDI;
+
+DROP INDEX X_TP_TN;
+CREATE INDEX X_TP_TN ON treepos(treenum)
+PCTFREE 10 STORAGE (INITIAL 100M) TABLESPACE MIDI;
+
+DROP INDEX X_CR_HR;
+CREATE INDEX X_CR_HR ON code_ranges(high_range)
+PCTFREE 10 STORAGE (INITIAL 100M) TABLESPACE MIDI;
+
+DROP INDEX X_CR_LR;
+CREATE INDEX X_CR_LR ON code_ranges(low_range)
+PCTFREE 10 STORAGE (INITIAL 100M) TABLESPACE MIDI;
+
+DROP INDEX X_BTNT_SAID1;
+CREATE INDEX X_BTNT_SAID1 ON bt_nt_rels(source_atom_id_1)
+PCTFREE 10 STORAGE (INITIAL 100M) TABLESPACE MIDI;
+
+DROP INDEX X_BTNT_SAID2;
+CREATE INDEX X_BTNT_SAID2 ON bt_nt_rels(source_atom_id_2)
+PCTFREE 10 STORAGE (INITIAL 100M) TABLESPACE MIDI;
+
+DROP INDEX X_EL_PARNUM;
+CREATE INDEX X_EL_PARNUM ON exclude_list(parnum)
+PCTFREE 10 STORAGE (INITIAL 100M) TABLESPACE MIDI;
+
+DROP INDEX X_CN_SAID;
+CREATE INDEX X_CN_SAID ON context_numbers(source_atom_id)
+PCTFREE 10 STORAGE (INITIAL 100M) TABLESPACE MIDI;
+
+DROP INDEX X_PT_TREENUM;
+CREATE INDEX X_PT_TREENUM ON parent_treenums(treenum)
+PCTFREE 10 STORAGE (INITIAL 100M) TABLESPACE MIDI;
+
+DROP INDEX X_PT_PARNUM;
+CREATE INDEX X_PT_PARNUM ON parent_treenums(parnum)
+PCTFREE 10 STORAGE (INITIAL 100M) TABLESPACE MIDI;
+

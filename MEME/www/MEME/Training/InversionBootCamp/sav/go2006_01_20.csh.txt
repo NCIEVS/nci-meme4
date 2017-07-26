@@ -1,0 +1,1420 @@
+#!/bin/csh -f
+#
+# File:    go2004_12_20.csh
+# Author:  Brian Carlsen
+#
+#          This script should be run from the directory
+#          containing the SRC files.
+
+###################################################################
+#
+# Configuration
+#
+###################################################################
+set mode=real
+set db=oa_mid2004
+set user=`/site/umls/scripts/get-oracle-pwd.pl`
+
+set authority=GO2004_12_20
+set new_source=GO2004_12_20
+set old_source="GO2004_03_02"
+set authority=GO2004_12_20
+set work_id=0
+
+if ($?MEME_HOME == 0) then
+    echo '$MEME_HOME must be set'
+    exit 1
+endif
+
+if ($?NLS == 0) then
+    echo '$NLS must be set'
+    exit 1
+endif
+
+if ($?ORACLE_HOME == 0) then
+    echo '$ORACLE_HOME must be set'
+    exit 1
+endif
+
+if ($#argv == 0) then
+    echo "Usage: $0 <database>"
+    echo "Usage: $0 [-t] <test database> <editing database>"
+    exit 1
+else if ($#argv == 1) then
+    set mode=run
+    set db=$1
+    set real_db=$1
+    set host=`/site/umls/scripts/midsvcs.pl -s insertion-meme-server-host`
+    set port=`/site/umls/scripts/midsvcs.pl -s insertion-meme-server-port`
+    set qual=real
+else if ($#argv == 3 && $argv[1] == "-t") then
+    set mode=test
+    set real_db=$3
+    set db=$2
+    set host=`/site/umls/scripts/midsvcs.pl -s test-insertion-meme-server-host`
+    set port=`/site/umls/scripts/midsvcs.pl -s test-insertion-meme-server-port`
+    set qual=test
+else
+    echo "Usage: $0 <database>"
+    echo "Usage: $0 [-t] <test database> <editing database>"
+    exit 1
+endif 
+
+set ct=`ls |fgrep -c .src`
+if ($ct == 0) then
+    echo "You must run this script from the directory containing the src files"
+    exit 1
+endif
+
+if ((! -e sources.src) || (! -e termgroups.src)) then
+    echo "The files sources.src and termgroups.src must exist"
+    exit 1
+endif
+
+###################################################################
+# Get username/password and work_id
+###################################################################
+$ORACLE_HOME/bin/sqlplus -s $user@$db <<EOF >! /tmp/work_id
+    set feedback off
+    set serveroutput on size 100000
+    exec dbms_output.put_line ( -
+         meme_utility.new_work( -
+	      authority => '$new_source', -
+              type => 'INSERTION', -
+	      description => 'Source insertion of $new_source'));
+EOF
+set work_id=`cat /tmp/work_id`
+\rm -f /tmp/work_id
+
+#################################################################
+# 
+#  Start RECIPE
+#
+#################################################################
+
+echo "--------------------------------------------------------------"
+echo "Starting $0 ... `/bin/date`"
+echo "--------------------------------------------------------------"
+echo "MEME_HOME:  $MEME_HOME"
+echo "mode:       $mode"
+echo "db:         $db"
+echo "authority:  $authority"
+echo "new_source: $new_source"
+echo "old_source: $old_source"
+echo "work_id:    $work_id"
+echo "host:       $host"
+echo "port:       $port"
+echo ""
+
+#
+# Indicate start of insertion
+#
+$ORACLE_HOME/bin/sqlplus -s $user@$real_db <<EOF > /dev/null 
+   UPDATE sims_info SET ${qual}_insertion_start = sysdate
+    WHERE source = '$new_source';
+EOF
+
+set recipe_start_t=`perl -e 'print time'`
+#################################################################
+# <h2>Load Section</h2>
+#################################################################
+
+#
+# Load Step (Part 1)
+#
+echo "    Run Load Step Part 1 (load_section.1.log) ... `/bin/date`"
+
+$MEME_HOME/bin/load_section.csh $authority "$old_source" $new_source "NA" $db $work_id 1 >&! load_section.1.log
+
+if ($status != 0) then 
+    echo "Error running load section, see load_section.1.log"
+    exit 1
+endif
+
+#################################################################
+# Pre-insert merging
+#################################################################
+
+#
+# Precomputed set GO-SRC
+#
+echo "    Perform precomputed set 'GO-SRC' ...`/bin/date`"
+
+set start_t=`perl -e 'print time'`
+$MEME_HOME/bin/load_src.csh $db mergefacts.src >! load_src.log
+if ($status != 0) then 
+    echo "Error loading mergefacts"
+    exit 1
+endif
+$MEME_HOME/bin/log_operation.pl $db $authority Merging "Load mergefacts.src for GO-SRC" $work_id 0 $start_t >> /dev/null
+
+$ORACLE_HOME/bin/sqlplus -s $user@$db <<EOF >&! /tmp/t.$$.log
+    set serveroutput on size 100000
+    set feedback off
+    ALTER SESSION SET sort_area_size=200000000;
+    ALTER SESSION SET hash_area_size=200000000;
+    WHENEVER SQLERROR EXIT -1
+ 
+    exec MEME_SOURCE_PROCESSING.prepare_src_mergefacts( -
+	authority => '$authority', -
+	merge_set => 'GO-SRC', -
+	work_id => $work_id);
+
+    exec MEME_SOURCE_PROCESSING.load_facts ( -
+        merge_set => 'GO-SRC', -
+        integrity_vector => '', -
+        change_status => 'N', -
+        make_demotion => 'N', -
+        authority => '$authority', -
+        work_id => $work_id);
+
+
+    -- Replacement merges
+    exec MEME_SOURCE_PROCESSING.replacement_merges ( -
+        merge_set => 'GO-SRC', -
+        normalization_flag => 1, -
+	ambig_flag => 0, -
+        authority => '$authority', -
+        work_id => $work_id);
+
+    DELETE FROM mom_merge_facts WHERE status in ('P','F','R');
+    exec MEME_SOURCE_PROCESSING.move_processed_facts ( -
+        authority => '$authority', -
+        work_id => $work_id);
+
+EOF
+
+if ($status != 0) then
+    echo "Error running merge set"
+    cat /tmp/t.$$.log
+    exit 1
+endif
+
+#
+# Precomputed set GO2004_12_20-SY
+#
+echo "    Perform precomputed set 'GO2004_12_20-SY' ...`/bin/date`"
+
+set start_t=`perl -e 'print time'`
+$MEME_HOME/bin/load_src.csh $db mergefacts.src >! load_src.log
+if ($status != 0) then 
+    echo "Error loading mergefacts"
+    exit 1
+endif
+$MEME_HOME/bin/log_operation.pl $db $authority Merging "Load mergefacts.src for GO2004_12_20-SY" $work_id 0 $start_t >> /dev/null
+
+$ORACLE_HOME/bin/sqlplus -s $user@$db <<EOF >&! /tmp/t.$$.log
+    set serveroutput on size 100000
+    set feedback off
+    ALTER SESSION SET sort_area_size=200000000;
+    ALTER SESSION SET hash_area_size=200000000;
+    WHENEVER SQLERROR EXIT -1
+ 
+    exec MEME_SOURCE_PROCESSING.prepare_src_mergefacts( -
+	authority => '$authority', -
+	merge_set => 'GO2004_12_20-SY', -
+	work_id => $work_id);
+
+    exec MEME_SOURCE_PROCESSING.load_facts ( -
+        merge_set => 'GO2004_12_20-SY', -
+        integrity_vector => '', -
+        change_status => 'N', -
+        make_demotion => 'N', -
+        authority => '$authority', -
+        work_id => $work_id);
+
+
+    -- Replacement merges
+    exec MEME_SOURCE_PROCESSING.replacement_merges ( -
+        merge_set => 'GO2004_12_20-SY', -
+        normalization_flag => 1, -
+	ambig_flag => 0, -
+        authority => '$authority', -
+        work_id => $work_id);
+
+    DELETE FROM mom_merge_facts WHERE status in ('P','F','R');
+    exec MEME_SOURCE_PROCESSING.move_processed_facts ( -
+        authority => '$authority', -
+        work_id => $work_id);
+
+EOF
+
+if ($status != 0) then
+    echo "Error running merge set"
+    cat /tmp/t.$$.log
+    exit 1
+endif
+
+#
+# Generated set GO-REPL
+# Merge all new termgroups with all old termgroups
+#
+echo "    Perform generated set 'GO-REPL' ...`/bin/date`"
+
+$ORACLE_HOME/bin/sqlplus -s $user@$db <<EOF >&! /tmp/t.$$.log
+    set serveroutput on size 100000
+    set feedback off
+    ALTER SESSION SET sort_area_size=200000000;
+    ALTER SESSION SET hash_area_size=200000000;
+    WHENEVER SQLERROR EXIT -1
+ 
+    exec MEME_UTILITY.drop_it('table','t1');
+    exec MEME_UTILITY.drop_it('table','t2');
+    CREATE TABLE t1 (termgroup VARCHAR2(40) NOT NULL);
+    CREATE TABLE t2 (termgroup VARCHAR2(40) NOT NULL);
+    insert into t1 values ('GO2004_12_20/BSS');
+    insert into t1 values ('GO2004_12_20/BSX');
+    insert into t1 values ('GO2004_12_20/BSY');
+    insert into t1 values ('GO2004_12_20/ESS');
+    insert into t1 values ('GO2004_12_20/ESX');
+    insert into t1 values ('GO2004_12_20/ESY');
+    insert into t1 values ('GO2004_12_20/IS');
+    insert into t1 values ('GO2004_12_20/NSS');
+    insert into t1 values ('GO2004_12_20/NSX');
+    insert into t1 values ('GO2004_12_20/NSY');
+    insert into t1 values ('GO2004_12_20/OBS');
+    insert into t1 values ('GO2004_12_20/OES');
+    insert into t1 values ('GO2004_12_20/ONS');
+    insert into t1 values ('GO2004_12_20/OP');
+    insert into t1 values ('GO2004_12_20/OPS');
+    insert into t1 values ('GO2004_12_20/OPX');
+    insert into t1 values ('GO2004_12_20/PS');
+    insert into t1 values ('GO2004_12_20/PT');
+    insert into t1 values ('GO2004_12_20/PX');
+    insert into t1 values ('GO2004_12_20/RLSS');
+    insert into t1 values ('GO2004_12_20/RLSX');
+    insert into t1 values ('GO2004_12_20/RLSY');
+    insert into t1 values ('GO2004_12_20/SY');
+    insert into t2 values ('GO2004_03_02/ET');
+    insert into t2 values ('GO2004_03_02/EX');
+    insert into t2 values ('GO2004_03_02/IS');
+    insert into t2 values ('GO2004_03_02/OP');
+    insert into t2 values ('GO2004_03_02/OPS');
+    insert into t2 values ('GO2004_03_02/OPX');
+    insert into t2 values ('GO2004_03_02/PS');
+    insert into t2 values ('GO2004_03_02/PT');
+    insert into t2 values ('GO2004_03_02/PX');
+    insert into t2 values ('GO2004_03_02/SS');
+
+    exec MEME_SOURCE_PROCESSING.generate_facts ( -
+	termgroup_table_1 => 't1', -
+	termgroup_table_2 => 't2', -
+	merge_set => 'GO-REPL', -
+	string_parameter => 'BOTH', -
+	code_parameter => 'EXACT', -
+	source_aui_parameter => 'NONE', source_cui_parameter => 'NONE', -
+	source_dui_parameter => 'NONE', tty_parameter => 'NONE', -
+	table_name => 'source_classes_atoms', -
+	source => '$new_source', -
+	authority => '$authority', -
+	work_id => $work_id );
+
+    -- Use exclude list
+    exec MEME_SOURCE_PROCESSING.filter_facts ( -
+       type_1 => 'EXCLUDE_LIST', -
+       arg_1 => '', not_1 => '', type_2 => '', arg_2 => '', -
+       not_2 => '', merge_set => 'GO-REPL', -
+       source => '$new_source', authority => '$authority', -
+       work_id => $work_id );
+
+    -- Use norm exclude list
+    exec MEME_SOURCE_PROCESSING.filter_facts ( -
+       type_1 => 'NORM_EXCLUDE_LIST', -
+       arg_1 => '', not_1 => '', type_2 => '', arg_2 => '', -
+       not_2 => '', merge_set => 'GO-REPL', -
+       source => '$new_source', authority => '$authority', -
+       work_id => $work_id );
+
+    -- Use exclude list
+    exec MEME_SOURCE_PROCESSING.filter_facts ( -
+       type_2 => 'EXCLUDE_LIST', -
+       arg_1 => '', not_1 => '', type_1 => '', arg_2 => '', -
+       not_2 => '', merge_set => 'GO-REPL', -
+       source => '$new_source', authority => '$authority', -
+       work_id => $work_id );
+
+    -- Use norm exclude list
+    exec MEME_SOURCE_PROCESSING.filter_facts ( -
+       type_2 => 'NORM_EXCLUDE_LIST', -
+       arg_1 => '', not_1 => '', type_1 => '', arg_2 => '', -
+       not_2 => '', merge_set => 'GO-REPL', -
+       source => '$new_source', authority => '$authority', -
+       work_id => $work_id );
+
+    exec MEME_SOURCE_PROCESSING.load_facts ( -
+        merge_set => 'GO-REPL', -
+        integrity_vector => '', -
+        change_status => 'Y', -
+        make_demotion => 'Y', -
+        authority => '$authority', -
+        work_id => $work_id);
+
+
+    -- Replacement merges in both directions
+    exec MEME_SOURCE_PROCESSING.replacement_merges ( -
+        merge_set => 'GO-REPL', -
+        normalization_flag => 1, -
+	ambig_flag => 1, -
+        authority => '$authority', -
+        work_id => $work_id);
+
+    DELETE FROM mom_merge_facts WHERE status in ('P','F','R');
+    exec MEME_SOURCE_PROCESSING.move_processed_facts ( -
+        authority => '$authority', -
+        work_id => $work_id);
+
+EOF
+if ($status != 0) then
+    echo "Error during pre-insert merge operation"
+    cat /tmp/t.$$.log
+    exit 1
+endif
+
+#
+# Load Step (Part 2)
+#
+echo "    Run Load Step Part 2 (load_section.2.log) ... `/bin/date`"
+
+$MEME_HOME/bin/load_section.csh $authority "$old_source" $new_source "NA" $db $work_id 2 >&! load_section.2.log
+
+if ($status != 0) then 
+    echo "Error running load section, see load_section.2.log"
+    exit 1
+endif
+
+
+#################################################################
+# <h2>Update Merge Section</h2>
+#################################################################
+
+#
+# Precomputed set GO-SRC
+#
+echo "    Perform precomputed set 'GO-SRC' ...`/bin/date`"
+
+set start_t=`perl -e 'print time'`
+$MEME_HOME/bin/load_src.csh $db mergefacts.src >! load_src.log
+if ($status != 0) then 
+    echo "Error loading mergefacts"
+    exit 1
+endif
+$MEME_HOME/bin/log_operation.pl $db $authority Merging "Load mergefacts.src for GO-SRC" $work_id 0 $start_t >> /dev/null
+
+$ORACLE_HOME/bin/sqlplus -s $user@$db <<EOF >&! /tmp/t.$$.log
+    set serveroutput on size 100000
+    set feedback off
+    ALTER SESSION SET sort_area_size=200000000;
+    ALTER SESSION SET hash_area_size=200000000;
+    WHENEVER SQLERROR EXIT -1
+ 
+    exec MEME_SOURCE_PROCESSING.prepare_src_mergefacts( -
+	authority => '$authority', -
+	merge_set => 'GO-SRC', -
+	work_id => $work_id);
+
+    exec MEME_SOURCE_PROCESSING.load_facts ( -
+        merge_set => 'GO-SRC', -
+        integrity_vector => '', -
+        change_status => 'N', -
+        make_demotion => 'N', -
+        authority => '$authority', -
+        work_id => $work_id);
+
+
+EOF
+
+set start_t=`perl -e 'print time'`
+$MEME_HOME/bin/merge.pl -host=$host -port=$port GO-SRC $authority $work_id $db >&! merge.go-src.log
+if ($status != 0) then
+    echo "Error merging"
+    exit 1
+endif
+$MEME_HOME/bin/log_operation.pl $db $authority Merging "Call merge.pl for GO-SRC" $work_id 0 $start_t >> /dev/null
+
+#
+# Move Processed Facts
+#
+$ORACLE_HOME/bin/sqlplus -s $user@$db <<EOF >&! /tmp/t.$$.log
+    set serveroutput on size 100000
+    set feedback off
+    WHENEVER SQLERROR EXIT -1
+ 
+    DELETE FROM mom_merge_facts WHERE status in ('P','F');
+    exec MEME_SOURCE_PROCESSING.move_processed_facts ( -
+        authority => '$authority', -
+        work_id => $work_id);
+
+EOF
+if ($status != 0) then
+    echo "Error moving facts"
+    cat /tmp/t.$$.log
+    exit 1
+endif
+
+
+#
+# Precomputed set GO2004_12_20-SY
+#
+echo "    Perform precomputed set 'GO2004_12_20-SY' ...`/bin/date`"
+
+set start_t=`perl -e 'print time'`
+$MEME_HOME/bin/load_src.csh $db mergefacts.src >! load_src.log
+if ($status != 0) then 
+    echo "Error loading mergefacts"
+    exit 1
+endif
+$MEME_HOME/bin/log_operation.pl $db $authority Merging "Load mergefacts.src for GO2004_12_20-SY" $work_id 0 $start_t >> /dev/null
+
+$ORACLE_HOME/bin/sqlplus -s $user@$db <<EOF >&! /tmp/t.$$.log
+    set serveroutput on size 100000
+    set feedback off
+    ALTER SESSION SET sort_area_size=200000000;
+    ALTER SESSION SET hash_area_size=200000000;
+    WHENEVER SQLERROR EXIT -1
+ 
+    exec MEME_SOURCE_PROCESSING.prepare_src_mergefacts( -
+	authority => '$authority', -
+	merge_set => 'GO2004_12_20-SY', -
+	work_id => $work_id);
+
+    exec MEME_SOURCE_PROCESSING.load_facts ( -
+        merge_set => 'GO2004_12_20-SY', -
+        integrity_vector => '', -
+        change_status => 'N', -
+        make_demotion => 'N', -
+        authority => '$authority', -
+        work_id => $work_id);
+
+
+EOF
+
+set start_t=`perl -e 'print time'`
+$MEME_HOME/bin/merge.pl -host=$host -port=$port GO2004_12_20-SY $authority $work_id $db >&! merge.go2004_12_20-sy.log
+if ($status != 0) then
+    echo "Error merging"
+    exit 1
+endif
+$MEME_HOME/bin/log_operation.pl $db $authority Merging "Call merge.pl for GO2004_12_20-SY" $work_id 0 $start_t >> /dev/null
+
+#
+# Move Processed Facts
+#
+$ORACLE_HOME/bin/sqlplus -s $user@$db <<EOF >&! /tmp/t.$$.log
+    set serveroutput on size 100000
+    set feedback off
+    WHENEVER SQLERROR EXIT -1
+ 
+    DELETE FROM mom_merge_facts WHERE status in ('P','F');
+    exec MEME_SOURCE_PROCESSING.move_processed_facts ( -
+        authority => '$authority', -
+        work_id => $work_id);
+
+EOF
+if ($status != 0) then
+    echo "Error moving facts"
+    cat /tmp/t.$$.log
+    exit 1
+endif
+
+
+#
+# Binary Integrity Check
+#
+$ORACLE_HOME/bin/sqlplus -s $user@$db << EOF >&! /tmp/t.$$.log
+    WHENEVER SQLERROR EXIT -1
+    set feedback off
+
+    INSERT INTO ic_pair
+    (ic_name, negation, type_1, value_1, type_2, value_2)
+    VALUES
+     ('MGV_K','N','SOURCE','GO2004_12_20','SOURCE','GO2004_03_02');
+
+EOF
+if ($status != 0) then
+    echo "Error handling binary check"
+    cat /tmp/t.$$.log
+    exit 1
+endif
+
+
+#
+# Generated set GO-REPL
+# Merge all new termgroups with all old termgroups
+#
+echo "    Perform generated set 'GO-REPL' ...`/bin/date`"
+
+$ORACLE_HOME/bin/sqlplus -s $user@$db <<EOF >&! /tmp/t.$$.log
+    set serveroutput on size 100000
+    set feedback off
+    ALTER SESSION SET sort_area_size=200000000;
+    ALTER SESSION SET hash_area_size=200000000;
+    WHENEVER SQLERROR EXIT -1
+ 
+    exec MEME_UTILITY.drop_it('table','t1');
+    exec MEME_UTILITY.drop_it('table','t2');
+    CREATE TABLE t1 (termgroup VARCHAR2(40) NOT NULL);
+    CREATE TABLE t2 (termgroup VARCHAR2(40) NOT NULL);
+    insert into t1 values ('GO2004_12_20/BSS');
+    insert into t1 values ('GO2004_12_20/BSX');
+    insert into t1 values ('GO2004_12_20/BSY');
+    insert into t1 values ('GO2004_12_20/ESS');
+    insert into t1 values ('GO2004_12_20/ESX');
+    insert into t1 values ('GO2004_12_20/ESY');
+    insert into t1 values ('GO2004_12_20/IS');
+    insert into t1 values ('GO2004_12_20/NSS');
+    insert into t1 values ('GO2004_12_20/NSX');
+    insert into t1 values ('GO2004_12_20/NSY');
+    insert into t1 values ('GO2004_12_20/OBS');
+    insert into t1 values ('GO2004_12_20/OES');
+    insert into t1 values ('GO2004_12_20/ONS');
+    insert into t1 values ('GO2004_12_20/OP');
+    insert into t1 values ('GO2004_12_20/OPS');
+    insert into t1 values ('GO2004_12_20/OPX');
+    insert into t1 values ('GO2004_12_20/PS');
+    insert into t1 values ('GO2004_12_20/PT');
+    insert into t1 values ('GO2004_12_20/PX');
+    insert into t1 values ('GO2004_12_20/RLSS');
+    insert into t1 values ('GO2004_12_20/RLSX');
+    insert into t1 values ('GO2004_12_20/RLSY');
+    insert into t1 values ('GO2004_12_20/SY');
+    insert into t2 values ('GO2004_03_02/ET');
+    insert into t2 values ('GO2004_03_02/EX');
+    insert into t2 values ('GO2004_03_02/IS');
+    insert into t2 values ('GO2004_03_02/OP');
+    insert into t2 values ('GO2004_03_02/OPS');
+    insert into t2 values ('GO2004_03_02/OPX');
+    insert into t2 values ('GO2004_03_02/PS');
+    insert into t2 values ('GO2004_03_02/PT');
+    insert into t2 values ('GO2004_03_02/PX');
+    insert into t2 values ('GO2004_03_02/SS');
+
+    exec MEME_SOURCE_PROCESSING.generate_facts ( -
+	termgroup_table_1 => 't1', -
+	termgroup_table_2 => 't2', -
+	merge_set => 'GO-REPL', -
+	string_parameter => 'BOTH', -
+	code_parameter => 'EXACT', -
+	source_aui_parameter => 'NONE', source_cui_parameter => 'NONE', -
+	source_dui_parameter => 'NONE', tty_parameter => 'NONE', -
+	table_name => 'classes', -
+	source => '$new_source', -
+	authority => '$authority', -
+	work_id => $work_id );
+
+    -- Use exclude list
+    exec MEME_SOURCE_PROCESSING.filter_facts ( -
+       type_1 => 'EXCLUDE_LIST', -
+       arg_1 => '', not_1 => '', type_2 => '', arg_2 => '', -
+       not_2 => '', merge_set => 'GO-REPL', -
+       source => '$new_source', authority => '$authority', -
+       work_id => $work_id );
+
+    -- Use norm exclude list
+    exec MEME_SOURCE_PROCESSING.filter_facts ( -
+       type_1 => 'NORM_EXCLUDE_LIST', -
+       arg_1 => '', not_1 => '', type_2 => '', arg_2 => '', -
+       not_2 => '', merge_set => 'GO-REPL', -
+       source => '$new_source', authority => '$authority', -
+       work_id => $work_id );
+
+    -- Use exclude list
+    exec MEME_SOURCE_PROCESSING.filter_facts ( -
+       type_2 => 'EXCLUDE_LIST', -
+       arg_1 => '', not_1 => '', type_1 => '', arg_2 => '', -
+       not_2 => '', merge_set => 'GO-REPL', -
+       source => '$new_source', authority => '$authority', -
+       work_id => $work_id );
+
+    -- Use norm exclude list
+    exec MEME_SOURCE_PROCESSING.filter_facts ( -
+       type_2 => 'NORM_EXCLUDE_LIST', -
+       arg_1 => '', not_1 => '', type_1 => '', arg_2 => '', -
+       not_2 => '', merge_set => 'GO-REPL', -
+       source => '$new_source', authority => '$authority', -
+       work_id => $work_id );
+
+    exec MEME_SOURCE_PROCESSING.load_facts ( -
+        merge_set => 'GO-REPL', -
+        integrity_vector => '', -
+        change_status => 'Y', -
+        make_demotion => 'Y', -
+        authority => '$authority', -
+        work_id => $work_id);
+
+
+    -- Set All Checks
+    update mom_merge_facts
+    set integrity_vector = (select integrity_Vector from
+    ic_applications where application='MERGE_O_MATIC');
+
+EOF
+
+set start_t=`perl -e 'print time'`
+$MEME_HOME/bin/merge.pl -host=$host -port=$port GO-REPL $authority $work_id $db >&! merge.go-repl.log
+if ($status != 0) then
+    echo "Error merging"
+    exit 1
+endif
+$MEME_HOME/bin/log_operation.pl $db $authority Merging "Call merge.pl for GO-REPL" $work_id 0 $start_t >> /dev/null
+
+#
+# Move Processed Facts
+#
+$ORACLE_HOME/bin/sqlplus -s $user@$db <<EOF >&! /tmp/t.$$.log
+    set serveroutput on size 100000
+    set feedback off
+    WHENEVER SQLERROR EXIT -1
+ 
+    DELETE FROM mom_merge_facts WHERE status in ('P','F');
+    exec MEME_SOURCE_PROCESSING.move_processed_facts ( -
+        authority => '$authority', -
+        work_id => $work_id);
+
+EOF
+if ($status != 0) then
+    echo "Error moving facts"
+    cat /tmp/t.$$.log
+    exit 1
+endif
+
+
+#################################################################
+# <h2>Safe Replacement Section</h2>
+#################################################################
+
+#
+# Source Safe Replacement Step
+#
+echo "    Perform source safe replacement (BOTH,EXACT,NONE,NONE,NONE,NONE) ...`/bin/date`"
+
+$ORACLE_HOME/bin/sqlplus -s $user@$db << EOF >&! /tmp/t.$$.log
+    WHENEVER SQLERROR EXIT -1
+    set feedback off
+    ALTER SESSION SET sort_area_size=200000000;
+    ALTER SESSION SET hash_area_size=200000000;
+    set serveroutput on size 100000
+
+    exec MEME_UTILITY.drop_it('table','t1');
+    exec MEME_UTILITY.drop_it('table','t2');
+    CREATE TABLE t1 (source VARCHAR2(40));
+    CREATE TABLE t2 (source VARCHAR2(40));
+    INSERT INTO t1 VALUES ('GO2004_12_20');
+    INSERT INTO t2 VALUES ('GO2004_03_02');
+
+    exec meme_source_processing.safe_replacement( -
+        string_parameter => 'BOTH', code_parameter => 'EXACT', -
+        source_aui_parameter => 'NONE', source_cui_parameter => 'NONE', -
+        source_dui_parameter => 'NONE', tty_parameter => 'NONE', -
+        old_source_table => 't2', new_source_table => 't1', -
+        old_termgroup_table => '', new_termgroup_table => '', -
+        change_status => 'Y', source => '$new_source', authority => '$authority', -
+work_id => $work_id);
+
+    exec meme_source_processing.delete_demotions (-
+       source => '$new_source', -
+	authority => '$authority', -
+	work_id => $work_id);
+
+EOF
+if ($status != 0) then
+    echo "Error handling safe replacement"
+    cat /tmp/t.$$.log
+    exit 1
+endif
+
+
+#################################################################
+# <h2>New Merge Section</h2>
+#################################################################
+
+#
+# Generated set GO-MID
+#
+echo "    Perform generated set 'GO-MID' ...`/bin/date`"
+
+$ORACLE_HOME/bin/sqlplus -s $user@$db <<EOF >&! /tmp/t.$$.log
+    set serveroutput on size 100000
+    set feedback off
+    ALTER SESSION SET sort_area_size=200000000;
+    ALTER SESSION SET hash_area_size=200000000;
+    WHENEVER SQLERROR EXIT -1
+ 
+    exec MEME_UTILITY.drop_it('table','t1');
+    exec MEME_UTILITY.drop_it('table','t2');
+    CREATE TABLE t1 (termgroup VARCHAR2(40) NOT NULL);
+    CREATE TABLE t2 (termgroup VARCHAR2(40) NOT NULL);
+    insert into t1 values ('GO2004_12_20/BSS');
+    insert into t1 values ('GO2004_12_20/BSX');
+    insert into t1 values ('GO2004_12_20/BSY');
+    insert into t1 values ('GO2004_12_20/ESS');
+    insert into t1 values ('GO2004_12_20/ESX');
+    insert into t1 values ('GO2004_12_20/ESY');
+    insert into t1 values ('GO2004_12_20/IS');
+    insert into t1 values ('GO2004_12_20/NSS');
+    insert into t1 values ('GO2004_12_20/NSX');
+    insert into t1 values ('GO2004_12_20/NSY');
+    insert into t1 values ('GO2004_12_20/OBS');
+    insert into t1 values ('GO2004_12_20/OES');
+    insert into t1 values ('GO2004_12_20/ONS');
+    insert into t1 values ('GO2004_12_20/OP');
+    insert into t1 values ('GO2004_12_20/OPS');
+    insert into t1 values ('GO2004_12_20/OPX');
+    insert into t1 values ('GO2004_12_20/PS');
+    insert into t1 values ('GO2004_12_20/PT');
+    insert into t1 values ('GO2004_12_20/PX');
+    insert into t1 values ('GO2004_12_20/RLSS');
+    insert into t1 values ('GO2004_12_20/RLSX');
+    insert into t1 values ('GO2004_12_20/RLSY');
+    insert into t1 values ('GO2004_12_20/SY');
+    insert into t2 values ('GO2004_12_20/BSS');
+    insert into t2 values ('GO2004_12_20/BSX');
+    insert into t2 values ('GO2004_12_20/BSY');
+    insert into t2 values ('GO2004_12_20/ESS');
+    insert into t2 values ('GO2004_12_20/ESX');
+    insert into t2 values ('GO2004_12_20/ESY');
+    insert into t2 values ('GO2004_12_20/IS');
+    insert into t2 values ('GO2004_12_20/NSS');
+    insert into t2 values ('GO2004_12_20/NSX');
+    insert into t2 values ('GO2004_12_20/NSY');
+    insert into t2 values ('GO2004_12_20/OBS');
+    insert into t2 values ('GO2004_12_20/OES');
+    insert into t2 values ('GO2004_12_20/ONS');
+    insert into t2 values ('GO2004_12_20/OP');
+    insert into t2 values ('GO2004_12_20/OPS');
+    insert into t2 values ('GO2004_12_20/OPX');
+    insert into t2 values ('GO2004_12_20/PS');
+    insert into t2 values ('GO2004_12_20/PT');
+    insert into t2 values ('GO2004_12_20/PX');
+    insert into t2 values ('GO2004_12_20/RLSS');
+    insert into t2 values ('GO2004_12_20/RLSX');
+    insert into t2 values ('GO2004_12_20/RLSY');
+    insert into t2 values ('GO2004_12_20/SY');
+    insert into t2 values ('GO2004_03_02/ET');
+    insert into t2 values ('GO2004_03_02/EX');
+    insert into t2 values ('GO2004_03_02/IS');
+    insert into t2 values ('GO2004_03_02/OP');
+    insert into t2 values ('GO2004_03_02/OPS');
+    insert into t2 values ('GO2004_03_02/OPX');
+    insert into t2 values ('GO2004_03_02/PS');
+    insert into t2 values ('GO2004_03_02/PT');
+    insert into t2 values ('GO2004_03_02/PX');
+    insert into t2 values ('GO2004_03_02/SS');
+
+    -- Exclude the t2 list
+    exec MEME_UTILITY.drop_it('table','t3');
+    CREATE TABLE t3 AS SELECT termgroup 
+    FROM termgroup_rank MINUS SELECT * FROM t2;
+
+    DELETE FROM t2; 
+
+    INSERT INTO t2 SELECT * FROM t3;
+
+    DROP TABLE t3;
+
+
+    exec MEME_SOURCE_PROCESSING.generate_facts ( -
+	termgroup_table_1 => 't1', -
+	termgroup_table_2 => 't2', -
+	merge_set => 'GO-MID', -
+	string_parameter => 'BOTH', -
+	code_parameter => 'NONE', -
+	source_aui_parameter => 'NONE', source_cui_parameter => 'NONE', -
+	source_dui_parameter => 'NONE', tty_parameter => 'NONE', -
+	table_name => 'classes', -
+	source => '$new_source', -
+	authority => '$authority', -
+	work_id => $work_id );
+
+    -- Exclude safe replacement
+    exec MEME_SOURCE_PROCESSING.filter_facts ( -
+       type_1 => 'SAFE_REPLACEMENT', -
+       arg_1 => '', not_1 => '', type_2 => '', arg_2 => '', -
+       not_2 => '', merge_set => 'GO-MID', -
+       source => '$new_source', authority => '$authority', -
+       work_id => $work_id );
+
+    -- Use exclude list
+    exec MEME_SOURCE_PROCESSING.filter_facts ( -
+       type_1 => 'EXCLUDE_LIST', -
+       arg_1 => '', not_1 => '', type_2 => '', arg_2 => '', -
+       not_2 => '', merge_set => 'GO-MID', -
+       source => '$new_source', authority => '$authority', -
+       work_id => $work_id );
+
+    -- Use norm exclude list
+    exec MEME_SOURCE_PROCESSING.filter_facts ( -
+       type_1 => 'NORM_EXCLUDE_LIST', -
+       arg_1 => '', not_1 => '', type_2 => '', arg_2 => '', -
+       not_2 => '', merge_set => 'GO-MID', -
+       source => '$new_source', authority => '$authority', -
+       work_id => $work_id );
+
+    -- Restrict to new atoms only
+    exec MEME_SOURCE_PROCESSING.filter_facts ( -
+       type_1 => 'NEW_ATOMS', -
+       arg_1 => '', not_1 => '', type_2 => '', arg_2 => '', -
+       not_2 => '', merge_set => 'GO-MID', -
+       source => '$new_source', authority => '$authority', -
+       work_id => $work_id );
+
+    -- Use exclude list
+    exec MEME_SOURCE_PROCESSING.filter_facts ( -
+       type_2 => 'EXCLUDE_LIST', -
+       arg_1 => '', not_1 => '', type_1 => '', arg_2 => '', -
+       not_2 => '', merge_set => 'GO-MID', -
+       source => '$new_source', authority => '$authority', -
+       work_id => $work_id );
+
+    -- Use norm exclude list
+    exec MEME_SOURCE_PROCESSING.filter_facts ( -
+       type_2 => 'NORM_EXCLUDE_LIST', -
+       arg_1 => '', not_1 => '', type_1 => '', arg_2 => '', -
+       not_2 => '', merge_set => 'GO-MID', -
+       source => '$new_source', authority => '$authority', -
+       work_id => $work_id );
+
+    exec MEME_SOURCE_PROCESSING.load_facts ( -
+        merge_set => 'GO-MID', -
+        integrity_vector => '', -
+        change_status => 'Y', -
+        make_demotion => 'Y', -
+        authority => '$authority', -
+        work_id => $work_id);
+
+
+    -- Set All Checks
+    update mom_merge_facts
+    set integrity_vector = (select integrity_Vector from
+    ic_applications where application='MERGE_O_MATIC');
+
+EOF
+
+set start_t=`perl -e 'print time'`
+$MEME_HOME/bin/merge.pl -host=$host -port=$port GO-MID ENG-$authority $work_id $db >&! merge.go-mid.log
+if ($status != 0) then
+    echo "Error merging"
+    exit 1
+endif
+$MEME_HOME/bin/log_operation.pl $db $authority Merging "Call merge.pl for GO-MID" $work_id 0 $start_t >> /dev/null
+
+#
+# Move Processed Facts
+#
+$ORACLE_HOME/bin/sqlplus -s $user@$db <<EOF >&! /tmp/t.$$.log
+    set serveroutput on size 100000
+    set feedback off
+    WHENEVER SQLERROR EXIT -1
+ 
+    DELETE FROM mom_merge_facts WHERE status in ('P','F');
+    exec MEME_SOURCE_PROCESSING.move_processed_facts ( -
+        authority => '$authority', -
+        work_id => $work_id);
+
+EOF
+if ($status != 0) then
+    echo "Error moving facts"
+    cat /tmp/t.$$.log
+    exit 1
+endif
+
+
+#
+# Generated Relationships From Matches
+
+#
+echo "    Generate relationships from matches ...`/bin/date`"
+
+$ORACLE_HOME/bin/sqlplus -s $user@$db <<EOF >&! /tmp/t.$$.log
+    set serveroutput on size 100000
+    set feedback off
+    ALTER SESSION SET sort_area_size=200000000;
+    ALTER SESSION SET hash_area_size=200000000;
+    WHENEVER SQLERROR EXIT -1
+ 
+    exec MEME_UTILITY.drop_it('table','t1');
+    exec MEME_UTILITY.drop_it('table','t2');
+    CREATE TABLE t1 (termgroup VARCHAR2(40) NOT NULL);
+    CREATE TABLE t2 (termgroup VARCHAR2(40) NOT NULL);
+    insert into t1 values ('GO2004_12_20/BSS');
+    insert into t1 values ('GO2004_12_20/BSX');
+    insert into t1 values ('GO2004_12_20/BSY');
+    insert into t1 values ('GO2004_12_20/ESS');
+    insert into t1 values ('GO2004_12_20/ESX');
+    insert into t1 values ('GO2004_12_20/ESY');
+    insert into t1 values ('GO2004_12_20/IS');
+    insert into t1 values ('GO2004_12_20/NSS');
+    insert into t1 values ('GO2004_12_20/NSX');
+    insert into t1 values ('GO2004_12_20/NSY');
+    insert into t1 values ('GO2004_12_20/OBS');
+    insert into t1 values ('GO2004_12_20/OES');
+    insert into t1 values ('GO2004_12_20/ONS');
+    insert into t1 values ('GO2004_12_20/OP');
+    insert into t1 values ('GO2004_12_20/OPS');
+    insert into t1 values ('GO2004_12_20/OPX');
+    insert into t1 values ('GO2004_12_20/PS');
+    insert into t1 values ('GO2004_12_20/PT');
+    insert into t1 values ('GO2004_12_20/PX');
+    insert into t1 values ('GO2004_12_20/RLSS');
+    insert into t1 values ('GO2004_12_20/RLSX');
+    insert into t1 values ('GO2004_12_20/RLSY');
+    insert into t1 values ('GO2004_12_20/SY');
+    insert into t2 values ('GO2004_03_02/ET');
+    insert into t2 values ('GO2004_03_02/EX');
+    insert into t2 values ('GO2004_03_02/IS');
+    insert into t2 values ('GO2004_03_02/OP');
+    insert into t2 values ('GO2004_03_02/OPS');
+    insert into t2 values ('GO2004_03_02/OPX');
+    insert into t2 values ('GO2004_03_02/PS');
+    insert into t2 values ('GO2004_03_02/PT');
+    insert into t2 values ('GO2004_03_02/PX');
+    insert into t2 values ('GO2004_03_02/SS');
+
+    exec MEME_SOURCE_PROCESSING.generate_facts ( -
+	termgroup_table_1 => 't1', -
+	termgroup_table_2 => 't2', -
+	merge_set => 'null', -
+	string_parameter => 'BOTH', -
+	code_parameter => 'NOT', -
+	tty_parameter => 'N', -
+	table_name => 'classes', -
+	source => '$new_source', -
+	authority => '$authority', -
+	work_id => $work_id );
+
+    -- Restrict to new atoms only
+    exec MEME_SOURCE_PROCESSING.filter_facts ( -
+       type_1 => 'NEW_ATOMS', -
+       arg_1 => '', not_1 => '', type_2 => '', arg_2 => '', -
+       not_2 => '', merge_set => 'null', -
+       source => '$new_source', authority => '$authority', -
+       work_id => $work_id );
+
+    exec MEME_UTILITY.drop_it('table','t1');
+    CREATE TABLE t1 AS
+    SELECT concept_id_1,concept_id_2,atom_id_1,atom_id_2,
+         relationship_name,relationship_attribute,
+         source, source_of_label,status,generated_status,
+         relationship_level,released,tobereleased,
+         relationship_id, suppressible,
+         sg_id_1, sg_type_1, sg_qualifier_1,
+         sg_id_2, sg_type_2, sg_qualifier_2
+    FROM relationships WHERE 1=0;
+
+    exec MEME_SYSTEM.analyze('mom_candidate_facts');
+    INSERT INTO t1 
+    SELECT a.concept_id, b.concept_id,atom_id_1,atom_id_2,
+	'RT','','$new_source','$new_source','D','Y','P','N','N',0,'N','','','','','',''
+    FROM mom_candidate_facts, classes a, classes b
+    WHERE atom_id_1=a.atom_id and atom_id_2=b.atom_id;
+
+
+EOF
+if ($status != 0) then
+    echo "Error running insert set"
+    cat /tmp/t.$$.log
+    exit 1
+endif
+
+#
+# Insert relationships
+#
+$MEME_HOME/bin/insert.pl -w $work_id -host=$host -port=$port -rels t1 $db $new_source >&! insert.Demotions.log
+if ($status != 0) then
+    echo "Error inserting relationships"
+    exit 1
+endif
+
+
+
+#
+# Ad Hoc Step
+#
+# Insert relationships: Enzyme exhibits Activity, Laboratory Procedure measures Activity
+$ORACLE_HOME/bin/sqlplus -s $user@$db <<EOF >&! /tmp/t.$$.log
+    set serveroutput on size 100000
+    set feedback off
+    ALTER SESSION SET sort_area_size=200000000;
+    ALTER SESSION SET hash_area_size=200000000;
+    WHENEVER SQLERROR EXIT -1
+
+    exec MEME_UTILITY.drop_it('table','t1');
+    create table t1 as select concept_id_1,concept_id_2,atom_id_1,atom_id_2,
+                   relationship_name,relationship_attribute,
+                   source, source_of_label,status,generated_status,
+                   relationship_level,released,tobereleased,
+                   relationship_id, suppressible,
+                   sg_id_1, sg_type_1, sg_qualifier_1,
+                   sg_id_2, sg_type_2, sg_qualifier_2,
+                   source_rui, relationship_group
+    from relationships where 1=2;
+
+    insert into t1
+    select a.concept_id as concept_id_1,
+    b.concept_id as concept_id_2,
+    a.atom_id as atom_id_1,
+    b.atom_id as atom_id_2,
+    'RT' as relationship_name,
+    'exhibits' as relationship_attribute,
+    'MTHRELA' as source,
+    'MTHRELA' as source_of_label,
+    'R' as status,'Y' as generated_status,
+    'C' as relationship_level,
+    'N' as released,
+    'Y' as tobereleased,
+    0 as relationship_id,
+    'N' as suppressible,
+    a.concept_id as sg_id_1,
+    'CONCEPT_ID' as sg_type_1,
+    '' as sg_qualifier_1,
+    b.concept_id sg_id_2,
+    'CONCEPT_ID' as sg_type_2,
+    '' as sg_qualifier_2, 
+    '' as source_rui,
+    '' as relationship_group
+    from classes a, classes b, attributes e
+    where a.source in (select current_name from source_version where
+    source='GO')
+    and b.concept_id = e.concept_id
+    and a.concept_id != b.concept_id
+    and e.attribute_name='SEMANTIC_TYPE' and e.attribute_value='Enzyme'
+    and a.lui = b.lui;
+
+    exec MEME_UTILITY.drop_it('table','t2');
+    create table t2 as select concept_id_1,concept_id_2,atom_id_1,atom_id_2,
+                   relationship_name,relationship_attribute,
+                   source, source_of_label,status,generated_status,
+                   relationship_level,released,tobereleased,
+                   relationship_id, suppressible,
+                   sg_id_1, sg_type_1, sg_qualifier_1,
+                   sg_id_2, sg_type_2, sg_qualifier_2,
+                   source_rui, relationship_group
+    from relationships where 1=2;
+
+    insert into t2
+    select a.concept_id as concept_id_1,
+    b.concept_id as concept_id_2,
+    a.atom_id as atom_id_1,
+    b.atom_id as atom_id_2,
+    'RT' as relationship_name,
+    'measures' as relationship_attribute,
+    'MTHRELA' as source,
+    'MTHRELA' as source_of_label,
+    'R' as status,
+    'Y' as generated_status,
+    'C' as relationship_level,
+    'N' as released,
+    'Y' as tobereleased,
+    0 as relationship_id,
+    'N' as suppressible,
+    a.concept_id as sg_id_1,
+    'CONCEPT_ID' as sg_type_1,
+    '' as sg_qualifier_1,
+    b.concept_id sg_id_2,
+    'CONCEPT_ID' as sg_type_2,
+    '' as sg_qualifier_2,
+    '' as source_rui,
+    '' as relationship_group
+    from classes a, classes b, attributes e
+    where a.source in (select current_name from source_version where
+    source='GO')
+    and b.concept_id = e.concept_id
+    and a.concept_id != b.concept_id
+    and e.attribute_name='SEMANTIC_TYPE' and e.attribute_value='Laboratory Procedure'
+    and a.lui = b.lui;
+EOF
+
+if($status != 0) then
+   echo "Error creating data for MTHRELA rels"
+   cat /tmp/t.$$.log
+   exit 1
+endif
+
+insert.pl -rels t1 $db $authority >&! insert.mthrela.log
+insert.pl -rels t2 $db $authority >>& insert.mthrela.log
+#cleanup
+
+$ORACLE_HOME/bin/sqlplus -s $user@$db <<EOF >&! /tmp/t.$$.log
+    set serveroutput on size 100000
+    set feedback off
+    ALTER SESSION SET sort_area_size=200000000;
+    ALTER SESSION SET hash_area_size=200000000;
+    WHENEVER SQLERROR EXIT -1
+
+    drop table t1;
+    drop table t2;
+
+EOF
+
+
+#################################################################
+# <h2>Post-Merge Section</h2>
+#################################################################
+
+#
+# Resove Semantic Types
+#
+echo "    Resolve Semantic Types ...`/bin/date`"
+
+if ($mode == "test") then
+    $ORACLE_HOME/bin/sqlplus -s $user@$db <<EOF >! sty_term_ids &
+    WHENEVER SQLERROR EXIT -2
+    set wrap off
+    set feedback off
+    set pagesize 0
+    set verify off
+    set trimspool on
+    set linesize 9999
+    SELECT DISTINCT source_row_id || '|' ||
+	attribute_value
+    FROM attributes a, source_id_map b, 
+	(SELECT concept_id,atom_id FROM classes
+	WHERE source='$new_source') c
+    WHERE a.concept_id = c.concept_id
+    AND c.atom_id=local_row_id
+    AND table_name='C'
+    AND attribute_name='SEMANTIC_TYPE';
+EOF
+endif
+
+$ORACLE_HOME/bin/sqlplus -s $user@$db <<EOF >&! /tmp/t.$$.log
+    WHENEVER SQLERROR EXIT -2
+    set serveroutput on size 100000
+    set feedback off
+    ALTER SESSION SET sort_area_size=200000000;
+    ALTER SESSION SET hash_area_size=200000000;
+    exec MEME_SOURCE_PROCESSING.resolve_stys ( -
+	source => '$new_source', -
+        sty_fate => 'L', -
+        authority => '$authority', -
+        work_id => $work_id );
+EOF
+if ($status != 0) then
+    echo "Error resolving STYs"
+    cat /tmp/t.$$.log
+    exit 1
+endif
+
+
+#
+# Update Releasability
+#
+echo "    Map Obsolete Relationships ...`/bin/date`"
+
+set stripped_source=`/site/umls/oracle/scripts/dump_table.pl -u $user -d $db -q "select source from source_version where current_name='$new_source'"`
+$ORACLE_HOME/bin/sqlplus -s $user@$db <<EOF >&! /tmp/t.$$.log
+    WHENEVER SQLERROR EXIT -2
+    set serveroutput on size 100000
+    set feedback off
+    ALTER SESSION SET sort_area_size=200000000;
+    ALTER SESSION SET hash_area_size=200000000;
+    exec MEME_SOURCE_PROCESSING.map_obsolete_rels (-
+	stripped_source => '$stripped_source', -
+	authority => '$authority', -
+	work_id => $work_id );
+EOF
+if ($status != 0) then
+    echo "Error mapping obsolete rels"
+    cat /tmp/t.$$.log
+    exit 1
+endif
+echo "    Update Releasability ...`/bin/date`"
+
+$ORACLE_HOME/bin/sqlplus -s $user@$db <<EOF >&! /tmp/t.$$.log
+    WHENEVER SQLERROR EXIT -2
+    set serveroutput on size 100000
+    set feedback off
+    ALTER SESSION SET sort_area_size=200000000;
+    ALTER SESSION SET hash_area_size=200000000;
+    exec MEME_SOURCE_PROCESSING.update_releasability (-
+	old_source => 'GO2004_03_02', -
+	new_source => '$new_source', -
+	authority => '$authority', -
+	new_value => 'n', -
+	work_id => $work_id );
+EOF
+if ($status != 0) then
+    echo "Error updating releasability"
+    cat /tmp/t.$$.log
+    exit 1
+endif
+
+#
+# Bequeath old versioned SRC concepts
+#
+$ORACLE_HOME/bin/sqlplus -s $user@$db <<EOF >&! /tmp/t.$$.log
+    WHENEVER SQLERROR EXIT -2
+    set serveroutput on size 100000
+    set feedback off
+
+    exec MEME_UTILITY.drop_it('table','t_$old_source');    
+    CREATE TABLE t_$old_source (
+	row_id NUMBER );
+    -- Remove GO2004_03_02
+    INSERT INTO t_$old_source
+    SELECT atom_id FROM classes
+    WHERE source = 'SRC'
+      AND concept_id IN
+      (SELECT concept_id FROM classes a, atoms b
+       WHERE source='SRC'
+ 	 AND termgroup = 'SRC/VAB'
+	 AND a.atom_id = b.atom_id
+	 AND atom_name = 'GO2004_03_02' );
+
+    exec MEME_UTILITY.drop_it('table','t_rel_$old_source');
+    CREATE TABLE t_rel_$old_source AS
+    SELECT  concept_id_1,concept_id_2,atom_id_1,atom_id_2,
+                   relationship_name,relationship_attribute,
+                   source, source_of_label,status,generated_status,
+                   relationship_level,released,tobereleased,
+                   relationship_id, suppressible,
+                   sg_id_1, sg_type_1, sg_qualifier_1,
+                   sg_id_2, sg_type_2, sg_qualifier_2
+    FROM relationships WHERE 1=0;
+
+    INSERT INTO t_rel_$old_source
+    SELECT concept_id_1,concept_id_2,0,0,
+                   'BRT','',
+                   'MTH', 'MTH','R','Y',
+                   'C', 'N', 'Y', 0, 'N','','','','','',''
+    FROM relationships 
+    WHERE atom_id_1 IN (SELECT * FROM t_$old_source) 
+      AND relationship_attribute = 'has_version'
+      AND relationship_level = 'S'
+    UNION
+    SELECT concept_id_2,concept_id_1,0,0,
+                   'BRT','',
+                   'MTH', 'MTH','R','Y',
+                   'C', 'N', 'Y', 0, 'N','','','','','',''
+    FROM relationships 
+    WHERE atom_id_2 IN (SELECT * FROM t_$old_source) 
+      AND relationship_attribute = 'version_of'
+      AND relationship_level = 'S';
+
+EOF
+if ($status != 0) then
+    echo 'Error preparing bequeathal rels'
+    cat /tmp/t.$$.log
+    exit 1
+endif
+
+$MEME_HOME/bin/insert.pl -w $work_id -host=$host -port=$port -rels t_rel_$old_source $db $new_source >&! insert.bequeathal.log 
+
+#
+# Clean up temp tables
+#
+$ORACLE_HOME/bin/sqlplus -s $user@$db <<EOF >&! /tmp/t.$$.log
+    set serveroutput on size 100000
+    set feedback off
+    exec MEME_UTILITY.drop_it('table','t_$old_source');    
+    exec MEME_UTILITY.drop_it('table','t_rel_$old_source');    
+EOF
+
+
+#
+# Update String/Word Indexes
+#
+echo "    Update String/Word Indexes ...`/bin/date`"
+$MEME_HOME/bin/add_words.csh -w $work_id $db >&! add_words.log &
+
+
+#
+# Generate standard report tables - GO2004_12_20
+#
+echo "    Generate standard report tables - GO2004_12_20 ...`/bin/date`"
+$ORACLE_HOME/bin/sqlplus -s $user@$db <<EOF >&! counts.GO2004_12_20.rpt
+    WHENEVER SQLERROR EXIT -2
+    set serveroutput on size 100000
+    set feedback off
+    ALTER session SET sort_area_size=200000000;
+    ALTER session SET hash_area_size=200000000;
+    exec MEME_SOURCE_PROCESSING.report_tables( -
+	root_source => 'GO', -
+	authority => '$authority', -
+	work_id => '$work_id' );
+EOF
+if ($status != 0) then
+    echo "Error generating report tables"
+    cat counts.GO2004_12_20.rpt
+    exit 1
+endif
+cat counts.GO2004_12_20.rpt
+
+
+#
+# Set Core Table Ranks
+#
+echo "    Set Core Table Ranks ...`/bin/date`"
+$ORACLE_HOME/bin/sqlplus -s $user@$db <<EOF >&! /tmp/t.$$.log
+    WHENEVER SQLERROR EXIT -2
+    set serveroutput on size 100000
+    set feedback off
+    ALTER session SET sort_area_size=200000000;
+    ALTER session SET hash_area_size=200000000;
+    exec MEME_RANKS.set_ranks( -
+      classes_flag => 'Y', -
+      attributes_flag => 'N', -
+      relationships_flag => 'Y', work_id => work_id );
+    COMMIT;
+    exec MEME_RANKS.set_preference(work_id => work_id);
+EOF
+if ($status != 0) then
+    echo "Error calculating ranks"
+    cat /tmp/t.$$.log
+    exit 1
+endif
+
+
+#
+# Delete unneeded MTH/TM atoms, insert new ones
+#
+echo "    Delete unneeded MTH/TM atoms, insert new ones ...`/bin/date`"
+$MEME_HOME/bin/mthtm.pl -w $work_id -d MERGED -i -t MTH/TM -s R $db $authority >&! mthtm.log
+if ($status != 0) then
+    echo "Error making MTH/TM atoms"
+    exit 1
+endif
+
+
+#
+# Run matrix initializer
+#
+echo "    Run matrix initializer ...`/bin/date`"
+$MEME_HOME/bin/matrixinit.pl -w $work_id -I $db >&! matrixinit.log
+if ($status != 0) then
+    echo "Error initializing matrix"
+    exit 1
+endif
+
+
+
+
+##############################################################
+# Cleanup
+##############################################################
+echo "    Removing temporary indexes ... `/bin/date`"
+$ORACLE_HOME/bin/sqlplus -s $user@$db <<EOF
+    whenever sqlerror exit -1
+    set serveroutput on size 100000
+    set feedback off
+    exec MEME_UTILITY.drop_it('index','x_classes_scui');
+    exec MEME_UTILITY.drop_it('index','x_classes_sdui');
+    exec MEME_UTILITY.drop_it('index','x_classes_saui');
+    exec MEME_UTILITY.drop_it('index','x_rels_srui');
+    exec MEME_UTILITY.drop_it('index','x_cxt_rels_srui');
+    exec MEME_UTILITY.drop_it('index','x_ssui_string');
+EOF
+
+#
+# Indicate end of insertion, compute stats
+#
+$ORACLE_HOME/bin/sqlplus -s $user@$real_db <<EOF > /dev/null 
+   exec dbms_stats.gather_schema_stats( -
+        ownname => 'MTH', degree => 8, options => 'GATHER_STALE');
+   exec dbms_stats.export_schema_stats('MTH','MTHSTATS');
+   UPDATE sims_info SET ${qual}_insertion_end = sysdate
+    WHERE source = '$new_source';
+EOF
+$MEME_HOME/bin/log_operation.pl $db $authority "$new_source Insertion"   "Done inserting $new_source" $work_id 0 $recipe_start_t >> /dev/null
+echo "--------------------------------------------------------------"
+echo "Finished $0 ... `/bin/date`"
+echo "--------------------------------------------------------------"

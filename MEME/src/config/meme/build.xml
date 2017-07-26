@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Meow Documentation" basedir="." default="make_docs">
+
+	<!-- Set environment container -->
+	<property environment="env"/>
+	<property name="build.dir" value="build"/>
+
+	<!-- Build documentation -->
+	<target name="make_docs" description="Build meme docs">
+	  <!--
+        Build MID tables documentation
+        into ${build.dir}/mid_tables
+       -->
+		<copy file="${env.MEME_HOME}/bin/table_documentation.pl" tofile="${build.dir}/table_documentation.pl" filtering="true"/>
+		<chmod file="${build.dir}/table_documentation.pl" perm="ugo+x"/>
+		<mkdir dir="${build.dir}/tables"/>
+		<mkdir dir="${build.dir}/mid_tables"/>
+		<exec executable="perl" dir="${build.dir}/" vmlauncher="false" failonerror="true">
+			<arg value="table_documentation.pl"/>
+			<arg value="editing-db"/>
+			<arg value="MEME"/>
+		</exec>
+		<move file="${build.dir}/tables" todir="${build.dir}/mid_tables"/>
+		<move file="${build.dir}/tables_all.html" todir="${build.dir}/mid_tables"/>
+        <copy todir="${env.MEME_HOME}/www/MEME/Training" overwrite="true">
+        	<fileset dir="${build.dir}/mid_tables" />
+        </copy>
+
+	  <!--
+        Build MRD tables documentation
+        into ${build.dir}/mrd_tables
+       -->
+		<chmod file="${build.dir}/table_documentation.pl" perm="ugo+x"/>
+		<mkdir dir="${build.dir}/tables"/>
+		<mkdir dir="${build.dir}/mrd_tables"/>
+		<exec executable="perl" dir="${build.dir}/" vmlauncher="false" failonerror="false">
+			<arg value="table_documentation.pl"/>
+			<arg value="mrd-db"/>
+			<arg value="MEME"/>
+		</exec>
+		<move file="${build.dir}/tables" todir="${build.dir}/mrd_tables"/>
+		<move file="${build.dir}/tables_all.html" todir="${build.dir}/mrd_tables"/>
+        <copy todir="${env.MEME_HOME}/www/MRD/Training" overwrite="true" >	    
+        	  <fileset dir="${build.dir}/mrd_tables" />
+        </copy>
+		
+		<delete dir="${build.dir}" />
+		
+	</target>
+
+</project>

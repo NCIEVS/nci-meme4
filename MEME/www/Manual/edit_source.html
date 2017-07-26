@@ -1,0 +1,165 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+<TITLE>Source editing information</TITLE></HEAD>
+<BODY>
+<H1 ALIGN="CENTER">10.2 Editing Tips for Individual Sources</H1>
+<UL>
+<LI><B><A HREF="http://meow.nlm.nih.gov/Manual/aod.html">AOD</A></B></LI></UL>
+<UL>
+<LI><A HREF="ccpss.html">CCPSS</A></LI></UL>
+<UL>
+<LI><B>CPT</B>
+<UL>
+<LI>There should never be a situation where a CPT code should be in a different
+concept from the same HCPCS code. Therefore, a CPT atom and a HCPCS atom with
+the same code should always be in the same concept.  (From a 3/18/99 e-mail from
+WTH)</LI></UL>
+<UL>
+<LI>There should never be a situation where more than one CPT OR HCPCS code
+should be in the same concept.</LI></UL></LI></UL>
+<UL>
+<LI><B>Dorland</B>
+<UL>
+<LI>A couple of years ago, Dorland was added into the Metathesaurus. Some of
+the definitions were reviewed when they merged into a concept for accuracy. Some
+definitions were not good matches and were marked as not to be released. They
+were never matched to the correct concepts. Then,  for legal reasons, it was
+determined that we could not release Dorland  and every Dorland atom was marked
+as  not to be released (they are enclosed in {}). So, there may be Dorland atoms
+and definitions that do not match the concept they are in. <STRONG>Editors
+should not edit Dorland atoms</STRONG>. NLM is in the process of deciding
+whether to remove them from the database all together.</LI></UL></LI></UL>
+<UL>
+<LI><B>ICD</B>
+<UL>
+<LI>When a concept in ICD has an &quot;and&quot; in the concept name, it
+generally means &quot;or&quot; for editing purposes. For example, ICD has the
+concept &quot;Personal history of allergy to serum and vaccine. Read has the
+concept &quot;Personal history of serum or vaccine allergy&quot;. After
+examination, it has been determined that these two mean the same thing and can
+be merged.<BR>See also Read 1998 discussion of V terms below.</LI></UL><BR>
+<UL>
+<LI>Most ICD terms refer to diseases and not organisms. The exception to this
+are the Index terms (IT). These terms can refer to organisms.</LI></UL><BR>
+<UL>
+<LI>ICD 2 digit codes refer to procedures and 3 digit codes refer to diseases.</LI></UL><BR>
+<UL>
+<LI>ICD V codes should get the STYs of Finding or Population Group. The V codes
+should never get any procedure STY. (Added 6/8/99)</LI></UL><BR>
+<UL>
+<LI>Different V codes should not be merged into the same concept.  Here is an
+example of two concept types that were merged together and should not have been.
+(Added 6/8/99)<BR>Concept #1 is Contact with communicable diseases (V##). 
+Concept #2 is Contact with unspecified communicable disease (V##.#). Even though
+these concepts appear to follow the X can be merged with X,NOS rule, these
+concepts should be kept separate. Concept #1 is plural and means class. Concept
+#2 is singular and means one disease (that is just not specified).</LI></UL></LI></UL>
+<UL>
+<LI><A HREF="icd9ecodes.html">ICD9 E Codes</A></LI></UL>
+<UL>
+<LI><A HREF="icd10am.html"><B>ICD10AM</B></A></LI></UL>
+<UL>
+<LI><B><A HREF="meddra.html">MedDRA</A></B></LI></UL>
+<UL>
+<LI><B><A HREF="http://meow.nlm.nih.gov/Manual/mesh.html">MeSH</A></B>
+</LI></UL>
+<UL>
+<LI><A HREF="mthicd9.html"><B>MTHICD9 (ICD-ETs)</B></A></LI></UL>
+<UL>
+<LI><B>READ 1998</B>
+<A></A>
+<UL>
+<LI>The letters CA (or Ca) can refer to either cancer or carcinoma. Atoms with
+the letters Ca should only be merged with cancer or carcinoma when there is
+adequate source information defining the intended meaning of Ca. Some Read
+thesaurus Optional Preferred (OP) terms have only the letters Ca and an
+associated body part (e.g. Ca Gallbladder) and do not specify the intended
+meaning of Ca. In this situation, pending clarification from Read, Ca should not
+be merged with either carcinoma or cancer. (Carcinoma is a subtype of cancer
+that arises from epithelial tissue and carcinoma is generally not viewed as a
+synonym for cancer. Cancer is synonymous with the terms malignant neoplasms and
+malignant tumors).</LI></UL><BR>
+<UL>
+<LI>
+<P>It is believed that all 'bracket terms' have the apparent meaning of the
+RCDSY terms (which strip the bracketed letters) - <B>EXCEPT</B> the [V] terms.</P>
+<P>[V] terms AND all ICD9 V codes AND all ICD10 codes under 'Factors
+influencing health status and contact with health services' MAY have <B>DIFFERENT</B>
+meanings from the apparent meaning and should be Multiple Meanings in those
+cases.</P>
+<P>The classic example is: </P>
+<PRE>'V01.0 Cholera'
+which means 
+  'V01  Contact with or exposure to communicable diseases'
+       'V01.0 Cholera'
+or 'Contact with or exposure to cholera'</PRE>
+<P>This example is currently edited and has a good PN; see CN# 467108.</P>
+<P>The RCDSYs must always travel with the [V] terms they are made from. They
+have to be edited with the knowledge that they well mean the something other
+than the apparent meaning of the string.</P>
+<P>In many cases, the 'stripped' RCDSY versions are involved in demotions. This
+is unfortunate but correct because each of these cases needs editing and the
+demotions will force that.</P>
+<PRE>Definitions from Sources:
+
+Read [V] terms; ICD-9 V codes; 
+ICD10 'Factors influencing health status and contact with health services'
+------------------------------------------------------------
+[V] and all ICD V codes are 'Health Status and contact with health 
+services factors' in Read;  the ICD-9-CM manual says:
+
+  'This classification is provided to deal with occasions when 
+   circumstances other than a disease or injury classifiable 
+   to categories 001-999 (the main part of ICD) are recorded as
+   &quot;diagnoses or &quot;problems.&quot; 
+
+and goes on to list cases where a person not currently sick 
+needs: 
+
+  a) prohylactic vaccination, to discuss a problem which is not a 
+     disease or injury, etc.;
+  b) when a person is receiving treatment (e.g. dialysis for 
+     renal disease, chemotherapy for malignancy, cast change
+  c) circumstance which  which influences health status
+     but is not a disease or injury.
+</PRE></LI></UL>
+<UL>
+<LI>Meaning of Read bracketed codes
+<P> [V]  - Health Status and contact with health services factors 
+<BR>  [D]  - Symptoms, signs and ill defined conditions <BR> [M]  - ICD
+neoplasms 
+<BR> [Q]  - Qualifiers 
+<BR> [SO] - anatomy <BR>[X]  -Concepts relate to their meaning in ICD 10</P></LI></UL>
+<UL>
+<LI>Read98 uses  the code PT to represent Preferred Term and SY to represent
+Synonymous  terms. Read views the separate PT's as being truly distinct
+entities. Read also views the PT/SY relationships of the same code as being
+truly  synonymous. In general, editors should not split Read SY's from their 
+PT's unless there is a strong biomedical justification. Read also has OP's 
+which represent optional or obsolete terms. These may be merged with PT's  as
+discussed previously. Terms that are viewed as synonyms to OP's are  assigned as
+IS (synonymous term to OP of the same code).  Editors should use their own
+discretion  when editing IS's in Read98, since the relationship between OP and
+IS terms may not be as consistently synonymous as the relationship between  PT
+and SY terms.</LI></UL></LI></UL>
+<UL>
+<LI><B>SNMI</B>
+<UL>
+<LI> SNMI97 mappings to ICD-9-CM were released in Meta98 MRREL as
+source-specific SNMI97 &quot;LK&quot; rels. The decision was made that we trust
+Snomed for the relationships.  Therefore, they appear in MEME-II as source level
+Reviewed Relationships. Editors do not need to edit these.
+<P>There is one exception to editing these relationships. If it is found that
+the LK relationships are synonymous with the concept they are related to, they
+can be merged into the concept. Otherwise, the relationships do not need to be
+touched.</P></LI></UL></LI></UL>
+<HR>
+<ADDRESS>Contact:  <A HREF="mailto:lad@nlm.nih.gov">Laura Roth</A></ADDRESS>
+<ADDRESS>Created: June 05, 1998</ADDRESS>
+<ADDRESS>Last Updated: August  30, 1999</ADDRESS>
+<ADDRESS><A HREF="/index.html">Meta News Home</A></ADDRESS></BODY><!-- These
+comments are used by the What's new Generator --><!-- Changed On:  1999/08/30
+--><!-- Changed by: Laura Roth --><!-- Change Note: Added CCPSS editing
+guidelines.--><!--
+Fresh for: 1 week --></HTML>

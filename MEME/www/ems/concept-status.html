@@ -1,0 +1,64 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+<TITLE>Tracking Concept Status</TITLE>
+</HEAD>
+
+<BODY>
+
+<H1>Tracking Concept Status</H1>
+
+The concept_status table maintains the status of all the concepts
+in the MID.  A status of R means the concept has been
+reviewed, N means the concept needs review by an editor,
+a U indicates the concept is unreviewed and will not
+be edited (e.g., MeSH supplementary chemicals), and an E stands
+for embryo concepts that have not yet had all their attributes
+and/or class memberships assigned.
+
+<P>
+
+Submitting the following form will show a frequency plot of these
+values over time. The plot shows R concepts in red, N in blue,
+U in green, and E in cyan.
+
+<P>
+
+As new sources are inserted and new concepts
+merged with existing ones, the status of the latter will change from R to N.
+As concepts pass through the editorial process, their status changes
+from N to R.  E concepts should only be present around an insertion.
+
+<P>
+
+Data has been collected daily using the following SQL and is available
+in the table: <A HREF="/cgi-bin/table-help.pl?table=ems_concept_status_count">ems_concept_status_count</A></EM>.
+
+<PRE>
+select status, count(*) from concept_status group by status\g
+</PRE>
+
+<P><HR>
+
+<FORM ACTION="/cgi-bin/concept-status-plot.pl" METHOD=POST>
+Show data for the last <SELECT NAME="months">
+<OPTION>1<OPTION>2<OPTION>3<OPTION>4<OPTION>5<OPTION SELECTED>6
+<OPTION>7<OPTION>8<OPTION>9<OPTION>10<OPTION>11<OPTION>12</SELECT> months:
+<INPUT TYPE=submit NAME="action" VALUE="Display As Plot">
+<INPUT TYPE=submit NAME="action" VALUE="Display As Table">
+</FORM>
+
+<P>
+<HR>
+<ADDRESS>Contact: <A HREF="mailto:suresh@nlm.nih.gov">Suresh Srinivasan</A></ADDRESS>
+<ADDRESS>Created: 7/7/98</ADDRESS>
+<ADDRESS>Last Updated: 7/7/98</ADDRESS>
+<ADDRESS><A HREF="/index.html">Meta News Home</A></ADDRESS>
+</BODY>
+
+<!-- These comments are used by the What's new Generator -->
+<!-- Changed On: Date in yyyy/mm/dd format -->
+<!-- Changed by: Your name here -->
+<!-- Change Note: A line or two about what was changed (HTML OK). -->
+<!-- Fresh for: 1 month -->
+</HTML>

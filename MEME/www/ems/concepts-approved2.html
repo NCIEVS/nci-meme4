@@ -1,0 +1,47 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+<TITLE>Tracking Concepts Approved</TITLE>
+</HEAD>
+
+<BODY>
+
+<H1>Tracking Concepts Approved</H1>
+
+This plot shows the number of concepts approved by day over the
+past 'n' months.  Concepts are approved by editors either
+manually using the interface
+or by a batch process known as "stamping" run on behalf of the
+editor who had responsibility for that worklist.
+The plot can be selected for either or both types of approval.
+<P>
+Please don't place too much reliance on data prior to late March
+1998 as MEME-II was still in its testing phase then.
+
+<P>
+
+<FORM ACTION="/cgi-bin/concepts-approved-plot.pl" METHOD=POST>
+Show data for the last <SELECT NAME="months">
+<OPTION>1<OPTION>2<OPTION>3<OPTION>4<OPTION>5<OPTION SELECTED>6
+<OPTION>7<OPTION>8<OPTION>9<OPTION>10<OPTION>11<OPTION>12</SELECT> months:
+<SELECT NAME="auth"><OPTION VALUE="SE">Stamped or Approved
+<OPTION VALUE="S">Stamped<OPTION VALUE="E">Approved
+</SELECT>
+<P>
+<INPUT TYPE=submit VALUE="Display Plot">
+</FORM>
+
+<P>
+<HR>
+<ADDRESS>Contact: <A HREF="mailto:suresh@nlm.nih.gov">Suresh Srinivasan</A></ADDRESS>
+<ADDRESS>Created: 7/7/98</ADDRESS>
+<ADDRESS>Last Updated: 7/7/98</ADDRESS>
+<ADDRESS><A HREF="/index.html">Meta News Home</A></ADDRESS>
+</BODY>
+
+<!-- These comments are used by the What's new Generator -->
+<!-- Changed On: Date in yyyy/mm/dd format -->
+<!-- Changed by: Your name here -->
+<!-- Change Note: A line or two about what was changed (HTML OK). -->
+<!-- Fresh for: 1 month -->
+</HTML>

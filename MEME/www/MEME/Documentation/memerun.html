@@ -1,0 +1,107 @@
+<html><head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf8">
+   <title>MEME4 Applications - Running Client Applications</title></head>
+
+<body text="#000000" bgcolor="#ffffff" link="#3333ff" vlink="#999999" alink="#ff0000">
+
+<center>
+<h3>
+<font size="+0">Running Client Applications</font></h3></center>
+
+<hr><i>Following is documentation on how to run applications that utilize
+the MEME4 Client APIs.</i>
+<br>&nbsp;
+<center><table cellpadding="3" width="90%" nosave="">
+<tbody><tr nosave="">
+<td valign="top" nosave=""><b>The Environment</b></td>
+
+<td valign="top" nosave=""><font size="-1">The client side of the <i>MEME4</i>
+system employs a set of potentially confusing properties which are used
+to configure the part of the client API that interacts directly with the
+server.&nbsp;&nbsp; We have taken care to encapsulate all of the necessary
+environment information into a single properties file which normally resides
+in <tt>$MEME_HOME/bin/meme.prop</tt>.&nbsp; This properties file is a releasable
+component in <i>MEME4</i> which means that changes/updates/upgrades to
+the properties file will be communicated to NLM via the standard release
+process.&nbsp;</font></td>
+</tr>
+
+<tr nosave="">
+<td valign="top" nosave=""><b>Using the Wrapper Script</b></td>
+
+<td valign="top" nosave=""><font size="-1">To alleviate the necessity that client
+applications do extra work to set up the environment necessary to run a
+<i>MEME4</i>
+client application, we have written a wrapper script that encapsulates
+all of the messy details.&nbsp;</font>
+<pre><font size="-1">% memerun.pl [-log=&lt;file&gt;] [-prop=&lt;file&gt;] [-host=&lt;host&gt;] [-port=&lt;port&gt;]<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [-debug={true,false}] [-view{true,false}] &lt;class&gt; &lt;argument list&gt;<br><br>&nbsp;Options:<br>       -headless            Run in headless environment<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -log=&lt;file&gt;:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name of log file (relative to $MEME_HOME)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Default is )<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -prop=&lt;file&gt;:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name properties file&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Default is $MEME_HOME/bin/meme.prop)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -host=&lt;host&gt;:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name of the machine where server is running&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Default is oa.nlm.nih.gov<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -port=&lt;port&gt;:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The port number that the server is listening on&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Default is 8080<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -debug=(true|false): Set debug mode<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -view=(true|false):&nbsp; Set view mode<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -v[ersion]:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Print version information.<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -[-]help:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; On-line help</font></pre>
+<font size="-1">In it simplest form, all that you have to do is call the
+script and pass it the name of a class that has a <tt>main</tt> method
+and follow that with any arguments that the class requires.&nbsp; For example,
+if you take the <a href="/MEME/Documentation/TestReports.java.txt">TestReports</a>
+class described in the <a href="/MEME/Documentation/reports.html">Generating
+Reports</a> section, it could be invoked with the following memerun call:</font>
+<pre><font size="-1">% memerun.pl TestReports 100000</font></pre>
+<font size="-1">What this does is invoke the <tt>main</tt> method of the
+<tt>TestReports</tt>
+class and passes in the argument <tt>100000</tt>.&nbsp; In the background,
+it also passes a parameter to the <tt>java</tt> invocation that sets a
+property that tells the client api where to find the properties file.&nbsp;
+So, in the background, when the <tt>TestReports</tt> class instantiates
+one of the client APIs (in this case the <a href="/javadoc/gov/nih/nlm/meme/client/ReportsClient.html">ReportsClient
+API</a>) that API is able to look up the properties file and configure
+itself without requiring any additional information from the client application.</font>
+<p><font size="-1">If the application server is running on a machine or listening
+on the port other than the default (specified by the <tt>midsvcs.pl</tt>
+services <tt>meme-server-host</tt> and <tt>meme-server-port</tt>) , you
+will need to invoke <tt>memerun.pl</tt> with the <tt>-host</tt> and <tt>-port</tt>
+switches.&nbsp; For example,</font>
+</p><pre><font size="-1">% memerun.pl -host oa.nlm.nih.gov -port 8081 TestReports 100000</font></pre>
+<font size="-1">This is the preferred way of running (java) client applications
+in <i>MEME4</i>.</font>
+<br>&nbsp;</td>
+</tr>
+
+<tr nosave="">
+<td valign="top" nosave=""><b>Direct Invocation</b></td>
+
+<td valign="top" nosave=""><font size="-1">In some cases, you may not want to
+use the <tt>memerun.pl</tt> wrapper script.&nbsp; In particular, you may
+want to write your own wrapper script that directly invokes <tt>java</tt>.&nbsp;
+If this is the case, the wrapper script can be forgone if you ensure that
+the java invocation sets three critical properties on the command line.</font>
+<pre><font size="-1">% java -Dmeme.properties.file=$MEME_HOME/bin/prop \<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -Dmeme.env.MEME_HOME=$MEME_HOME \<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -Dmeme.env.ORACLE_HOME=$ORACLE_HOME .....</font></pre>
+<font size="-1">This is essentially what the <tt>memerun.pl</tt> script does
+with a few additional options.</font></td>
+</tr>
+</tbody></table></center>
+
+<p>
+</p><hr width="100%">
+<table border="0" cols="2" width="100%" nosave="">
+<tbody><tr nosave="">
+<td align="left" valign="top" nosave="">
+<address>
+<a href="/MEME/">MEME Home</a></address>
+</td>
+
+<td align="right" valign="top" nosave="">
+<address>
+<font size="-1">Contact: <a href="mailto:bcarlsen@apelon.com">Brian Carlsen</a></font></address>
+
+<address>
+<font size="-1">Created: 8/22/2000</font></address>
+
+<address>
+<font size="-1">Last Updated: 02/01/2002</font></address>
+</td>
+</tr>
+</tbody></table>
+
+<!-- These comments are used by the What's new Generator -->
+<!-- Changed On: 2002/02/01 -->
+<!-- Changed by: BAC -->
+<!-- Change Note: MEME4 Applications - Running Client Applications. -->
+<!-- Fresh for: 1 month -->
+<br>
+</body></html>

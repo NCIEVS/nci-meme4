@@ -1,0 +1,151 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+    
+  <meta http-equiv="Content-Type" content="text/html; charset=utf8">
+  <title>MEME - Developer Guides - Data Cache</title>
+</head>
+ <body text="#000000" bgcolor="#ffffff" link="#3333ff" vlink="#999999"
+ alink="#ff0000">
+ 
+<center>
+<h2> Caching Architecture</h2>
+</center>
+ 
+<hr>
+<blockquote>
+  <h3>Overview</h3>
+MEME employs a sophsticated data caching mechanism to keep in memory objects
+which are commonly used but which do not change very frequently. &nbsp;Along
+with this is a mechanism to refresh the cache while the server/client are
+running to account for known changes. <br>
+  <h3>Server Side Caching<br>
+  </h3>
+During the server intitialization routine, while it is creating data source
+connections, we cache all of the following data structures based on the data
+in the database being connected to.<br>
+  <ul>
+    <li>Languages. This data comes from the <tt>language</tt> table and is
+represented as <a
+ href="/javadoc/gov/nih/nlm/meme/common/Language.html">Language</a>
+objects.</li>
+    <li>Sources. This data comes from <tt>source_rank</tt>, <tt>sims_info</tt>,
+and <tt>classes</tt> and is represented as <a
+ href="/javadoc/gov/nih/nlm/meme/common/Source.html">Source</a>
+objects.</li>
+    <li>Termgroups. This data comes from <tt>termgroup_rank</tt> and is represented
+as <a
+ href="/javadoc/gov/nih/nlm/meme/common/Termgroup.html">Termgroup</a>
+objects.</li>
+    <li>Semantic types. This data comes from <tt>semantic_types</tt> and
+is represented as <a
+ href="/javadoc/gov/nih/nlm/meme/common/SemanticType.html">SemanticType</a>
+objects.</li>
+    <li>Relationship names and inverses. This data comes from <tt>inverse_relationships</tt>
+and is represented as Strings in a HashMap.</li>
+    <li>Relationship attributes and inverses. This data comes from <tt>inverse_rel_attributes</tt>
+and is represented as Strings in a HashMap.</li>
+    <li>Code/Value mappings. This data comes from <tt>code_map</tt> and is
+represented as Strings in a HashMap.</li>
+    <li>Editor preferences. This data comes from editors and <tt>editor_preferences</tt>
+and is represented as <a
+ href="/javadoc/gov/nih/nlm/meme/common/EditorPreferences.html">EditorPreferences</a>
+objects.</li>
+    <li>Integrities. This data comes from <tt>integrity_constraints</tt>,
+      <tt>ic_pair</tt>, and <tt>ic_single</tt> and is represented as <a
+ href="/javadoc/gov/nih/nlm/meme/integrity/IntegrityCheck.html">IntegrityCheck</a>
+objects.</li>
+    <li>Valid values for status, tobereleased, released, and level. This
+data comes from <tt>level_status_rank</tt>, <tt>tobereleased_rank</tt>, and
+      <tt>released_rank</tt> and is represented in a HashMap.<br>
+    </li>
+  </ul>
+This caching takes place in <a
+ href="/javadoc/gov/nih/nlm/meme/sql/MIDConnection.html">MIDConnection</a>/<a
+ href="/javadoc/gov/nih/nlm/meme/sql/MEMEConnection.html">MEMEConnection</a>
+in the <tt>refreshCaches()</tt> method which is called by the constructor.
+If changes to these data structures are known to have taken place, all of
+the active data sources can be refreshed by calling the <a
+ href="/javadoc/gov/nih/nlm/meme/server/MIDDataSourcePool.html">MIDDataSourcePool</a>
+method&nbsp;<tt>refreshCaches()</tt>. &nbsp; These methods are public and
+may be called at any time by server-side components.<br>
+  <br>
+It is also important to note that the data source connections add to their
+caches as new objects are created in response to users connecting to different
+databases. &nbsp;For example, if a new source is inserted into <tt>oc_testsrc</tt>
+but the server was started against <tt>oa_mid2004</tt> and a user makes a
+request to generate a concept report against <tt>oc_testsrc</tt> using a
+  <tt>concept_id</tt> that contains the new source, a new&nbsp;<a
+ href="/javadoc/gov/nih/nlm/meme/common/Source.html">Source</a>
+object will be created and added to the cache for that&nbsp;<a
+ href="/javadoc/gov/nih/nlm/meme/sql/MIDConnection.html">MIDConnection</a>
+even though it is connected to&nbsp;<tt>oa_mid2004</tt>.<br>
+  <br>
+This is not the only type of caching that takes place. &nbsp;The <a
+ href="/javadoc/gov/nih/nlm/meme/MIDServices.html">MIDServices</a>
+object caches the table of key/value mappings stored on the mid services
+server. &nbsp; This is done via a&nbsp;<tt>refreshCaches()</tt> method which
+is called when any of the&nbsp;<a
+ href="/javadoc/gov/nih/nlm/meme/MIDServices.html">MIDServices</a>
+methods relating to the mid services list are called (note calling a method
+to normalize a string does not fill the cache). &nbsp;This method is public
+and may be called at any time by server-side components.<br>
+  <br>
+  <br>
+One enhancement to the caching architecture that may be added in the future
+is the caching of <a
+ href="/javadoc/gov/nih/nlm/meme/common/Concept.html">Concept</a>
+objects. &nbsp;Currently, these objects are re-read from the database each
+time they are needed instead of being maintained in memory on the server
+side. &nbsp;If it turns out that maintaining them on the server side is not
+too difficult and will contribute to a boost in performance, it will be implemented.
+&nbsp; One of the difficult issues is that&nbsp;<a
+ href="/javadoc/gov/nih/nlm/meme/common/Concept.html">Concept</a>
+objects may not be fully populated by a source, so maintaining it will require
+keeping track of how fully populated concept objects are and only using the
+cache if a request needs a&nbsp;<a
+ href="/javadoc/gov/nih/nlm/meme/common/Concept.html">Concept</a>
+in exactly the state it is cached.<br>
+  <h3>Client Side Caching</h3>
+While client applications make use of the server side caches, there is a
+certain amount of caching that happens on their end too. &nbsp;In particular,
+the <a
+ href="/javadoc/gov/nih/nlm/meme/client/AuxiliaryDataClient.html">AuxiliaryDataClient</a>
+caches most of the data behind the various methods it has to return objects.
+&nbsp;This allows the client to use the methods repeatedly without having
+additional requests be sent to the server. &nbsp; If it is known that this
+data has changed, or if the client wishes to use a new data source, then
+the cache should be cleared (using <tt>clearCaches()</tt>) so that future
+requests can repopulate the cache from the current data source.<br>
+  <br>
+If a client happens to know that data cached by the server is stale, this
+can be resolved from the client side via an <a
+ href="/javadoc/gov/nih/nlm/meme/client/AdminClient.html">AdminClient</a>
+method called&nbsp;<tt>refreshCaches()</tt>. &nbsp;This method invokes the
+various server side&nbsp;<tt>refreshCaches()</tt> methods described above,
+repopulating the MIDServices and data source connections.<br>
+  <hr width="100%"></blockquote>
+ 
+<table border="0" cols="2" width="100%">
+  <tbody>
+    <tr>
+ <td align="left" valign="top"> 
+      <address> <a href="/MEME/">MEME Home</a></address>
+ </td>
+  <td align="right" valign="top"> 
+      <address> <font size="-1">Contact: <a
+ href="mailto:bcarlsen@apelon.com">Brian A. Carlsen</a></font></address>
+  
+      <address> <font size="-1">Created: 12/02/2003</font></address>
+  
+      <address> <font size="-1">Last Updated: 12/02/2003</font></address>
+ </td>
+ </tr>
+ 
+  </tbody>
+</table>
+  <!-- These comments are used by the What's new Generator --> <!-- Changed On: 2003/12/02 --> 
+<!-- Changed by: Brian Carlsen --> <!-- Change Note: MEME - Developer Guides - Data Cache --> 
+<!-- Fresh for: 1 month --> <br>
+</body>
+</html>

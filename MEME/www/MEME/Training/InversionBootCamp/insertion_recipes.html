@@ -1,0 +1,124 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+   
+  
+  
+  <meta http-equiv="Content-Type" content="text/html; charset=utf8"><title>MEME Inversion Boot Camp Schedule - Insertion Recipes</title>
+  
+
+  
+  <meta content="Brian Carlsen" name="author"></head>
+<body style="background-color: rgb(255, 255, 255); color: rgb(0, 0, 0);" alink="#ff0000" link="#3333ff" vlink="#999999">
+
+<center><h2>Insertion Recipes<br>
+</h2></center>
+
+
+
+<hr width="100%">
+<blockquote>
+  <h3>Instructor</h3>
+Brian Carlsen<br>
+<h3>Goals</h3>
+  <ul>
+    <li><span style="font-weight: bold;">What you should learn:</span></li>
+    <ul>
+      <li>The basic forms the recipe takes and the project roles associated with each.<br>
+</li><li>The difference between "replacement" and "MID" merging</li><li>The difference between a "precomputed" merge set and a "generated" merge set</li>
+
+      <li>The difference between a "source" and "termgroup" safe replacement</li>
+      
+
+    </ul>
+    <li><span style="font-weight: bold;">What you should be able to do:</span></li>
+    <ul>
+      <li>Find the HTML recipe for a source on-line</li><li>Identify the safe replacement algorithm for a source from the HTML recipe file<span style="font-weight: bold;"><br>
+        </span></li></ul></ul><h3>Materials</h3>
+  <ul>
+    <li><a href="insertion_recipes.ppt">Powerpoint Presentation</a><br>
+    </li>
+  </ul>
+These will be discussed during the session, but they are long and we do not recommend printing them before-hand.<br>
+<ul><li><a href="RECIPE.go2006_01_20.html">Sample HTML Recipe - GO2006_01_20</a></li>
+<li><a href="recipe.go.xml">Sample XML Recipe - </a><a href="recipe.go.xml">GO2006_01_20</a></li>
+    <li><a href="go2006_01_20.csh.txt">Sample Recipe Script - </a><a href="go2006_01_20.csh.txt">GO2006_01_20</a>
+    </li>
+</ul><h3>Lecture Outline</h3>
+I. Recipe<br>
+&nbsp;&nbsp; A. XML recipe (in local .src directory)<br>
+&nbsp;&nbsp; B. HTML recipe (<a href="/Sources">(under MEOW document root)/Sources</a>)<br>
+&nbsp;&nbsp; C. Recipe Script (in local .src directory and insertion working directory)<br>
+II. Recipe Writing Considerations<br>
+
+&nbsp;&nbsp; A. New vs. Update Sources<br>
+
+&nbsp;&nbsp; B. Decisions regarding merging<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; i. Matching considerations<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ii. "pre insert" vs "post insert"<br>
+
+&nbsp;&nbsp; C. Deciding upon safe replacement algorithm<br>
+
+III. Sections and Steps (parameters and defaults)<br>
+&nbsp;&nbsp; A. Load Section<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; i. Load Step<br>
+&nbsp;&nbsp; B. Replacement Merge Section (update only)<br>
+&nbsp; &nbsp; &nbsp; i. Precomputed Merge Step<br>
+&nbsp; &nbsp; &nbsp; ii. Generated Merge Step<br>
+&nbsp; &nbsp; &nbsp; iii. Binary Integrity Check Step<br>
+&nbsp; &nbsp; &nbsp; iv. Unary Integrity Check Step<br>
+&nbsp; &nbsp; &nbsp; v. Insert Relationships Based on Matches Step<br>
+&nbsp;&nbsp; C. Safe Replacement Step (update only)<br>
+&nbsp; &nbsp; &nbsp; i. Source Safe Replacement Step<br>
+&nbsp; &nbsp; &nbsp; ii. Termgroup Safe Replacement Step<br>
+&nbsp;&nbsp; D. New Merges Section<br>
+&nbsp; &nbsp; &nbsp; i. MID Merge Step<br>
+&nbsp;&nbsp; E. Post Merge Section<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; i. Resolve STYs Step<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ii. Update Releasability Step<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; iii. Standard Post Merge Step<br>
+&nbsp;&nbsp; F. Ad Hoc Steps<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; i. Generate reports<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ii. Special merge sets<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; iii. Create or remove relationships<br>IV. DEMO<br>
+V. Q&amp;A<br>
+  <br>
+</blockquote>
+
+
+
+<p>
+</p>
+
+
+<br>
+
+
+
+<hr width="100%">
+<table border="0" cols="2" width="100%">
+
+<tbody><tr><td style="font-style: italic;" align="left" valign="top"><a href="boot_camp_schedule.html">MEME Boot Camp Schedule</a></td>
+  <td align="right" valign="top">
+   <address>
+    <font size="-1">
+     Contact: <a href="mailto:bcarlsen@apelon.com">Brian A. Carlsen</a>
+    </font>
+   </address>
+   <address><font size="-1">Created: 03/21/2005</font></address>
+   <address><font size="-1">Last Updated: 02/16/2006</font></address>
+  </td>
+ </tr>
+</tbody>
+</table>
+
+
+<!-- These comments are used by the What's new Generator --><!-- Changed On: 2006/02/14 --><!-- Changed by: Brian Carlsen --><!-- Change Note: MEME - Category - Topic --><!-- Fresh for: 1 month -->
+
+
+
+
+
+
+</body></html>

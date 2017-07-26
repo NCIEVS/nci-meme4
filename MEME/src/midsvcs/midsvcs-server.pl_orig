@@ -1,0 +1,36 @@
+#!@PATH_TO_PERL@
+
+# Server side function for the MID name services
+# Typically called by inetd (see also /etc/inetd.conf, /etc/services)
+
+# Changes:
+# 12/22/2005 BAC (1-719SM): use open ":utf8"  added
+
+# suresh@nlm.nih.gov 9/98
+
+#
+# If not allowed to run "env" in /etc/services file
+# then hard-code ENV_HOME, e.g.:
+# $ENV{"ENV_HOME"} = "/d5/ENV";
+# $ENV{"ENV_FILE"} = "$ENV{ENV_HOME}/etc/env.prop";
+#
+# For OCCS Uncomment the following.
+# $ENV{"ENV_HOME"} = "/umls_l/env";
+# $ENV{"ENV_FILE"} = "$ENV{ENV_HOME}/etc/env.prop";
+
+unshift @INC,"$ENV{ENV_HOME}/bin";
+require "env.pl";
+use open ":utf8";
+
+$midnameservicesFile = "$ENV{MIDSVCS_HOME}/etc/mid-services-data";
+
+open(FILE, $midnameservicesFile) || exit(0);
+while (<FILE>) {
+    next if /^#/ || /^\s*$/;
+    chop;
+    s/^\s+//;
+    s/\s+$//;
+    print $_, "\n";
+}
+close(FILE);
+exit(0);

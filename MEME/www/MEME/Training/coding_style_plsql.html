@@ -1,0 +1,410 @@
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf8">
+   <meta name="Author" content="Brian Carlsen">
+   <title>Coding Style - PL/SQL</title>
+<style>
+    A.noline { text-decoration: none; }
+</style>
+</head>
+<body text="#000000" bgcolor="#FFFFFF" link="#3333FF" vlink="#999999" alink="#FF0000">
+
+<center>
+<h2>
+Coding Style - PL/SQL</h2></center>
+
+<hr><i>This document a style for writing PL/SQL code.</i>
+<br>&nbsp;
+<center><table BORDER CELLPADDING=5 WIDTH="90%" NOSAVE >
+<tr NOSAVE>
+<td VALIGN=TOP NOSAVE><b>General Rules</b></td>
+
+<td>
+<ul>
+<li>
+<font size=-1>Tabbing should be in increments of four spaces.</font></li>
+
+<li>
+<font size=-1>Variable names should be lowercase and separated by underscore
+(_) characters.&nbsp; For example, <tt>this_is_a_variable</tt>.&nbsp;</font></li>
+
+<li>
+<font size=-1>Procedure/function names should be lowercase and separated
+by underscore (_) characters.&nbsp; For example, <tt>this_is_a_function</tt>.</font></li>
+
+<li>
+<font size=-1>Package names should be uppercase and separated by underscore
+(_) characters.&nbsp; For example, <tt>THIS_IS_A_PACKAGE</tt>.</font></li>
+
+<li>
+<font size=-1>When using SQL in your procedures/functions, follow the <a href="coding_style_sql.html">sql
+coding rules</a>.</font></li>
+
+<li>
+<font size=-1>Comment each major block of your code using this style,</font></li>
+
+<pre><font size=-1>--
+-- This is a comment
+--</font></pre>
+</ul>
+</td>
+</tr>
+
+<tr NOSAVE>
+<td VALIGN=TOP NOSAVE><b>Package Structure</b></td>
+
+<td><font size=-1>All PL/SQL code should be put into packages.&nbsp; The
+<tt>PACKAGE</tt>
+declaration should go at the head of the file and the
+<tt>PACKAGE BODY</tt>
+should go after that.&nbsp; All packages should have a header like this,</font>
+<pre><font size=-1>CREATE OR REPLACE PACKAGE MEME_APROCS AS
+
+/*******************************************************************************
+&nbsp;*
+&nbsp;* PL/SQL File: PACKAGE_NAME.sql
+&nbsp;*
+&nbsp;* Put a description of the package here.
+&nbsp;*
+&nbsp;* Version Information
+&nbsp;*
+&nbsp;* 9/9/1999:&nbsp;&nbsp; First version created and compiled
+&nbsp;* MM/DD/YYYY: V#: Put comments here.&nbsp; MM is month, DD is day, YYYY is year,
+&nbsp;*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; V# is the version number, e.g. 2.0&nbsp;&nbsp;
+&nbsp;*
+&nbsp;* Status:
+&nbsp;*&nbsp;&nbsp; Functionality: List any functional components that still need to be implemented
+&nbsp;*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Testing: List any components that still need to be tested
+&nbsp;*&nbsp;&nbsp;&nbsp; Enhancements:
+&nbsp;*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; List future enhancements.
+&nbsp;*
+&nbsp;******************************************************************************/</font></pre>
+<font size=-1>All packages should implement the <a href="../../MEME/Documentation/plsql_api.html">MEME
+package API</a>.&nbsp; The API is a set of procedures/functions and fields
+that are used for for managing the package as well as supporting error
+reporting within the code. At the end of the PACKAGE BODY declaration you
+should put an <tt>sqlplus</tt> directive to show any compilation errors
+and then have code for registering the package and printing its version
+information.&nbsp; For example, following is the code from the end of the
+MEME_UTILITY package.</font>
+<pre><font size=-1>END meme_utility;
+/
+SHOW ERRORS
+
+set serveroutput on size 100000
+execute MEME_UTILITY.help;
+execute MEME_UTILITY.register_package;</font></pre>
+<font size=-1>This block shows any compilation errors, prints out help/version
+information and then registers the package in the <tt>application_versions</tt>
+table.&nbsp;</font></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP><b>Version Information</b></td>
+
+<td><font size=-1>Version information is tracked if the <a href="../../MEME/Documentation/plsql_api.html">MEME
+package API</a> is implemented.&nbsp; Updating version information involves
+updating the four PL/SQL package variables <tt>release_number</tt>, <tt>version_number</tt>,
+<tt>version_date</tt>,
+and <tt>version_authority</tt>.</font></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP><b>Environment and Defaults</b></td>
+
+<td><font size=-1>PL/SQL packages exist in the database and therefore do
+not require any external environment.&nbsp; However, many times packages
+will make reference to other packages which effectively imposes a package
+order dependency.&nbsp; To resolve these dependencies, packages should
+be loaded in the correct order bya package loading script such as $MEME_HOME/sql/packages.sql.
+<a href="#packages.sql">Appendix A.1</a> shows this script.</font></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP><b>Reporting Errors</b></td>
+
+<td><font size=-1>The error reporting strategy is part of the <a href="../../MEME/Documentation/plsql_api.html">MEME
+package API</a>.&nbsp; Any procedures/functions wanting to catch exceptions
+should have an exception block at the end.&nbsp; This block should call
+the package's error procedure with the correct parameters.&nbsp; <a href="#sample_exception">Appendix
+A.2</a> shows a sample EXCEPTION block and <a href="#meme_utility_error">Appendix
+A.3</a> shows a sample error reporting procedure.&nbsp;&nbsp; The result
+of a procedure reporting an error should be an exception raised to the
+application level and accompanied by a printed error message to the trace
+window and a row logged in the <tt>meme_error</tt> table.</font>
+<p><font size=-1>Part of proper error recording involves setting the error
+reporting parameters as a procedure progresses.&nbsp; The key parameters
+are <tt>location</tt> and <tt>err_msg</tt>.&nbsp; These should be package
+variables that are initialized at the beginning of a procedure by calling
+<tt>initialize_trace</tt>.&nbsp;
+Following that, every statement in a procedure/function that may throw
+an exception should be proceeded by statements that set
+<tt>location</tt>
+and (optionally) <tt>err_msg</tt>.&nbsp; <a href="#error_reporting">Appendix
+A.4</a> shows an example of a procedure that properly sets these error
+management variables.&nbsp;&nbsp; These package variables and the <tt>initialize_trace</tt>
+procedure are part of the <a href="../../MEME/Documentation/plsql_api.html">MEME
+package API</a>.</font></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP><b>Cleanup</b></td>
+
+<td><font size=-1>Procedures/functions should always clean up after themselves.&nbsp;
+If any temporary tables are created during processing, they should be dropped
+when the procedure/function terminates (whether as the result of successful
+completion <i>or</i> an error).&nbsp; The <tt>MEME_UTILITY.drop_it</tt>
+prodedure is useful for making sure that a temporary table does not exist
+before it is created.</font></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP><b>Timing Operations</b></td>
+
+<td><font size=-1>Often it is useful for a procedure to track its run-time.&nbsp;
+This can be done with a series of MEME_UTILITY procedures.&nbsp; Timing
+of an operation can be started by calling <tt>MEME_UTILITY.timing_start</tt>.&nbsp;
+Timing of that same operation can be stopped with <tt>MEME_UTILITY.timing_stop</tt>.&nbsp;
+The elapsed time between a <tt>timing_start</tt> and <tt>timing_stop</tt>
+call can be determined by using <tt>MEME_UTILITY.elapsed_tme</tt>.&nbsp;</font>
+<p><font size=-1>Sometimes, it is useful to track the run-time of sub operations
+of a procedure or function and still be able to track the run-time of the
+overall procedure/function.&nbsp; To do this,&nbsp; a combination of calls
+to <tt>MEME_UTILITY.timing_[start,stop]</tt> and to <tt>MEME_UTILITY.sub_timing_[start_stop]</tt>.
+
+<a href="#timing_operations">Appendix A.5</a> shows the structure of how
+these calls would be made.</font></td>
+</tr>
+
+<tr NOSAVE>
+<td VALIGN=TOP NOSAVE><b>Anonymous PL/SQL</b></td>
+
+<td><font size=-1>Generally, all PL/SQL is put into packages, but sometimes
+shell scripts need to use PL/SQL functionality, or there are ad-hoc operations
+that require the use of anonymous PL/SQL blocks.&nbsp; Anonymous PL/SQL
+blocks are typically run in sqlplus sessions and begin with the DECLARE
+directive, followed by variable declarations, followed by BEGIN, followed
+by the logic that the block implements and finally finished with an END
+directive.&nbsp; For example, suppose you want to set CUIs in the <tt>concept_status</tt>
+table from a table called <tt>cui_map</tt>.&nbsp; You may use an anonymous
+PL/SQL block like this one,</font>
+<pre><font size=-1>DECLARE
+&nbsp;&nbsp;&nbsp; CURSOR cur IS SELECT * FROM cui_map;
+&nbsp;&nbsp;&nbsp; cv&nbsp;&nbsp;&nbsp; cur%ROWTYPE;
+&nbsp;&nbsp;&nbsp; ct&nbsp;&nbsp;&nbsp; INTEGER;
+BEGIN
+&nbsp;&nbsp;&nbsp; OPEN cur;
+&nbsp;&nbsp;&nbsp; ct := 0;
+&nbsp;&nbsp;&nbsp; LOOP
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; FETCH cur INTO cv;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; EXIT WHEN cur%NOTFOUND;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; UPDATE concept_status SET cui = cv.cui
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; WHERE concept_id = cv.concept_id;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ct := ct + 1;
+&nbsp;&nbsp;&nbsp; END LOOP;
+&nbsp;&nbsp;&nbsp; DBMS_OUTPUT.put_line(ct || ' rows processed.');
+END;
+/</font></pre>
+<font size=-1>The slash character on the line by itself (left justified)
+is necessary for the block to run in <tt>sqlplus</tt>.&nbsp; For more examples,
+see the <tt>$MEME_HOME/bin/assign_luis.csh</tt> script.</font></td>
+</tr>
+
+<tr NOSAVE>
+<td VALIGN=TOP NOSAVE><b>CLOB Fields</b></td>
+
+<td><font size=-1>Managing CLOB fields in PL/SQL is tricky.&nbsp; For information
+go to the <a href="coding_style_sql.html">SQL coding style page</a> and
+scroll down to "CLOB Fields".</font></td>
+</tr>
+</table></center>
+
+<p><a NAME="packages.sql"></a><i>Appendix A.1</i> - A sample packages.sql
+script for loading packages in package-dependency order
+<pre><font size=-1>/*****************************************************************************
+*
+* File:&nbsp; $MEME_HOME/sql/packages.sql
+* Author:&nbsp; BAC
+*
+* Remarks:&nbsp; This script loads the packages in dependency order
+*
+* 6/9/2000&nbsp; 3.1.0:&nbsp; First version
+*
+* Version Info:
+*&nbsp;&nbsp; Release 3
+*&nbsp;&nbsp; Version 1.0
+*&nbsp;&nbsp; Brian Carlsen (6/9/2000)
+*&nbsp;
+*****************************************************************************/
+-- Then load in dependency order
+@@$MEME_HOME/sql/MEME_CONSTANTS.sql
+@@$MEME_HOME/sql/MEME_UTILITY.sql
+@@$MEME_HOME/sql/MEME_SYSTEM.sql
+@@$MEME_HOME/sql/MEME_RANKS.sql
+@@$MEME_HOME/sql/MEME_APROCS.sql
+@@$MEME_HOME/sql/MEME_BATCH_ACTIONS.sql
+@@$MEME_HOME/sql/MEME_INTEGRITY_PROC.sql
+@@$MEME_HOME/sql/MEME_SNAPSHOT_PROC.sql
+@@$MEME_HOME/sql/MEME_INTEGRITY.sql
+@@$MEME_HOME/sql/MEME_SOURCE_PROCESSING.sql
+@@$MEME_HOME/sql/MEME_OPERATIONS.sql
+@@$MEME_HOME/sql/MEME_CONTEXTS.sql
+@@$MEME_HOME/sql/MEME_TESTER.sql</font></pre>
+&nbsp;
+<br>&nbsp;
+<br><a NAME="sample_exception"></a><i>Appendix A.2</i> - A sample EXCEPTION
+block from a PL/SQL procedure
+<pre><font size=-1>EXCEPTION
+
+&nbsp;&nbsp;&nbsp; WHEN NO_TYPE_FOUND THEN
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; trace('Object Type ' || UPPER(type) || ' does not exist.');
+
+&nbsp;&nbsp;&nbsp; WHEN NO_DATA_FOUND THEN
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; trace(INITCAP(type) || ' ' || UPPER(name) || ' does not exist.');
+
+&nbsp;&nbsp;&nbsp; WHEN OTHERS THEN
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; meme_utility_error(method,location,1,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; type || ',' || name || ',' || SQLERRM);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; RAISE meme_utility_exception;</font></pre>
+&nbsp;
+<br>&nbsp;
+<br><a NAME="meme_utility_error"></a><i>Appendix A.3</i> - A sample error
+reporting procedure (taken from MEME_UTIILTY)
+<pre><font size=-1>/* PROCEDURE MEME_UTILITY_ERROR ************************************************
+&nbsp;*/
+PROCEDURE meme_utility_error (
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; method&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; location&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; error_code&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN INTEGER,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; detail&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2
+)
+IS
+&nbsp;&nbsp;&nbsp; error_msg&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; VARCHAR2(100);
+BEGIN
+&nbsp;&nbsp;&nbsp; IF error_code = 1 THEN
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; error_msg := 'MU0001: Unspecified error';
+&nbsp;&nbsp;&nbsp; ELSIF error_code = 10 THEN
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; error_msg := 'MU0010: No Data Found';
+&nbsp;&nbsp;&nbsp; ELSIF error_code = 20 THEN
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; error_msg := 'MU0020: Error executing dynamic PL/SQL block';
+&nbsp;&nbsp;&nbsp; ELSIF error_code = 30 THEN
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; error_msg := 'MU0030: Invalid code';
+&nbsp;&nbsp;&nbsp; ELSE
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; error_msg := 'MU0000: Unknown Error';
+&nbsp;&nbsp;&nbsp; END IF;
+
+&nbsp;&nbsp;&nbsp; MEME_UTILITY.PUT_ERROR('Error in MEME_UTILITY::'||method||' at '||
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; location||' ('||error_msg||','||detail||')');
+
+END meme_utility_error;</font></pre>
+&nbsp;
+<br>&nbsp;
+<br><a NAME="error_reporting"></a><i>Appendix A.4</i> - A sample procedure
+that makes good use of <tt>location</tt> and <tt>err_msg</tt> error reporting
+parameters.&nbsp; This code comes from <tt>MEME_SYSTEM</tt>.
+<pre><font size=-1>/* PROCEDURE REBUILD_TABLE *****************************************************
+&nbsp;* This procedure is used to rebuild a table and its indexes.
+&nbsp;*/
+PROCEDURE rebuild_table(
+&nbsp;&nbsp; table_name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2
+)
+IS
+BEGIN
+&nbsp;&nbsp; initialize_trace('rebuild_table');
+
+&nbsp;&nbsp; location := '0';
+&nbsp;&nbsp; err_msg := 'Error dropping indexes.';
+&nbsp;&nbsp; drop_indexes(table_name);
+
+&nbsp;&nbsp; location := '20';
+&nbsp;&nbsp; err_msg := 'Error moving table.';
+&nbsp;&nbsp; local_exec('ALTER TABLE ' || table_name ||&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ' MOVE');
+
+&nbsp;&nbsp; location := '30';
+&nbsp;&nbsp; err_msg := 'Error rebuilding indexes.';
+&nbsp;&nbsp; reindex(table_name);
+
+&nbsp;&nbsp; location := '40';
+&nbsp;&nbsp; err_msg := 'Error analyzing table`.';
+&nbsp;&nbsp; analyze(table_name);&nbsp;&nbsp;&nbsp;
+&nbsp;
+&nbsp;&nbsp; MEME_UTILITY.put_message('Rebuild of ' || table_name || ' was successful.');
+
+EXCEPTION
+&nbsp;&nbsp; WHEN OTHERS THEN
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; meme_system_error (method,location,1,err_msg || ': ' || SQLERRM);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; RAISE meme_system_exception;
+END rebuild_table;</font></pre>
+&nbsp;
+<br>&nbsp;
+<br><a NAME="timing_operations"></a><i>Appendix A.5</i> - Timing procedures/functions
+<i>and</i>
+sub-operations.
+<pre><font size=-1>PROCEDURE some_procedure
+BEGIN
+&nbsp;&nbsp;&nbsp; initialize_trace('some_procedure');
+
+&nbsp;&nbsp;&nbsp; -- Start timing of overall procedure
+&nbsp;&nbsp;&nbsp; MEME_UTILITY.timing_start;
+&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; -- Start a sub-operation
+&nbsp;&nbsp;&nbsp; MEME_UTILITY.sub_timing_start;
+
+&nbsp;&nbsp;&nbsp; -- Perform sub-operation
+&nbsp;&nbsp;&nbsp; ...
+
+&nbsp;&nbsp;&nbsp; -- Stop sub-operation
+&nbsp;&nbsp;&nbsp; MEME_UTILITY.sub_timing_stop;
+&nbsp;
+&nbsp;&nbsp;&nbsp; -- Report elapsed time to trace window
+&nbsp;&nbsp;&nbsp; MEME_UTILITY.put_message('Elapsed time of sub-operation: ' ||
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; MEME_UTILITY.sub_elapsed_time);
+
+&nbsp;&nbsp;&nbsp; -- Perform other sub-operations and time them
+&nbsp;&nbsp;&nbsp; ....
+
+&nbsp;&nbsp;&nbsp; -- Stop timing of overall procedure
+&nbsp;&nbsp;&nbsp; MEME_UTILITY.timing_stop;
+
+&nbsp;&nbsp;&nbsp; -- Report elapsed time to trace window
+&nbsp;&nbsp;&nbsp; MEME_UTILITY.put_message('Elapsed time of whole procedure: ' ||
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; MEME_UTILITY.elapsed_time);
+
+EXCEPTION
+&nbsp;&nbsp;&nbsp; ...
+END;</font></pre>
+&nbsp;
+<br>&nbsp;
+<br><i>Appendix B.1</i> - Sample PL/SQL package (from <tt>$MEME_HOME/sql/MEME_OPERATIONS.sql</tt>).
+<p><a href="MEME_OPERATIONS.txt">Click here to see the sample PL/SQL package</a>.
+<p>&nbsp;
+<br>
+<hr WIDTH="100%">
+<table BORDER=0 COLS=2 WIDTH="100%" NOSAVE >
+<tr NOSAVE>
+<td ALIGN=LEFT VALIGN=TOP NOSAVE>
+<address>
+<a href="/MEME/">MEME Home</a></address>
+</td>
+
+<td ALIGN=RIGHT VALIGN=TOP NOSAVE>
+<address>
+<font size=-1>Contact: <a href="mailto:bcarlsen@apelon.com">Brian A. Carlsen</a></font></address>
+
+<address>
+<font size=-1>Created: 5/31/2000</font></address>
+
+<address>
+<font size=-1>Last Updated: 8/21/2001</font></address>
+</td>
+</tr>
+</table>
+
+</body>
+<!-- These comments are used by the What's new Generator -->
+<!-- Changed On: 2001/08/21 -->
+<!-- Changed by: Brian Carlsen -->
+<!-- Change Note: This page contains the coding style for PL/SQL packages -->
+<!-- Fresh for: 1 month -->
+</html>

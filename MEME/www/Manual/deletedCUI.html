@@ -1,0 +1,131 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.51 [en] (X11; I; SunOS 5.6 sun4u) [Netscape]">
+</head>
+<body>
+Mapping of Deleted CUIs
+<p><u>Background</u>
+<p>CUIs are the unique concept identifier. The identifier remains the same
+across versions of the Metathesaurus irrespective of the term designated
+as the preferred name of the concept. This facilitates file maintenance
+and management. In the Metathesaurus distribution formats, all data elements
+are linked to the concept(s) to which they belong.
+<p>If a CUI no longer exists in the Metathesaurus, that means that the
+meaning is no longer in the Metathesaurus.&nbsp; In same cases you will
+find that the meaning still exists in the Metathesaurus.&nbsp; If in fact
+it doesn't exist, we want to find the concept(s) that has the closest meaning
+to the CUI that was deleted.
+<br>&nbsp;
+<p><u>The Task</u>
+<p>You will be given Excel files that contain CUIs that have been deleted
+from the Metathesaurus.
+<p>Each worksheet contains six columns as described below:
+<p>The first column is the Version.&nbsp; This is the last version of the
+Metathesaurus that the concept Appeared in.&nbsp; This information is supplied
+by NLM.
+<p>Deleted CUI is the CUI that has been deleted.&nbsp; If you click on
+this, it will take you to the concept report in the release files.&nbsp;
+Remember, the release file reports do not look the same as the ones in
+Meow that you are used to seeing from the mid. This information is supplied
+by NLM.
+<p>P/PF-This is the concept name for the CUI that was deleted. This information
+is supplied by NLM.
+<p>REL-This is the relationship between the deleted CUI and the one that
+it best matches in the Metathesaurus. The default supplied by NLM is "unassigned".&nbsp;
+Below you will see a description of the possible choices.&nbsp; You will
+need to pick the best relationship.&nbsp; This must be completed.
+<p>Matched CUI- This is the CUI that you feel is best related to the deleted
+CUI.&nbsp; The software will create a link to the release files after you
+add this.
+<p>Match P/PF - You DO NOT need to fill this in.&nbsp; In some cases there
+is a suggested CUI.&nbsp; In those cases the concept name will appear.
+<p>Comments - This if for you to fill out if you have any comments or questions.
+<br>&nbsp;
+<p>Your job will be to to relate the deleted CUI to at least one CUI that
+currently exists in the Metathesaurus.&nbsp; In addition you will need
+to pick one of the following relationship below other than unassigned.
+<p>--unassigned--this is the default and implies the editor has not worked
+on this concept.
+<br>--Synonym--
+<br>--has NRW REL to--
+<br>--has BRD REL to--
+<br>--Other--Concept 1 has some relationship to concept 2
+<br>--No match--The editor picks this on the RARE occasion that they cannot
+find ANY concept that could even be generally related to the deleted concept
+within the allotted time. These will have to be re-edited.
+<br>--Not Mappable--Where concept 1 is not a useful biomedical concept
+and is not mappable to any current UMLS concept (e.g., &amp;nbsp; in PDQ).&nbsp;
+We anticipate that you will find very few if any of these on your worksheets.
+<p>Start by clicking on the highlighted CUI to view the concept report
+from the release files.&nbsp; Look at the concepts in MRREL.&nbsp; These
+are the concepts that were related to the deleted one in the release files.&nbsp;
+You will probably find the best relationships here.
+<p>If that doesn't yield a good match, try using the approximate matching
+in Meow.&nbsp; For this, use the mid instead of the release files.&nbsp;
+This is probably going to be better than using norm searching or lc searching
+in the mid.
+<p>Check to make sure you are mapping to a CUI that is still alive. (Use
+the history button)
+<br>Do NOT spend more than 10 minutes on any concept.&nbsp; After 10 minutes
+choose "no match".
+<br>Use Ctrl-W to close browser windows.&nbsp; It can get confusing if
+you leave too many open so close them frequently.
+<br>You may assign a deleted CUI to more than one live CUI.&nbsp; You will
+need to insert an additional row in the spreadsheet.
+<p>When you copy and paste, only copy from left to right, not right to
+left.&nbsp; If you copy from right to left, it will mess up the cells.
+<p><b><u>How to choose the best CUI to map your deleted CUI to:</u></b>
+<p>1.&nbsp; Is there a living concept in the Metathesaurus that has the
+same meaning?
+<br>We found many cases where a source killed something because it contained
+a typo.
+<p>For example:
+<p>LOINC had GLASCOW COMA SCORE.EYE OPENING
+<br>this died but they created GLASGOW COMA SCORE.EYE OPENING
+<br>&nbsp;
+<p>2.&nbsp; If there is no synonymous concept, try to map to the same source
+first, prefering the parent.
+<p>For example:&nbsp; C0498076
+<br>ONLAY-COMPOSITE/RESIN-PER TOOTH (IN ADDITION TO INLAY-LABORATORY PROCESSED)
+<p>is NRW than
+<p>C0498076&nbsp; Inlay/Onlay Restorations
+<p>Both of these concepts were from HCPCs.&nbsp; C0498076 is a Hierarchical
+term from the section that C0498076 came from.
+<p>3.&nbsp; Choose something broader rather than close in meaning when
+possible.
+<br>&nbsp;
+<br>&nbsp;
+<p>4.&nbsp; If the meaning appears to be mapped to any single reasonable
+CUI then do not map to multiple CUIs.
+<br>&nbsp;
+<p>Or if the meaning cannot be mapped to any reasonble CUI than map to
+multiple CUIs.
+<p>5.&nbsp; Choose simple (&amp; general) as opposed to complex precoordinated
+expression or multple CUIs.
+<p>Examples:
+<p>C0498890 INJECTION, HISTAMINE, UP TO 2.75 MG&nbsp; OTHER C0019588 HISTAMINE
+<p>C0499279&nbsp; INTERMITTENT URINARY CATHETER, DISPOSABLE; STRAIGHT TIP
+<br>is NRW than
+<br>C0497833. INTERMITTENT URINARY CATHETER; STRAIGHT TIP, EACH
+<p>LOWER GI TRACE - C0489859
+<br>OTHER
+<br>C0489144 STOOLS:APPEARANCE:POINT IN TIME:LOWER GI TRACE:QUALITATIVE
+<p>C0369194 ESTRIOLS.TOTAL
+<br>Synonym
+<br>C0014927&nbsp; Estriol
+<br>Note:&nbsp; This was from LOINC which had it related to:
+<br>C0364383 ESTRIOL.TOTAL:MASS CONCENTRATION:POINT IN TIME:AMNIOTIC FLUID:QUANTITATIVE
+<br>that concept name has been changed to:
+<br>ESTRIOL:MASS CONCENTRATION:POINT IN TIME:AMNIOTIC FLUID:QUANTITATIVE
+<p>C0500278 IMMUNOASSAY, INFECTIOUS AGENT ANTIGEN, QUALITATIVE OR SEMIQUANTITATIVE
+<br>&nbsp;is BRD than two CUIs
+<br>C0373856&nbsp; IMMUNOASSAY FOR INFECTIOUS AGENT ANTIGEN, QUALITATIVE
+OR SEMIQUANTITATIVE;MULTIPLE STEP METHOD
+<br>and
+<br>C0520389 IMMUNOASSAY FOR&nbsp; INFECTIOUS AGENT ANTIGEN, QUALITATIVE
+OR SEMIQUANTITATIVE; SINGLE STEP&nbsp; METHOD (EG, REAGENT STRIP)
+<br>&nbsp;
+</body>
+</html>

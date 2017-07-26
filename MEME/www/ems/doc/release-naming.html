@@ -1,0 +1,113 @@
+<HTML>
+<HEAD>
+<TITLE>Naming Releases</TITLE>
+</HEAD>
+
+<BODY>
+
+<P ALIGN=right>wth@nlm.nih.gov 09/2001
+<BR>suresh@nlm.nih.gov 09/2001
+
+<H1>Naming Releases</H1>
+
+This document specifies the convention for the naming of UMLS releases.
+Note that the convention was adopted in 2001 so previous releases will
+not follow these rules though the rules themselves are backward compatible.
+
+<P>
+
+A release name follows the format: YYYYVV_SS where:
+
+<P>
+<UL>
+<LI>YYYY is a 4 digit year, e.g., 2001
+<LI>VV is a two letter designation for the version ID starting with "AA", e.g., 2001AA
+<LI>SS is a two digit subset ID where needed (e.g., "02")
+</UL>
+<P>
+The first release of the year (called a January release) will have the
+version ID of "AA".  Subsequent releases for that year will have a version ID
+of "AB", "AC", etc.
+
+<P>
+Releases that are created as subsets using MetamorphoSys will have
+a subset ID designation starting with 01 and counting up.
+<P>
+A release that is not a subset is termed a "Base" release.
+<P>
+Examples:
+<P>
+<UL>
+<LI>2001AA -> January release for 2001
+<LI>2002AC_02 -> second subset of the third release (AC) in 2002
+<LI>2020GD_78 (hope we don't get to this!)
+</UL>
+
+<H1>Disc Names</H1>
+
+There is no longer room for the UM or UMLS in the disc and file names.
+So the discs names will the the release name followed by "_ZIP" or "_TAR".
+Example,
+
+<FONT SIZE=-1>
+<PRE>
+
+  2001AB_ZIP
+  2001AB_TAR
+  2001AC_02_TAR
+  
+</PRE>
+</FONT>
+
+(Note: these names will work even when they include the subset number, 
+e.g. 2001AC_02_TAR")
+<P>
+and the ZIP and TGZ files have the name of the release with the ZIP or TGZ
+extention, for example:
+ 
+<FONT SIZE=-1>
+<PRE>
+
+   2001AB.ZIP
+   2001AC_02.TGZ
+  
+</PRE>
+</FONT>
+
+With the subset number these file names will be Joliet compliant
+but not ISO9660 compliant,  We have decided to allow this.
+
+<P>
+
+The top directory names on the CD will be identical to the release names, e.g.,
+2002AA or 2001AC_02.
+
+<P>   
+
+We'll use the same pattern for all future releases.
+
+<H1>Multiple CDs</H1>
+
+When we need more than one disc, let's do the following for the disc names; it fits the Joliet
+standard:
+
+<FONT SIZE=-1>
+<PRE>
+
+     YYYYVV_SS_ZIP-#
+e.g. 2001AB_01_TAR-1:
+
+  VV =  within year version
+  _SS = subset number where needed
+  -# = disk # (will work to -99, note hyphen)
+
+</PRE>
+</FONT>
+
+<P>
+
+The manual will need to explain that ALL discs must be extracted
+to have the full release.
+</BODY>
+</HTML>
+

@@ -1,0 +1,641 @@
+Overview/Objective
+
+The RRF is the standard release format for the UMLS Metathesaurus.
+We would like to push its use as a standard submission format for
+source providers whose terminologies will be added/updated to the
+Metathesaurus.  We need to preserve the fundamental semantics of
+the RRF so that it can be easily and cleanly documented and explained.
+
+
+Proposal
+
+Following is a field-by-file proposal for how the RRF will serve 
+as a source insertion format and how each of the data fields will
+be interpreted by our insertion formats.  Some important things we
+discuss are:
+1. Source Data Representation
+ a. terms, attributes, relationships
+2. Representing Map Sets
+3. Suggesting UMLS Synonymy
+4. Suggesting Default Semantic Types
+5. Creating 7-bit forms
+6. Choosing Term Types
+7. Representing Sources as Concepts
+
+
+Source Data Representation
+
+Before we start, there are a few important concepts to understand:
+
+"proxy ui":  
+  A line-level identifier in a file indented to be a value for
+  joining to other files.  Each of the Metathesaurus UI fields
+  CUI, AUI, RUI, ATUI should be populated with proxy uis.  They 
+  serve as unique identifiers for their respective files and when	
+  they must have unique values across all files.
+
+"proxy atom ui": 
+  Must appear in AUI field in MRCONSO.RRF, one unique value per 
+  line. If the source asserts SAUI values, use them here.
+
+"proxy concept ui": 
+  Must appear in CUI field in MRCONSO.RRF, one unique value 
+  per source concept. If source asserts SCUI values, use them here.
+
+"proxy attribute ui": 
+  Must appear in any available ATUI field. If source asserts SATUI 
+  values, use them here. Currently, these values are not used but may 
+  be in the future
+
+"proxy relationship ui": 
+  Must appear in RUI field in MRREL.RRF, if source asserts SRUI values, 
+  use them here.
+
+The following section describes each RRF file in general terms.  It
+indicates how the data from this file will be used in the MID by the
+source insertion process.  Next, a field-by-field look is taken to
+understand what data a source provider should use in each case and
+exactly how it will be used by the source insertion process.  Finally,
+examples are provided.  Note, many RRF files will not need to be populated
+when representing source data.
+
+
+AMBIG files
+
+Not used
+
+
+CHANGE files
+
+Not used
+
+
+MRCOC.RRF
+
+Description: There are a few sources that supply COC other than MEDLINE, including
+CCPSS and AIR.  Were these sources to be updated or were another source
+to provide coocurrence data, this is where that data should be included.
+
+For source insertion purposes: this data will be loaded into "coc_headings".
+Each line of MRCOC.RRF will produce COF*2 entries in coc_headings where the
+two heading ids are given the same "citation_set_id" which is uniquely assigned
+and duplicated COF number of times so that when aggregated the MRCOC row is
+properly reconstructed.
+
+Field	   Value			   source insertion semantics
+---------- ------------------------------  --------------------------------------
+CUI1:	   "proxy concept id"		   ignored
+AUI1:	   "proxy atom id"		   joins to MRCONSO.AUI for heading_id
+CUI2:	   "proxy concept id"		   ignored
+AUI2:	   "proxy atom id"		   joins to MRCONSO.AUI for heading_id
+SAB:	   RSAB value from MRSAB.RRF	   coc_headings.source
+COT:	   L, LQ, LQB, MP, PP, KN, or KP   used as coc type  
+COF:	   an integer representing	   Indicates how many rows of
+           the frequency count		   coc_headings to load (to aggregate
+					   to this count).
+COA:	   blank (for MEDLINE only)	   ignored
+CVF:	   blank			   ignored
+
+Sample line (imagine CCPSS update):
+
+5532|14423|22334|44123|CCPSS|PP|10|||
+
+
+MRCOLS.RRF
+
+Not used, or computed to reflect current state of the files.
+Tools should be supplied.
+
+For source insertion purposes this is used only to validate the
+other content.
+
+
+MRCONSO.RRF
+
+This is the most important of the files and contains the actual terms
+from the source as well as its "conceptness".  The most important
+thing to understand about this file is the use of "proxy atom ui" and
+"proxy concept ui".  
+
+For source insertion purposes, this data will be loaded into "classes"
+and "concept_status".  Also the index tables will be populated.
+
+Field	   Value			   source insertion semantics
+---------- ------------------------------  --------------------------------------
+CUI:	   "proxy concept ui"		   Used to join to other files CUI fields.
+		  			   Only used for "concept-level" data
+LAT:	   ENG, SPA, etc.		   used as the language value
+TS:        P,S, blank			   ignored
+LUI:       blank			   ignored, LUIs are assigned during source insertion
+STT:       PF, V*, blank		   ignored
+SUI:       blank			   ignored, SUIs are assigned during source insertion
+ISPREF:    Y,N,blank			   ignored
+AUI:       "proxy atom ui"		   Used to join to other files AUI fields
+					   (in particular MRREL.RRF and MRSAT.RRF).
+					   This is treated like a "source_atom_id".
+SAUI:      source asserted atom UI	   used as the source_aui value
+SCUI:      source asserted concept UI	   used as the source_cui value.  This is how
+					   source "conceptness" is expressed. Multiple
+					   rows with the same SCUI mean the same thing
+					   from the sources perspective.  This will lead
+					   to SY merging.
+SDUI:      source asserted descriptor UI   used as the source_dui value
+SAB:	   RSAB value from MRSAB.RRF	   the source
+TTY:       From a list of "supported"	   the tty, may be changed by us
+	   TTYs: PT, SY, AB, OP, OS, OA,   to preserve Meta notion of TTY
+	   CD, IN, OCD, BN, etc..
+CODE:      source code			   used as the code value
+STR:	   string			   used as the atom name
+SRL:       SRL value from MRSAB.RRF	   ignored
+SUPPRESS:  Y,N				   used as the suppressible value
+CVF:       blank			   ignored
+
+Sample lines:
+
+1|ENG||||||1|||U000017|MSH|HT|U000017|MeSH Descriptors|0|N||
+2|ENG||||||2|||U000019|MSH|HT|U000019|Index Medicus Descriptor|0|N||
+3|ENG||||||3|||U000005|MSH|HT|U000005|Chemicals and Drugs (MeSH Category)|0|N||
+M0009661|ENG||||||4||M0009661|D006134|MSH|MH|D006134|Growth Substances, Pigments, and Vitamins|0|N||
+M0022811|ENG||||||5||M0022811|D014815|MSH|MH|D014815|Vitamins|0|N||
+M0022792|ENG||||||6||M0022792|D014803|MSH|MH|D014803|Vitamin B Complex|0|N||
+M0022792|ENG||||||7||M0022792|D014803|MSH|PM|D014803|Complex, Vitamin B|0|N||
+M0022792|ENG||||||8||M0022792|D014803|MSH|EN|D014803|Neurobion|0|N||
+M0022792|ENG||||||9||M0022792|D014803|MSH|N1|D014803|Vitamin B|0|N||
+
+
+MRCUI.RRF
+
+Not used.
+
+
+MRCXT.RRF
+
+Not used.
+
+
+MRDEF.RRF
+
+This is where source definitions are stored.  Definitions should be attached
+to atoms via "proxy atom ui" values.
+
+For source insertion purposes, this data will be loaded into "attributes"
+and "stringtab".
+
+Field	   Value			   source insertion semantics
+---------- ------------------------------  --------------------------------------
+CUI:	   "proxy concept ui"		   ignored
+AUI:	   "proxy atom ui"		   indicates that this definition is attached
+					   to the atom in MRCONSO.RRF with the matching
+					   proxy atom ui.
+ATUI:      "proxy attribute ui"		   ignored				   
+SATUI:     source asserted attribute UI	   used as the source_atui value
+SAB:	   RSAB value from MRSAB.RRF	   the source
+DEF:	   the definition		   the attribute_value, attribute_name='DEFINITION'
+SUPPRESS:  Y,N				   the suppressible value
+CVF:	   blank
+
+Sample line:
+
+M0022792|6|||MSH|A group of water-soluble substances including thiamine, riboflavin, niacin (nicotinic acid), niacinamide (nicotinamide), the vitamin B6 group (including pyridoxine, pyridoxal, pyridoxamine), biotin, pantothenic acid, folic acid, possibly para-aminobenzoic acid, inositol, vitamin B12, and possibly choline. (From Dorland, 28th ed)|N||
+
+
+MRDOC.RRF
+
+This is where metadata about the fields is stored.
+
+For source insertion purposes, this data will likely be ignored, unless the source
+proposes new RELA or TTY values, in which case it will be loaded into meme_properties
+and possibly inverse_rel_attributes.
+
+Field	   Value			   source insertion semantics
+---------- ------------------------------  --------------------------------------
+DOCKEY:	   TTY, RELA			   loaded into meme_properties
+VALUE:	   tty or rela value		   loaded into meme_properties
+					   also into inverse_rel_attributes if DOCKEY=RELA
+					    use the rela_inverse entry to load inverse relas
+TYPE:	   expanded_form,		   loaded into meme_properties
+	   rela_inverse			   
+EXPL:	   explanation of what it is	   loaded into meme_properties
+
+Sample lines:
+
+RELA|new_rela|expanded_form|some new kind of rela|
+RELA|inverse_new_rela|expanded_form|inverse of some new kind of rela|
+RELA|new_rela|rela_inverse|inverse_new_rela
+RELA|inverse_new_rela|rela_inverse|new_rela
+
+
+MRFILES.RRF
+
+Not used, or computed to reflect current state of the files.
+Tools should be supplied.
+
+For source insertion purposes this is used only to validate the
+other content.
+
+
+MRHIER.RRF
+
+This is where source hierarchies are stored.  MRHIER.RRF rows should be attached
+to atoms via "proxy atom ui" values.
+
+For source insertion purposes, this data will be loaded into "context_relationships".
+
+Field	   Value			   source insertion semantics
+---------- ------------------------------  --------------------------------------
+CUI:	   "proxy concept ui"		   ignored
+AUI:	   "proxy atom ui"		   indicates that this definition is attached
+					   to the atom in MRCONSO.RRF with the matching
+					   proxy atom ui.
+CXN:	   integers starting at 1	   ignored
+	   for each AUI value. each
+	   context gets a new number
+PAUI:	   parent "proxy atom ui"	   ignored
+SAB:	   RSAB value from MRSAB.RRF	   source value
+RELA:      rela value			   relationship_attribute value
+PTR:	   list of '.' separated	   Used to build PAR/CHD relationships
+	   "proxy atom ui" values from	   between each level
+	   tree-top to PAUI
+HCD:	   hierarchical code		   hierarchical_code value
+CVF:	   blank			   ignored
+
+Sample lines:
+
+1|1|1||MSH|||||
+2|2|1|1|MSH||1|||
+3|3|1|2|MSH||1.2|D||
+M0009661|4|1|3|MSH||1.2.3|D11||
+M0022811|5|1|4|MSH||1.2.3.4|D11.786||
+M0022792|6|1|5|MSH||1.2.3.4.5|D11.786.708||
+
+
+MRHIST.RRF
+
+This is where source history information is stored.  This is the actual
+source history information tracked by the source. MRHIST.RRF rows should
+be attached to the proper SOURCEUI.
+
+For source insertion purposes, this data will be loaded into "attributes"
+
+Field	   Value			   source insertion semantics
+---------- ------------------------------  --------------------------------------
+CUI:	   "proxy concept ui"		   ignored
+SOURCEUI:  SAUI, SCUI, SDUI, SRUI, SATUI   used to connect this attribute with
+					   attribute_name='COMPONENTHISTORY' to the
+                                           correct element.  Also used as part of
+					   the attribute_value
+SAB:	   RSAB value from MRSAB.RRF	   source value
+SVER:	   the version of the source	   Used as part of the attribute_value
+	   when the history record was
+	   generated
+CHANGETYPE: change type (source specific)  Used as part of the attribute_value
+CHANGEKEY: change key (source specific)    Used as part of the attribute_value
+CHANGEVAL: change val (source specific)    Used as part of the attribute_value
+REASON:    the reason (source specific)    Used as part of the attribute_value
+CVF:	   blank			   ignored
+	
+Sample lines:
+
+102735002|102735002|SNOMEDCT|19960701|0|CONCEPTSTATUS|0|||
+102735002|166113012|SNOMEDCT|19960701|0|DESCRIPTIONSTATUS|0|||
+
+
+MRMAP.RRF
+
+Used to represent mappings.  See the "Representing Map Sets" section below.
+
+
+MRRANK.RRF
+
+This is where term types are ranked and we indicate whether or not they
+are suppressible.
+
+For source insertion purposes, this data will be loaded into "termgroup_rank"
+
+Field	   Value			   source insertion semantics
+---------- ------------------------------  --------------------------------------
+
+RANK:	   integer rank value (higher      used to determine high/low termgroup values
+	   is higher rank)
+SAB:	   RSAB value from MRSAB.RRF	   source value
+TTY:       tty value			   used with source value to make termgroup
+SUPPRESS:  Y, N				   indicates whether or not the termgroup is
+					   suppressible
+Sample lines:
+
+11|MSH|MH|N|
+10|MSH|TQ|N|
+9|MSH|EP|N|
+8|MSH|EN|N|
+7|MSH|XQ|N|
+6|MSH|NM|N|
+5|MSH|N1|N|
+4|MSH|CE|N|
+3|MSH|HT|N|
+2|MSH|HS|N|
+1|MSH|PM|N|
+
+
+MRREL.RRF
+
+This is where source relationships are stored.  Relationships may exist an any level
+in a source but must be assigned a "proxy atom ui" to represent the class level at
+which they are connected.  The STYPE fields indicate which MRCONSO field is actually
+the level at which relationships are connected.
+
+For source insertion purposes, this data will be loaded into "relationships"
+
+Field	   Value			   source insertion semantics
+---------- ------------------------------  --------------------------------------
+CUI1:	   "proxy concept ui"		   ignored
+AUI1:	   "proxy atom ui"		   used to connect this relationship to a MRCONSO row
+STYPE1:	   MRCONSO field name		   used to figure out sg_id_1,sg_type_1,sg_qualifier_1 values
+REL:	   a valid REL			   relationship_name value
+CUI2:	   "proxy concept ui"		   ignored
+AUI2:	   "proxy atom ui"		   used to connect this relationship to a MRCONSO row
+STYPE2:	   MRCONSO field name		   used to figure out sg_id_1,sg_type_1,sg_qualifier_1 values
+RELA:	   a valid RELA		   relationship_attribute value
+RUI:	   "proxy relationship ui"	   ignored
+SRUI:	   source asserted relationship UI source_rui value
+SAB:	   RSAB value from MRSAB.RRF	   source value
+SL: 	   RSAB value from MRSAB.RRF	   source_of_label value
+RG:        relationship group		   relationship_group value
+DIR:	   Y,N, blank			   sims_info.rel_directionality_flag
+SUPPRESS:  Y,N				   suppressible value
+CVF:	   blank			   ignored
+
+Sample lines:
+
+M0022792|6|SDUI|PAR|M0022811|5|SDUI||||MSH|MSH|||N||
+M0022811|5|SDUI|PAR|M0009661|4|SDUI||||MSH|MSH|||N||
+M0009661|4|SDUI|PAR|3|3|SDUI||||MSH|MSH|||N||
+3|3|SDUI|PAR|2|2|SDUI||||MSH|MSH|||N||
+2|2|SDUI|PAR|1|1|SDUI||||MSH|MSH|||N||
+
+
+MRSAB.RRF
+
+This is where all of the information about the source is stored.  We may
+overwrite some of this information to exercise some control over SAB
+values.
+
+For source insertion purposes, this data will be loaded into "source_rank" and
+"sims_info".
+
+Field	   Value			   source insertion semantics
+---------- ------------------------------  --------------------------------------
+VCUI:	   blank			   ignored
+RCUI:	   blank			   ignored
+VSAB:	   versioned SAB value		   source value (e.g. MSH2004_2004_04_12)
+RSAB:	   root SAB value		   root_source value (e.g. MSH)
+SON:	   official name of source	   source_official_name value (e.g. Medical Subject Headings)
+					   also used for SRC/VPT atom.
+SF:        source family		   source_family (e.g. MSH)
+SVER:      source version		   version (e.g. 2004_2004_04_12)
+VSTART:    YYYY_MM_DD when source is valid valid_start_Date
+VEND:      YYYY_MM_DD when source ceases   valid_end_date
+	   to be valid
+IMETA:	   blank			   ignored
+RMETA:     blank			   ignored
+SLC:       license contact		   license_contact value
+SCC:	   content contact		   content_contact value
+SRL:	   0,1,2,3,4			   restriction_level value
+TFR:	   count of number of atoms	   term_frequency
+	   (MRCONSO.RRF count)		   cui_count
+CFR:	   count of number of distinct
+	   SCUI values in MRCONSO.RRF
+CXTY:	   blank, FULL,			   context_type
+	   FULL-MULTIPLE,
+	   FULL-NOSIB,
+	   FULL-NOSIB-MULTIPLE
+TTYL:	   list of TTYs from MRRANK	   term_type_list
+ATNL:      list of ATNs from MRSAT	   attribute_name_list
+LAT:       language (e.g. ENG)		   language
+CENC:      ISO char encoding		   used to know how to convert to UTF-8
+CURVER:    blank			   ignored
+SABIN:	   blank			   ignored
+SSN:	   source short name		   source_short_name value, also used for SRC/SSN atom
+SCIT:	   citation information		   citation
+
+Sample line:
+
+||MSH2004_2003_12_12|MSH|Medical Subject Headings, MSH2004_2003_12_12|MSH|2004_2003_12_12|||||Stuart Nelson, M.D., Head, Medical Subject Headings (MeSH) Section, National Library of Medicine, 8600 Rockville Pike, Bethesda MD 20894; e-mail: nelson@nlm.nih.gov|Stuart Nelson, M.D., Head, Medical Subject Headings (MeSH) Section, National Library of Medicine, 8600 Rockville Pike, Bethesda MD 20894; e-mail: nelson@nlm.nih.gov|0|528639|240812|FULL-MULTIPLE|CE,EN,EP,HS,HT,MH,N1,NM,PM,TQ,XQ|AN,AQL,CX,DC,DID,DQ,DS,DX,EC,EV,FR,FX,HM,HN,II,LT,MDA,MMR,MN,MUI,OL,PA,PI,PM,QA,QE,QS,RN,RR,SOS,SRC,TH|ENG|UTF-8|||MeSH|Medical Subject Headings (MeSH). Bethesda, MD: National Library of Medicine, 2004|
+
+Question: Should source providers provide their own SRC concepts?
+
+
+MRSAT.RRF
+
+This is where source attributes are stored.  Attributes may exist an any level
+in a source but must be assigned a "proxy atom ui" to represent the class level at
+which they are connected.  The STYPE field indicates which MRCONSO, or MRREL field 
+is actually the level at which relationships are connected.
+
+For source insertion purposes, this data will be loaded into "attributes"
+
+Field	   Value			   source insertion semantics
+---------- ------------------------------  --------------------------------------
+CUI:	   "proxy concept ui"		   ignored
+LUI:	   blank			   ignored
+SUI:	   blank			   ignored
+METAUI:    "proxy atom ui" or
+	   "proxy relationship ui"	   used to connect this attribute to either a relationship
+					   or an atom. (later support other proxy types as well)
+STYPE:     MRCONSO, MRREL field name	   used to figure out sg_id_1,sg_type_1,sg_qualifier_1 values
+CODE:	   blank			   ignored
+ATUI:	   "proxy attribute ui"		   ignored
+SATUI:	   source asserted attribute UI	   source_atui value
+ATN:	   attribute name		   attribute_name value
+SAB:	   RSAB value from MRSAB.RRF	   source value
+ATV:	   attribute value		   attribute_value, stringtab.text_value
+SUPPRESS:  Y,N				   suppressible value
+CVF:	   blank			   ignored
+
+Sample lines:
+
+M0022792|||6|SDUI||||DID|MSH|D014803|N||
+M0022792|||6|SDUI||||MUI|MSH|M0022792|N||
+M0022792|||6|SDUI||||TH|MSH|UNK (19XX)|N||
+M0022792|||6|SDUI||||AN|MSH|GEN or unspecified B vitamins; prefer specific vitamin B; /defic = VITAMIN B DEFICIENCY or PELLAGRA; /ther use: coord disease with /drug ther, not /diet ther|N||
+M0022792|||6|SDUI||||AQL|MSH|AD AE AG AI AN BI BL CF CH CL CS CT DU EC GE HI IM IP ME PD PH PK PO RE SD SE ST TO TU UR|N||
+M0022792|||6|SDUI||||DC|MSH|1|N||
+M0022792|||6|AUI||||EC|MSH|Vitamin B Deficiency|N||
+M0022792|||6|AUI||||MDA|MSH|19990101|N||
+M0022792|||6|AUI||||MMR|MSH|19950523|N||
+M0022792|||6|AUI||||MN|MSH|D11.786.708|N||
+M0022792|||6|AUI||||MUI|MSH|M0022792|N||
+M0022792|||6|AUI||||RN|MSH|12001-76-2|N||
+M0022792|||7|SDUI||||DID|MSH|D014803|N||
+M0022792|||7|SDUI||||MUI|MSH|M0022792|N||
+M0022792|||8|SDUI||||DID|MSH|D014803|N||
+M0022792|||8|SDUI||||MUI|MSH|M0022792|N||
+M0022792|||8|AUI||||TH|MSH|POPLINE (1978)|N||
+M0022792|||9|SDUI||||DID|MSH|D014803|N||
+M0022792|||9|SDUI||||MUI|MSH|M0022792|N||
+
+
+MRSTY.RRF
+
+This is where default semantic type suggestions go.  Semantic types are ultimately overridden
+by editors (and inversion) but this is where source providers can supply us with
+suggestions.  We can release tools to help build defaults from their hierarchy 
+information
+
+For source insertion purposes, this data will be loaded into "attributes"
+where attribute_name='SEMANTIC_TYPE'
+
+Field	   Value			   source insertion semantics
+---------- ------------------------------  --------------------------------------
+CUI:	   "proxy concept ui"		   used to connect to MRCONSO.RRF
+TUI:	   valid TUI			   ignored
+STN:	   valid STN			   ignored
+STY:	   valid STY			   attribute_Value
+ATUI:	   "proxy attribute ui"		   ignored
+CVF:	   blank			   ignored
+
+
+Index files
+
+Not used.
+
+
+
+Representing Map Sets
+
+When RRF is used to represent a mapping set, either MRMAP.RRF or 
+MRSMAP.RRF should be used in conjunction with MRCONSO.RRF and 
+MRSAT.RRF.  A map set starts with a MRCONSO row representing the
+"map set concept".  For example,
+
+100046|ENG||||||3342||100046||SNOMEDCT|XM|100046|SNOMEDCT mappings to ICD-9-CM|4|N||
+
+Next, a series of MRSAT.RRF entries should be used to specify
+certain important features of the map set.
+
+100046|||3342|CODE||2||TARGETSCHEMEID|SNOMEDCT|2.16.840.1.113883.6.5.2.1|N||
+100046|||3342|CODE||3||MAPSETXRTARGETID|SNOMEDCT|100051|N||
+100046|||3342|CODE||4||FROMRSAB|SNOMEDCT|SNOMEDCT|N||
+100046|||3342|CODE||5||FROMVSAB|SNOMEDCT|SNOMEDCT_2004_01_31|N||
+100046|||3342|CODE||6||MAPFROMCOMPLEXITY|SNOMEDCT|SINGLE SCUI|N||
+100046|||3342|CODE||7||MAPFROMEXHAUSTIVE|SNOMEDCT|N|N||
+100046|||3342|CODE||8||MAPSETCOMPLEXITY|SNOMEDCT|ONE_TO_N|N||
+100046|||3342|CODE||9||MAPSETID|SNOMEDCT|100046|N||
+100046|||3342|CODE||10||MAPSETNAME|SNOMEDCT|ICD-9-CM|N||
+100046|||3342|CODE||11||MAPSETREALMID|SNOMEDCT||N||
+100046|||3342|CODE||12||MAPSETRSAB|SNOMEDCT|SNOMEDCT|N||
+100046|||3342|CODE||13||MAPSETRULETYPE|SNOMEDCT||N||
+100046|||3342|CODE||14||MAPSETSCHEMEID|SNOMEDCT|2.16.840.1.113883.6.5.2.1|N||
+100046|||3342|CODE||15||MAPSETSCHEMENAME|SNOMEDCT|International Classification of Diseases and Related Health Problems, 9th Revision, Clinical Modifications.|N||
+100046|||3342|CODE||16||MAPSETSCHEMEVERSION|SNOMEDCT|2003|N||
+100046|||3342|CODE||17||MAPSETSEPARATORCODE|SNOMEDCT|&#7c;|N||
+100046|||3342|CODE||18||MAPSETTYPE|SNOMEDCT|2|N||
+100046|||3342|CODE||19||MAPSETVSAB|SNOMEDCT|SNOMEDCT_2004_01_31|N||
+100046|||3342|CODE||20||MAPTOCOMPLEXITY|SNOMEDCT|SINGLE CODE, MULTIPLE CODE|N||
+100046|||3342|CODE||21||MAPTOEXHAUSTIVE|SNOMEDCT|N|N||
+100046|||3342|CODE||22||TORSAB|SNOMEDCT|ICD9CM|N||
+100046|||3342|CODE||23||TOVSAB|SNOMEDCT|ICD9CM_2002|N||
+
+
+Finally, the map set should list the actual mappings in the appropriate
+file.  MRMAP.RRF should be used if MRSMAP.RRF does not have sufficient 
+richness represent the source mappings.  
+
+This data will be stored in the attributes table.  Each mapping is
+represented by three attributes: XMAPTO, XMAP, XMAPFROM.  This allows
+the "from" and "to" objects to be re-used across multiple mappings.
+
+Here are the fields for MRMAP.RRF.  MRSMAP.RRF uses a subset of these.
+
+Field	   Value			   source insertion semantics
+---------- ------------------------------  --------------------------------------
+MAPSETCUI: "proxy concept ui"		   used to connect to MRCONSO.RRF, MRSAT.RRF
+MAPSETSAB: SAB				   source
+MAPSUBSETID: like relationship group	   used for part of XMAP attribute_value
+MAPRANK:   order in which to examine
+	   rows with same MAPSUBSETID      used for part of XMAP attribute_value
+FROMID:    blank			   ignored
+FROMSID:   source asserted "from" id	   used for part of XMAPFROM attribute_value
+FROMEXPR:  source asserted expression	   used for part of XMAPFROM attribute_value 
+	   being mapped from
+FROMTYPE:  source asserted type of         used for part of XMAPFROM attribute_value 
+	   expression   	  
+FROMRULE:  source asserted fromrule	   used for part of XMAPFROM attribute_value
+FROMRES:   source asserted fromres	   used for part of XMAPFROM attribute_value
+REL:	   REL value			   used for part of XMAP attribute_value
+RELA:	   RELA value			   used for part of XMAP attribute_value
+TOID:	   blank			   ignored
+TOSID:     source asserted "to" id	   used for part of XMAPTO attribute_value
+TOEXPR:    source asserted expression	   used for part of XMAPTO attribute_value 
+	   being mapped to
+TOTYPE:    source asserted type of         used for part of XMAPTO attribute_value 
+	   expression   	  
+TORULE:    source asserted torule	   used for part of XMAPTO attribute_value
+TORES:     source asserted tores	   used for part of XMAPTO attribute_value
+MAPRULE:   source asserted maprule	   used for part of XMAP attribute_value
+MAPTYPE:   source asserted maptype	   used for part of XMAP attribute_value
+MAPATN:    additional ATN value		   used for part of XMAP attribute_value
+	   (for future use)
+MAPATV:    additional ATV value		   used for part of XMAP attribute_value
+	   (for future use)
+CVF:	   blank			   ignored
+
+Sample lines:
+
+10000006|SNOMEDCT|0|0|||10000006|SCUI|||RN|mapped_to||1962053|786.59|CODE||||2||||
+10001005|SNOMEDCT|0|0|||10001005|SCUI|||RN|mapped_to||3390052|038.9|CODE||||2||||
+
+
+Suggesting UMLS Synonymy
+
+In many cases, sources might wish to explicitly suggest synonymy
+with UMLS CUIs.  This suggested synonymy can be indicated by supplying
+MRREL rows with the following characteristics
+1. REL=SY
+2. AUI1="proxy atom ui" representing the source concept to merge with UMLS CUI
+3. CUI2=suggested synonymous UMLS CUI value
+4. STYPE2=CUI
+
+During the source insertion process, these relationships will be
+represented as SY relationships.  A merge facts set will always be
+performed to attempt to merge across a source's SY facts.
+
+
+Suggesting Default Semantic Types
+
+Sources should be encouraged to submit their own default semantic type 
+suggestions.  This can be done by using the MRSTY file, since sources
+do not natively contain UMLS semantic type information.  One of the
+tools that can be built and supplied with the RRF documentation/training
+is one that makes use of the hierarchies (like we do in inversion) to
+create and inherit default STYs down the hierarchies.
+
+
+Creating 7-bit forms
+
+Whenever a non-ASCII string, definition, or attribute is created,
+the source provider should create a pure-ASCII 7-bit version as well.
+One of the tools that can be built and supplied with the RRF documentation/
+training is one to generate default 7-bit froms from non-ASCII UTF-8.
+
+
+Choosing Term Types
+
+One big challenge for users of the RRF as a source submission format
+will be to use TTYs properly.   We should use the previous release MRDOC
+as the gold standard and train users to choose from the available set
+with certain ones (like PT, SY) being preferred over others (like MH, or N1).
+Generally, source providers should not be allowed to create entirely NEW
+TTY values.  NLM should also reserve the right to override source
+provider TTY suggestions to avoid conflicts.
+
+
+Representing Sources as Concepts
+
+Each new source will require a new SRC concept.  Most of this information
+can come from the MRSAB.RRF file.  WE should require that certain MRSAB.RRF
+fields are populated (like source official name, source short name, etc).
+We should also standardize the use of SRC/RHT to represent the context
+tree-top.
+
+ 
+

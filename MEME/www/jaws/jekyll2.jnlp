@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- JNLP File for Jekyll -->
+<jnlp
+  spec="1.0+"
+  codebase="http://localhost:8001/jaws/"
+  href="jekyll2.jnlp">
+  <information>
+    <title>Jekyll - MEME Editing Client</title>
+    <vendor>National Library of Medicine</vendor>
+    <description>Jekyll - MEME Editing Client</description>
+    <description kind="short">A full-featured editing client for
+       the Metathesaurus Enhancement and Maintenance Environment.</description>
+    <icon href="/images/jekyll.jpg" />
+  </information>
+  <security>
+    <all-permissions />
+  </security>
+  <resources>
+    <j2se version="1.4.2+" initial-heap-size="16m" max-heap-size="128m" href="http://java.sun.com/products/autodl/j2se" />
+    <jar href="lib/configlocal.jar" />
+<!--    <jar href="lib/patch.jar" /> -->
+    <jar href="lib/jekyll.jar" main="true" />
+    <jar href="lib/meme.jar" />
+    <jar href="lib/utils.jar" />
+    <jar href="lib/samples.jar" />
+    <jar href="lib/xerces.jar" />
+    <jar href="lib/jaxp.jar" />
+    <property name="meme.prop.loc" value="bundles/meme.prop" />
+    <property name="default.rela.source" value="MTHRELA" />
+    <property name="meme.server.host" value="local-meme-server-host" />
+    <property name="release.date" value="02/17/2006" />
+    <property name="meow.url" value="localhost:8001" />
+    <property name="meme.client.languages.include" value="ENG,SPA" />
+  </resources>
+  <application-desc main-class="gov.nih.nlm.umls.jekyll.JekyllStart"/>
+</jnlp>

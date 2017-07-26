@@ -1,0 +1,441 @@
+--
+-- Oracle .sql script for wrapping global tables
+-- with external tables.  Must be run from within
+-- the $UMLS_ARCHIVE_ROOT/global directory.  It will create
+-- a series of .log files associated with the SQL*Loader backend
+--
+
+-- CREATE OR REPLACE DIRECTORY ext_glogal AS '/umls_arc/release_root/global';
+
+--
+-- GlobalMRSAB.RRF (GLOBAL_MRSAB external table)
+--
+BEGIN EXECUTE IMMEDIATE 'DROP TABLE global_mrsab'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+CREATE TABLE global_mrsab (
+ release varchar(8),
+ vsab varchar(40),
+ rsab varchar(40))
+ORGANIZATION EXTERNAL (
+  TYPE oracle_loader
+  DEFAULT DIRECTORY ext_global
+  ACCESS PARAMETERS (
+    RECORDS DELIMITED BY 0X'7c0a'
+    CHARACTERSET UTF8
+    STRING SIZES ARE IN CHARACTERS
+    DATE_CACHE=50000
+    FIELDS TERMINATED BY '|'
+    MISSING FIELD VALUES ARE NULL
+    REJECT ROWS WITH ALL NULL FIELDS
+     (release, vsab, rsab)
+  )
+  LOCATION ('GlobalMRSAB.RRF')
+)
+REJECT LIMIT 0;
+
+--
+-- GlobalMRXNS_ENG.RRF (GLOBAL_MRXNS_ENG external table)
+--
+BEGIN EXECUTE IMMEDIATE 'DROP TABLE global_mrxns_eng'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+CREATE TABLE global_mrxns_eng (
+ lat varchar(3),
+ nstr varchar(4000),
+ cui varchar(10),
+ lui varchar(10),
+ sui varchar(10))
+ORGANIZATION EXTERNAL (
+  TYPE oracle_loader
+  DEFAULT DIRECTORY ext_global
+  ACCESS PARAMETERS (
+    RECORDS DELIMITED BY 0X'7c0a'
+    CHARACTERSET UTF8
+    STRING SIZES ARE IN CHARACTERS
+    DATE_CACHE=50000
+    FIELDS TERMINATED BY '|'
+    MISSING FIELD VALUES ARE NULL
+    REJECT ROWS WITH ALL NULL FIELDS
+     (lat, nstr CHAR(4000), cui, lui, sui)
+  )
+  LOCATION ('GlobalMRXNS_ENG.RRF')
+)
+REJECT LIMIT 0;
+
+--
+-- GlobalMRXNW_ENG.RRF (GLOBAL_MRXNW_ENG external table)
+--
+BEGIN EXECUTE IMMEDIATE 'DROP TABLE global_mrxnw_eng'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+CREATE TABLE global_mrxnw_eng (
+ lat varchar(3),
+ nwd varchar(100),
+ cui varchar(10),
+ lui varchar(10),
+ sui varchar(10))
+ORGANIZATION EXTERNAL (
+  TYPE oracle_loader
+  DEFAULT DIRECTORY ext_global
+  ACCESS PARAMETERS (
+    RECORDS DELIMITED BY 0X'7c0a'
+    CHARACTERSET UTF8
+    STRING SIZES ARE IN CHARACTERS
+    DATE_CACHE=50000
+    FIELDS TERMINATED BY '|'
+    MISSING FIELD VALUES ARE NULL
+    REJECT ROWS WITH ALL NULL FIELDS
+     (lat, nwd, cui, lui, sui)
+  )
+  LOCATION ('GlobalMRXNW_ENG.RRF')
+)
+REJECT LIMIT 0;
+
+--
+-- GlobalMRXW_ENG.RRF (GLOBAL_MRXW_ENG external table)
+--
+BEGIN EXECUTE IMMEDIATE 'DROP TABLE global_mrxw_eng'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+CREATE TABLE global_mrxnw_eng (
+ lat varchar(3),
+ wd varchar(100),
+ cui varchar(10),
+ lui varchar(10),
+ sui varchar(10))
+ORGANIZATION EXTERNAL (
+  TYPE oracle_loader
+  DEFAULT DIRECTORY ext_global
+  ACCESS PARAMETERS (
+    RECORDS DELIMITED BY 0X'7c0a'
+    CHARACTERSET UTF8
+    STRING SIZES ARE IN CHARACTERS
+    DATE_CACHE=50000
+    FIELDS TERMINATED BY '|'
+    MISSING FIELD VALUES ARE NULL
+    REJECT ROWS WITH ALL NULL FIELDS
+     (lat, wd, cui, lui, sui)
+  )
+  LOCATION ('GlobalMRXW_ENG.RRF')
+)
+REJECT LIMIT 0;
+
+
+--
+-- GlobalReleaseBitPos.txt (GLOBAL_RELEASE_BITPOS external table)
+--
+BEGIN EXECUTE IMMEDIATE 'DROP TABLE global_release_bitpos'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+CREATE TABLE global_release_bitpos (
+ release varchar(8),
+ bitpos integer)
+ORGANIZATION EXTERNAL (
+  TYPE oracle_loader
+  DEFAULT DIRECTORY ext_global
+  ACCESS PARAMETERS (
+    RECORDS DELIMITED BY 0X'7c0a'
+    CHARACTERSET UTF8
+    STRING SIZES ARE IN CHARACTERS
+    DATE_CACHE=50000
+    FIELDS TERMINATED BY '|'
+    MISSING FIELD VALUES ARE NULL
+    REJECT ROWS WITH ALL NULL FIELDS
+     (release, bitpos INTEGER EXTERNAL)
+  )
+  LOCATION ('GlobalReleaseBitPos.txt')
+)
+REJECT LIMIT 0;
+
+--
+-- GlobalCUI.txt (GLOBAL_CUI external table)
+--
+BEGIN EXECUTE IMMEDIATE 'DROP TABLE global_cui'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+CREATE TABLE global_cui (
+ cui varchar(10),
+ bitmask varchar(100))
+ORGANIZATION EXTERNAL (
+  TYPE oracle_loader
+  DEFAULT DIRECTORY ext_global
+  ACCESS PARAMETERS (
+    RECORDS DELIMITED BY 0X'7c0a'
+    CHARACTERSET UTF8
+    STRING SIZES ARE IN CHARACTERS
+    DATE_CACHE=50000
+    FIELDS TERMINATED BY '|'
+    MISSING FIELD VALUES ARE NULL
+    REJECT ROWS WITH ALL NULL FIELDS
+     (cui, bitmask)
+  )
+  LOCATION ('GlobalCUI.txt')
+)
+REJECT LIMIT 0;
+
+--
+-- GlobalAUI.txt (GLOBAL_AUI external table)
+--
+BEGIN EXECUTE IMMEDIATE 'DROP TABLE global_aui'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+CREATE TABLE global_aui (
+ aui varchar(10),
+ bitmask varchar(100))
+ORGANIZATION EXTERNAL (
+  TYPE oracle_loader
+  DEFAULT DIRECTORY ext_global
+  ACCESS PARAMETERS (
+    RECORDS DELIMITED BY 0X'7c0a'
+    CHARACTERSET UTF8
+    STRING SIZES ARE IN CHARACTERS
+    DATE_CACHE=50000
+    FIELDS TERMINATED BY '|'
+    MISSING FIELD VALUES ARE NULL
+    REJECT ROWS WITH ALL NULL FIELDS
+     (aui, bitmask)
+  )
+  LOCATION ('GlobalAUI.txt')
+)
+REJECT LIMIT 0;
+
+--
+-- GlobalSUI.txt (GLOBAL_SUI external table)
+--
+BEGIN EXECUTE IMMEDIATE 'DROP TABLE global_sui'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+CREATE TABLE global_sui (
+ sui varchar(10),
+ bitmask varchar(100))
+ORGANIZATION EXTERNAL (
+  TYPE oracle_loader
+  DEFAULT DIRECTORY ext_global
+  ACCESS PARAMETERS (
+    RECORDS DELIMITED BY 0X'7c0a'
+    CHARACTERSET UTF8
+    STRING SIZES ARE IN CHARACTERS
+    DATE_CACHE=50000
+    FIELDS TERMINATED BY '|'
+    MISSING FIELD VALUES ARE NULL
+    REJECT ROWS WITH ALL NULL FIELDS
+     (sui, bitmask)
+  )
+  LOCATION ('GlobalSUI.txt')
+)
+REJECT LIMIT 0;
+
+--
+-- GlobalSTR.txt (GLOBAL_STR external table)
+--
+BEGIN EXECUTE IMMEDIATE 'DROP TABLE global_str'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+CREATE TABLE global_str (
+ str varchar(4000),
+ bitmask varchar(100))
+ORGANIZATION EXTERNAL (
+  TYPE oracle_loader
+  DEFAULT DIRECTORY ext_global
+  ACCESS PARAMETERS (
+    RECORDS DELIMITED BY 0X'7c0a'
+    CHARACTERSET UTF8
+    STRING SIZES ARE IN CHARACTERS
+    DATE_CACHE=50000
+    FIELDS TERMINATED BY '|'
+    MISSING FIELD VALUES ARE NULL
+    REJECT ROWS WITH ALL NULL FIELDS
+     (str CHAR(4000), bitmask)
+  )
+  LOCATION ('GlobalSTR.txt')
+)
+REJECT LIMIT 0;
+
+--
+-- GlobalLSTR.txt (GLOBAL_LSTR external table)
+--
+BEGIN EXECUTE IMMEDIATE 'DROP TABLE global_lstr'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+CREATE TABLE global_lstr (
+ lstr varchar(4000),
+ bitmask varchar(100))
+ORGANIZATION EXTERNAL (
+  TYPE oracle_loader
+  DEFAULT DIRECTORY ext_global
+  ACCESS PARAMETERS (
+    RECORDS DELIMITED BY 0X'7c0a'
+    CHARACTERSET UTF8
+    STRING SIZES ARE IN CHARACTERS
+    DATE_CACHE=50000
+    FIELDS TERMINATED BY '|'
+    MISSING FIELD VALUES ARE NULL
+    REJECT ROWS WITH ALL NULL FIELDS
+     (lstr CHAR(4000), bitmask)
+  )
+  LOCATION ('GlobalLSTR.txt')
+)
+REJECT LIMIT 0;
+
+
+--
+-- GlobalSUILUI.txt (GLOBAL_SUI_LUI external table)
+--
+BEGIN EXECUTE IMMEDIATE 'DROP TABLE global_sui_lui'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+CREATE TABLE global_sui_lui (
+ sui varchar(10),
+ lui varchar(10))
+ORGANIZATION EXTERNAL (
+  TYPE oracle_loader
+  DEFAULT DIRECTORY ext_global
+  ACCESS PARAMETERS (
+    RECORDS DELIMITED BY 0X'7c0a'
+    CHARACTERSET UTF8
+    STRING SIZES ARE IN CHARACTERS
+    DATE_CACHE=50000
+    FIELDS TERMINATED BY '|'
+    MISSING FIELD VALUES ARE NULL
+    REJECT ROWS WITH ALL NULL FIELDS
+     (sui, lui)
+  )
+  LOCATION ('GlobalSUILUI.txt')
+)
+REJECT LIMIT 0;
+
+
+--
+-- SemGroups.txt (SEMGROUPS external table)
+--
+BEGIN EXECUTE IMMEDIATE 'DROP TABLE semgroups'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+CREATE TABLE semgroups (
+ abbr varchar(10),
+ name varchar(100),
+ ui varchar(16),
+ sty varchar(256))
+ORGANIZATION EXTERNAL (
+  TYPE oracle_loader
+  DEFAULT DIRECTORY ext_global
+  ACCESS PARAMETERS (
+    RECORDS DELIMITED BY 0X'7c0a'
+    CHARACTERSET UTF8
+    STRING SIZES ARE IN CHARACTERS
+    DATE_CACHE=50000
+    FIELDS TERMINATED BY '|'
+    MISSING FIELD VALUES ARE NULL
+    REJECT ROWS WITH ALL NULL FIELDS
+     (abbr, name, ui, sty)
+  )
+  LOCATION ('SemGroups.txt')
+)
+REJECT LIMIT 0;
+
+--
+-- SemGroupCountsByRelease.txt (SEMGROUP_COUNTS_BY_RELEASE external table)
+--
+BEGIN EXECUTE IMMEDIATE 'DROP TABLE semgroup_counts_by_release'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+CREATE TABLE semgroup_counts_by_release (
+ release varchar(10),
+ abbr varchar(10),
+ ct integer)
+ORGANIZATION EXTERNAL (
+  TYPE oracle_loader
+  DEFAULT DIRECTORY ext_global
+  ACCESS PARAMETERS (
+    RECORDS DELIMITED BY 0X'7c0a'
+    CHARACTERSET UTF8
+    STRING SIZES ARE IN CHARACTERS
+    DATE_CACHE=50000
+    FIELDS TERMINATED BY '|'
+    MISSING FIELD VALUES ARE NULL
+    REJECT ROWS WITH ALL NULL FIELDS
+     (release, abbr, ct INTEGER EXTERNAL)
+  )
+  LOCATION ('SemGroupCountsByRelease.txt')
+)
+REJECT LIMIT 0;
+
+--
+-- SemanticTypes.txt (SEMANTIC_TYPES external table)
+--
+BEGIN EXECUTE IMMEDIATE 'DROP TABLE semantic_types'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+CREATE TABLE semantic_types (
+ sty varchar(256),
+ is_chem char(1),
+ chem_type char(1),
+ editing_chem char(1))
+ORGANIZATION EXTERNAL (
+  TYPE oracle_loader
+  DEFAULT DIRECTORY ext_global
+  ACCESS PARAMETERS (
+    RECORDS DELIMITED BY 0X'7c0a'
+    CHARACTERSET UTF8
+    STRING SIZES ARE IN CHARACTERS
+    DATE_CACHE=50000
+    FIELDS TERMINATED BY '|'
+    MISSING FIELD VALUES ARE NULL
+    REJECT ROWS WITH ALL NULL FIELDS
+     (sty, is_chem, chem_type, editing_chem)
+  )
+  LOCATION ('SemanticTypes.txt')
+)
+REJECT LIMIT 0;
+
+
+--
+-- GroupingData_RRF.txt (GROUPINGDATA_RRF external table)
+--
+BEGIN EXECUTE IMMEDIATE 'DROP TABLE groupingdata_rrf'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+CREATE TABLE groupingdata_rrf (
+  release varchar(10),
+  file varchar(50),
+  name varchar(100),
+  value varchar(1000),
+  sab varchar(40),
+  ct integer)
+ORGANIZATION EXTERNAL (
+  TYPE oracle_loader
+  DEFAULT DIRECTORY ext_global
+  ACCESS PARAMETERS (
+    RECORDS DELIMITED BY 0X'7c0a'
+    CHARACTERSET UTF8
+    STRING SIZES ARE IN CHARACTERS
+    DATE_CACHE=50000
+    FIELDS TERMINATED BY '|'
+    MISSING FIELD VALUES ARE NULL
+    REJECT ROWS WITH ALL NULL FIELDS
+     (release, file, name, value CHAR(1000), sab, ct INTEGER EXTERNAL)
+  )
+  LOCATION ('GroupingData_RRF.txt')
+)
+REJECT LIMIT 0;
+
+--
+-- GroupingData_ORF.txt (GROUPINGDATA_ORF external table)
+--
+BEGIN EXECUTE IMMEDIATE 'DROP TABLE groupingdata_orf'; EXCEPTION WHEN OTHERS THEN NULL; END;
+/
+CREATE TABLE groupingdata_orf (
+  release varchar(10),
+  file varchar(50),
+  name varchar(100),
+  value varchar(1000),
+  sab varchar(40),
+  ct integer)
+ORGANIZATION EXTERNAL (
+  TYPE oracle_loader
+  DEFAULT DIRECTORY ext_global
+  ACCESS PARAMETERS (
+    RECORDS DELIMITED BY 0X'7c0a'
+    CHARACTERSET UTF8
+    STRING SIZES ARE IN CHARACTERS
+    DATE_CACHE=50000
+    FIELDS TERMINATED BY '|'
+    MISSING FIELD VALUES ARE NULL
+    REJECT ROWS WITH ALL NULL FIELDS
+     (release, file, name, value CHAR(1000), sab, ct INTEGER EXTERNAL)
+  )
+  LOCATION ('GroupingData_ORF.txt')
+)
+REJECT LIMIT 0;
+
+--     
+-- Views
+
+-- No views
+

@@ -1,0 +1,152 @@
+<html>
+<head>
+    
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=utf8">
+    
+  <title>MEME4 Applications - Retrieving Server Log</title>
+</head>
+  <body text="#000000" bgcolor="#ffffff" link="#3333ff" vlink="#999999"
+ alink="#ff0000">
+  
+<center> 
+<h3> <font size="+0">Retrieving the Server Log</font></h3>
+</center>
+  
+<hr><i>Following is documentation on how to retrieve the MEME4 server log 
+from the client-side.</i> <br>
+&nbsp; 
+<center>
+<table cellpadding="3" width="90%" nosave="">
+ <tbody>
+    <tr nosave="">
+ <td valign="top" nosave=""><b>The Log</b></td>
+  <td valign="top" nosave=""><font size="-1">As the <i>MEME4</i> application
+server runs, it generates a fairly extensive log of <a href="#a1">server
+parameters</a> and <a href="#a2">details of incoming requests</a>.&nbsp;
+Each time the server runs, it starts a new log that is written to until the
+server shuts down.</font></td>
+ </tr>
+  <tr nosave="">
+ <td valign="top" nosave=""><b>Getting the Log</b></td>
+  <td valign="top" nosave=""><font size="-1">For your convenience, a client
+script has been written which connects to the server and requests the log.&nbsp; 
+By default this script tries to connect to the host and port defined by the
+midsvcs.pl service names <tt>meme-server-host</tt> and <tt>meme-server-port</tt>.&nbsp;&nbsp; 
+Following is the usage,</font> 
+      <pre><font size="-1">% admin.pl -s server_log [-head=&lt;#&gt;] [-tail=&lt;#&gt;] [-host=(host)] [-port=(port)]<br><br>&nbsp;Options:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -head=&lt;#&gt;:&nbsp;&nbsp;&nbsp;&nbsp; Show only the first # of lines of the log<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -tail=&lt;#&gt;:&nbsp;&nbsp;&nbsp;&nbsp; Show only the last # of lines of the log<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -host=&lt;host&gt;:&nbsp; Machine where the application server is running,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Default is localhost<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -port=&lt;port&gt;:&nbsp; Port on which server is listening, default is&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -v[ersion]:&nbsp;&nbsp;&nbsp; Print version information.<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -[-]help:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; On-line help</font></pre>
+ <font size="-1">In it simplest form, all that you have to do is call the 
+script with the indicated service.&nbsp; For example,</font> 
+      <pre><font size="-1">% admin.pl -s log</font></pre>
+ <font size="-1">If the application server is running on a machine or listening 
+on a port other than the default, you will need to invoke <tt>admin.pl</tt> 
+with the <tt>-host</tt> and/or <tt>-port</tt> switches.&nbsp; For example,</font> 
+      <pre><font size="-1">% admin.pl -s log -host ob.nlm.nih.gov -port 8081</font></pre>
+ <font size="-1">If only the host <i>or</i> the port is different, you need 
+only use one of the two switches.&nbsp; The script accepts these parameters 
+in either the form <tt>-port=8081</tt> or <tt>-port 8081</tt>.&nbsp; If you
+are not interested in the entire server log, but only the first <i>X</i> lines,
+you can request these by using the <tt>-head</tt> parameter.&nbsp; For example,</font> 
+      <pre><font size="-1">% admin.pl -s log -head 10</font></pre>
+ <font size="-1">This would show the first ten lines of the server log.&nbsp; 
+More likely, you would be interested in looking at the last <i>X</i> lines, 
+in which case you can use the <tt>-tail</tt> parameter. For example,</font> 
+      <pre><font size="-1">% admin.pl -s log -tail 10</font></pre>
+ <font size="-1">This would show the last ten lines of the server log.&nbsp; 
+The <tt>-head</tt> and <tt>-tail</tt> parameters should not both be used, 
+but if they are, whichever one appears last is the one that will affect the
+request.</font></td>
+ </tr>
+ 
+  </tbody>
+</table>
+</center>
+  
+<p><a name="a1"></a><i>Appendix A1: The Server Parameters</i> </p>
+<blockquote><font size="-1">At the beginning of the log is a set of comments 
+that indicate the configuration that the server was started with.&nbsp; Consider
+this example:</font> 
+  <pre><font size="-1">[31-Jan-2002 12:41:36]&nbsp; INITIALIZE COMPONENT - gov.nih.nlm.meme.sql.MEMESchedule<br>[31-Jan-2002 12:41:36]&nbsp; INITIALIZE COMPONENT - gov.nih.nlm.meme.server.DataSourcePool<br>[31-Jan-2002 12:41:36]&nbsp;&nbsp;&nbsp; autoextend = true<br>[31-Jan-2002 12:41:36]&nbsp;&nbsp;&nbsp; max_size = 100<br>[31-Jan-2002 12:41:36]&nbsp;&nbsp;&nbsp; optimal_size = 5<br>[31-Jan-2002 12:41:36]&nbsp; Initializing database session - open connection jdbc:oracle:thin:@lti11:1521:meme3 mth/**********<br>*<br>[31-Jan-2002 12:41:39]&nbsp;&nbsp;&nbsp; Cache source_rank data<br>[31-Jan-2002 12:41:42]&nbsp;&nbsp;&nbsp; Cache termgroup_rank data<br>[31-Jan-2002 12:41:42]&nbsp;&nbsp;&nbsp; Cache semantic types<br>[31-Jan-2002 12:41:42]&nbsp;&nbsp;&nbsp; Cache relationship inverses<br>[31-Jan-2002 12:41:42]&nbsp;&nbsp;&nbsp; Cache integrity checks<br>[31-Jan-2002 12:41:43]&nbsp; Initializing database session - open connection jdbc:oracle:thin:@lti11:1521:meme3 mth/**********<br>*<br>[31-Jan-2002 12:41:43]&nbsp; Initializing database session - open connection jdbc:oracle:thin:@lti11:1521:meme3 mth/**********<br>*<br>[31-Jan-2002 12:41:44]&nbsp; Initializing database session - open connection jdbc:oracle:thin:@lti11:1521:meme3 mth/**********<br>*<br>[31-Jan-2002 12:41:44]&nbsp; Initializing database session - open connection jdbc:oracle:thin:@lti11:1521:meme3 mth/**********<br>*<br>[31-Jan-2002 12:41:44]&nbsp; INITIALIZE COMPONENT - gov.nih.nlm.meme.server.ThreadPool<br>[31-Jan-2002 12:41:44]&nbsp;&nbsp;&nbsp; autoextend = true<br>[31-Jan-2002 12:41:44]&nbsp;&nbsp;&nbsp; max_size = 100<br>[31-Jan-2002 12:41:44]&nbsp;&nbsp;&nbsp; optimal_size = 5<br>[31-Jan-2002 12:41:44]&nbsp; INITIALIZE COMPONENT - gov.nih.nlm.meme.server.HTTPRequestListener<br>[31-Jan-2002 12:41:44]&nbsp; SERVICE ADDED - ShutdownServer<br>[31-Jan-2002 12:41:44]&nbsp; SERVICE ADDED - CGIShutdownServer<br>[31-Jan-2002 12:41:44]&nbsp; SERVICE ADDED - DummyService<br>[31-Jan-2002 12:41:44]&nbsp; SERVICE ADDED - ReportsGenerator<br>[31-Jan-2002 12:41:44]&nbsp; SERVICE ADDED - AdminService<br>[31-Jan-2002 12:41:44]&nbsp; SERVICE ADDED - MEMERelaEditorService<br>[31-Jan-2002 12:41:44]&nbsp; START SERVER<br>[31-Jan-2002 12:41:44]&nbsp; meme.properties.file = /b1/W4gl/MEME/bin/meme.prop<br>[31-Jan-2002 12:41:44]&nbsp; meme.server.mid.service.default = meme3<br>[31-Jan-2002 12:41:44]&nbsp; meme.server.mid.connection.class = gov.nih.nlm.meme.sql.MIDConnection<br>[31-Jan-2002 12:41:44]&nbsp; meme.server.mid.user.default = mth<br>[31-Jan-2002 12:41:44]&nbsp; meme.server.port = 8080<br>[31-Jan-2002 12:41:44]&nbsp; meme.debug = true<br>[31-Jan-2002 12:41:44]&nbsp; meme.view = false<br>[31-Jan-2002 12:41:44]&nbsp; meme.dtd.directory = xml/<br>[31-Jan-2002 12:41:44]&nbsp; meme.tmp.directory = /tmp<br>[31-Jan-2002 12:41:44]&nbsp; meme.env.MEME_HOME = /b1/W4gl/MEME<br>[31-Jan-2002 12:41:44]&nbsp; meme.env.ORACLE_HOME = /u/oracle/817<br>[31-Jan-2002 12:41:44]&nbsp; VERSION = gov.nih.nlm.meme: 4.1.0, Thu Nov 01 00:00:00 PST 2001 (MEME Group)<br>[31-Jan-2002 12:41:44]&nbsp; VERSION = gov.nih.nlm.meme.client: 4.1.0, Thu Nov 01 00:00:00 PST 2001 (MEME Group)<br>[31-Jan-2002 12:41:44]&nbsp; VERSION = gov.nih.nlm.meme.common: 4.1.0, Thu Nov 01 00:00:00 PST 2001 (MEME Group)<br>[31-Jan-2002 12:41:44]&nbsp; VERSION = gov.nih.nlm.meme.integrity: 4.1.0, Thu Nov 01 00:00:00 PST 2001 (MEME Group)<br>[31-Jan-2002 12:41:44]&nbsp; VERSION = gov.nih.nlm.meme.server: 4.1.0, Thu Nov 01 00:00:00 PST 2001 (MEME Group)<br>[31-Jan-2002 12:41:44]&nbsp; VERSION = gov.nih.nlm.meme.sql: 4.1.0, Thu Nov 01 00:00:00 PST 2001 (MEME Group)<br>[31-Jan-2002 12:41:44]&nbsp; VERSION = gov.nih.nlm.meme.xml: 4.1.0, Thu Nov 01 00:00:00 PST 2001 (MEME Group)<br>[31-Jan-2002 12:41:44]&nbsp; LISTENER STARTED</font></pre>
+  
+  <ul>
+ <li> <font size="-1"><tt>INITIALIZE COMPONENT</tt> sections correspond to
+a components that implements the <tt><a
+ href="/javadoc/gov/nih/nlm/meme/server/Initializable.html">Initializable</a></tt> 
+interface and are listed in the <tt>meme.server.bootstrap.classes</tt> property
+in the properties file.</font></li>
+  <li> <font size="-1"><tt>SERVICE ADDED</tt> sections correspond to components 
+that implement the <tt><a
+ href="/javadoc/gov/nih/nlm/meme/server/MEMEApplicationService.html">MEMEApplicationService</a></tt> 
+interface and are listed in the <tt>meme.server.services.classes</tt> property 
+in the properties file.</font></li>
+  <li> <font size="-1"><tt>START SERVER</tt> indicates that the server's <tt><a
+ href="/javadoc/gov/nih/nlm/meme/server/MEMEApplicationServer.html#start%28%29">start()</a></tt> 
+method has been called.</font></li>
+  <li> <font size="-1">The next section lists the values of some other important 
+properties from the properties file.</font></li>
+  <li> <font size="-1"><tt>VERSION</tt> sections indicate the respective
+versions of the various packages used by the system.</font></li>
+  <li> <font size="-1"><tt>LISTENER STARTED</tt> indicates that the <tt><a
+ href="/javadoc/gov/nih/nlm/meme/server/MEMERequestListener.html">MEMERequestListener</a></tt> 
+implementation used by the server (one of the bootstrap classes, <tt><a
+ href="/javadoc/gov/nih/nlm/meme/server/HTTPRequestListener.html">HTTPRequestListener</a></tt> 
+in the above example) has begun accepting requests.&nbsp; When this comment 
+appears, the server is completely initialized.</font></li>
+ 
+  </ul>
+ </blockquote>
+ <a name="a2"></a><i>Appendix A2: The Request Details</i> 
+<blockquote><font size="-1">Each time a request is processed by the server, 
+comments are added to indicate the nature of the service request and its outcome.&nbsp;
+For Example,</font> 
+  <pre><font size="-1">[31-Jan-2002 12:41:53]&nbsp; REQUEST_ACCEPTED - MEMEServiceRequest (id=1)<br>[31-Jan-2002 12:41:53]&nbsp;&nbsp;&nbsp; service = ReportsGenerator<br>[31-Jan-2002 12:41:53]&nbsp;&nbsp;&nbsp; session = nosession<br>[31-Jan-2002 12:41:53]&nbsp;&nbsp;&nbsp; data_source = editing-db<br>[31-Jan-2002 12:41:53]&nbsp;&nbsp;&nbsp; parameters = {concept_id=[concept_id=100001], cxt_rel_opt=[cxt_rel_opt=1], rel_opt=[rel_opt=1]}<br>[31-Jan-2002 12:41:54]&nbsp; REQUEST PROCESSED (id=1, elapsed_time=00:00:02)<br>...<br>...<br>...<br>[31-Jan-2002 12:42:29]&nbsp; REQUEST_ACCEPTED - MEMEServiceRequest (id=83)<br>[31-Jan-2002 12:42:29]&nbsp;&nbsp;&nbsp; service = ReportsGenerator<br>[31-Jan-2002 12:42:29]&nbsp;&nbsp;&nbsp; session = nosession<br>[31-Jan-2002 12:42:29]&nbsp;&nbsp;&nbsp; data_source = meme3<br>[31-Jan-2002 12:42:29]&nbsp;&nbsp;&nbsp; parameters = {concept_id=[concept_id=100083], cxt_rel_opt=[cxt_rel_opt=1], rel_opt=[rel_opt=1]}<br>[31-Jan-2002 12:42:29]&nbsp; REQUEST FAILED (id=83)<br>[31-Jan-2002 12:42:29]&nbsp; REQUEST PROCESSED (id=83, elapsed_time=72 thousandths of a second.)<br>[31-Jan-2002 12:42:29]&nbsp; Missing data.<br>[31-Jan-2002 12:42:29]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {concept_id=100083}<br>Missing data.<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {concept_id=100083}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at gov.nih.nlm.meme.sql.MEMEConnection.getConcept(MEMEConnection.java:1401)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at gov.nih.nlm.meme.server.ReportsGenerator.processRequest(ReportsGenerator.java:961)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at gov.nih.nlm.meme.server.MEMEApplicationServer.processRequest(MEMEApplicationServer.java:97)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at gov.nih.nlm.meme.server.HTTPRequestListener$RequestHandler.run(HTTPRequestListener.java:386)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at gov.nih.nlm.meme.server.ThreadPool$WorkThread.run(ThreadPool.java:462)</font></pre>
+  
+  <ul>
+ <li> <font size="-1"><tt>REQUEST ACCEPTED</tt> indicates that a request
+has been accepted and also details the type of request (either <tt><a
+ href="/javadoc/gov/nih/nlm/meme/xml/MEMEServiceRequest.html">MEMEServiceRequest</a></tt> 
+or <tt><a
+ href="/javadoc/gov/nih/nlm/meme/xml/CGIStyleMEMEServiceRequest.html">CGIStyleMEMEServiceRequest</a></tt>) 
+and an internal id used for the request.</font></li>
+  <li> <font size="-1"><tt>service</tt> indicates the service being requested,
+in this case <tt><a
+ href="/javadoc/gov/nih/nlm/meme/server/ReportsGenerator.html">ReportsGenerator</a></tt>.</font></li>
+  <li> <font size="-1"><tt>session</tt> indicates the type of session being
+used, it will be <tt>nosession</tt>, a session id, or <tt>terminate</tt>.</font></li>
+  <li> <font size="-1"><tt>data_source</tt> indicates the data source that
+the request will use.&nbsp; This will take the form of a mid services name.</font></li>
+  <li> <font size="-1"><tt>parameters</tt> is the parameter list.</font></li>
+  <li> <font size="-1"><tt>REQUEST FAILED</tt> indicates that request processing 
+failed for some reason.</font></li>
+  <li> <font size="-1"><tt>REQUEST PROCESSED</tt> indicates that the server
+is finished handling a request.&nbsp; If the request failed, this section
+may be followed by details of why it failed.&nbsp; Shown above is a failure
+of a concept report request because the concept id did not exist.</font></li>
+ 
+  </ul>
+ </blockquote>
+  
+<hr width="100%"> 
+<table border="0" cols="2" width="100%" nosave="">
+ <tbody>
+    <tr nosave="">
+ <td align="left" valign="top" nosave=""> 
+      <address> <a href="/MEME/">MEME Home</a></address>
+ </td>
+  <td align="right" valign="top" nosave=""> 
+      <address> <font size="-1">Contact: <a
+ href="mailto:bcarlsen@apelon.com">Brian Carlsen</a></font></address>
+  
+      <address> <font size="-1">Created: 01/31/2002</font></address>
+  
+      <address> <font size="-1">Last Updated: 03/05/2002</font></address>
+ </td>
+ </tr>
+ 
+  </tbody>
+</table>
+  <!-- These comments are used by the What's new Generator --> <!-- Changed On: 2002/03/05 --> 
+<!-- Changed by: BAC --> <!-- Change Note: MEME4 Applications - Reporting Server Statistics. --> 
+<!-- Fresh for: 1 month --> <br>
+</body>
+</html>

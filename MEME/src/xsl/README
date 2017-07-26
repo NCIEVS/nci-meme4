@@ -1,0 +1,13 @@
+
+README - 07/11/2005
+
+File				Description
+-----------------------------	----------------------------------------------
+
+mrcols.xsl			Stylesheets used to build HTML Docs
+mrcols_orf.xsl			For the various UMLS documentation appendices
+mrdoc-b2.xsl
+mrdoc-b3.xsl
+mrrank.xsl
+mrsab.xsl
+mrsab2.xsl

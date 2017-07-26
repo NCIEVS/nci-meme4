@@ -1,0 +1,99 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head><title>NCI-MEME Editing News</title> 
+<style type="text/css">
+<!--
+ BODY { font-family: Verdana, sans-serif; }
+ LI { font-family: Arial, Helvetica, sans-serif; }
+ LI { font-size: 10pt; }
+ UL.sidebar { margin-left: 0em; }
+-->
+</style></head>
+
+<body>
+<!--
+<IMG SRC="/images/hhs_logo_1.gif" ALT="DHHS" height=32 width=32>
+<IMG SRC="/images/nih_logo_1.gif" ALT="NIH" height=32 width=32>
+<IMG SRC="/images/nlm_logo_1.gif" ALT="NLM" height=32 width=32>
+<img src="/images/footer_firstgov.gif" alt="NLM" style="width: 91px; height: 31px;" title="">
+-->
+<img src="/images/DHHSbird_logo.gif" alt="DHHS" height="32" width="32">
+<img src="/images/nihlogo.gif" alt="NIH" height="32" width="32">
+
+<h1>NCI-MEME Editing News</h1>
+
+<p>This is an internal WWW server containing information and tools for
+the editing and management of the Metathesaurus.
+<span style="font-weight: bold;"><br></span></p>
+<table cellpadding="5" cols="2" width="100%" nosave=""><tbody><tr nosave=""><td valign="top" width="200" bgcolor="#ccffff" nosave="">
+<b>Concept Reports</b>
+
+<li><a href="/cgi-oracle-meowusers/concept-report-mid.pl">Database</a></li>
+<li><a href="/cgi-oracle-meowusers/ems3-concept-report-mid.pl">EMS3 Database</a></li>
+<br>
+<br>
+
+<b>Tools</b>
+<li><a href="/cgi-bin/ems3.pl">EMS 3</a></li>
+<li><a href="/cgi-bin/wms3.pl">WMS 3</a></li>
+<li><a href="/cgi-oracle-meowusers/ems.pl">EMS 2.1</a> - deprecated</li>
+<li><a href="/cgi-oracle-meowusers/wms.pl">WMS 2.1</a> - deprecated</li>
+<li><a href="/cgi-oracle-meowusers/ems.pl?action=table_help">Table Help</a></li>
+<li>LVG: <a href="/cgi-bin/lvgcgi.pl?version=lvg2005">LVG2005</a></li>
+<li><a href="/cgi-oracle-nlmlti/oracle-sessions.pl">Oracle Sessions</a></li>
+<li><a href="/cgi-lti-oracle/db_request.cgi">Database Tracking</a></li>
+<br>
+<br>
+<b>Miscellaneous</b><li><a href="phone.html">Phone List</a></li>
+<span style="text-decoration: underline;"></span><li><a href="links.html">Links</a><br></li>
+<li><a href="email.html">List of e-mail addresses</a></li>
+<li><a href="/vqwiki/jsp/Wiki">Wiki</a></li>
+</td>
+<!-- /sidebar -->
+
+
+<td valign="top" nosave="">
+<ul>
+<li><b>Database Information</b></li>
+<ul>
+ <li>Current database:  
+     <b><!--#exec cmd="/bin/csh -c 'source $ENV_HOME/bin/env.csh; $MIDSVCS_HOME/bin/midsvcs.pl -s editing-db'" --></b>
+ </li>
+ <li>Database availability: <b>Database always available.</b></li>
+ <li>Jekyll last built:  
+     <b><!--#flastmod file="jaws/lib/jekyll.jar"--></b></li>
+ <li>Current <a href="jaws/jekyll.html">Jekyll</a></li>
+ <li><a href="/database_work_instructions.html">Instructions for Database requests and cutting off editing</a>
+ <li><a href="db.shtml">List of Databases from Mid Services</a></li>
+
+</ul>
+</ul>
+<ul>
+<li><b>Editing Information</b></li>        
+<ul>
+ <li><a href="/styfile.html">2004 Semantic Types</a></li><li><a href="/Manual/Complete_Training_Manual.pdf">Editing Manual</a></li><li><a href="/Sources/sources.html">Source Information</a></li>
+ <li><a href="/cgi-oracle-meowusers/oracle-termgroup.pl">Term Type Precedence</a></li>
+<li><a href="https://gforge.nci.nih.gov/docman/index.php?group_id=129&selected_doc_group_id=2051&language_id=1">Meta Editi\
+ng Guide - v5., May 30, 2009</a></li>
+</ul>
+</ul>
+<ul><li><b><a href="apelon.html">Additional Online tools Index</a></b></li></ul>
+<ul></ul>
+<ul>
+<li><b>Meeting Information</b></li>
+<ul>
+ <li><a href="/MEME/Documentation/MEME4_feature_highlights.doc">Features Highlights - September 2004<br>
+</a></li></ul>
+</ul>
+</td>
+</tr><tr><td><br>
+</td><td><br>
+</td></tr>
+</tbody></table>
+<hr>
+<address>
+Contact:
+<a href="mailto:bcarlsen@msdinc.com">Brian Carlsen</a><br>
+Created: December 10, 2004<br>
+Last modified on: 04/10/2007<br>
+</address>
+</body></html>

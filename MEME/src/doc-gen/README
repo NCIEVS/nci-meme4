@@ -1,0 +1,18 @@
+
+README - 07/11/2005
+
+File				Description
+----------------------------	---------------------------------------------
+
+gen_chronology.csh		Takes MRD log files (e.g. MRX.log) and
+				compiles them into a "chronology" report.
+
+gen_subset_profile.csh		Generates a document that describes a
+				Metathesaurus subset.
+
+status_rpt.cgi			Manages status reports. (deprecated)
+
+table_documentation.pl		Script for dynamically building 
+				tables_all.html and tables/*html files
+				from the contents of the MEME_TABLES
+				table in the editing-db database.

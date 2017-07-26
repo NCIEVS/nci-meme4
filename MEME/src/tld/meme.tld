@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE taglib PUBLIC "-//Sun Microsystems, Inc.//DTD JSP Tag Library 1.1//EN" "http://java.sun.com/j2ee/dtds/web-jsptaglibrary_1_1.dtd">
+<taglib>
+   <tlibversion>1.0</tlibversion>
+   <jspversion>1.1</jspversion>
+   <shortname>meme</shortname>
+   <uri>/webapps-meme/WEB-INF/meme.tld</uri>
+   <info>A simple tab library for the examples</info>
+<tag>
+  <name>calendar</name>
+  <tagclass>gov.nih.nlm.meme.web.CalendarTag</tagclass>
+  <bodycontent>empty</bodycontent>
+  <info>Calendar Widget</info>
+  <attribute>
+     <name>name</name>
+     <required>true</required>
+     <rtexprvalue>true</rtexprvalue>
+  </attribute>
+  <attribute>
+     <name>first</name>
+     <required>false</required>
+     <rtexprvalue>true</rtexprvalue>
+  </attribute>
+  <attribute>
+     <name>initialValue</name>
+     <required>true</required>
+     <rtexprvalue>true</rtexprvalue>
+  </attribute>
+</tag>
+<tag>
+  <name>midServiceList</name>
+  <tagclass>gov.nih.nlm.meme.web.MidServiceListTag</tagclass>
+  <bodycontent>empty</bodycontent>
+  <info>MidServiceList</info>
+  <attribute>
+     <name>name</name>
+     <required>true</required>
+     <rtexprvalue>true</rtexprvalue>
+  </attribute>
+  <attribute>
+     <name>submit</name>
+     <required>false</required>
+     <rtexprvalue>true</rtexprvalue>
+  </attribute>
+  <attribute>
+     <name>initialValue</name>
+     <required>true</required>
+     <rtexprvalue>true</rtexprvalue>
+  </attribute>
+</tag>
+<tag>
+  <name>hostList</name>
+  <tagclass>gov.nih.nlm.meme.web.HostListTag</tagclass>
+  <bodycontent>empty</bodycontent>
+  <info>HostList</info>
+  <attribute>
+     <name>name</name>
+     <required>true</required>
+     <rtexprvalue>true</rtexprvalue>
+  </attribute>
+  <attribute>
+     <name>submit</name>
+     <required>false</required>
+     <rtexprvalue>true</rtexprvalue>
+  </attribute>
+  <attribute>
+     <name>initialValue</name>
+     <required>false</required>
+     <rtexprvalue>true</rtexprvalue>
+  </attribute>
+</tag>
+<tag>
+  <name>footer</name>
+  <tagclass>gov.nih.nlm.meme.web.FooterTag</tagclass>
+  <bodycontent>empty</bodycontent>
+  <info>Standard Footer, expects</info>
+  <attribute>
+     <name>name</name>
+     <required>true</required>
+     <rtexprvalue>true</rtexprvalue>
+  </attribute>
+  <attribute>
+     <name>email</name>
+     <required>true</required>
+     <rtexprvalue>true</rtexprvalue>
+  </attribute>
+  <attribute>
+     <name>url</name>
+     <required>false</required>
+     <rtexprvalue>true</rtexprvalue>
+  </attribute>
+  <attribute>
+     <name>text</name>
+     <required>false</required>
+     <rtexprvalue>true</rtexprvalue>
+  </attribute>
+  <attribute>
+     <name>docurl</name>
+     <required>false</required>
+     <rtexprvalue>true</rtexprvalue>
+  </attribute>
+  <attribute>
+     <name>doctext</name>
+     <required>false</required>
+     <rtexprvalue>true</rtexprvalue>
+  </attribute>
+</tag>
+<tag>
+  <name>progressmonitor</name>
+  <tagclass>gov.nih.nlm.meme.web.ProgressMonitorTag</tagclass>
+  <bodycontent>empty</bodycontent>
+  <info>Progress Monitor, expects</info>
+  <attribute>
+     <name>name</name>
+     <required>true</required>
+     <rtexprvalue>true</rtexprvalue>
+  </attribute>
+  <attribute>
+     <name>max</name>
+     <required>true</required>
+     <rtexprvalue>true</rtexprvalue>
+  </attribute>
+  <attribute>
+     <name>message</name>
+     <required>false</required>
+     <rtexprvalue>true</rtexprvalue>
+  </attribute>
+  <attribute>
+     <name>mode</name>
+     <required>false</required>
+     <rtexprvalue>true</rtexprvalue>
+  </attribute>
+</tag>
+<tag>
+  <name>updatepm</name>
+  <tagclass>gov.nih.nlm.meme.web.UpdatePMTag</tagclass>
+  <bodycontent>empty</bodycontent>
+  <info>Update Progress Monitor, expects</info>
+  <attribute>
+     <name>name</name>
+     <required>true</required>
+     <rtexprvalue>true</rtexprvalue>
+  </attribute>
+  <attribute>
+     <name>progress</name>
+     <required>true</required>
+     <rtexprvalue>true</rtexprvalue>
+  </attribute>
+  <attribute>
+     <name>message</name>
+     <required>false</required>
+     <rtexprvalue>true</rtexprvalue>
+  </attribute>
+  <attribute>
+     <name>max</name>
+     <required>false</required>
+     <rtexprvalue>true</rtexprvalue>
+  </attribute>
+  <attribute>
+     <name>mode</name>
+     <required>false</required>
+     <rtexprvalue>true</rtexprvalue>
+  </attribute>
+  <attribute>
+     <name>isexpression</name>
+     <required>false</required>
+     <rtexprvalue>true</rtexprvalue>
+  </attribute>
+</tag>
+<tag>
+  <name>clearpm</name>
+  <tagclass>gov.nih.nlm.meme.web.ClearPMTag</tagclass>
+  <bodycontent>empty</bodycontent>
+  <info>Clear Progress Monitor, expects</info>
+  <attribute>
+     <name>name</name>
+     <required>true</required>
+     <rtexprvalue>true</rtexprvalue>
+  </attribute>
+  <attribute>
+     <name>max</name>
+     <required>false</required>
+     <rtexprvalue>true</rtexprvalue>
+  </attribute>
+  <attribute>
+     <name>message</name>
+     <required>false</required>
+     <rtexprvalue>true</rtexprvalue>
+  </attribute>
+  <attribute>
+     <name>mode</name>
+     <required>false</required>
+     <rtexprvalue>true</rtexprvalue>
+  </attribute>
+</tag>
+<tag>
+  <name>updatepmmsg</name>
+  <tagclass>gov.nih.nlm.meme.web.UpdatePMMsgTag</tagclass>
+  <bodycontent>empty</bodycontent>
+  <info>update Progress Monitor message, expects</info>
+  <attribute>
+     <name>name</name>
+     <required>true</required>
+     <rtexprvalue>true</rtexprvalue>
+  </attribute>
+  <attribute>
+     <name>message</name>
+     <required>true</required>
+     <rtexprvalue>true</rtexprvalue>
+  </attribute>
+  <attribute>
+     <name>mode</name>
+     <required>false</required>
+     <rtexprvalue>true</rtexprvalue>
+  </attribute>
+  <attribute>
+     <name>isexpression</name>
+     <required>false</required>
+     <rtexprvalue>true</rtexprvalue>
+  </attribute>
+</tag>
+</taglib>

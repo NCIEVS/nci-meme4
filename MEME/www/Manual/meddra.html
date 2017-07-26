@@ -1,0 +1,250 @@
+
+<HTML>
+<HEAD>
+<TITLE>MedDRA Editing Tips</TITLE></HEAD>
+<BODY>
+<H3 ALIGN="CENTER">MedDRA  Editing Tips</H3>
+<PRE>MedDRA Editing Guidelines
+
+
+MeddRA is an international medical terminology. It is applicable to all phases 
+of drug development,including animal toxicology. It is also applicable to the 
+health effects of devices (e.g. uteric ruptureafter iud insertion; infection 
+because of failure to sterilize a catheter). 
+
+The termgroups that exist in MedDRA are as follows:
+
+
+System Organ Class      OS 
+  
+High Level Group term   HG  
+  
+High Level term         HT  
+  
+Preferred term          PT  
+ 
+Lower Level term        LT 
+
+Non-current LLT   	OL 
+
+Special Search Cat.     SC </pre>    
+
+<b>Specific Editing Tips:</b>
+
+
+<p>1. There are no chemical concepts in MedDRA. Therefore, MedDRA atoms should
+never be in a chemical concept. If you see a MedDRA string, like Calcium, it 
+really is referring to a test for calcium or something similar. So, it should
+be merged with the appropriate non-chemical concept. 
+
+<p>2. In almost all cases we decided that &quot;mumble (all forms)&quot; was equivalent
+to &quot;mumble&quot;. 
+
+<p>3. Semantic Types - We assigned default semantic types to the HT MedDRA 
+termgroup in cases where MedDRA didn't merge with other sources. In some 
+cases, default semantic types were also assigned further down the hierarchy.  
+The HTs should be correct. However, there are cases where the inheritance may 
+be incorrect and the STYs may need to be changed. In addition, the MedDRA LTs 
+inherited STYs from the PTs and they also may be incorrect. If they are wrong, 
+an editor can change the STY(s) to the appropriate one(s).
+
+<br>
+<br>Please remember not to spend time changing closely related STYs, like
+changing between Sign or Symptom, Finding, or Disease.... If there are questions
+about this, please ask. If an editor finds a large section of a worklist that
+seems to need STY changes, please let NLM know before the changes are made in
+the editing interface.
+
+<p>4. When editing the MedDRA relationships from the PTs, editors may find LTs that 
+are not EQV to the PTs but EQV to each other. These should be merged. An example
+is (some of the report has been cut out):
+
+<pre>As of 14-jul-1999 00:34:52, this entry had no problems/issues.
+...............................................................................
+CN# 2145874  Blood follicle stimulating hormone increased
+CUI 	Concept Status needs Review
+STY Laboratory Procedure   N
+ATOMS
+             N []  Blood follicle stimulating hormone increased 
+[MDR99/PT/10005534] 
+             N         Blood follicle stimulating hormone increased 
+[MDR99/LT/10005534] 
+
+CONTEXTS
+   MDR99/PT1/10005534
+   MedDRA
+     Investigations
+       Endocrine investigations including sex hormones
+         Pituitary hormone analyses anterior
+           Blood corticotrophin
+           Blood corticotrophin abnormal
+           Blood corticotrophin decreased
+           Blood corticotrophin increased
+           Blood corticotrophin normal
+           Blood follicle stimulating hormone
+           Blood follicle stimulating hormone abnormal
+           Blood follicle stimulating hormone decreased
+           Blood follicle stimulating hormone increased
+           Blood follicle stimulating hormone normal
+           Blood gonadotrophin
+           Blood gonadotrophin abnormal
+           Blood gonadotrophin decreased
+           Blood gonadotrophin increased
+           Blood gonadotrophin normal
+           Blood growth hormone
+           Blood growth hormone abnormal
+           Blood growth hormone decreased
+           Blood growth hormone increased
+           Blood growth hormone normal
+           Blood luteinising hormone
+           Blood luteinising hormone abnormal
+           Blood luteinising hormone decreased
+           Blood luteinising hormone increased
+           Blood luteinising hormone normal
+           Blood prolactin
+           Blood prolactin abnormal
+           Blood prolactin decreased
+           Blood prolactin increased
+           Blood prolactin normal
+           Blood thyroid stimulating hormone
+           Blood thyroid stimulating hormone abnormal NOS
+           Blood thyroid stimulating hormone decreased
+           Blood thyroid stimulating hormone increased
+           Blood thyroid stimulating hormone normal
+           Gonadotrophin releasing hormone stimulation test
+           Metyrapone challenge test
+           Metyrapone challenge test abnormal
+           Metyrapone challenge test normal
+           Somatotropin supression test
+           Somatotropin supression test abnormal
+           Somatotropin supression test normal
+
+NEEDS REVIEW RELATED CONCEPT(S)
+[RT?]  FSH increased [MDR99/LT||MDR99|MDR99] {2194655} C
+[RT?]  Follicle stimulating hormone increased [MDR99/LT||MDR99|MDR99] {14572} C
+</pre>
+<p>These two MDR99/LTs are synonymous and can be merged. They are not synonymous
+with the concept they are related to though.
+
+<p>5. For concepts that involve different types of pregnancy complications, they
+should be typed as both Finding and Pathologic Function.
+
+<p>6. For the laboratory tests in MedDRA, an editor may see Diazepam with a LT of
+Valium.  Even though Valium is not eqv to diazepam within the context of drugs,
+in MedDRA diazepam means diazepam assay and valium means diazepam assay.  We
+believe it is safe to assume they don't run a different test for the trade and 
+the generic so these two need would be merged together.
+
+<p>7. In some cases, the OLs are obviously typos of a PT ot LT. These should be
+merged.
+
+<p>8. For laboratory tests. . . The test for the acid is probably equivalent to
+the test for the ester.  For example, pyruvic acid assay is EQV to pyruvate
+assay.  In MedDRA you would might see something like:
+<pre>Pyruvate as an LT
+and Pyruvic Acid as an LT</pre>
+<p>These would be merged.
+
+<p>9. For the MedDRA findings, Blood X increased is not equivalent to Serum X increased. 
+These are considered two separate concepts and should only be related if a relationship 
+already exists between them.
+
+<br><br>Also, X increased is not equivalent to Blood X increased or Serum X increased or any other 
+Substance X increased. X increased does not specify anything about where it was measured 
+so it should be kept separate.
+
+<br><br>In these cases for the following strings:
+<pre>Blood gastrin increased-MDR PT
+Gastrin increased-MDR LT
+Serum gastrin increased MDR LT
+
+None of those strings should be merged together.
+
+As of 03-aug-1999 23:37:00, this entry had no problems/issues.
+...............................................................................
+CN# 2148154  Blood gastrin increased
+CUI 	Concept Status needs Review
+STY Finding   N
+ATOMS
+             N []  Blood gastrin increased [MDR99/PT/10005545] 
+             N         Blood gastrin increased [MDR99/LT/10005545] 
+
+CONTEXTS
+   MDR99/PT1/10005545
+   MedDRA
+     Investigations
+       Endocrine investigations including sex hormones
+         Gastrointestinal, pancreatic and APUD hormone analyses
+           Blood calcitonin
+           Blood calcitonin abnormal NOS
+           Blood calcitonin decreased
+           Blood calcitonin increased
+           Blood calcitonin normal
+           Blood gastrin decreased
+           Blood gastrin increased
+           Blood gastrin normal
+           Blood glucagon
+           Blood glucagon abnormal NOS
+           Blood glucagon decreased
+           Blood glucagon increased
+           Blood glucagon normal
+           Blood insulin
+           Blood insulin abnormal NOS
+           Blood insulin C-peptide
+           Blood insulin C-peptide abnormal NOS
+           Blood insulin C-peptide decreased
+           Blood insulin C-peptide increased
+           Blood insulin C-peptide normal
+           Blood insulin decreased
+           Blood insulin increased
+           Blood insulin normal
+           Blood proinsulin
+           Blood proinsulin abnormal NOS
+           Blood proinsulin decreased
+           Blood proinsulin increased
+           Blood proinsulin normal
+           Insulin tolerance test
+           Insulin tolerance test abnormal
+           Insulin tolerance test normal
+
+NEEDS REVIEW RELATED CONCEPT(S)
+[RT?]  Gastrin high [MDR99/LT||MDR99|MDR99] {2195098} C
+[RT?]  Serum gastrin increased [MDR99/LT||MDR99|MDR99] {2173055} C
+[RT?]  Hypergastrinemia [SNMI98/PT||MDR99|MDR99] {60054} C
+[RT?]  Gastrin increased [MDR99/LT||MDR99|MDR99] {15095} C
+
+There are 31 context relationships not shown here.
+
+There are also 4 hidden regular relationships not shown here.
+
+Concept was NOT released in Meta99.
+Last MEME II action: MOLECULAR_CHANGE_STATUS, performed by MATRIXINIT on 
+14-jul-1999 03:50:53
+
+Versions: common (4.00), common2meme (10.0), molecular_actions (23.0), Reports 
+(16.0), CONCEPTpp.pl (13.0).
+This report ran against database: m3b::mid2000.</pre>
+
+<p>10. For test results, 
+
+<pre>low=decreased
+
+ex. Proinsulin decrease=Proinsulin Low
+
+high=increased
+
+ex.
+
+Proinsulin increased=Proinsulin High
+
+X deficiency does not = X decreased
+
+X Raised does = X Increased
+</PRE>
+<HR>
+<ADDRESS>Contact: <A HREF="mailto:lad@nlm.nih.gov">Laura Roth</A></ADDRESS>
+<ADDRESS>Created: July 28, 1999</ADDRESS>
+<ADDRESS>Last Updated: August 23, 2001</ADDRESS><!-- These comments are used by
+the What's new Generator --><!-- Changed On: 1999/08/04--><!-- Changed by: Laura
+Roth --><!-- Change Note: Information on editing MedDRA--><!-- Fresh for: 2 week
+--></BODY></HTML>

@@ -1,0 +1,359 @@
+<HTML>
+<HEAD>
+<TITLE>EMS Handoff</TITLE>
+</HEAD>
+
+<BODY>
+
+<H1>Directory Organization</H1>
+
+EMS source and related scripts, utilities, etc. live
+on all server machines (and some clients).  Here is
+where:
+
+<FONT SIZE=-1>
+<PRE>
+
+/site/umls/oracle/
+  utils/
+  concept-reports/
+  ems-2.0/
+    src/
+    scripts/
+    ME/
+    QA/
+    AH/
+  wms-2.0/
+    src/
+    scripts/
+
+</PRE>
+</FONT>
+
+Configuration information, logging, archival data are on smis:
+
+<FONT SIZE=-1>
+<PRE>
+
+/d3/ems/
+  config/
+  worklists/
+  reports/
+    01a/
+    01b/
+    ...
+  log/
+  data/
+
+</PRE>
+</FONT>
+
+<P><HR><P>
+<H1>EMS/WMS tables</H1>
+
+The tables where the EMS and WMS information is stored in the database
+is in the MEOW schema and have the prefix <EM>ems_</EM> or <EM>wms_</EM>.
+Here is the current list:
+
+<P>
+
+<DL>
+<DT><A HREF="/cgi-oracle-meowusers/ems.pl?action=table_help&subaction=describe&table=ems_me_bins&owner=MEOW">ems_me_bins</A>
+<DD>One row for every concept and the name of the ME bin it's in.
+	This is cleared and renewed with each repartition.
+<P>
+<DT><A HREF="/cgi-oracle-meowusers/ems.pl?action=table_help&subaction=describe&table=ems_qa_bins&owner=MEOW">ems_qa_bins</A>
+<DD>When a QA bin is regenerated, its rows are cleared from this table
+	and the new content inserted.
+<P>
+<DT><A HREF="/cgi-oracle-meowusers/ems.pl?action=table_help&subaction=describe&table=ems_ah_bins&owner=MEOW">ems_ah_bins</A>
+<DD>When an AH bin is regenerated, its rows are cleared from this table
+	and the new content inserted.
+<P>
+<DT><A HREF="/cgi-oracle-meowusers/ems.pl?action=table_help&subaction=describe&table=ems_bin_info&owner=MEOW">ems_bin_info</A>
+<DD>This is where all the information about every bin is stored.  This includes the information from the
+	configuration file as well as historical information (counts, etc.)
+
+<P>
+<DT><A HREF="/cgi-oracle-meowusers/ems.pl?action=table_help&subaction=describe&table=ems_being_edited&owner=MEOW">ems_being_edited</A>
+<DD>This table contains a row for every concept that is out on a worklist, along with the worklist name.
+	This is cleared when the worklist is stamped or marked as "done".
+<P>
+<DT><A HREF="/cgi-oracle-meowusers/ems.pl?action=table_help&subaction=describe&table=ems_ah_canonical_bin&owner=MEOW">ems_ah_canonical_bin</A>
+<DD>AH bins have history that is key'ed on the bin name.  This table allows bins that share
+	history to have different names. It maps an AH bin name to its canonical name, e.g.,
+	needsrel, needsrels, etc. all map to needsrel.
+
+<P>
+<DT><A HREF="/cgi-oracle-meowusers/ems.pl?action=table_help&subaction=describe&table=ems_checklist_info&owner=MEOW">ems_checklist_info</A>
+<DD>This table holds information about checklists: who created it, when, etc.
+
+<P>
+<DT><A HREF="/cgi-oracle-meowusers/ems.pl?action=table_help&subaction=describe&table=wms_worklist_info&owner=MEOW">wms_worklist_info</A>
+<DD>This table holds all information about worklists and is maintained by the WMS.
+
+</DL>
+
+You can use the EMS table_help feature on meow to get more information about these and other
+tables.
+
+
+<P><HR><P>
+<H1>How ME bins work</H1>
+
+See <A HREF="/ems/doc/me_bins.html">EMS documentation</A> for full information.
+
+<P>
+<UL>
+<P><LI>Configuration file specifies the bins and their ordering
+<P><LI>Generation of concepts that meet the bin criteria (source, demotions, etc.)
+<P><LI>Concepts inserted into <A HREF="/cgi-oracle-meowusers/ems.pl?action=table_help&subaction=describe&table=ems_me_bins&owner=MEOW">ems_me_bins</A> in order
+<P><LI>When worklists or checklists are made in the EMS concepts are drawn from the bin.
+	They are clustered and ordered before being passed to make-checklist.pl or make-worklist.pl.
+<P><LI>There are two scripts for each editable bin: generation and ordering
+<P><LI>Notion of generation and refreshing counts: For ME bins, generation is done by
+	repartitioning which empties the ems_me_bins table and repopulates it for
+	each ME bin in order.  Refreshing counts basically takes the concepts in
+	an ME bin, runs it through the ordering script and counts the resulting concepts,
+	clusters, etc.  As worklists are made these counts change.
+<P><LI>Clusters are eliminated from going out on worklists if a concept in the
+      cluster is:
+
+	<P>
+	<OL>
+	  <LI>an embryo
+	  <LI>is out on another worklist
+	  <LI>is currently in R status
+	  <LI>does not currently exist, i.e., has been merged
+	</OL>
+
+	<P>
+      these collectively form the class of "Uneditable" concepts.
+      The rest are counted as "Editable".
+<P><LI>Bins can be configured to be split into chemical and non-chemical.  This is
+	controlled by the script: cnc-split.pl which looks at the
+	<A HREF="/cgi-oracle-meowusers/ems.pl?action=table_help&subaction=describe&table=semantic_types&owner=MTH">semantic_types</A>.editing_chem
+<P><LI>Some ME bins are pre-configured and <EM>should not be changed</EM>.  You can create
+	editable bins (as many as you need) and specify the ordering in the configuration
+	file.
+</UL>
+
+<H1>HOW are concepts for an ME bin generated?</H1>
+
+These are scripts for generating the matching concepts and have the prefix: "gen_".
+The only one you will need is gen_source.pl which is specified in the ME.config file
+and has these options:
+
+<P>
+<DL>
+<DT>-s &lt;source(s)&gt;
+<DD>This is used to specify the SAB's for the source or sources that go into making up
+	this bin.  Remember that some sources may have multiple SABs (e.g., MedDRA).
+
+<DT>-t &lt;termgroup(s)&gt;
+<DD>This is used to specify the specific termgroup(s) that go into making up
+	this bin.  We've rarely used this.
+
+<DT>-c &lt;code(s)&gt;
+<DD>This is a list of SQL LIKE expressions for matching on the CODE attribute.
+	You will never need to use this.
+</DL>
+
+Here are some examples:
+<P>
+<UL>
+<LI>Source is HCPCS (SAB's are HCPCS00, CDT2, HCDT2, HCPT00, MTHHH00):
+
+<FONT SIZE=-1>
+<PRE>
+
+gen_source.pl -s HCPCS00,CDT2,HCDT2,HCPT00,MTHHH00
+
+</PRE>
+</FONT>
+<P>
+<LI>Source is MeSH (SAB is MSH2001):
+
+<FONT SIZE=-1>
+<PRE>
+
+gen_source.pl -s MSH2001
+
+</PRE>
+</FONT>
+</UL>
+
+Please feel free to nag Apelon to update their source information page so you
+can divine what the SAB's are for new sources.  As well the source description
+information which needs to go into the configuration file.
+The other generator scripts: gen-dem.pl, gen-norelease.pl, gen-leftovers.pl, etc. you will not
+need to change.
+
+<H1>HOW are ME bins ordered?</H1>
+The ordering scripts are somewhat complicated.  In come cases, they also cluster
+concepts and in the process may pick additional concepts to the cluster that are
+not present in this bin in the ems_me_bins table.
+<P>
+I have implemented a common set of ordering scripts that has worked quite well
+for the past few years.  These are:
+
+<P>
+<DL>
+<DT><B>order_treenum.pl</B>
+<DD>This script uses a so-called "treenum" format that Steph and I agreed on:
+	source_atom_id, sort field.  If all else fails you can always ask Apelon
+	to make you a treenum's file for a given source and use this ordering
+	script.  See <A HREF="/ems/doc/me_bins.html">here</A> for the details.
+
+<P>
+<DT><B>order_code.pl</B>
+<DD>Use this if you want to order by code in a particular source.  The -n option will
+do a numeric sort on the code.
+
+<P>
+<DT><B>order_alpha.pl</B>
+<DD>This is useful if you want a simple alphabetic ordering.  It orders by the atom_name
+from a source.
+<P>
+<DT><B>order_mesh.pl</B>
+<DD>Orders MeSH atoms by tree number.
+</DL>
+
+These have sufficed for our needs so far.  There is one for demotions (order_dem.pl)
+which you don't need to change.
+<FONT COLOR=red>If LTI does not provide a sorting hint in the source information page,
+NAG or use order_alpha.pl in the interim</FONT>.
+
+<P><HR><P>
+<H1>How QA bins work</H1>
+
+See <A HREF="/ems/doc/qa_bins.html">EMS documentation</A> for full information.
+    
+<P>
+<UL>
+<LI>Contains concepts that meet a particular QA criterion.
+<P>
+<LI>Most queries are now implemented as integrities (MEME_INTEGRITY_PROC)
+	Apelon is responsible for these.
+<P>
+<LI><A HREF="/cgi-oracle-meowusers/ems.pl?action=table_help&subaction=describe&table=ems_qa_bins&owner=MEOW">ems_qa_bins</A> stores
+	  matching concepts
+<P><LI>The query that generates the concepts is also responsible for clustering them - so there
+	is no ordering script.
+<P><LI>QA bins have NO HISTORY - need to be edited down to 0!
+<P><LI>chem/nonchem split is possible
+<P><LI>Bins can be regenerated (generating query is rerun) and counts refreshed as with ME
+<P><LI>Clusters are excluded from going out on worklists if a concept in it is:
+	<P><OL>
+	 <LI>an embryo,
+	 <LI>does not exist (merged)
+	 <LI>is out on another worklist
+	</OL>
+</UL>
+
+<P><HR><P>
+<H1>How Ad-Hoc bins work</H1>
+
+See <A HREF="/ems/doc/ah_bins.html">EMS documentation</A> for full information.
+    
+<P>
+<UL>
+<P><LI>Concepts are generated (and clustered) into ems_ah_bins
+<P><LI>There is history (local, global and none)
+	<P><UL>
+	    <LI>global is across all epochs, default
+	    <LI>local is within current epoch only
+	    <LI>use N (never) cautiously
+	    </UL>
+
+<P><LI>There is a canonical bin name and an actual bin name
+<P><LI>History is by canonical name, e.g.,
+		- needsrel, needrel, needsrels, etc -> needsrel
+<P><LI>Ordering script - currently unused - default is ordering by cluster_id.
+</UL>
+
+<P><HR><P>
+<H1>HOW ARE THESE BINS CONFIGURED?</H1>
+
+See <A HREF="/ems/doc/">EMS documentation</A> for full information.
+    
+
+<P><HR><P>
+<H1>DIFFERENT PATHWAY TO MAKE A CHECKLIST</H1>
+
+<UL>
+<P><LI>If you have a list of concepts or can get to a list of concepts,
+	  possibly clustered, you can make it a checklist.
+
+	<P><UL>
+	<LI>Example: Concepts with strings that have the word "dog"
+
+	    <FONT SIZE=-1>
+	    <PRE>
+SELECT distinct concept_id FROM normwrd n, classes c
+WHERE  n.normwrd_id=c.atom_id
+AND    n.normwrd = 'dog'
+</PRE>
+</FONT>
+
+	<P><LI>Example: Concepts with releasable MedDRA atoms:
+
+	    <FONT SIZE=-1>
+	    <PRE>
+SELECT distinct concept_id FROM classes WHERE tobereleased in ('y', 'Y')
+AND    source like 'MDR%'
+</PRE>
+</FONT>
+
+	<P><LI>Example: Concepts approved in the last 10 minutes
+
+	    <FONT SIZE=-1>
+	    <PRE>
+SELECT distinct concept_id FROM concept_status
+WHERE editing_timestamp>SYSDATE-1/(24*6)
+</PRE>
+</FONT>
+	</UL>
+
+<P><LI>dump_table.pl - tool to get out Oracle data into UNIX
+<P><LI>Or use sqlplus (save to file, etc)
+<P><LI>Or use perl DBD and my utilities package directly
+</UL>
+
+<P><HR><P>
+<H1>WORKLIST MANAGEMENT</H1>
+
+See <A HREF="/wms/doc/">WMS documentation</A> for full information.
+    
+<UL>
+<P><LI>Now simplified - uses JavaScript
+<P><LI>Editors set some information about worklist, NLM sets the rest
+<P><LI>Queries for matching worklists and tracking
+<P><LI>Show report Queue, stamping
+<P><LI>Documentation on how to make worklists, print, etc.
+<P><LI>Can turn off editing, EMS/WMS via Web
+</UL>
+
+<P><HR><P>
+<H1>Matrix Initialization</H1>
+
+The matrix initializer computes
+<A HREF="/cgi-oracle-meowusers/ems.pl?action=table_help&subaction=describe&table=concept_status&owner=MTH">concept_status</A>.status
+for every concept in the Metathesaurus.  This can be run in "full" mode or in "catchup" mode.
+Apelon runs it in the "full" mode after an insertion, etc.
+In the catchup mode, only those concepts that have been recently affected will have
+their status recomputed.
+<P>
+It is crucial that this process run unhindered as many of the ME bin data relies on
+the concept status being current.  The EMS provides access to the matrix init log.
+
+<P><HR><P>
+<H1>General</H1>
+
+<UL>
+<P><LI>If backups are enabled on the database machine, the following takes
+	place after backup: matrix initialization, ME repartitioning,
+	(sometimes) batch QA regeneration and AH regeneration.
+	These are in the script: /etc/AutoDump/make_ready_for_nlm.s
+	on "oa.nlm.nih.gov".  Check with Joe if you want these on/off.
+</UL>

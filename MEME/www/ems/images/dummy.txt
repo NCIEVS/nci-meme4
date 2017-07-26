@@ -1,0 +1,1 @@
+this file exists to allow the images/ directory to persist in CVS.

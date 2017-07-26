@@ -1,0 +1,58 @@
+
+<html>
+<head>
+   <title>MEME Tables Documentation</title>
+    <script language="javascript">
+	function openDescription (thing,dsc) {
+	    var html = "<html><head><title>Description: "+thing;
+	    html = html + "</title></head><body bgcolor=#ffffff>" + dsc + "<center><form><input type=button onClick='window.close(); return true' value='Close'></form></center></body></html>";
+	    var win = window.open("","","scrollbars,width=500,height=250,resizable");
+	    win.document.open();
+	    win.document.write(html);
+	    win.document.close();
+	}; // end openDescription
+    </script>
+</head>
+<body text="#000000" bgcolor="#FFFFFF" link="#3333FF" vlink="#999999" alink="#FF0000">
+
+<center>
+<h2>MEME Tables</h2></center>
+
+<!-- Nav bar -->
+  <p><center>[ <a href="#overview">overview</a> | <a href="#details">details</a> | <a href="#references">references</a> ]</center></p>
+
+<!-- Image -->
+<p><center><img src="/images/table.gif" alt="Table Icon">
+<img src="/images/table.gif" alt="Table Icon">
+<img src="/images/table.gif" alt="Table Icon">
+</center></p>
+
+<!-- Content section -->
+
+<blockquote>
+
+  <a name="overview"></a><h3>Overview/Objective</h3>
+  This document links to more detailed descriptions of the MEME tables.
+<br>&nbsp;
+<a name="details"></a><h3>Details</h3>
+This document was machine generated from the list of tables found in 
+the <tt>meme_tables</tt> table in the  database.  The links below
+contain specific details about the tables themselves, including: 
+the field data types, whether they are null or not, the indexes present
+on each table, and how the table is used during insertion, editing,
+and production.
+<br>&nbsp;
+
+<a name="details"></a><h3>References/Links</h3>
+<center><table width=90%>
+   <tr><th valign="top">Table Name</th>
+       <th valigh="top">Type</th>
+       <th valigh="top">Description</th>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/action_log.html"
+       onMouseOver="window.status='Click here to see table action_log'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>action_log</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('action','<p>Used to log changes to system.</p>')"><tt>MID action</tt></a></td>
+       <td valigh="top"><font size="-1">Tracks all non-implied actions in the database.</font></td>
+  </tr>

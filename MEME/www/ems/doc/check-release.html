@@ -1,0 +1,224 @@
+<HTML>
+<HEAD>
+<TITLE>Checking Release</TITLE>
+</HEAD>
+
+<BODY>
+
+<P ALIGN=right>suresh@nlm.nih.gov 10/2000
+
+<H1>Checking Release</H1>
+
+There are many levels of checks one can do on the release files.
+These are mostly low level checks.  Larger content issues should be
+checked prior to making the CDs, e.g., did new source X terms get the
+right STY?  Or, did non-releaseable source Y make it to the release?
+
+<P>
+
+At this point you have run the run the master2dist.pl script which
+made the ZIP and TAR files and populated the wthsun:/d21/2001 (or your
+current release) directories.
+<P>
+
+<OL>
+
+<P><LI> Check to see if the compressed contents are identical to the
+uncompressed versions.  See <A HREF="compare-meta.html">compare-meta.pl</A>.
+
+<P><LI>
+Now the following tests can be done on another machine, say smis.
+Transfer the newly made TAR to smis and de-compress.
+
+<P><LI>
+There following are some simple syntax checks on the MR files in META.  Coordinate with
+Bill (wth@nlm) who runs other QA (fmtqa and ccnt - these look for 8-bit characters
+etc.)
+
+<P><LI>
+The sort-check.pl script ensures that all MR files are in ASCII sort order and
+that there aren't any duplicate rows.
+Use /site/umls/release/sort-check.pl as:
+
+<FONT SIZE=-1>
+<PRE>
+
+/site/umls/release/sort-check.pl -m /d21/2001/UNIX/UMLS2001
+
+</PRE>
+</FONT>
+
+The output should not contain the string ERROR (MRRANK is known to not
+be in sort order).  The -m option is a minimal
+path to the MR files - the script uses <EM>find</EM> from there to look.
+
+<P><LI>
+The field-check.pl script checks that all rows in each MR file have
+the right number of fields as specified in MRFILES.
+Use /site/umls/release/field-check.pl as:
+
+<FONT SIZE=-1>
+<PRE>
+
+/site/umls/release/field-check.pl -m /d3/Release/UMLS2001
+
+</PRE>
+</FONT>
+
+The output should not contain the string ERROR
+The -m option is a minimal
+path to the MR files - the script uses <EM>find</EM> from there to look.
+
+<P><LI>
+The cuiqa.pl script checks to see if MR files that have CUIs have
+legitimate ones.  It assumes that MRSO is the authority on CUIs and
+checks other the files to see if their CUIs are in this list.
+This script is configured with two lists: one that tells it
+which files (and which fields in them) have ALL CUIs and the
+second which tells it which files have CUIs but not necessarily all of them.
+Here is the current list (fields start at #0):
+
+<FONT SIZE=-1>
+<PRE>
+
+# Files (and field numbers) that *should* have all CUIs
+@filesWithAllCUIS = (
+		     [ "MRCON", 0 ],
+		     [ "MRSO", 0 ],
+		     [ "MRSTY", 0 ],
+		     [ "MRXW.ENG", 2 ],
+		     [ "MRXNS.ENG", 2 ],
+		     [ "MRXNW.ENG", 2 ],
+		     );
+
+# These don't necessarily have all CUIs
+@otherFiles = (
+		     [ "MRREL", [0, 2] ],
+		     [ "MRATX", 0 ],
+		     [ "MRCOC", [0, 1] ],
+		     [ "MRCXT", 0 ],
+		     [ "MRDEF", 0 ],
+		     [ "MRLO", 0 ],
+		     [ "MRSAT", 0 ]
+		     );
+
+
+</PRE>
+</FONT>
+
+Note that the indexes may not have *all* CUIs - a handful of strings norm to nothing
+for example.  So examing the output *after* your first cup of coffee.
+Run /site/umls/release/cuiqa.pl as:
+
+<FONT SIZE=-1>
+<PRE>
+
+/site/umls/release/cuiqa.pl -d /d21/2001/UNIX/UMLS2001
+
+</PRE>
+</FONT>
+
+Of course, the results are only as good as the CUIs in MRSO.
+As mentioned, expect some errors for the index files
+(MRX*) since some CUIs won't have rows if the string has no tokens
+(or norm forms), e.g., the concept '*'.
+
+<P><LI>
+This is our *monster* syntax check on all fields.  The script is
+called format-qa.pl.
+For example, all CUIs should match the regular expression: /^C[0-9]{7}$/
+and TS's should match /^[TSs]$/.
+The script /site/umls/release/format-qa.pl checks for this.  It
+uses MRFILES and MRCOLS to figure out column positions, names, etc.
+and has a built in list of formats to check.  Run as:
+
+<FONT SIZE=-1>
+<PRE>
+
+/site/umls/release/format-qa.pl -m /d21/2001/UNIX/UMLS2001
+
+</PRE>
+</FONT>
+
+You can use the -x option for status messages to STDERR
+every n'th record (default is 1000 can be changed by the -n option)
+for every file processed.  This is gently reassuring to see that
+the script is actually doing something!
+<P>
+This is an overnight run.  Examine the output for errors.
+<P>
+Here is the current list of regular expression checks for
+different fields as coded in the script.  You can add more
+(using these as a template) by editing the script.
+Remember that some fields can be null, e.g., CUI2.
+The looser the constraint the more you'll have to wade through
+the output.
+
+<FONT SIZE=-1>
+<PRE>
+
+# Specify the syntax as perl regexp for each column
+# Assume that the column value is in $_; should return
+# true on success
+%colsyntax = (
+	      'AV' => '/^[0-9\.]*$/',
+	      'BTS' => '/^\d+$/',
+	      'CLS' => '/^\d+$/',
+	      'COF' => '/^\d+$/ || /^$/',
+	      'COT' => '{$_ eq "L" || $_ eq "LQ" || $_ eq "LQB" || $_ eq "KP" || $_ eq "KN" || $_ eq "MP" || $_ eq "PP"}',
+	      'CUI1' => '/^C[0-9]{7}$/',
+	      'CUI2' => '/^C[0-9]{7}$/ || /^$/',
+	      'CUI' => '/^C[0-9]{7}$/',
+	      'CXL' => '{$_ eq "ANC" || $_ eq "CCP" || $_ eq "SIB" || $_ eq "CHD"}',
+	      'CXN' => '/^\d+$/',
+	      'FIL' => '/^MR[A-Z\.]*$/',
+	      'FR' => '/^\d+$/ || /^$/',
+	      'LAT' => '/^[A-Z]{3}$/',
+	      'LRL' => '/^[0-3]$/',
+	      'LUI' => '/^L[0-9]{7}$/ || /^$/',
+	      'MAX' => '/^\d+$/',
+	      'MG' => '{$_ eq "G" || $_ eq ""}',
+	      'MIN' => '/^\d+$/',
+	      'NWD' => '/^[a-z0-9]*$/',
+	      'NSTR' => '/^[a-z0-9]*$/',
+	      'RNK' => '/^\d+$/ || /^$/',
+	      'RANK' => '/^\d{4}$/',
+	      'REL' => '{$_ eq "RB" || $_ eq "RN" || $_ eq "RO" || $_ eq "RL" || $_ eq "PAR" || $_ eq "CHD" || $_ eq "SIB" || $_ eq "AQ" || $_ eq "QB"}',
+	      'RWS' => '/^\d+$/',
+	      'SRL' => '/^[0-3]$/',
+	      'STT' => '$_ eq "PF" || /^V[CWSPO]*$/',
+	      'SUI' => '/^S[0-9]{7}$/ || /^$/',
+	      'SUPRS' => '/^[YN]$/',
+	      'TS' => '/^[PSs]$/',
+	      'TUI' => '/^T[0-9]{3}$/',
+	      'WD' => '/^[a-z0-9]*$/',
+	      'XC' => '$_ eq "+" || /^$/',
+	   );
+
+
+</PRE>
+</FONT>
+
+<P><LI>
+Check the data in MRFILES regarding number of fields, rows and bytes of each MR file
+using this script:
+
+<FONT SIZE=-1>
+<PRE>
+
+/site/umls/release/check-mrfiles.pl -m /d21/2001/UNIX/UMLS2001/META
+
+</PRE>
+</FONT>
+
+
+<P><LI>
+Now you can use 'meow' to to higher level semantic checks on the content.
+Follow the instructions <A HREF="after-release.html">here</A>.
+
+<P><LI>Congratulations, you pass!!
+</OL>
+
+</BODY>
+</HTML>
+

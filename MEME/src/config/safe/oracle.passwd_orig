@@ -1,0 +1,8 @@
+# Access to Oracle (username|password)
+# The first user/password line is the default.
+# Programs/scripts should return the first pair if
+# no user name is provided.
+mth|hzyf_ghggyr
+wth|hzyf_ghggyr
+meow|hzyf_ghggyr
+lvg|yit

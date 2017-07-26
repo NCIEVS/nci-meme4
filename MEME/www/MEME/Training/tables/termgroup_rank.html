@@ -1,0 +1,137 @@
+
+<html>
+<head>
+   <title>MEME Tables Documentation - termgroup_rank</title>
+    <script language="javascript">
+	function openDescription (thing,dsc) {
+	    var html = "<html><head><title>Description: "+thing;
+	    html = html + "</title></head><body bgcolor=#ffffff>" + dsc + "<center><form><input type=button onClick='window.close(); return true' value='Close'></form></center></body></html>";
+	    var win = window.open("","","scrollbars,width=500,height=250,resizable");
+	    win.document.open();
+	    win.document.write(html);
+	    win.document.close();
+	}; // end openDescription
+    </script>
+</head>
+
+<body text="#000000" bgcolor="#FFFFFF" link="#3333FF" vlink="#999999" alink="#FF0000">
+
+<center>
+
+<h2>MEME Tables</h2></center>
+
+<hr width="100%">
+
+<!-- Nav bar -->
+  <p><center>[ <a href="#overview">overview</a> | <a href="#details">details</a> | <a href="#references">references</a> ]</center></p>
+
+<!-- Image -->
+<p><center><tt><b>termgroup_rank</b></tt><br>
+   <img src="/images/table.gif" alt="Table Icon"></center></p>
+
+<!-- Content section -->
+
+<blockquote>
+
+  <a name="overview"></a><h3>Overview/Objective</h3>
+  This document contains a description of <tt>termgroup_rank</tt> 
+     and its various fields.  It also (may) include information
+  about how this table is used in the various stages of MID processing.
+<br>&nbsp;
+<a name="details"></a><h3>Details</h3>
+
+
+    <p>
+	
+	<!-- termgroup_rank -->
+
+    <a name="termgroup_rank"></a>
+    <center>
+      <table border="0" width="90%">
+        <tr><td valign="top" width="20%"><font size="-1"><b>Table name:</b></font></td><td valign="top" width="80%"><b><tt>termgroup_rank</tt></b></td></tr>
+        <tr><td valign="top"><font size="-1"><b>Table Type:</b></font></td><td valign="top"><font size="-1">
+          <a href="javascript:openDescription('auxiliary,metadata','<p>MID Used for other processes or just general system maintenance.</p><p>MID Used to track high-level information about the system.</p>')">auxiliary,metadata</a></font></td></tr>
+        <tr><td valign="top"><font size="-1"><b>Description:</b></font></td><td valign="top"><font size="-1">Normalizes and ranks termgroup values.</font></td></tr>
+        <tr><td valign="top"><font size="-1"><b>Fields:</b></font></td><td valign="top">
+	    <table border="1" cellpadding="2" width="90%">
+
+	<tr><td width="20%" valign="top"><tt>termgroup</tt></td>
+	    <td width="20%" valign="top"><font size="-1"><b>VARCHAR2(40)</b></font></td>
+ 	    <td width="60%" valign="top"><font size="-1">must be in <a href="termgroup_rank.html"><tt>termgroup_rank.termgroup</tt></a>&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>rank</tt></td>
+	    <td width="20%" valign="top"><font size="-1"><b>NUMBER(12)</b></font></td>
+ 	    <td width="60%" valign="top"><font size="-1">the rank of this row, higher values are <i>better</i> ranks&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>notes</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(100)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">any additional information&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>suppressible</tt></td>
+	    <td width="20%" valign="top"><font size="-1"><b>VARCHAR2(10)</b></font></td>
+ 	    <td width="60%" valign="top"><font size="-1">must be in <a href="suppressible_rank.html"><tt>suppressible_rank.suppressible</tt></a>&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>tty</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(20)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">the term type, must be in <a href="termgroup_rank.html.html"><tt>termgroup_rank.tty</tt></a>&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>release_rank</tt></td>
+	    <td width="20%" valign="top"><font size="-1">NUMBER(12)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">&nbsp;</font></td>
+	</tr>
+	    </table>
+        </td></tr>
+        <tr><td valign="top"><font size="-1"><b>Indexes:</b></font></td><td valign="top">
+
+	     <li><tt>termgroup_rank_pk ON termgroup</tt></li>
+
+        </td></tr>
+
+	<tr><td valign="top"><font size="-1"><b>Insertion&nbsp;Role:</b></font></td><td valign="top"><font size="-1">During a source insertion, we load into this table all termgroups used by the atoms within the source being inserted.  The data is loaded from <a href="source_termgroup_rank.html"><tt>source_termgroup_rank</tt></a>.  This table is also used to compute the ranks of the new atoms and determine the new preferred atom ids for each concept.&nbsp;</font></td></tr>
+
+	<tr><td valign="top"><font size="-1"><b>Production&nbsp;Role:</b></font></td><td valign="top"><font size="-1">The ranking of termgroups from this table is used in the production of <tt>MRRANK</tt>.&nbsp;</font></td></tr>
+
+      </table>
+    </center>
+    </p>
+
+<p>
+<a name="references"></a><h3>References/Links</h3>
+Use the following references for related information.
+<ol>
+  <li><a href="../tables_all.html" alt="All Tables Info">All MEME tables</a></li>
+</ol>
+</p>
+</blockquote>
+
+<p><center>[ <a href="#overview">overview</a> | <a href="#details">details</a> | <a href="#references">references</a> ]</center></p>
+
+<hr WIDTH="100%">
+<table BORDER=0 COLS=2 WIDTH="100%" NOSAVE >
+<tr NOSAVE>
+<td ALIGN=LEFT VALIGN=TOP NOSAVE>
+<address>
+<a href="/MEME/">MEME Home</a></address>
+</td>
+
+<td ALIGN=RIGHT VALIGN=TOP NOSAVE>
+<address>
+<font size=-1>Contact: <a href="mailto:bcarlsen@apelon.com">Brian A. Carlsen</a></font></address>
+
+<address>
+<font size=-1>Created: 7/27/2001</font></address>
+
+<address>
+<font size=-1>Last Updated: 03/07/2005</font></address>
+
+</td>
+</tr>
+</table>
+
+</body>
+<!-- These comments are used by the What's new Generator -->
+<!-- Changed On: 2005/03/07 -->
+<!-- Changed by: Brian Carlsen -->
+<!-- Change Note: MEME Schema documentation - termgroup_rank  -->
+<!-- Fresh for: 1 month -->
+</html>

@@ -1,0 +1,19 @@
+
+README - 07/11/2005
+
+  U - Utility
+
+File				Description
+-----------------------------	----------------------------------------------
+
+dump_table.pl		U	Dumps a table to a text file
+
+jenscript.pl		U	Prints an HTML file from command line
+
+look.pl			U	binary search in a file
+
+meme_utils.pl		U	CGI library
+
+replace.pl		U	Replace string in set of files
+
+tallyfield.pl		U	tally by field

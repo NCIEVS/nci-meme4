@@ -1,0 +1,215 @@
+<html>
+<head>
+                
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=utf8">
+                
+  <title>MEME4 Developer Guides - Molecular Actions</title>
+</head>
+  <body text="#000000" bgcolor="#ffffff" link="#3333ff" vlink="#999999"
+ alink="#ff0000">
+        
+<center>    
+<h2> <font size="+0">Molecular Actions</font></h2>
+   </center>
+        
+<hr>   
+<blockquote>         
+  <h3>Action Hierarchy<br>
+     </h3>
+     <font size="-1">Molecular actions are actions at the level at which
+editors  conceptually edit. &nbsp;For example, "merge two concepts", or "insert
+a relationship", or "approve this concept". &nbsp;MEME4 defines a hierarchy 
+of action objects each of which aggregates the objects at the lower level. 
+&nbsp;The following diagram shows each action class in its proper position 
+in the hierarchy along with its cardinality (with respect to its parent).<br>
+     </font>         
+  <blockquote>     
+    <pre><font size="-1">&nbsp;&nbsp;&nbsp; Action      &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; 		     Cardinality<br>&nbsp;&nbsp; ---------------------&nbsp;&nbsp;&nbsp; 		     -----------<br>&nbsp;&nbsp; <a
+ href="/javadoc/gov/nih/nlm/meme/common/WorkLog.html">WorkLog</a> &nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;     		 N/A<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |------------------------+<br>&nbsp;&nbsp;    |       |                |&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;      *<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |&nbsp;&nbsp;&nbsp;<a
+ href="/javadoc/gov/nih/nlm/meme/common/Activity.html">Activity</a>             |<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |&nbsp;&nbsp;&nbsp;    |         <a
+ href="/javadoc/gov/nih/nlm/meme/common/AuxiliaryDataAction.html">AuxiliaryDataAction</a>&nbsp;&nbsp;	  *<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |       |<br>&nbsp;&nbsp; <a
+ href="/javadoc/gov/nih/nlm/meme/common/MolecularTransaction.html">MolecularTransaction</a> &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; 		  1<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |<br>&nbsp;&nbsp; <a
+ href="/javadoc/gov/nih/nlm/meme/common/MolecularAction.html">MolecularAction</a>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;   		  *<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |<br>&nbsp;&nbsp; <a
+ href="/javadoc/gov/nih/nlm/meme/common/AtomicAction.html">AtomicAction</a>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;		  *<br></font></pre>
+   </blockquote>
+     <font size="-1">The molecular and atomic action interfaces which implement 
+ the actual atomic and molecular actions. &nbsp;The other classes really are
+ just container classes for their respective child actions and identifiers. 
+ &nbsp;This diagram shows the relationship between molecular and atomic actions 
+ and their implementations.&nbsp;</font>         
+  <blockquote>     
+    <pre><a
+ href="/javadoc/gov/nih/nlm/meme/client/MolecularAction.html"><font
+ size="-1"></font></a><font size="-1"><a
+ href="/javadoc/gov/nih/nlm/meme/common/MolecularAction.html">MolecularAction</a></font><br><font
+ size="-1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |<br>+---------------------+</font><font
+ size="-1"><br>|&nbsp; |&nbsp; |&nbsp; |&nbsp; etc.....<br>|&nbsp; |&nbsp; |&nbsp; <a
+ href="/javadoc/gov/nih/nlm/meme/common/MolecularChangeAtomAction.html">MolecularChangeAtomAction</a><br>|&nbsp; |&nbsp; <a
+ href="/javadoc/gov/nih/nlm/meme/common/MolecularApproveConceptAction.html">MolecularApproveConceptAction</a><br>|&nbsp; <a
+ href="/javadoc/gov/nih/nlm/meme/common/MolecularSplitAction.html">MolecularSplitAction</a><br><a
+ href="/javadoc/gov/nih/nlm/meme/common/MolecularMergeAction.html">MolecularMergeAction</a><br>  <br>  <br>  <br></font><font
+ size="-1"><a
+ href="/javadoc/gov/nih/nlm/meme/common/AtomicAction.html">AtomicAction</a></font><br><font
+ size="-1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |<br>+---------------------+</font><font
+ size="-1"><br>|&nbsp; |&nbsp; |&nbsp; |&nbsp; etc.<br>|&nbsp; |&nbsp; |&nbsp; <a
+ href="/javadoc/gov/nih/nlm/meme/common/AtomicChangeFieldAction.html">AtomicChangeFieldAction<br></a>|&nbsp; |&nbsp; <a
+ href="/javadoc/gov/nih/nlm/meme/common/AtomicInsertAction.html">AtomicInsertAction</a><br>|&nbsp; <a
+ href="/javadoc/gov/nih/nlm/meme/common/AtomicDeleteAction.html">AtomicDeleteAction</a><br><a
+ href="/javadoc/gov/nih/nlm/meme/common/AtomicChangeConceptAction.html">AtomicChangeConceptAction</a></font><br></pre>
+   </blockquote>
+           
+  <h3>Action Details<br>
+     </h3>
+     <font size="-1">Molecular actions are used to modify core data in the
+   <i>MID</i>.&nbsp;  Each molecular action in the MEME system is represented
+ by a class that allows you to modify some particular type of core data in
+ a particular way.&nbsp; The links below point to javadoc pages for the various
+ actions and those pages contain a complete description of each action including:</font> 
+         
+  <ul>
+    <li> <font size="-1">Sample usage.</font></li>
+     <li> <font size="-1">What the source/target concepts are.</font></li>
+     <li> <font size="-1">Which concepts are refreshed when the action is 
+run.</font></li>
+     <li> <font size="-1">How the action interacts with the integrity system.</font></li>
+     <li> <font size="-1">What the algorithm in <tt>performAction()</tt>
+is.</font></li>
+             
+  </ul>
+           
+  <center>         
+  <table cellpadding="3" width="90%" nosave="">
+    <tbody>
+         <tr nosave="">
+    <td colspan="2" bgcolor="#ffffcc" nosave=""><b><font size="-1">Insert 
+Actions</font></b></td>
+    </tr>
+     <tr nosave="">
+    <td nosave=""><b><font size="-1"><a
+ href="javadoc/gov/nih/nlm/meme/common/MolecularInsertAtomAction.html">MolecularInsertAtomAction</a></font></b></td>
+    </tr>
+     <tr nosave="">
+    <td valign="top" nosave=""><b><font size="-1"><a
+ href="javadoc/gov/nih/nlm/meme/common/MolecularInsertAttributeAction.html">MolecularInsertAttributeAction</a></font></b></td>
+    </tr>
+     <tr>
+    <td><b><font size="-1"><a
+ href="javadoc/gov/nih/nlm/meme/common/MolecularInsertConceptAction.html">MolecularInsertConceptAction</a></font></b></td>
+    </tr>
+     <tr>
+    <td><b><font size="-1"><a
+ href="javadoc/gov/nih/nlm/meme/common/MolecularInsertRelationshipAction.html">MolecularInsertRelationshipAction</a></font></b></td>
+    </tr>
+     <tr>
+    <td><font size="-1">&nbsp;</font></td>
+    </tr>
+     <tr nosave="">
+    <td colspan="2" bgcolor="#ffffcc" nosave=""><b><font size="-1">Delete 
+Actions</font></b></td>
+    </tr>
+     <tr>
+    <td><b><font size="-1"><a
+ href="javadoc/gov/nih/nlm/meme/common/MolecularDeleteAtomAction.html">MolecularDeleteAtomAction</a></font></b></td>
+    </tr>
+     <tr nosave="">
+    <td valign="top"><b><font size="-1"><a
+ href="javadoc/gov/nih/nlm/meme/common/MolecularDeleteAttributeAction.html">MolecularDeleteAttributeAction</a></font></b></td>
+    </tr>
+     <tr nosave="">
+    <td valign="top" nosave=""><b><font size="-1"><a
+ href="javadoc/gov/nih/nlm/meme/common/MolecularDeleteConceptAction.html">MolecularDeleteConceptAction</a></font></b></td>
+    </tr>
+     <tr nosave="">
+    <td valign="top" nosave=""><b><font size="-1"><a
+ href="javadoc/gov/nih/nlm/meme/common/MolecularDeleteRelationshipAction.html">MolecularDeleteRelationshipAction</a></font></b></td>
+    </tr>
+     <tr>
+    <td><font size="-1">&nbsp;</font></td>
+    </tr>
+     <tr nosave="">
+    <td colspan="2" bgcolor="#ffffcc" nosave=""><b><font size="-1">Change 
+Actions</font></b></td>
+    </tr>
+     <tr>
+    <td><b><font size="-1"><a
+ href="javadoc/gov/nih/nlm/meme/common/MolecularChangeAtomAction.html">MolecularChangeAtomAction</a></font></b></td>
+    </tr>
+     <tr>
+    <td><b><font size="-1"><a
+ href="javadoc/gov/nih/nlm/meme/common/MolecularChangeAttributeAction.html">MolecularChangeAttributeAction</a></font></b></td>
+    </tr>
+     <tr>
+    <td><b><font size="-1"><a
+ href="javadoc/gov/nih/nlm/meme/common/MolecularChangeConceptAction.html">MolecularChangeConceptAction</a></font></b></td>
+    </tr>
+     <tr>
+    <td><b><font size="-1"><a
+ href="javadoc/gov/nih/nlm/meme/common/MolecularChangeRelationshipAction.html">MolecularChangeRelationshipAction</a></font></b></td>
+    </tr>
+     <tr nosave="">
+    <td nosave=""><font size="-1">&nbsp;</font></td>
+    </tr>
+     <tr bgcolor="#ffffcc" nosave="">
+    <td nosave=""><b><font size="-1">Complex Actions</font></b></td>
+    </tr>
+     <tr>
+    <td><b><font size="-1"><a
+ href="javadoc/gov/nih/nlm/meme/common/MolecularApproveConceptAction.html">MolecularApproveConceptAction</a></font></b></td>
+    </tr>
+     <tr>
+    <td><b><font size="-1"><a
+ href="javadoc/gov/nih/nlm/meme/common/MolecularMergeAction.html">MolecularMergeAction</a></font></b></td>
+    </tr>
+     <tr>
+    <td><b><font size="-1"><a
+ href="javadoc/gov/nih/nlm/meme/common/MolecularMoveAction.html">MolecularMoveAction</a></font></b></td>
+    </tr>
+     <tr>
+    <td><b><font size="-1"><a
+ href="javadoc/gov/nih/nlm/meme/common/MolecularSplitAction.html">MolecularSplitAction</a></font></b></td>
+    </tr>
+     <tr>
+    <td><font size="-1">&nbsp;</font></td>
+    </tr>
+                   
+    </tbody>         
+  </table>
+     </center>
+     <br>
+           
+  <center></center>
+           
+  <div align="left">&nbsp; &nbsp;<br>
+     </div>
+   </blockquote>
+         
+<div align="left">   
+<center></center>
+   </div>
+        
+<hr width="100%">    
+<table border="0" cols="2" width="100%" nosave="">
+    <tbody>
+       <tr nosave="">
+    <td align="left" valign="top" nosave="">                      
+      <address> <a href="/MEME/">MEME Home</a>&nbsp;</address>
+    </td>
+     <td align="right" valign="top" nosave="">                      
+      <address> <font size="-1">Contact: <a
+ href="mailto:bcarlsen@apelon.com">Brian A. Carlsen</a>&nbsp;</font></address>
+                          
+      <address> <font size="-1">Created: 06/19/2002</font></address>
+                          
+      <address> <font size="-1">Last Updated: 12/01/2003</font></address>
+    </td>
+    </tr>
+             
+  </tbody>   
+</table>
+  <!-- These comments are used by the What's new Generator --><!-- Changed On: 2003/12/01 --><!-- Changed by: Brian Carlsen --><!-- Change Note: MEME4 Developer Guides - Molecular Actions --> 
+        <br>
+    <br>
+ <br>
+</body>
+</html>

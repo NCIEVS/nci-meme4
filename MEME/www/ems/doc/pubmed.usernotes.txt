@@ -1,0 +1,195 @@
+From bounce-nlmreg-342@nlm.nih.gov Mon Jan  7 13:40 EST 2002
+Date: Mon, 7 Jan 2002 13:40:26 -0500 (EST)
+From: "William T. Hole" <wth@nlm.nih.gov>
+Subject: Revised Pubmed Psuedosynonymy User Notes 1/7/2002
+To: nelson@wthsun.nlm.nih.gov
+Cc: nlmreg@nlm.nih.gov
+MIME-Version: 1.0
+Content-MD5: mANTisUf5/86Cbzm2zjrQQ==
+List-Unsubscribe: <mailto:leave-nlmreg-342F@umlsinfo.nlm.nih.gov>
+
+
+
+          ================================  
+          = PUBMED PSUEDOSYNONYMY SYSTEM = 
+          =     User Notes 1/7/2002      =
+          ================================  
+
+0. System Location (new):
++++++++++++++++++++++++++
+
+The system now lives in:
+
+  smis: /d3/Pubmed/<release>/
+
+e.g. today it is in:
+
+  /d3/Pubmed/2002AA/
+
+I. Files provided to Stuart Nelson after new META release is made, Pubmed
+   subset is created, and perl scripts are run and QA'd: 
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+###################################################
+# (1) "SY" file - created from current META       # 
+# any source in the current META                  # 
+# Filename: sy.out.<datYYMMDD> e.g. sy.out.020105 #
+# all SYs of MeSH "Main Terms"                    #
+###################################################
+
+For every concept in the UMLS Metathesaurus that contains a MeSH "main" 
+term (i.e., terms with the term type (TTY) of MH, NM, TQ, GQ and LQ), 
+atoms (strings) from all relevant sources are extracted from MRCON. 
+Suppressible and non-English synonyms are eliminated.
+
+########################################################
+# (2) "RT" file - created from current META            #
+# Filename: rt.out.<YYMMDD> e.g. rt.out.020105         #
+# All terms in concepts with a MeSH rel to "Main term" #
+########################################################
+
+The extracted Synonym Class from all MeSH "Entry Term" Relationships.
+
+The RT file contains lines from MRREL that have MeSH-specific
+relationships. The left hand term is always a concept with a MeSH
+'main' term while the second (related) term is a concept with a MeSH
+'entry' term (same MeSH code and source).  Self-referential
+relationships are not included. The full synonym class of the entry
+term is included. As with the SY file, suppressible and non-English
+synonyms are eliminated.
+
+###################################################
+# (3) "MM" files ---- for reference only          #
+# Filenames: mm.out.<YYMMDD> e.g. mm.out.020105   #
+#   mm.new.this.version.<YYMMDD                   #
+#    e.g. mm.new.this.version .020105             #
+# Strings that map to multiple MeSH "main" terms: #
+###################################################
+
+The SY and RT files are processed to extract strings that can ambiguously
+map to more than one MeSH "main" descriptor.
+
+The MM file is NOT automatically integrated into the final processing
+because each case must have human review AND all prior cases are
+inherited in the add-sy and not-sy files.
+
+The mm.new.this version file contains the cases which APPEARED since
+the last version - these cases will cause multiple retrievals by
+mapping to multiple MeSH "main" terms and should be fixed by adding
+the incorrect cases to the not-sy file (see below).
+   
+II. Files maintained by Stuart Nelson as MeSH Guru
+++++++++++++++++++++++++++++++++++++++++++++++++++
+
+###################################################
+# (4) "add-sy" file -- maintained by expert       #
+# Filename: add-sy.<YYMMDD> e.g. add-sy.020105    #
+# Explicitly adds synonymy                        #
+###################################################
+
+If additional mappings are desired beyond that provided in the SY and RT
+files, they are added here.
+
+** ORDER in this file does matter **
+
+The first term must be the MeSH "main" term, the second the mapped term.
+Case does not matter. E.g.
+
+dogs|canine
+
+Any additional "must-have" synonymy is entered into the "add-sy" file; this
+file is carried forward and maintained for each release.
+
+
+###################################################
+# (5) "not-sy" file -- maintained by expert       #
+# Filename: not-sy.<YYMMDD> e.g. not-sy.020105    #
+# Explicitlt overrules any synonymy               #
+###################################################
+
+This provides a mechanism to block a mapping. This file contains pairs of
+strings (case and order do not matter) that should not map together. For
+example, since "ventilation" in MeSH does not mean "respiration", this file
+could have:
+
+ventilation|respiration
+
+All reports and requests are examined for spurious matching; the
+incorrect "non-synonyms" should be entered in the not-sy file which
+can have comments (leading #) and blank lines for readability. This
+file should be maintained and kept current and is fed forward into the
+processing for next year.
+
+	
+III.  FINAL Processing to make FINAL pseudosynonymy file
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+######################################################
+# (6) "FINAL" file -- Generated, not edited          #
+# Filename: final.out.<YYMMDD> e.g. final.out.020105 #
+# Deliverable pseudosynonymy file                    #
+######################################################
+
+The final step integrates the SY, RT, add-sy, and not-sy files.
+to make the deliverable pseudosynonymy file.
+
+The script /site/umls/pubmed/final.pl is run as follows:
+
+/site/umls/pubmed/final.pl -s <SY file> -r <RT file> -a <add-sy> -n <not-sy> > FINAL 
+
+e.g., 
+
+/site/umls/pubmed/final.pl -s <sy.out.020105 -r rt.out.020105 -a <add-sy.020107 -n 020107 > final.out.020107
+
+The FINAL file shows pairs of synonymous lowercase strings, equivalent
+in this MeSH world view.  The strings are lowercased and each pair is
+as it appeared in the file which asserted the pseudosynonymy.  The
+file itself is in sorted on the concatenated first plus second field..
+
+All statements of synonymous mapping are filtered through the pairs in the
+"not-sy" file. Thus, if a pairing is present both in the "not-sy" and the
+"add-sy" file, the "not-sy" statement wins.
+
+The script can be run with the -d (for debug) option to diagnose problems.
+In this mode, it outputs the two equivalent strings, followed by "SY", "RT"
+or "AS" and the line from the matching file (SY, RT or add-sy). It also
+prints messages to standard error showing which mappings were blocked due
+to facts in the "not-sy" file.
+
+IV. NOTES on using this system
+++++++++++++++++++++++++++++++
+
+Once the SY and RT files are created from the last release, these stay
+unchanged. Only the "add-sy" and the "not-sy" files need be edited,
+
+Once the "add-sy" and "not-sy" files are current, the final.pl script
+can be run as often as desired to obtain and review the new FINAL
+file.  This process can be iterated ad. lib.
+
+Sources of problems may be found in the SY and RT files using
+the grep command. For example, if "foo" is incorrectly matching "bar", run
+the final.pl script with the -d option and use grep as follows:
+
+  grep '^bar|foo|' <file>
+
+Note that the output of final.pl is sorted so that "bar" sorts before
+"foo".
+
+The MM files can also be used to find spurious matching; decide which
+cases are "non-synonyms" and enter them in the not-sy file.  This file
+which can have comments (leading #) and blank lines for readability.
+ 
+FURTHER info is at:
+
+
+wth 1/7/2002
+
+
+ 
+
+
+---
+You are currently subscribed to nlmreg as: suresh@nlm.nih.gov
+To unsubscribe send a blank email to leave-nlmreg-342F@umlsinfo.nlm.nih.gov
+
+

@@ -1,0 +1,525 @@
+<HTML>
+<HEAD>
+<TITLE>How to package the release files</TITLE>
+</HEAD>
+
+<BODY>
+
+<!--
+<H1>Revision history for this document</H1>
+<TABLE BORDER=1 CELLPADDING=4 CELLSPACING=0>
+<TR>
+<TD>10/2000</TD><TD>Original</TD><TD>suresh@nlm</TD>
+</TR>
+<TR>
+<TD>04/2002</TD><TD>Added documentation for change model to make updates to releases.  See
+threads <A HREF="http://meow.nlm.nih.gov/hypermail/nlmreg-folders/nlmreg_0204/0177.html">Making
+release updates - a proposal</A> and
+<A HREF="http://meow.nlm.nih.gov/hypermail/nlmreg-folders/nlmreg_0204/0211.html">Release
+Disc and file names (for full release and changes)</A> on nlmreg.</TD><TD>suresh@nlm</TD>
+</TR>
+</TABLE>
+<P><HR>
+
+-->
+
+<H1>How to package the release files</H1>
+
+This documents the process of creating the compressed files for a release.
+These files can be put on CD(s) and/or made available on the KSS for download.
+<P>
+NLM currently makes 4 releases a year with the names &lt;YYYY&gt;AA,
+&lt;YYYY&gt;AB, &lt;YYYY&gt;AC, &lt;YYYY&gt;AD, where &lt;YYYY&gt;
+is a 4 digit year designation. e.g., 2002AA.  These are termed as
+"base" releases.  There can be revisions to a base release (upto 99)
+when one or more files need correction.  These revisions can be made
+into a "change" release containing only the changed files or a full
+release containing all the material from the base release
+with all the accumulated changes.  A revised release cannot contain
+any more or fewer files, just different versions of existing files.
+
+<P>
+
+For example, after making the 2002AB base release, we find an error in
+MRCXT.  We produce a fixed version of MRCXT and make a release
+(revisionID=01) with the corrected MRCXT in the correct directory
+structure so it can be downloaded and unpacked. We also make a full
+and correct 2002AB with the correct MRCXT.  These are then put on the
+KSS for download.
+
+<P>
+
+The following schematic illustrates the notion of base and revised
+releases.  Note that a January release (version ID="AA") is a base
+release (the first one of the year), and usually the only one sent to
+the UMLS licensees at large.
+
+<P>
+<TABLE BORDER=1 CELLPADDING=5 WIDTH="95%">
+<TD>
+<PRE>
+<FONT SIZE=-1>
+2002AA  --> base release
+        |
+        |
+        --> revised release (ID=01) --> change 2002AA_C01 (changes 01 only)
+        |                           |
+        |                           --> full 2002AA_F01 (base + 01)
+        |
+        --> revised release (ID=02) --> change 2002AA_C02 (changes 01 + 02 only)
+        |                           |
+        |                           --> full 2002AA_F02 (base + 01 + 02)
+        ...
+</FONT>
+</PRE>
+</TD>
+</TABLE>
+
+<H1>Notes for discussion below</H1>
+<UL>
+<LI>The script is in /site/umls/release/master2dist.pl.
+<LI>$VERSION is the current version, e.g., 2002AA. Refer <A HREF="release-naming.html">to this document</A>
+to understand release naming conventions.  $JANVERSION is the name of the January
+release for that year, e.g., for VERSION=2002AC, JANVERSION is 2002AA.
+<LI>$TOP refers to the top-level directory where the release is made.
+Historically this has been wthsun:/d21/$VERSION, but this may
+change in the future.
+<LI>$MASTER refers to the release's master directory where the masters of files are stored.
+For a base release this is $TOP/MASTER but for a revision release this is $TOP/MASTER_##.
+<LI>On nlmreg: <A HREF="http://meow.nlm.nih.gov/hypermail/nlmreg-folders/nlmreg_0204/0177.html">Making
+release updates - a proposal</A>
+<LI>On nlmreg: <A HREF="http://meow.nlm.nih.gov/hypermail/nlmreg-folders/nlmreg_0204/0211.html">Release
+Disc and file names (for full release and changes)</A>
+
+</UL>
+
+<H1>Script Options</H1>
+The script: /site/umls/release/master2dist.pl has the following options:
+<P>
+<TABLE BORDER=1 CELLPADDING=5 CELLSPACING=0>
+<TR><TD>-d</TD><TD>Absolute path to $TOP, e.g., /d21/2002AA</TD></TR>
+<TR><TD>-v</TD><TD>Version being made, e.g., 2002AA</TD></TR>
+<TR><TD>-t</TD><TD>Timestamp in YYYYMMDDHHMI.SS format with the .SS being
+optional.  All files and directories in the resulting compressed files will have this
+timestamp. See man page for the touch command.  E.g., 200201010701</TD></TR>
+<TR><TD>-g</TD><TD>Compression quality for the compression program (gzip or zip) (has to be an
+integer between 1 (least and fastest) to 9 (best and slowest).  Default is 6.</TD></TR>
+<TR><TD>-2</TD><TD>A comma separated list of MR files to be put on a second compressed file.
+This is needed if the resulting ZIP exceeds 650 MBytes.  E.g., -2 MRCXT,MRSO</TD></TR>
+<TR><TD>-p</TD><TD>This flag will parallelize the UNIX2COMPRESS and ISO2COMPRESS processes.
+<TR><TD>-f</TD><TD>This flag forces a run, otherwise only a report is produced.
+<TR><TD>-z</TD><TD>This flag uses the "zip" program to make the UNIX compressed file.  Otherwise
+gzip and tar are used to produce a "TGZ" file.
+<TR><TD>-r</TD><TD>The option specifies a two digit revision ID, e.g., 01.  The script expects
+to find a MASTER_&lt;ID&gt; directory containing only changes to an existing release.
+<TR><TD>-s</TD><TD>Logs to STDERR as the script runs.
+</TD></TR>
+</TABLE>
+
+<P>
+The script will create a "log" subdirectory in master and archive the output of the script,
+the timestamps of the files in MASTER used to make the release.  Do not remove
+this directory or change its contents.  The master2dist.log in MASTER is the log of the
+latest run.
+
+<HR>
+
+<H1>Steps to make a base release</H1>
+
+Releases are now made in umls-source:/umls/Releases.
+
+<OL>
+
+<P><LI>Create the $TOP directory (e.g., umls-source:/umls/Releases/2003AA).
+Run the script /site/umls/release/make-release-dirs.pl with the -v option
+to create the skeleton directory structure. E.g.,
+
+<FONT SIZE=-1>
+<PRE>
+
+/site/umls/release/make-release-dirs.pl -v 2004AA
+
+</PRE>
+</FONT>
+
+This will create the MASTER directory where the master contents
+of the UMLS knowledge sources are stored.
+The master2dist.pl script will create the UNIX, ISO, UNIXCOMPRESS and
+ISOCOMPRESS subdirectories. 
+
+<P><LI>Populate $MASTER with the correct versions of the files.  Text
+files should be UNIX line terminated.  Please take care to ensure that
+the format and content of the files are <em>exactly</em> as expected.
+When complete, the resulting directory structure should be something
+similar to this:
+
+<FONT SIZE=-1>
+<PRE>
+
+$TOP/MASTER/
+    $VERSION/
+        META/
+        METASUBSET/
+        DOC/
+        LEX/
+        NET/
+
+</PRE>
+</FONT>
+
+IMPORTANT: Remember to use FTP to transfer large files, not rcp, as
+you move files over from producer.  For the truly paranoid, follow
+that up with a MD5 digest on both machines (source and target) and
+verify that the copy was successful.  You can do this with
+/site/bin/md5.  We once had a problem with a malfunctioning disk array
+corrupting some bytes in the file.  So byte counts may not always be
+foolproof.
+
+<P><LI>The following files
+are expected to be in the MASTER directory
+(this is new for 2002AB).  README.txt, Copyright_Notice.txt,
+release.dat, README_MMS.txt and
+MetamorphoSys.$VERSION.zip.  Ensure that these files are correct and
+current.  So we have:
+
+<FONT SIZE=-1>
+<PRE>
+
+$TOP/MASTER/
+    README.txt
+    Copyright_Notice.txt
+    release.dat
+    README.MMS
+    MetamorphoSys.$VERSION.zip
+
+    $VERSION/
+        META/
+        ...
+
+</PRE>
+</FONT>
+
+The MetamorphoSys system will be unpacked in the META/METAMSYS
+directory.  The non-MetamorphoSys files will be copied to the top
+directory of the image and the DOC subdirectory.  The README.MMS
+additionally gets copied to the META/METAMSYS directory.  Note that
+the top level directory in the MetamorphoSys.$VERSION.zip file should
+be METAMSYS.  The script checks for this as well as the integrity of
+the zip file.
+
+<P><LI>Since 2001AC, there is a file called <CODE>release.dat</CODE>
+that goes in the $TOP/$VERSION/MASTER/$VERSION directory.  This is
+used by MetamorphoSys and maybe other programs.  Please ensure that
+the file is there and that its contents are correct.  If not,
+contact Apelon.
+
+<P><LI>Get the current LVG release from Guy/Allen and unpack in the
+LEX subdirectory.
+
+<P><LI>Get the current Semantic Network files from Alexa/Olivier and
+unpack in the NET subdirectory.
+
+<P><LI>The METASUBSET directory should be present but empty.
+
+<P><LI>Get the latest documentation from Bill/Laura and install in the
+DOC directory.  Bill's script collates the documentation files
+maintained by Laura into single text and HTML files.  Here's <A
+HREF="masterdoc.txt">a pointer</A> to instructions from Bill on this
+topic.  Note that the README file is now called README.txt and the
+CPYRIGHT files is now Copyright_Notice.txt (see <A
+HREF="http://meow.nlm.nih.gov/hypermail/nlmreg-folders/nlmreg_0204/0390.html">this
+thread on nlmreg</A>).
+
+<P><LI>Remove all extraneous files in MASTER.  The script looks for some
+standard ones (emacs backup and checkpoint files, for example), but this
+cannot really be automated.
+
+<P><LI>Login as 'wth' or 'suresh' on 'wthsun', cd to $TOP/MASTER and run as:
+
+<FONT SIZE=-1>
+<PRE>
+
+cd /d21/2002AA
+/site/umls/release/master2dist.pl -d /d21/2002AA -v 2002AA -t 200101010701.01 -f -p -s
+
+</PRE>
+</FONT>
+
+Note the timestamp, by convention, is set to 7:01 of January 1 for the January release.
+For other base releases, set as needed - currently Spring: Apr 1, Summer: Jul 1, Fall:
+Oct 1.
+
+<P><LI>IMPORTANT!  Look at the saved log file master2dist.log for
+errors (grep -i error).  If you're satisfied that there are no errors,
+congratulations, it's a release!
+
+<P><LI>Each run is logged to $MASTERDIR/log along with the timestamps
+of each file that went into making the compressed files.
+
+<P><LI>The UNIXCOMPRESS and ISOCOMPRESS directories will contain the compressed
+files (ZIP or TGZ) that will be mastered on the CD as well as made available
+for download on the KSS.  If the resulting files are too large to fit
+on a CD (~650Mbytes), re-run the script first with a -g option for
+better compression and, failing that, with the -2 option to
+break up the compressed files.  There will also files in the compressed
+directory containing the MD5's and checksum's for all the files.
+
+</OL>
+
+<H1>Revisions to a Release</H1>
+
+A release can be revised by modifying one or more files.  This is
+first assigned a revision ID (between 01 and 99), and then the changes
+are stored in $TOP/MASTER_## where ## is the revision ID.
+The version of the file should be current and must contain all intervening
+changes for this file since the base release.  In other words, users
+should be able to be current by installing the version in the latest
+MASTER_## directory.  The script will ensure that all independent
+intervening revisions will be applied.  For example, the third revision
+to a release (03) will incorporate the revisions in 01 and 02.
+<P>
+This model does not support revisions where a file is deleted in the
+revision.  An empty replacement can be used in the revision if this
+is desired.
+
+<P>
+The script is run with the -r option which then produces two sets of
+compressed files and directories: UNIXCOMPRESS_##_CHG,
+UNIXCOMPRESS_##_FULL, and ISOCOMPRESS_##_CHG and ISOCOMPRESS_##_FULL.
+The *CHG directories contain just the changes (and accompanying
+documentation) while the *FULL contain the full release with the
+modifications.
+
+<P>
+Here are the steps involved:
+
+<OL>
+
+<P><LI>Leave the original MASTER and its derivatives (UNIX, ISO, UNIXCOMPRESS
+and ISOCOMPRESS) unchanged!
+
+<P><LI>Create the MASTER_## directory under $TOP, where ## is a two
+digit revision ID, e.g., MASTER_01, MASTER_03, etc.
+
+<P><LI>Change is cumulative.  All prior changes will be rolled into
+the new version by the script.  For example, if you are currently
+creating files for revision 03, the changes from MASTER_01 and
+MASTER_02 will be copied into the UNIX_03 directory automatically
+<EM>in order</EM>, i.e., MASTER_01 before MASTER_02.  The MASTER_03
+directory will be as you populated it and is not otherwise modified.
+Only the derivative directories: UNIX_03*, ISO_03*, UNIXCOMPRESS_03* and
+ISOCOMPRESS_03* will contain the prior revisions.
+
+<P><LI>Create just the structure under MASTER_## to populate the change files
+in their proper places.  For example, if MRCXT has changed, create:
+
+<FONT SIZE=-1>
+<PRE>
+
+$TOP/MASTER_03
+    $VERSION/
+        META/
+            MRCXT
+
+</PRE>
+</FONT>
+
+You do not need to create the full directory structure, though you do
+have to have the correct structure for the files you are changing.
+Ensure that MRFILES and MRCOLS are updated if need be.
+
+<P><LI>In the MASTER_## directory, copy and update (if needed) the
+README.txt (and variants), Copyright_Notice.txt (and variants), and
+license.txt (and variants) files.  There should be an updated release.dat
+file as well.  You will also need a revision file to explain what changed
+in this revision.  This file is called: Revision_##.txt,
+where ## is the revision ID.  (Need to document here what content and
+format are for this file).
+
+<P><LI>If you are updating Metamorphosys, you will also need the
+README_MMS.txt and the MetamorphoSys.$VERSION.zip files in MASTER_##.  If
+you are not updating MetamorphoSys, skip this step.  If you are
+<EM>only</EM> updating MetamorphoSys in this revision, you only need
+the new MetamorphoSys.$VERSION.zip file, README_MMS.txt and the
+documentation files described above.  The directory structure below
+MASTER_## is not needed.
+Be aware that the presence or absence of the MetamorphoSys files
+is the trigger for whether or not you want to update MetamorphoSys.
+If these files are not present, the latest versions (found by scanning prior
+revisions or the MASTER) is used for the "full" revised release.
+
+<P><LI>For example to update just MRCXT:
+
+<FONT SIZE=-1>
+<PRE>
+
+$TOP/MASTER_03
+
+    README.txt (optional pdf and html))
+    Copyright_Notice.txt (optional pdf and html)
+    Revision_##.txt (optional pdf and html)
+    release.dat
+
+    $VERSION/
+        META/
+            MRCXT
+
+</PRE>
+</FONT>
+
+<P><LI>Ensure that the release.dat in MASTER_##
+is correct.  It must have the same revision ID and a timestamp. See
+(<A HREF="http://meow.nlm.nih.gov/hypermail/nlmreg-folders/nlmreg_0104/0132.html">nlmreg</A>)
+for the discussion.
+
+<P><LI>Create a file called "md5" in MASTER_## that has the MD5 checksum of all the
+change files.  This can be created with (after ensuring that the right version of
+the right files are in place!):
+
+<FONT SIZE=-1>
+<PRE>
+
+cd $TOP/MASTER_##
+/site/bin/md5 `/bin/find $VERSION -type f -print` > md5
+
+</PRE>
+</FONT>
+
+<P><LI>cd to $TOP/MASTER_## run the script (with the -r ##) option as:
+
+<FONT SIZE=-1>
+<PRE>
+
+/site/umls/release/master2dist.pl -d /d21/2002AA -v 2002AA -t 200103010701 -r 03 -p
+
+</PRE>
+</FONT>
+
+<P><LI>This should create the following directories in $TOP:
+ISOCOMPRESS_03_CHG, ISOCOMPRESS_03_FULL, UNIXCOMPRESS_03_CHG and
+UNIXCOMPRESS_03_FULL among others.
+These will contain the files: 2002AA_C03.ZIP, 2002AA_F03.ZIP,
+2002AA_C03.TGZ and 2002AA_F03.TGZ resp.  The "C" in the file name
+refers to the change-only release while the "F" is a full release with
+the changes.  The two digits following is the revision ID.  If the -2
+option is further specified, multiple compressed files are
+created for the "full" release (e.g., 2002AA_1_F03.ZIP and
+2002AA_2_F03.ZIP).  The changes will always be in a single file.
+
+<P><LI>The change files is put up on the KSS with appropriate instructions
+on how to download and unpack, while the full file can overwrite the
+original release file, so new downloads pick up the changes.
+
+<P><LI>All post-release steps must be taken with the new "full"
+version (e.g., test MetamorphoSys, load MySQL database, generate URIS
+information, etc).
+
+<P><LI>If the changes are very minor (e.g., 5 lines in MRCXT were added),
+then you may want to independently provide just the added lines in
+a separate file for knowledgeable users to download and apply to their
+release.  This must come with its own documentation.  This was done for
+2003AA when some ICD9CM contexts were missing from MRCXT and MRREL.
+</OL>
+
+<H1>Files in the $MASTER Directory</H1>
+
+This section describes files that need to be present in the $MASTER
+directory before a release can be made.
+<P>
+The text files may optionally have an HTML and a PDF version.
+All the text files are copied by script to: the compressed directories,
+the release's DOC directory.
+
+<P>
+
+<TABLE BORDER=1 CELLPADDING=5 CELLSPACING=0>
+
+<TR>
+<TH WIDTH="10%">File</TH>
+<TH WIDTH=20%">Responsibility</TH>
+<TH>Comments</TH>
+</TR>
+
+<TR>
+<TD>README.txt</TD>
+<TD>NLM creates with information from Apelon</TD>
+<TD>
+This file is produced first for the January release and updated for each subsequent release
+and is the top-level documentation file for the release.  See current
+<A HREF="http://metanews.nlm.nih.gov/2002AA_DOC/UMLSDOC.HTML#s0">README.txt</A>.
+</TD>
+</TR>
+
+<TR>
+<TD>$VERSION_Addendum.txt, e.g., 2002AB_Addendum.txt</TD>
+<TD>NLM with information suppled by Apelon</TD>
+<TD>
+This file contains a summary of all the changes to a base release <EM>since</EM>
+a January release.  So it will not be present in a January release, but must be
+present for subsequent base and revision releases.
+</TD>
+</TR>
+
+<TR>
+<TD>Revision_##.txt, e.g., Revision_01.txt</TD>
+<TD>NLM with information suppled by Apelon</TD>
+<TD>
+This file contains information for revision releases that describes
+the nature of the revision in detail for all the files being revised.
+So it will not be present in a base release, but must be present for
+revision releases.
+</TD>
+</TR>
+
+<TR>
+<TD>README_MMS.txt</TD>
+<TD>NLM optionally edits an Apelon supplied file</TD>
+<TD>
+This file is the top level index for information about MetamorphoSys
+for this release.  It is required for all base releases, but only need
+be present in a revision release if MetamorphoSys is being updated.
+See current <A
+HREF="http://metanews.nlm.nih.gov/2002AA_DOC/META2.HTML#s28">version</A>.
+</TD>
+</TR>
+
+<TR>
+<TD>MetamorphoSys.$VERSION.zip, e.g., MetamorphoSys.2002AA.zip</TD>
+<TD>Apelon</TD>
+<TD>
+This is the zip file containing the code and configuration files for
+MetamorphoSys for this release.  It is required for all base releases,
+but only need be present in a revision release if MetamorphoSys is
+being updated.  Apelon: please verify MD5's against your official and
+corerct version.  At this time even a single byte difference in the
+entire multi-megabyte MetamorphoSys distribution requires the update
+of the entire distribution.
+</TD>
+</TR>
+
+<TR>
+<TD>release.dat</TD>
+<TD>NLM optionally edits an Apelon supplied file</TD>
+<TD>
+This file contains a line of Metadata about the release.
+See nlmreg for threads "Proposal: A "release.dat" file in the release?",
+<A HREF="http://meow.nlm.nih.gov/hypermail/nlmreg-folders/nlmreg_0104/0126.html">here</A>.
+</TD>
+</TR>
+
+<TR>
+<TD>md5</TD>
+<TD>Apelon</TD>
+<TD>
+Apelon verifies the MD5's of all the files in a revision MASTER for
+correctness with what was generated by them.  The master2dist.pl
+script checks this file and verifies the MD5's in it with that of the
+file.
+</TD>
+</TR>
+
+</TABLE>
+
+</BODY>
+</HTML>
+

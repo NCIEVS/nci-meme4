@@ -1,0 +1,43 @@
+INSTALL 07/15/2005
+------------------
+1. Choose $MRD_HOME
+2. Unzip dist_mrd*.zip into $MRD_HOME
+3. Configure the properties file
+ a. Copy the etc/mrd.prop_orig to etc/mrd.prop
+ b. Edit the properties file.
+ c. In particular, set env.ENV_HOME and env.ENV_FILE.
+4. Edit $ENV_FILE and set MRD_HOME  property to $MRD_HOME path
+5. Edit $ENV_FILE and set MEME_HOME  property to $MRD_HOME path
+6. Edit the startup environment to run a server ($MRD_HOME/bin/mrd_server.sh)
+
+  /usr/bin/env \
+  ENV_FILE=<path to ENV_HOME>/etc/env.prop \
+  ENV_HOME=<path to ENV_HOME> \
+  <path to MRD_HOME>/bin/mrd_server.sh start 8080 your_tnsname <path to MRD_HOME>
+
+7. Reload PL/SQL packages from $MRD_HOME/etc/sql/mrd_packages.sql
+8. Start a server
+
+Dependencies
+-----------------------
+Subsystem Dependencies
+  $ENV_HOME
+  $EXT_LIB
+
+Network Dependencies
+  MIDSVCS Server - host/port specified in etc/mrd.prop
+  LVG Server - host/port specified by MIDSVCS (lvg-server-host, lvg-server-port)
+
+Required Perl Libraries
+  Text::Wrap
+  Mail::Sender
+  DBI
+  DBD::Oracle
+  Socket
+  Net::FTP
+  Getopt::STD
+  Net::SFTP - recommended 
+  
+UPDATE
+------
+Same as install

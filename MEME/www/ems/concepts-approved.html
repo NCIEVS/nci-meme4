@@ -1,0 +1,44 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+<TITLE>Tracking Concepts Approved</TITLE>
+</HEAD>
+
+<BODY>
+
+<H1>Tracking Concepts Approved</H1>
+
+This plot shows the number of concepts approved daily over the
+past 'n' months.  Concepts are approved by editors either
+manually using the interface
+or by a batch process known as "stamping" run on behalf of the
+editor who had responsibility for that worklist.
+
+<P>
+
+The data is collected daily in the table:
+<A HREF="/cgi-bin/table-help.pl?table=ems_edit_count">ems_edit_count</A></EM>.
+
+<FORM ACTION="/cgi-bin/concept-appr-plot.pl" METHOD=POST>
+Show data for the last <SELECT NAME="months">
+<OPTION>1<OPTION>2<OPTION>3<OPTION>4<OPTION>5<OPTION SELECTED>6
+<OPTION>7<OPTION>8<OPTION>9<OPTION>10<OPTION>11<OPTION>12</SELECT> months
+<P>
+<INPUT TYPE=submit NAME="action" VALUE="Display As Plot"> <INPUT TYPE=submit NAME="action" VALUE="Display As Table">
+
+</FORM>
+
+<P>
+<HR>
+<ADDRESS>Contact: <A HREF="mailto:suresh@nlm.nih.gov">Suresh Srinivasan</A></ADDRESS>
+<ADDRESS>Created: 7/7/98</ADDRESS>
+<ADDRESS>Last Updated: 7/7/98</ADDRESS>
+<ADDRESS><A HREF="/index.html">Meta News Home</A></ADDRESS>
+</BODY>
+
+<!-- These comments are used by the What's new Generator -->
+<!-- Changed On: Date in yyyy/mm/dd format -->
+<!-- Changed by: Your name here -->
+<!-- Change Note: A line or two about what was changed (HTML OK). -->
+<!-- Fresh for: 1 month -->
+</HTML>

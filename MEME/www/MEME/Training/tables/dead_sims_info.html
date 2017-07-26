@@ -1,0 +1,341 @@
+
+<html>
+<head>
+   <title>MEME Tables Documentation - dead_sims_info</title>
+    <script language="javascript">
+	function openDescription (thing,dsc) {
+	    var html = "<html><head><title>Description: "+thing;
+	    html = html + "</title></head><body bgcolor=#ffffff>" + dsc + "<center><form><input type=button onClick='window.close(); return true' value='Close'></form></center></body></html>";
+	    var win = window.open("","","scrollbars,width=500,height=250,resizable");
+	    win.document.open();
+	    win.document.write(html);
+	    win.document.close();
+	}; // end openDescription
+    </script>
+</head>
+
+<body text="#000000" bgcolor="#FFFFFF" link="#3333FF" vlink="#999999" alink="#FF0000">
+
+<center>
+
+<h2>MEME Tables</h2></center>
+
+<hr width="100%">
+
+<!-- Nav bar -->
+  <p><center>[ <a href="#overview">overview</a> | <a href="#details">details</a> | <a href="#references">references</a> ]</center></p>
+
+<!-- Image -->
+<p><center><tt><b>dead_sims_info</b></tt><br>
+   <img src="/images/table.gif" alt="Table Icon"></center></p>
+
+<!-- Content section -->
+
+<blockquote>
+
+  <a name="overview"></a><h3>Overview/Objective</h3>
+  This document contains a description of <tt>dead_sims_info</tt> 
+     and its various fields.  It also (may) include information
+  about how this table is used in the various stages of MID processing.
+<br>&nbsp;
+<a name="details"></a><h3>Details</h3>
+
+
+    <p>
+	
+	<!-- dead_sims_info -->
+
+    <a name="dead_sims_info"></a>
+    <center>
+      <table border="0" width="90%">
+        <tr><td valign="top" width="20%"><font size="-1"><b>Table name:</b></font></td><td valign="top" width="80%"><b><tt>dead_sims_info</tt></b></td></tr>
+        <tr><td valign="top"><font size="-1"><b>Table Type:</b></font></td><td valign="top"><font size="-1">
+          <a href="javascript:openDescription('metadata','<p>MID Used to track high-level information about the system.</p>')">metadata</a></font></td></tr>
+        <tr><td valign="top"><font size="-1"><b>Description:</b></font></td><td valign="top"><font size="-1">Tracks deleted source metadata.</font></td></tr>
+        <tr><td valign="top"><font size="-1"><b>Fields:</b></font></td><td valign="top">
+	    <table border="1" cellpadding="2" width="90%">
+
+	<tr><td width="20%" valign="top"><tt>whats_new</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(4000)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>source</tt></td>
+	    <td width="20%" valign="top"><font size="-1"><b>VARCHAR2(20)</b></font></td>
+ 	    <td width="60%" valign="top"><font size="-1">must be in <a href="source_rank.html"><tt>source_rank.source</tt></a>&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>date_created</tt></td>
+	    <td width="20%" valign="top"><font size="-1">DATE</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>meta_year</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(20)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>init_rcpt_date</tt></td>
+	    <td width="20%" valign="top"><font size="-1">DATE</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>clean_rcpt_date</tt></td>
+	    <td width="20%" valign="top"><font size="-1">DATE</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>test_insert_date</tt></td>
+	    <td width="20%" valign="top"><font size="-1">DATE</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>real_insert_date</tt></td>
+	    <td width="20%" valign="top"><font size="-1">DATE</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>source_contact</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(4000)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>inverter_contact</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(100)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>nlm_path</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(200)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>apelon_path</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(200)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>inversion_script</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(100)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>inverter_notes_file</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(100)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>conserve_file</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(100)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>sab_list</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(100)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>meow_display_name</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(4000)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>source_desc</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(4000)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>status</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(10)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">must be in <a href="level_status_rank.html"><tt>level_status_rank.status</tt></a> where the <tt>table_name</tt> matches the code for this core table&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>worklist_sortkey_loc</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(100)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>termgroup_list</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(4000)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>attribute_list</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(4000)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>inversion_notes</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(4000)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>notes</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(4000)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">any additional information&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>inv_recipe_loc</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(100)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>suppress_edit_rec</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(1)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>versioned_cui</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(10)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">the CUI assigned to the root SRC concept representing this source in the last release&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>root_cui</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(10)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">the CUI assigned to the root SRC concept representing this source in the last release&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>source_official_name</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(4000)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">the SRC/VPT name for this source&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>source_short_name</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(4000)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">the short name (used by UMLSKS) for this source&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>attribute_name_list</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(4000)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">a comma separated list of ATN values&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>term_type_list</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(1000)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">a comma separated list of TTY values&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>term_frequency</tt></td>
+	    <td width="20%" valign="top"><font size="-1">NUMBER(12)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">CUI,SUI frequency of this source in the last release&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>cui_frequency</tt></td>
+	    <td width="20%" valign="top"><font size="-1">NUMBER(12)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">CUI frequency of this source in the last release&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>citation</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(4000)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">citation information&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>last_contacted</tt></td>
+	    <td width="20%" valign="top"><font size="-1">DATE</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">the date the source provider was last contacted regarding this source&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>license_info</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(4000)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">information about obtaining a license for this source&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>character_set</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(50)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">an ISO character set name&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>valid_start_date</tt></td>
+	    <td width="20%" valign="top"><font size="-1">DATE</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">the date that the source becomes valid&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>valid_end_date</tt></td>
+	    <td width="20%" valign="top"><font size="-1">DATE</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">the date that the source ceases to be valid&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>insert_meta_version</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(20)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">the version of the Metathesaurus in which the source first appears, e.g. <tt>2001AA</tt>&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>remove_meta_version</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(20)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">the version of the Metathesaurus in which the source is removed, e.g. <tt>2002AA</tt>&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>nlm_contact</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(100)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">the person at NLM responsible for this source&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>acquisition_contact</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(4000)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">contact information for the person from whom the source can be obtained&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>content_contact</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(4000)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">contact information for the source provider person who can best answer content questions&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>license_contact</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(4000)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">contact information for the source provider person who can best answer licensing questions&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>context_type</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(100)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">a value indicating what type of contexts this source has, according to section 2.3.2 of the documentation&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>language</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(10)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">the name of a language&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>test_insertion_start</tt></td>
+	    <td width="20%" valign="top"><font size="-1">DATE</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">the start date of a the test insertion for this source&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>test_insertion_end</tt></td>
+	    <td width="20%" valign="top"><font size="-1">DATE</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">the end date of a the test insertion for this source&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>real_insertion_start</tt></td>
+	    <td width="20%" valign="top"><font size="-1">DATE</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">the start date of a the real insertion for this source&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>real_insertion_end</tt></td>
+	    <td width="20%" valign="top"><font size="-1">DATE</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">the end date of a the real insertion for this source&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>editing_start</tt></td>
+	    <td width="20%" valign="top"><font size="-1">DATE</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">the date when editing of this source started&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>editing_end</tt></td>
+	    <td width="20%" valign="top"><font size="-1">DATE</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">the date when editing of this source was completed&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>latest_available</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(100)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">the most recent version of the source&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>release_url_list</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(4000)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">a list of URLs related to this source, for release to the public&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>internal_url_list</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(4000)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">a list of URLs related to this source, for internal consumption&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>rel_directionality_flag</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(1)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">a <tt>Y/N</tt> flag indicating whether or not this source asserts the direction of its relationships&nbsp;</font></td>
+	</tr>
+	    </table>
+        </td></tr>
+        <tr><td valign="top"><font size="-1"><b>Indexes:</b></font></td><td valign="top">
+
+            <font size="-1"><tt>No indexes</tt></font>
+	    
+        </td></tr>
+
+      </table>
+    </center>
+    </p>
+
+<p>
+<a name="references"></a><h3>References/Links</h3>
+Use the following references for related information.
+<ol>
+  <li><a href="../tables_all.html" alt="All Tables Info">All MEME tables</a></li>
+</ol>
+</p>
+</blockquote>
+
+<p><center>[ <a href="#overview">overview</a> | <a href="#details">details</a> | <a href="#references">references</a> ]</center></p>
+
+<hr WIDTH="100%">
+<table BORDER=0 COLS=2 WIDTH="100%" NOSAVE >
+<tr NOSAVE>
+<td ALIGN=LEFT VALIGN=TOP NOSAVE>
+<address>
+<a href="/MEME/">MEME Home</a></address>
+</td>
+
+<td ALIGN=RIGHT VALIGN=TOP NOSAVE>
+<address>
+<font size=-1>Contact: <a href="mailto:bcarlsen@apelon.com">Brian A. Carlsen</a></font></address>
+
+<address>
+<font size=-1>Created: 7/27/2001</font></address>
+
+<address>
+<font size=-1>Last Updated: 03/07/2005</font></address>
+
+</td>
+</tr>
+</table>
+
+</body>
+<!-- These comments are used by the What's new Generator -->
+<!-- Changed On: 2005/03/07 -->
+<!-- Changed by: Brian Carlsen -->
+<!-- Change Note: MEME Schema documentation - dead_sims_info  -->
+<!-- Fresh for: 1 month -->
+</html>

@@ -1,0 +1,10 @@
+
+README - 06/27/2005
+
+Dir                     Description
+----------------------  -------------------------------------------------
+env.csh			Load environment into .csh script
+
+env.pl			Load environment into .pl script
+
+env.sh			Load environment into .sh script

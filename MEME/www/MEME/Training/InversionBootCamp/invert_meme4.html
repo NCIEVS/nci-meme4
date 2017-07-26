@@ -1,0 +1,945 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD><TITLE>How to Invert a Source</TITLE>
+<META http-equiv=Content-Type content="text/html; charset=utf-8">
+<META content="MSHTML 6.00.2900.2802" name=GENERATOR></HEAD>
+<BODY vLink=#800080 link=#0000ff bgColor=white>
+<CENTER>//Inversion/invert_meme4.html </CENTER>
+<H2>HOW TO INVERT A SOURCE</H2>
+<H4>A Guide to Source Inversion for the MEME4 file format</H4>
+<UL>
+  <LI><A 
+  href="/Inversion/invert_meme4.html#Overview">Overview 
+  of the Source Inversion Process</A> 
+  <LI><A 
+  href="/Inversion/invert_meme4.html#Preliminaries">Preliminaries</A> 
+
+  <UL>
+    <LI><A 
+    href="/Inversion/invert_meme4.html#Getsource">Get the 
+    source</A> 
+    <LI><A 
+    href="/Inversion/invert_meme4.html#Groksource">Grok 
+    the source</A> 
+    <LI><A 
+    href="/Inversion/invert_meme4.html#qainputfile">QA 
+    the input file</A> 
+    <LI><A 
+    href="/Inversion/invert_meme4.html#updates">Note on 
+    update sources</A> </LI></UL>
+  <LI><A 
+  href="/Inversion/invert_meme4.html#inversion">Inversion</A> 
+
+  <LI><A 
+  href="/Inversion/invert_meme4.html#createsrc">Create 
+  .src files</A> 
+  <LI><A href="/Inversion/invert_meme4.html#SRCinfo">SRC 
+  concepts</A> 
+  <LI><A href="/Inversion/invert_meme4.html#formats">SRC 
+  file Formats</A> 
+  <UL>
+    <LI><A 
+    href="/Inversion/invert_meme4.html#attributes">attributes.src</A> 
+
+    <LI><A 
+    href="/Inversion/invert_meme4.html#classes_atoms.src">classes_atoms.src</A> 
+
+    <LI><A 
+    href="/Inversion/invert_meme4.html#mergefacts.src">mergefacts.src</A> 
+
+    <LI><A 
+    href="/Inversion/invert_meme4.html#relationships">relationships.src</A> 
+
+    <LI><A 
+    href="/Inversion/invert_meme4.html#sources">sources.src</A> 
+
+    <LI><A 
+    href="/Inversion/invert_meme4.html#termgroups">termgroups.src</A> 
+
+    <LI><A 
+    href="/Inversion/invert_meme4.html#contexts_src">contexts.src</A> 
+
+    <LI><A 
+    href="/Inversion/invert_meme4.html#MRDOC">MRDOC.RRF</A> 
+    </LI></UL>
+  <P></P>
+  <LI><A 
+  href="/Inversion/invert_meme4.html#moredetails">Additional 
+  details</A> 
+  <UL>
+    <LI><A href="/Inversion/default.stys.html">Default 
+    semantic types</A> 
+    <LI><A 
+    href="/Inversion/invert_meme4.html#contexts">Building 
+    Contexts</A> 
+    <LI><A 
+    href="/Inversion/invert_meme4.html#mappings">Mappings</A> 
+
+    <LI><A 
+    href="/Inversion/invert_meme4.html#worklistsortkey">Ordering 
+    the worklist</A> </LI></UL>
+  <P></P>
+  <LI><A 
+  href="/Inversion/invert_meme4.html#qasrcfiles">QA the 
+  inversion</A> 
+  <LI><A 
+  href="/Inversion/invert_meme4.html#othersteps">Other 
+  steps</A> </LI></UL>
+<H3><A name=Overview></A><B><FONT size=+0>Overview of the Source Inversion 
+Process</FONT></B></H3>
+<P>Inversion is the process of transforming source data from its original format 
+to the MEME load format, often referred to as ".src" (pronounced "dot-S-R-C") 
+format. In general, source-specific scripts are written to manipulate the data 
+to create the following files which will be described in more detail below. See 
+the <A href="/MEME/Training/glossary.html">glossary 
+</A>for additional details. 
+<P>
+<UL>
+  <LI>classes_atoms.src - Contains the "atoms" or terms from the source, along 
+  with the termtype, source unique identifiers. 
+  <LI>mergefacts.src - Contains information asserting that two atoms should be 
+  merged, i.e. put into the same concept 
+  <LI>relationships.src - Contains relationships asserted by the source, which 
+  can be within-source or cross-source. 
+  <LI>attributes.src - Contains additional data found in the source or added 
+  during Metathesaurus construction, including definitions, semantic types, and 
+  mapping data. 
+  <LI>sources.src - metadata file for information about the source itself 
+  <LI>termgroups.src - file for ranking termgroup precedence, labelling 
+  termgroup suppressibility and rules for matching. 
+  <LI>contexts.src - hierarchy data 
+  <LI>MRDOC.RRF - local version of <A 
+  href="http://www.nlm.nih.gov/research/umls/meta2.html">MRDOC.RRF </A>with 
+  source-specific additions. </LI></UL>
+<P><A name=Preliminaries></A>
+<H2>
+<HR width="100%">
+<B><FONT size=+0>
+<LI>Preliminaries</FONT></B></H2>
+<H3><A name=Getsource></A><B><FONT size=+0>Get the source from NLM: 
+</FONT></B></H3>
+<UL>
+  <LI>NLM should always have an authoritative copy of the source on 
+  umls-source:/umls/Sources. Occasionally, Apelon may receive files or updates 
+  directly from the source provider, and will be responsible for making sure NLM 
+  is up-to-date. 
+  <LI>Create an appropriate directory for the source at Apelon (e.g. under 
+  /net/apollo/d1/umls/sources/2006). Create an Orig subdirectory and save the 
+  original data files there. 
+  <LI>Read all accompanying documents, letters, notes, etc. 
+  <LI>If possible, establish contact person for source. Depending on the source, 
+  Apelon may need to go through NLM to answer questions/resolve issues, or it 
+  may be appropriate to interact directly with the source provider 
+  <LI>If needed, translate/extract into plain text/utf-8 format (e.g. if the 
+  data is in an excel spreadsheet). Officially, NLM is responsible for 
+  translating data into UTF-8, however it may be helpful for Apelon to work with 
+  them on this step. If the data is not delivered in plain text format, be sure 
+  NLM is aware of this and understands what steps Apelon is taking to transform 
+  the data. 
+  <LI>Enter appropriate information in <A 
+  href="/cgi-lti-oracle/SIMS.cgi">SIMS</A> re directory, 
+  contact, etc. If this is an update source, you can clone the record from the 
+  previous version, otherwise create a new record. If you are not sure what the 
+  SAB will be, you may want to hold off on this step. </LI></UL>
+<H3><A name=Groksource></A><B><FONT size=+0>Grok the source:</FONT></B></H3>
+<P><BR>Start thinking about the following questions: (You may not be able to 
+answer them all right away, and some of your answers will probably change as you 
+delve deeper into the source.) 
+<UL>
+  <LI>Is it a new source or an update? 
+  <LI>What is a term/atom? Are there problems with some terms not being fully 
+  specified? 
+  <LI>Is there synonymy? Is the synonymy "good" i.e. do we want to merge based 
+  on the source's assertion of synonymy? 
+  <LI>What is the code? Does it mean something (e.g. does it imply a particular 
+  hierarchical position?) If there are synonyms, do they all have the same code? 
+
+  <LI>Are there SAUIs? SCUIs? SDUIs? 
+  <LI>What are the relationships? Can they be mapped to Meta relationships 
+  (SY/BT/NT/RT/RT?)? Are there any RELAs? 
+  <LI>Is there a hierarchy? How is it encoded? 
+  <LI>Any attributes? (Definitions, semantic type, cross references to other 
+  sources, external codes, etc?) 
+  <LI>Any mappings to other sources? </LI></UL>
+<H3><A name=qainputfile></A><B><FONT size=+0>Do some QA on the input file 
+(appropriate QA will depend on the format):</FONT></B> </H3>
+<UL>
+  <LI>Are there the expected number of fields on each line? 
+  <LI>Is the format consistent? Are field-delimiters always the same? 
+  <LI>Are there record delimiters? 
+  <LI>Can the format be processed as-is or does it need some 
+  transformation/tweaking? </LI></UL>
+<DIR>There may be cases where it is VERY difficult to extract the relevant 
+information from the original input files. We need to decide, along with NLM, 
+whether it is really worth the effort. E.g, for an important source like ICD-9, 
+it is worth spending even several days manipulating what starts as a PDF file. 
+With other sources, if some or all of the data does not readily lend itself to 
+manipulation, we may want to skip it, or, depending on what information it is, 
+we may just "cram" it into attributes.src as-is. Note that for NLM to be able to 
+have input here, they need a good sense of how much effort it would actually 
+be.</DIR>
+<P>Think about the inversion from 2 perspectives: 
+<P>
+<UL>
+  <LI>Look at every piece of information in the source files and decide: 
+  <UL>
+    <LI>does this belong in the Metathesaurus? 
+    <LI>if so, how will we represent it? <BR>In the spirit of "source 
+    transparency," it is desirable to represent every data element from the 
+    source in the UMLS. However, there are times when this is not reasonable or 
+    feasible, so it is important to actively decide whether or not to include 
+    every type of information. 
+    <P></P></LI></UL>
+  <LI>Decide how to "fill" all the required fields in the .src format, and 
+  whether to fill other fields. </LI></UL>
+<DIR>
+<DIR>(e.g. many fields in classes_atoms.src are "required" so you'll have to 
+figure out what to put in each of them, though for the first pass or two you may 
+use dummy values; relationships.src is not required, but you should think 
+explicitly about whether there *is* actually any relationship information that 
+could be extracted from the source).</DIR></DIR>
+<H3><A name=updates></A><FONT size=+0><B>For update sources:</FONT></B></H3>
+<UL>
+  <LI>Find the old version of the source (grep &lt;RSAB&gt; 
+  /d1/umls/mgmt/termids). 
+  <LI>Look at any information on <A 
+  href="/cgi-lti-oracle/SIMS.cgi">SIMS</A> or meow that 
+  is available on the previous version 
+  <LI>Find the inversion scripts &amp; original input files. If the original 
+  input format is essentially the same, you may be able to clone the inversion 
+  script &amp; make minimal changes. 
+  <LI>As you are working, you should be creating a "source inversion proposal." 
+  This should be based on the template at: 
+  /usr/tools/src/si_proposal_generic.txt and should be called 
+  "si_proposal_<SAB>.txt. This needs to be reviewed and approved by NLM before 
+  the inversion is considered complete. 
+  <LI>Look in the last release <A 
+  href="/MRD/Documentation/release_index.html">QA files 
+  </A>if you need to see how things were actually released (as opposed to how 
+  they were inverted; currently, it is unlikely that data was changed directly 
+  in the database, but occasionally this can be an issue). Also, various counts 
+  in the QA reports may be useful when comparing versions </LI></UL>
+<H2><A name=inversion></A>
+<HR width="100%">
+<B>
+<LI>Do the inversion</B></H2>
+<P><A name=createsrc></A>
+<H3><B>Create preliminary .src files</B></H3>Normally, it is a good idea to 
+create .src files as quickly as possible, don't worry too much about all the 
+values of flags, etc. Often, creating these files and running them through QA 
+can help turn up problems that might otherwise not be discovered till very late 
+in the process, when they're harder to fix. Just keep remaking the .src files 
+till all is correct! You probably need to create classes_atoms.src first, but 
+the rest can be made in any order, and you may want to make sure you get 
+classes_atoms.src on the right track before trying to deal with the other files. 
+Important: Any time you rebuild classes_atoms.src, you need to rebuild other 
+files that rely on source_atom_ids! For example, if any source_atom_ids change 
+and you do not rebuild contexts, your contexts will be attached to the wrong 
+atoms! 
+<P>
+<H3><A name=SRCinfo></A><B>Creating SRC atoms using SRCbuilder.pl</B></H3>Use 
+the perl script SRCbuilder.pl to create all of your SRC atoms, attributes, 
+merges and relationships. SRCbuilder uses information in 'sources.src' and 
+'src_data'. 
+<P><B>Gather information for the SRC concepts and create src_data information 
+for SRC concept</B> 
+<P><B>sources.src</B> - a standard sources.src file. If you are building root 
+atoms you don't need to include a Root version of the source. SRCbuilder will 
+handle that automatically. 
+<P>See <A 
+href="/Inversion/invert_meme4.html#sources">sources.src</A> 
+for details of fields. The following may also be useful in creating sources.src: 
+
+<P>
+<UL>
+  <LI>/usr/tools/src/sources.src.template - template to fill in sources.src 
+  fields. These are easier to work with one-per-line with tags and explanations 
+  than all fields on one line 
+  <LI>/usr/tools/src/make.sources.src.pl - script that uses sources.src.template 
+  to create sources.src file 
+  <LI>/usr/tools/src/check_sources.src.pl - script to print report from 
+  sources.src as well as SRC data. This is normally what should be sent to NLM 
+  for review of metadata. </LI></UL>
+<P><B>src_data</B> - a file with one record for each SY, SSN or HT atom that you 
+wish to make. PTs, ABs, STYs, etc. are made automatically. You don't need SSN 
+and HT lines if you are building versioned atoms only, so if this is an update 
+source, you probably don't need this file. 
+<P>Comments and blank lines are ignored. 'R' coded items are ignored unless the 
+'-n' flag is used. 
+<P><PRE>  The file looks like this:
+  Source_Name|Code|Type|Data|
+  Source_Name - must match the source_name (field 1) in sources.src 
+  Code        - V|R (Root or Versioned)
+  Type        - SY|HT
+  Data        - String to be used
+  
+  examples:
+  ---- src_data -------------------------------------------------------
+  # SRC data for HCPCS
+  HCPCS03|R|SSN|Healthcare Common Procedure Coding System|
+
+  HCPCS03|V|SOS|Healthcare Common Procedure Coding System (HCPCS). Washington (DC):
+        Centers for Medicare &amp; Medicaid Services, 2003.|
+
+  # feel free to use comments and blank lines to make the file
+  # more readable
+  HCPCS03|V|SY|Health Care Financing Administration Common Procedure 
+  Coding System, 2003|
+  ---- end of src_data -------------------------------------------------
+</PRE>
+<P>Things you may want to include in src_data:<BR>
+<UL>
+  <LI>The source abbreviation (SAB) (SRC/[RV]AB) * 
+  <LI>The "treetop" atom if the source has contexts (SRC/RHT) * 
+  <LI>Any additional synonyms for the source name (SRC/[RV]SYs) ** </LI></UL>
+<DIR>* required for inversion 
+<P>** not required at inversion time, but good to have ASAP because it's harder 
+to add later</P></DIR>
+<P>TIP: You can build the SRCbuilder.pl script into your inversion script. See 
+the templates in /d1/tools/src. 
+<P>Use /d1/tools/src/SRCbuilder.pl -h for the online help file. 
+<P>Template scripts using SRCbuilder.pl are available in /d1/tools/src/ for 
+either perl (SRCtemplate.pl) or C shell (SRCtemplate.csh) scripts. 
+<P>For more information on SRC atoms see: <A 
+href="/Inversion/New_SRC_Concept_Structure.html">New SRC 
+Concept Structure </A>
+<P>
+<H3>SRC atoms and Foreign Sources</H3>Each foreign source gets its own ENGLISH 
+SRC atoms. In the past, these needed to be in a separate file, but now they can 
+be in the same file (we can have more than one language per file). Normally, you 
+will have one or more subdirectories for foreign version(s) of sources. 
+<P>Whether you are creating a new foreign source or updating an existing one, 
+the script 'SRCbuilder.pl' can be used to create all of your SRC atoms. Use 
+'/usr/tools/src/SRCbuilder.pl -h' for more information on its use. 
+<BLOCKQUOTE></BLOCKQUOTE>
+<P>
+<P><!-- --><!-- FILE FORMATS --><!-- -->
+<HR>
+<A name=formats></A>
+<H2>File Formats for MEME4</H2>Note: All files have a trailing '|' (pipe) that 
+ends the record. 
+<CENTER><A name=attributes></A>
+<HR>
+</CENTER>
+<H3>attributes.src</H3>All fields are required unless otherwise noted. <PRE>
+MEME4
+1   2       3 4             5               6    7 8 9 10               
+101|2711211|S|SEMANTIC_TYPE|Sign or Symptom|BI98|N|Y|N|N|SRC_ATOM_ID|
+                                                         11
+12 14
+ ||e306aba312ccb3c9124be6efd3dc7973|
+  13
+
+</PRE>
+<P><BR><A 
+href="/MEME4/Data/src_format.html#attributes">Format and 
+Data Information</A> 
+<OL>
+  <LI><B>source_attribute_id: </B>Unique number for this file. Start at 1 so 
+  that this is also the row number. 12 digit limit. 
+  <LI><B>id: </B>Can be a source atom id, SAUI, SCUI, SDUI, CUI, MEME atom id, 
+  code or MEME concept id. Usually a source atom id or source UI. If this is a 
+  source atom id it should appear in classes_atoms.src. 50 character limit. 
+  <LI><B>level: </B>either C(oncept) or S(ource) level; 'C' for semantic types, 
+  usually 'S' in all other cases 
+  <LI><B>attribute_name: </B>CONTEXT, SEMANTIC_TYPE, DEFINITION, an existing 
+  name (see <A 
+  href="http://www.nlm.nih.gov/research/umls/metab2.html#sb2_0">Documentation</A>) 
+  or for brand new attributes, propose a name. Currently, attribute_names (ATNs) 
+  are usually 3-character abbreviations which often start with the first letter 
+  of the SAB. This naming system is messy and difficult to maintain, and one day 
+  we will move toward more of a metadata approach. In the meantime, if the 
+  attribute is not specific to the source, and it shares characteristics with 
+  attributes from other sources, you can use the same ATN. 20 character limit. 
+  <BR>When assigning an ATN, check that: 
+  <OL>
+    <LI>if you are reusing an existing ATN, verify that it is truly the same 
+    meaning as what already exists. 
+    <LI>if you are creating a new ATN, make sure it's really new by checking the 
+    documentation and also by verifying that no other new sources have used this 
+    name for some other attribute. You don't want XYZ to mean different things 
+    in different sources. Try running /usr/tools/src/get.mrdoclist.s and 
+    reviewing mrdoc.toedit to make sure that the in-USE attributes are what you 
+    expected. </LI></OL>
+  <LI><B>attribute value: </B>If attribute name is SEMANTIC_TYPE, value must be 
+  from the current semantic type list. For contexts the data will come from the 
+  .all file built during the inversion. Otherwise, the value will generally be 
+  derived directly from the source files. <BR>There is no limit on the size of 
+  this field. <BR>See additional information on: 
+  <UL>
+    <LI><A href="/Inversion/default.stys.html">default 
+    semantic types</A> 
+    <LI><A 
+    href="/Inversion/invert_meme4.html#contexts">Building 
+    contexts </A></LI></UL>
+  <P></P>
+  <LI><B>source</B> - source name abbreviation &lt;SAB&gt;. Use E-&lt;VSAB&gt; 
+  for Semantic Types which we provide as defaults. For STYs that the source 
+  supplies just use the SAB for the source. The SAB must be found in the file 
+  'sources.src'. 20 character limit. 
+  <LI><B>status: </B>usually "R" except SEMANTIC_TYPE, then N. 
+  <LI><B>to be released: </B>usually "Y", little n ('n') for contexts because 
+  the contexts in the database are in a "display format" rather than in the 
+  release format. Lexical Tag (LXT) attributes are 'n' unless they have an 
+  attribute value of 'TRD', in which case they are 'Y' because TRD Lexical Tags 
+  are releasable. 
+  <LI><B>released: </B>always "N" 
+  <LI><B>suppressible: </B>O/Y/E/M/N. 
+  <UL>
+    <LI>Although the spec allows for different values, in practice we always use 
+    "N" for attribute suppressibility. See the discussion of values under 
+    classes_atoms.src for more details. </LI></UL>
+  <LI><B>id_type: </B>Describes what kind a id is used in field 2. Valid values 
+  are: SRC_ATOM_ID (SOURCE_ATOM_ID is deprecated), CUI, CUI_STRIPPED_SOURCE, 
+  CUI_SOURCE, CODE_SOURCE, CODE_STRIPPED_SOURCE, CODE_TERMGROUP, 
+  CODE_STRIPPED_TERMGROUP, ATOM_ID, CONCEPT_ID, SOURCE_CUI, SOURCE_AUI, 
+  SOURCE_RUI. 
+  <LI><B>id_qualifier: </B>Use a value from 'source_rank.source' if the type is 
+  one of CODE_SOURCE, SOURCE_AUI, SOURCE_CUI, SOURCE_RUI. <BR>Use a value from 
+  'source_rank.stripped_source' if the type is *_STRIPPED_SOURCE. <BR>Use a 
+  value from 'termgroup_rank.termgroup' if the field above is CODE_TERMGROUP or 
+  CODE_STRIPPED_TERMGROUP. <BR>Otherwise, leave this field blank. <BR>
+  <LI><B>source_atui : </B>"source attributed attribute identifier". Currently 
+  there are no sources that attach their own identifiers to attributes within 
+  the source, and so effectively this field is always blank. The field exists 
+  for "forward compatability" allowing sources to do this in the future and 
+  having the ability to represent it without changing the schema. <BR>
+  <LI><B>hashcode : </B>MD5 hash of the attribute value <BR></LI></OL>
+<HR width="100%">
+<!-- END OF ATTRIBUTES.SRC --><BR><A name=classes_atoms.src></A>
+<H3><B>classes_atoms.src</B></H3><FONT size=2><PRE>
+MEME4
+      1        2                  3                     4       5 6 7 8      
+      81274232|MSH2004_2003_08_04|MSH2004_2003_08_04/MH|D033242|N|Y|N|Minors|
+
+      9  11               13
+      N||M0000465|D033242|ENG|104396|
+       10         12          14
+
+</PRE></FONT>
+<P><A 
+href="/MEME4/Data/src_format.html#classes_atoms">Format 
+and Data information:</A> 
+<P>All fields are required unless otherwised noted 
+<OL>
+  <LI><B>source_atom_id: </B>Sharon keeps track of what number blocks are free. 
+  Check with her for starting number or carefully edit the file yourself. The 
+  list of assigned numbers and directory paths are maintained in 
+  /d1/umls/mgmt/termids. Numbers are unique within the file. 12 digit limit. 
+  <LI><B>source: </B>the source abbreviation and year of publication (SAB); The 
+  year may not correspond to the Metathesaurus Year, e.g. AOD for Meta99 was 
+  really AOD from 1995). This value should appear in 'sources.src'. 20 character 
+  limit. 
+  <LI><B>termgroup: </B>source/termgroup, e.g. "MSH2000/MH." Try to use already 
+  established termgroups (See current MRDOC.RRF) or at least ones that don't 
+  conflict (you don't want OT to mean "Obsolete term" in one source and "Other 
+  term" in another.) Also referred to as "term type." 40 character limit 
+  <LI><B>code: </B>either the source will have its own coding system or UMLS 
+  numbers will be assigned (or reused where possible). UMLS assigned number 
+  should use 'MTHU000001". If there are separate "unique identifiers" and "tree 
+  numbers" within a source, use the "unique identifier" for the code. The "tree 
+  number" will be used as the HCD in contexts. 30 character limit. 
+  <LI><B>status: </B>usually "N" for needs review. Occasionally, we put things 
+  in as "R" (reviewed) so that they don't trigger editing. E.g., if a source 
+  introduces a new "abbreviation" termtype, we may put it in as reviewed so it 
+  does not cause the entire source to need review. Can be R, U, or N. 
+  <LI><B>to_be_released: </B>- usually "Y". The exception is that sometimes 
+  atoms are added for editing purposes only and will not actually be released, 
+  e.g. the CPT/ABs are not released except as attributes in MRSAT. Valid values 
+  are Y, release; N, remove from database; and n, don't release. 
+  <LI><B>released: </B>- always "N". Valid values are A - previously released 
+  approved; U - previously release unapproved, but you won't see these. 
+  <LI><B>atom_name: </B>- the "term." Deciding what is an "atom" may be the most 
+  difficult part of source inversion. See <A 
+  href="/Inversion/atoms.html">more information on 
+  atoms</A> for details. 1200 character limit. 
+  <LI><B>suppressible: </B>O/Y/E/M/N. 
+  <UL>
+    <LI>O - Obsolete content (obsolesced by the source or by us; if 
+    tty_class="obsolete", the value should be "O" 
+    <LI>Y - non-obsolete content suppressibility defined by SAB/TTY combination. 
+    If the termtype suppressibility in termgroups.src is set to "Y", this value 
+    should also be "Y" 
+    <LI>E - Non-obsolete content not belonging to a suppressible SAB/TTY 
+    combination, deemed suppressible by an editor/inverter, e.g. if there is a 
+    specific list of "ugly" terms that spans termgroups. The suppressibility 
+    flag in termgroups.src will be set to "N" in these cases. 
+    <LI>M - machine generaged content not belonging to any of the above 
+    categories 
+    <LI>N - Not suppressible. This is the default value </LI></UL>
+  <LI><B>source_aui: </B>- Source's Atom ID (When you create an "MTHSAB" source 
+  (e.g. MTHCH, MTHHH, etc.), you should NOT use the source_aui from the original 
+  source as the source_aui for the MTHSAB atom. You SHOULD use the source_DUI 
+  and source_CUI (if they exist). 
+  <LI><B>source_cui: </B>- Source's Concept ID (in MeSH, it's the MUI) 
+  <LI><B>source_dui: </B>- Source's Descriptor ID (in MeSH, it's the descriptor 
+  code) 
+  <LI><B>language: </B>- From the list in language.lat. SRC atoms are always 
+  ENG. It's OK to mix languages in this file. 
+  <LI><B>order_id: </B>Order for NLM processing. Every record should have the 
+  same number of digits. Leave the SRC atoms blank. Formerly the ordering was 
+  found in the worklist.sortkey.<SAB> file. See <A 
+  href="/Inversion/invert_meme4.html#worklistsortkey">Sort 
+  Order </A>for more information. 100 character limit. </LI></OL><!-- END OF CLASSES_ATOMS.SRC -->
+<CENTER><A name=mergefacts.src></A>
+<HR>
+</CENTER>
+<H3>mergefacts.src</H3>All fields are required unless otherwise noted. 
+<P><FONT size=2><PRE>                                                           11
+MEME4
+   1        2  3        4    5 6 7 8   9            11          12
+   46000004|SY|46002943|AOD95||N|Y|AOD|SRC_ATOM_ID||SRC_ATOM_ID||
+</PRE></FONT>
+<P><A 
+href="/MEME4/Data/src_format.html#mergefacts">Format and 
+Data information:</A> 
+<OL>
+  <LI><B>id_1: </B>Can be a source atom id, SCUI, SAUI, SDUI, CUI, MEME atom id, 
+  code or MEME concept id. Usually a source atom id or source UI. 50 character 
+  limit. 
+  <LI><B>merge_level: </B>always SY currently. Could be MAT, NRM, etc. but we 
+  never use this. 5 character limit. 
+  <LI><B>id_2: </B>Can be a source atom id, SCUI, SAUI, SDUI, CUI, MEME atom id, 
+  code or MEME concept id. Usually a source atom id or source UI. 50 character 
+  limit. <BR>NOTES: <BR>When you are using a source atom id: 
+  <UL>
+    <LI>normally, both source_atom_id_1 and source_atom_id_2 are present in 
+    classes_atoms.src. However, there may be cases where you are creating 
+    mergefacts to a totally different source (or maybe to a previous version of 
+    the same source), so only one of the atom_ids will be present in this 
+    source's classes_atoms.src 
+    <LI>Any mergefacts that connect expanded &amp; short forms, abbreviations 
+    &amp; full forms, or britishisms &amp; americanizations should also be 
+    represented in relationships.src with an SFO/LFO relationship and 
+    appropriate RELA. </LI></UL>
+  <LI><B>source: </B>Normally, this is the SAB (the same as the "source" value 
+  from classes_atoms.src). Occasionally could be MTH if the mergefacts were 
+  created purely by us. This value should appear in the file 'sources.src'. 20 
+  character limit. 
+  <LI><B>integrity_vector: </B>leave empty (no space, just ||) 
+  <LI><B>make_demotion: </B>Y or N depending on whether the two atoms should 
+  absolutely positively end up in the same concept. For example abbreviations 
+  and other SFO/LFOs should clearly merge, so they'd get a N. Source-asserted 
+  synonymy should definitely be looked at for a second opinion on what they 
+  consider SY, so in that case Y. This field isn't actually read by the 
+  recipe-runner, however it is important to get the value correct because you 
+  will have to answer the "make demotions question" in the recipe-writer, and 
+  you should have an answer ready. 
+  <LI><B>change_status: </B>Y or N. This only has an effect when the atoms are 
+  inserted as status="R," which is pretty rare. If you insert status=R atoms and 
+  want them to change to N on a merge, make this Y. Otherwise, always make this 
+  N. This field isn't actually read by the recipe-runner, however it is 
+  important to get the value correct because you will have to answer the 
+  "change_status question" in the recipe-writer, and you should have an answer 
+  ready. 
+  <LI><B>merge_set: </B>A valid merge set consists of the root SAB, then a code 
+  with a dash between, e.g., ICD9CM-xx. For 'xx', use one of a set of standard 
+  merge set codes (which eventually will imply a particular kind of handling). 
+  <P>Merge set codes: 
+  <UL>
+    <LI>SRC - to be used for mergefacts assembling SRC concepts (no integrities) 
+
+    <LI>SY - to be used for source asserted synonymy (generally with 
+    integrities, unless we trust source sy more than meta sy) 
+    <LI>SCUI - special case of SY (based on matching SCUI) 
+    <LI>AB - special case of SY (based on abbreviations/expansions – no 
+    integrities) 
+    <LI>AE - special case of SY (based on American/british forms – no 
+    integrities) 
+    <LI>EX - special case of SY (based on expansions/short forms – no 
+    integrities) 
+    <LI>LAT - special case of SY (based on translations/ENG atoms – may be 
+    integrities) 
+    <LI>CODE - merging on code (usually with integrities) 
+    <LI>CUI - merge to UMLS CUI 
+    <LI>XREF - cross source merges </LI></UL>
+  <P></P>
+  <LI><B>id_type_1: </B>Describes what kind of id is used in field 1. Valid 
+  values are: SRC_ATOM_ID (SOURCE_ATOM_ID is deprecated), CUI, CUI_SOURCE, 
+  CUI_STRIPPED_SOURCE, CODE_SOURCE, CODE_TERMGROUP, CODE_STRIPPED_TERMGROUP, 
+  ATOM_ID, CONCEPT_ID, SOURCE_CUI, SOURCE AUI, SOURCE_RUI . 20 character limit. 
+  <LI><B>id_qualifier_1: </B>If the field above is CUI_STRIPPED_SOURCE, 
+  CODE_SOURCE, CODE_STRIPPED_SOURCE or CODE_TERMGROUP a qualifier is used here, 
+  otherwise leave it blank. 50 character limit. 
+  <LI><B>id_type_2: </B>Same as id_type_1, but for id_2 
+  <LI><B>id_qualifier_2: </B>Same as id_qualifier_1, but for id_type_2 </LI></OL><!-- END OF MERGEFACTS.SRC -->
+<CENTER><A name=relationships></A>
+<HR>
+</CENTER>
+<H3>relationships.src</H3>All fields are required unless otherwise noted. 
+<P>Note on mappings: Although mappings to other sources also go in MRMAP, we 
+generally represent them redundantly in MRREL to make them more accessible, so 
+mappings to other sources should also be added to relationships.src (unless they 
+are considered not useful). <FONT size=2><PRE>
+MEME4
+1   2 3        4  5       6        7     8     9 10  12               14             16
+100|S|42250302|RT|used_by|42250794|PDQ98|PDQ98|R|Y|N|N|SRC_ATOM_ID||SRC_ATOM_ID||||
+</PRE></FONT>
+<P><BR><A 
+href="/MEME4/Data/src_format.html#relationships">Format 
+and Data Information</A> 
+<OL>
+  <LI><B>source_relationship_id: </B>Unique number for this file. Start at 1 so 
+  that this is also the row number. 12 digit limit. 
+  <LI><B>level: </B>usually S (source-level), meaning the relationships are 
+  asserted by or at least ascribable to the source. Other values are: 
+  C=Concept-level, P=Processed Level. We don't currently use these in the .src 
+  files. 
+  <LI><B>id_1: </B>Can be a source atom id, SAUI, SCUI, SDUI, CUI, MEME atom id, 
+  code or MEME concept id. Usually a source atom id or source UI. Relationships 
+  read from Right -&gt; Left. 50 character limit. 
+  <LI><B>relationship_name: </B>from valid list of relationships (RT, RT?, BT, 
+  NT, LK, XR, AQ, SFO/LFO, SY, XS). 10 character limit. <BR>Notes: 
+  <UL>
+    <LI>Use "RT?" instead of "RT" if there is a possibility the 2 atoms could be 
+    synonymous. If another source says they are synonymous, "RT?" will allow the 
+    atoms to be merged. However an "RT" relationship would cause a demotion. 
+    <LI>Any SFO/LFO (short-form-of/long-form-of) relationships should also be 
+    represented in mergefacts. These rels will trigger a warning or prevent 
+    editors from splitting things that should ALWAYS belong together, and QA is 
+    done to verify that SFO/LFO rels are not split. Directionality is not 
+    important with SFO/LFO rels (except for the RELA part). Use TBR = 'Y' and a 
+    valid RELA. </LI></UL>
+  <LI><B>relationship_attribute: </B>Often blank, otherwise check the list of 
+  valid RELAs. If the source has supplied a specific relationship which is not 
+  in the list of valid RELAs, it can still be used (source-level relas can now 
+  be created outside of the "official list." ) RELAs should be suggested to NLM 
+  who will confirm/suggest a different one. 100 character limit. 
+  <LI><B>id_2: </B>Can be a source atom id, SAUI, SCUI, SDUI, CUI, MEME atom id, 
+  code or MEME concept id. Usually a source atom id or source UI. 
+  <BR>Relationships read from Right -&gt; Left. i.e. id_1|NT|id_2 means that 
+  "id_2 is narrower than id_1". 50 character limit. 
+  <DIR>NOTE: <BR>When using source atom ids, normally, both id_1 and id_2 are 
+  present in classes_atoms.src. However, there may be cases where you are 
+  creating relationships to a totally different source so only one of the 
+  atom_ids will be present in this source's classes_atoms.src. See also NB for 
+  id_type_1 below. </DIR>
+  <LI><B>source_of_relationship: </B>Whoever asserted that a relationship 
+  exists, usually same as source (SAB). 10 character limit. 
+  <LI><B>source_of_label: </B>Whoever asserted the nature of the relationship. 
+  Again, most likely the source (SAB) but it would be be "MTH" if we created the 
+  rel. 10 character limit 
+  <LI><B>status: </B>Usually R for reviewed. This means we're going to take a 
+  source's word for it when they say two atoms are related. Valid values are D, 
+  R, U, N, S. Source level relationships are R or U, but never N. Concept level 
+  relationships are R, U, or N. 
+  <LI><B>to_be_released: </B>Usually "Y". Valid values are Y - Yes, N - remove 
+  from database, and n - don't release. SFO/LFOs are now releasable so use 'Y' 
+  for SFO/LFO rels. 
+  <LI><B>released: </B>Usually N, valid values are Y or N. 
+  <LI><B>suppressible: </B>Usually N, valid values are Y or N. 
+  <LI><B>id_type_1: </B>Describes what kind a id is used in field 2. Valid 
+  values are: SRC_ATOM_ID (SOURCE_ATOM_ID is deprecated), CUI, CUI_ROOT_SOURCE, 
+  CUI_STRIPPED_SOURCE, CUI_SOURCE, CODE_SOURCE, CODE_STRIPPED SOURCE, 
+  CODE_TERMGROUP, CODE_STRIPPED_TERMGROUP, ATOM_ID, CONCEPT_ID, SOURCE_CUI, 
+  SOURCE_AUI, SOURCE_RUI. 20 character limit.
+  <DIR>NB:<BR>Where source transparency allows, it is preferred to use 
+  CODE_STRIPPED_SOURCE rather than CODE_SOURCE. Use of the former will allow 
+  relationships to remain should the linked-to source be updated.</DIR>
+  <LI><B>id_qualifier_1: </B>Use 'source_rank.source' if type is one of 
+  'CODE_SOURCE', 'SOURCE_AUI', 'SOURCE_CUI', 'SOURCE_RUI'. <BR>Use 
+  'termgroup_rank.termgroup' if type is 'CODE_TERMGROUP'. <BR>Use 
+  'source_rank.stripped_source' if type is like '%_STRIPPED_SOURCE'. <BR>Use 
+  source_rank.stripped_source/termgroup_rank.tty if type is 
+  'CODE_STRIPPED_TERMGROUP' <BR>Otherwise leave it blank. 50 character limit. 
+  <LI><B>id_type_2: </B>Same as id_type_1, but for id_2. 
+  <LI><B>id_qualifier_2: </B>Same as id_qualifier_1, but for id_type_2 
+  <LI><B>source_rui: relationship identifier provided by source (very rare) </B>
+  <LI><B>relationship_group: relationship identifier provided by source (very 
+  rare)</B> </LI></OL><!-- END OF RELATIONSHIPS.SRC -->
+<H3><A name=sources></A>
+<HR width="100%">
+<B>sources.src</B></H3>The sources.src file <PRE>     1         2       3 4       5   6    7   8   
+     MSH2002EC|MSH2001|0|MSH2002|MSH|2002|MSH|Medical Subject Headings
+
+      9
+     |Stuart Nelson, M.D., Head, MeSH Section; e-mail: nelson@nlm.nih.gov
+
+      10
+     |Stuart Nelson, M.D., Head, MeSH Section; e-mail: nelson@nlm.nih.gov
+
+      11
+     |Stuart Nelson, M.D., Head, MeSH Section; e-mail: nelson@nlm.nih.gov
+
+      12
+     |Stuart Nelson, M.D., Head, MeSH Section; e-mail: nelson@nlm.nih.gov
+
+      13               14            
+     |bking@apelon.com|FULL-MULTIPLE
+
+     15                                         16
+     |http://www.nlm.nih.gov/mesh/meshhome.html|ENG
+
+     17
+     |Medical Subject Headings (MeSH). Bethesda (MD): National Library of Medicine, 2004
+
+     18          20
+     ||ISO646-US|Y|
+      19
+
+</PRE>All fields are required unless otherwise noted. 
+<P><BR><A href="/MEME4/Data/src_format.html#ranks">Format 
+and Data Information</A> <BR>
+<OL>
+  <LI><B>source_name: </B>the SAB of the source being added If there is more 
+  than one source, e.g. ICPC2E &amp; ICPC2AE, each should get a line in this 
+  file. 20 character limit. 
+  <LI><B>low_source: </B>The source that field 1 immediately outranks. 20 
+  character limit. 
+  <LI><B>restriction level: </B>restriction level of this source (0-3) 12 digit 
+  limit. 
+  <LI><B>normalized_source: </B>The SAB without additional information, e.g., 
+  the normalized source of 'MSH2000HMCE' is 'MSH2000'. 20 character limit. 
+  <LI><B>stripped_source: </B>The SAB without the year, e.g., the stripped 
+  source of 'MSH2000' is 'MSH'. 20 character limit. 
+  <LI><B>version: </B>The version of the source, e.g., 2000 for MSH2000. 20 
+  character limit. 
+  <LI><B>source_family: </B>The family of sources to which this source belongs 
+  (MSH for MSH2000). This field is used to group sources that should travel 
+  together (such as HCPCS and MTHHH). 20 character limit. 
+  <LI><B>official_name: </B>The official name of the source. Typically this will 
+  have the value of the SRC/PT but not necessarily. 1200 character limit. 
+  <LI><B>nlm_contact: </B>email address of the NLM contact for this source. 100 
+  character limit. 
+  <LI><B>acquisition_contact: </B>The full contact information obtaining the 
+  source. 1000 character limit. 
+  <LI><B>content_contact: </B>The full contact information for obtaining further 
+  information about the content of the source. 1000 character limit. 
+  <LI><B>license_contact: </B>The full contact information for obtaining license 
+  info. 1000 character limit. 
+  <LI><B>inverter: </B>Email address of the Apelon inverter. 100 character 
+  limit. 
+  <LI><B>context_type: </B>If this source has contexts use one of: FULL, TITLE, 
+  MINI, FULL-MULTIPLE, FULL-NOSIB, FULL-MULTIPLE-NOSIB, TITLE-MULTIPLE, 
+  MINI-MULTIPLE. Otherwise leave blank. 
+  <LI><B>url: </B>One or more URLs providing more information about this source. 
+  1000 character limit. 
+  <LI><B>language: </B>Valid 3 letter language code (see <A 
+  href="/Inversion/languages.html">list of valid language 
+  codes</A>). 10 character limit. 10 character limit. 
+  <LI><B>citation: </B>Citation information. This field contains the former SOS 
+  attribute which is no longer used. Use the information that was contained in 
+  the SOS attribute if there was one unless there is updated information in the 
+  <A href="/cgi-lti-oracle/src_info.cgi">SRC info 
+  editor</A>. 4000 character limit. 
+  <LI><B>license_info: </B>Additional information about the license agreement 
+  for this source. 4000 character limit. 
+  <LI><B>character_set: </B>ISO character set name. Use ISO646-US for 7-bit 
+  ASCII, otherwise use UTF-8 for valid UTF-8 sources. 50 character limit. 
+  <LI><B>rel directionality flag: </B>. 1 character limit. </LI></OL><!-- END OF SOURCES.SRC -->
+<H3><A name=termgroups></A>
+<HR width="100%">
+<B>termgroups.src</B></H3>The termgroups file <PRE>     1         2         3 4 5 6
+     LNC214/XM|LNC213/XM|N|N|N|XM|
+
+</PRE>
+<P><BR><A href="/MEME4/Data/src_format.html#ranks">Format 
+and Data Information</A> 
+<P>Important: This file must be present before you can write the recipe for the 
+source, as it is read in by the recipe-writer. 
+<OL>
+  <LI><B>new_termgroup: </B>Every termgroup in your classes_atoms.src file must 
+  appear in this field in this file. Each termgroup must be unique in this file. 
+  20 character limit. 
+  <LI><B>lower_termgroup: </B>put the new termgroup just above this termgroup in 
+  ranking. 20 character limit. There is a link from the meow home page to 
+  current MEME precedence. <A 
+  href="/cgi-oracle-meowusers/oracle-termgroup.pl?service=current-editing-tns">MEME4 
+  Precedence</A> 
+  <P>If this is an update source, put the new version termgroups just above the 
+  termgroups for the old version (e.g., put RCD2000/PT just above RCD99/PT). 
+  <P>If this is a new source, you will have to make a decision about where this 
+  source logically falls. e.g. if it is a new, good source of problems, you may 
+  want to put it just below CCPSS99. Ask NLM or Steph guidance, but if they 
+  aren't available, just make a decision. 
+  <P>Do not delay a source insertion waiting to make a decision about 
+  precedence! Precedence will be reviewed before Metathesaurus production, and 
+  changes will be made by NLM at that time. 
+  <P>Some general rules: 
+  <UL>Within a source, put the "prettiest" form of a term on top, including: 
+    <LI>AE (Americanized) termgroups above Britishisms. 
+    <LI>Expanded termgroups (e.g. PX) above the short form. 
+    <LI>Put abbreviations at the bottom. 
+    <LI>Within a source, the general pattern should be something like: 
+    <LI>PT,SY,ET,HT,AB. </LI></UL>
+  <P></P>
+  <LI><B>suppressible: </B>Y or N - (Y sets TS=s in MRCON) use for "ugly" 
+  termgroups, e.g. those where all terms are ambiguous, or those with useless 
+  abbreviations embedded. 
+  <LI><B>exclude list: </B>Y or N - add to matching exclude list. Use for 
+  ambiguous termgroups. 
+  <LI><B>norm exclude list: </B>Y or N - add to norm matching exclude list. Use 
+  mostly for termgroups known to be all chemicals, which don't work well with 
+  norm. Abbreviations and obsolete abbreviations that will become junk when 
+  normed should also be 'N'. 
+  <LI><B>tty: </B>Termtype. Not required. Termtype is Termgroup without the 
+  'SAB/', i.e., if the termgroup is 'AOD99/DE', the tty is 'DE'. 20 character 
+  limit. </LI></OL><!-- END OF TERMGROUPS.SRC -->
+<H3><A name=contexts_src></A>
+<HR width="100%">
+<B>contexts.src</B></H3>
+<P><BR><A 
+href="/MEME4/Data/src_format.html#contexts">Format and 
+Data Information</A> 
+<P>Run the script '$MEME_HOME/bin/raw_to_contexts.csh' once you have a '.raw3' 
+file. This file should be located in the directory with all the other .src 
+files, presumably the top level directory for this source. 
+<P>When reviewing this file, please note the relationship direction. See the 
+'Forma t Data Information' link above and note the description for 
+"relationship_attrib ute". <!-- END OF CONTEXTS.SRC -->
+<P><A name=MRDOC></A>
+<HR width="100%">
+
+<H3>MRDOC.RRF </H3>Source inverters should supply a MRDOC.RRF file for every 
+source. To create this file, you can run this script: 
+/usr/tools/src/get.mrdoclist.s 
+<P>This will create a file called mrdoc.toedit, which you can copy to MRDOC.RRF. 
+New TTYs, ATNs, RELAs. will be marked with ###, which the inverter will have to 
+fill in. The file also includes existing MRDOC.RRF lines for relevant TTYs, 
+ATNs, and RELAs. The inverter should review these to make sure that the value is 
+still appropriate. <BR>Note that since this script runs against the release, 
+occasionally you will find that values this script thinks are "new" have already 
+been used by a recent source insertion. In these cases, the inserter will report 
+any differences between the description you provided and what's already in the 
+database. <BR>
+<HR width="100%">
+
+<HR width="100%">
+<A name=moredetails></A>
+<H3>Additional details</H3>
+<P><A name=contexts></A>
+<H3>Building Contexts </H3>Context processing machinery assumes that you start 
+with one of the following combinations of files: <BR>
+<OL>
+  <LI>source_atoms.dat and treepos.dat 
+  <LI>source_atoms.dat and bt_nt_rels.dat 
+  <LI>source_atoms.dat and code_ranges.dat </LI></OL>
+<P>See <A 
+href="/MEME/Documentation/contexts.html">Deborah's page 
+on the context scripts</A> for more information the structures of these files 
+and how to run the scripts. 
+<P>Once you have a treepos.dat file do the following steps: 
+<UL>
+  <LI>run 'process_contexts.pl' to create the file {SAB}.raw3 
+  <LI>run 'cx3.pl' to create the {SAB}.all 
+  <LI>run 'print_contexts_meme4.pl' to add the context attributes to 
+  attributes.src 
+  <LI>run '$MEME_HOME/bin/raw_to_contexts.csh cxt' to create the contexts.src 
+  file </LI></UL>
+<P>Additional documentation: <BR><A 
+href="/Inversion/context.template.html">Steph's page on 
+context templates</A> <BR><A 
+href="/Inversion/contexts.all.html">the .ALL file</A> 
+<BR><A href="/Inversion/contexts.raw2.html">The RAW3 
+file</A> 
+<P><BR><A name=mappings></A>
+<H3>Building mappings </H3>Mappings to other sources are usually represented as 
+relationships and also as mappings which will eventually end up in MRMAP. 
+<P>For inversion purposes, MRMAP mappings are represented in attributes.src. To 
+make mapping attributes, first read the <A 
+href="/MEME/Documentation/mrmap.html">MRMAP Specification 
+</A>. This documentation includes details on mapping representation in .src 
+files. 
+<P>To actually create the mappings, we have a "template" which can be filled in 
+to help you get all the fields in the correct place. This template, which is 
+self-documenting, can be found at /usr/tools/src/template.mapsetattr 
+<P><A name=worklistsortkey></A>
+<HR width="100%">
+
+<H3><B>Editing Sort order</B></H3>Information about ordering concepts for 
+editing worklists was previously found in the worklist sortkey. It is now found 
+in the 14th field of the file 'classes_atoms.src'. 
+<P>Every source needs a sort order for editing so that when NLM creates 
+worklists, the concepts appear in some order that makes sense, e.g. it is easier 
+to work through all the concepts related to "heart disease" at the same time, 
+rather than skipping around throughout the source; For some sources, the best 
+way to sort may be on code (e.g. CPT, where the book is organized by code), 
+alphabetical, or semantic type. 
+<P>For most sources with contexts, the best way cognitively for editors to work 
+through a list of concepts is via the hierarchy. We can leverage the context 
+TREEPOS file to create a depth-first ordered list, which we call "worklist 
+sortkey" This ordering can be used by the editing management system to order 
+concepts within an editing worklist. The order appears in the 14th field of 
+'classes_atoms.src', "order_id". 
+<P>ALL atoms from the source must have an order_id. If an atom has multiple tree 
+positions, NLM will just use the first tree position when they process the atom. 
+
+<P>In many sources, not all atoms have contexts, so they won't all appear in the 
+cxt/TREEPOS file. In these cases, you may be able to create a "fake" tree 
+postion for sorting purposes. For example, if your source has an "ET" termgroup 
+that doesn't get contexts, but it has the same code as the PTs, you can probably 
+join the cxt/TREEPOS file back to classes_atoms.src on "code" to get a complete 
+sortkey ordering. 
+<P>This field can contain anything that will give you the correct sort order. 
+Typical values for this field are a "tree position" (e.g. from TREEPOS) or a 
+number (if you use a number, make sure they're all the same number of digits, so 
+if you do a non-numeric sort they will remain in the correct order. 
+<P>The recommended method for sorting should be indicated in the editor notes on 
+SIMS/meow. 
+<P><BR><A name=qasrcfiles></A>
+<HR width="100%">
+<BR>
+<H2>
+<LI><B>QA the .src files</B></H2>
+<UL>
+  <LI>
+  <P>Be familiar with the tools in <A 
+  href="/Inversion/README.srctools.html">/usr/tools/src</A> 
+  </P>
+  <LI>
+  <P>Run /usr/tools/src/QA3.pl: look at the results! </P>
+  <LI>
+  <P>fix all "true errors," including bad space/tab, non-ascii characters, 
+  duplicate source_atom_ids, incorrect field values, etc. </P>
+  <LI>
+  <P>analyze all "possible errors," e.g <BR>duplicate or contradictory 
+  relationships: these may be ok if they are in the original source file, but 
+  they may indicate an error in the inversion <BR>duplicate atom_names: these 
+  may be ok, or we may want to collapse them </P>
+  <LI>
+  <P>When you are reasonably satisfied with your .src files, do some "<A 
+  href="/Inversion/conservation.html">conservation of 
+  mass</A>" </P>
+  <LI>
+  <P>Do some "semantic QA": 
+  <BLOCKQUOTE>are the "SYs" really synonyms? Or should they be "RT?" instead? 
+    <BR>are the relationships correct? Make sure they read in the correct 
+    direction (right to left)</BLOCKQUOTE>
+  <LI>For update sources do some comparison to previous versions to get a sense 
+  for the scope of changes and to start thinking about the recipe. </LI></UL>
+<P><A name=othersteps></A>
+<HR width="100%">
+
+<H3><B>
+<LI>Other steps in source inversion </B>(sorry, you're not quite finished 
+...)</H3>
+<UL>
+  <LI>Finalize the source inversion proposal. This should be based on the 
+  template at: /usr/tools/src/si_proposal_generic.txt and should be called 
+  "si_proposal_<SAB>.txt. 
+  <LI>Enter all information into <A 
+  href="/cgi-lti-oracle/SIMS.cgi">SIMS</A> 
+  <LI>send a message to meme and reg to let everyone know the inversion is 
+  complete. Include the path where the files can be found and any useful notes 
+  (e.g. estimate of new concept count, instructions on how to merge, etc. 
+  <LI>Recipe: Keep notes along the way about things you'll need to remember for 
+  the recipe. Review your QA_FILE before writing the recipe, especially to make 
+  sure you know what kind of merging you want to do with the various merge sets. 
+
+  <LI><A href="/Inversion/qa-insertion.html">QA the 
+  source INSERTION</A> 
+  <LI><A 
+  href="/cgi-lti-oracle/automated_qa.cgi?state=INDEX&amp;db=noa_mid2006">Complete 
+  the explanation of SRC-SRC count differences</A> 
+  <DIR>After the real insertion, the source inverter is responsible for 
+  explaining differences between counts from current and previous versions of 
+  the source. 
+  <LI>Keep an eye out for questions on this source, and take responsibility for 
+  answering them. </LI></DIR></LI></UL>
+<P>
+<OL></OL>
+<HR>
+
+<ADDRESS>Contact: <A href="mailto:reg@apelon.com">Bill King </A></ADDRESS>
+<ADDRESS>Created: 11/10/1998 </ADDRESS>
+<ADDRESS>Last Updated: 01/11/2006 </ADDRESS>
+<ADDRESS><A href="/">Meta News Home</A></ADDRESS><!-- These comments are used by the What's new Generator --><!-- Changed On: 2006/01/11 --><!-- Changed by: Stephanie Lipow --><!-- Change Note: extensive updates --><!-- Fresh for: 1 month --></LI></BODY></HTML>

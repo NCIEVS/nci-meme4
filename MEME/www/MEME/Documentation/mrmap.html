@@ -1,0 +1,333 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <title>MRMAP Specification</title>
+</head>
+<body>
+<h2>
+<center>MRMAP Specification (04/02/2007)</center>
+</h2>
+<hr width="100%">
+<h3>Overview</h3>
+<p> This document describes how mappings are to be represented in the
+Metathesaurus RRF as well as how MetamorphoSys, the MID, UMLS object
+model, and MEME data structures should accommodate this data.</p>
+<p>This document is separated into these sections:</p>
+<ul>
+  <li><a href="#conceptual">Conceptual Model</a></li>
+  <li><a href="#rrf">Rich Release Format</a></li>
+  <li><a href="#mid">MID Representation</a></li>
+  <li><a href="#objects">UMLS Objects API</a></li>
+  <li><a href="#meme">MEME Representation</a></li>
+  <li><a href="#src">.src Representation</a></li>
+  <li><a href="#additional">Additional Examples</a></li>
+</ul>
+<a name="conceptual"></a>
+<h3>Conceptual Model</h3>
+In order to choose well how to represent this information it is
+important to understand conceptually the different parts of the
+mappings. We see that there are essentially three conceptual data
+structures which must be represented.
+<blockquote>
+  <dl>
+    <dt><b> MapSet</b></dt>
+    <dd> This is the top level data structure and represents a
+collections of mappings from one kind of UI or UI expression to another
+kind of UI or UI expression. A map set contains information like the
+name of the map set, the identifier for the map set, the map set
+version, and some of the
+various other attributes used by this map set (such as the from ui list
+separator). One restriction/limitation imposed on a MapSet is that it
+is owned by a particular version of a source (MABSETVSAB) and must
+contain mappings only from one source (FROMVSAB) to another source
+(TOVSAB). Mappings between other pairs of sources must belong to a
+different map set.&nbsp; Each map set is represented as a concept in
+the Metathesaurus, and updated versions of map sets are represented as
+separate concepts.&nbsp; Multiple versions of a map set are allowed to
+exist simultaneously in the Metathesaurus, but when one is made
+obsolete, a bequeathal relationship should connect it to the current
+version of the map set.&nbsp; This means that each subsequent version
+of a map set has a different CUI representing it in MRCONSO.RRF.<br>
+    </dd>
+    <br>
+    <dt><b> Mapping</b></dt>
+    <dd>This represents a mapping from an identifier or expression to
+another identifier or expression. It is conceptually part of a map set.
+Mappings are occasionally grouped together into subsets with an
+ordering imposed over them. (e.g. SNOMED-ICD9 reimbursement
+mappings).&nbsp; This object will have a UMLS asserted identifier and
+may have a source asserted identifier.<br>
+    </dd>
+    <br>
+    <dt><b>MapObject</b> (aka "map from" and "map to")</dt>
+    <dd>A mapping may connect some kind of identifier (like a SNOMEDCT
+concept id) to another kind of identifier. These "from" and "to"
+objects are abstractions allowing mappings to connect complex sets,
+lists, or expressions of identifiers to one another. This object will
+have a UMLS asserted identifier and may have a source asserted
+identifier. </dd>
+  </dl>
+</blockquote>
+<a name="rrf"></a>
+<h3>Rich Release Format</h3>
+<p> The proposal is to represent mappings in the RRF in four parts. The
+first part is the map set concept, represented in the example below by
+a MRCONSO entry with TTY=XM. The atom name is a descriptive name for
+the map set and should include information about the versions of the
+two sources being mapped. One result of using versioned source names is
+that subsequent updates to the map set XM atom will wind up in new
+Metathesaurus concepts (with new CUIs). The offical map set name from
+the source is
+encoded as an attribute (as you will see later). The code of the XM
+atom is the MAPSETSID, or if that is null, then a maintained "MTHU#"
+code will be used. The concept will
+also require an "Intellectual
+Product" semantic type.</p>
+<pre>  MRCONSO:<br>  --------<br>    C2000039|ENG|P|L2354989|PF|S2464922|Y|A3528280||||SNOMEDCT|XM|100046|SNOMEDCT_2006_07_31 to ICD9CM_2006 Mappings|0|N|<br><br>  MRSTY:<br>  ------<br>    C2000039|T170|A2.4|Intellectual Product|AT17737406||<br></pre>
+<p> This is the starting point for investigating the mappings. The next
+part is a series of attributes which appear in MRSAT connected to the
+XM CUI. For SNOMEDCT at least the following attributes will be
+associated with the map set (shown are the attribute names and values)
+and owned by the current version of SNOMEDCT.&nbsp; Those entries with
+a * are <span style="font-style: italic;">required</span>.<br>
+</p>
+<pre>  MRSAT.ATN,ATV:<br>  --------------<br>    MAPSETSID|100046<br>    MAPSETNAME|ICD-9-CM  // ONLY use this if source asserts its own map set name<br>    *MAPSETVERSION|20060731<br>    MAPSETTYPE|2<br>    MAPSETSEPARATORCODE|&amp;#x7C;<br>  &nbsp; MAPSETXRTARGETID|100051<br>    MAPSETSCHEMEID|2.16.840.1.113883.6.5.2.1<br>    MAPSETSCHEMENAME|International Classification of Diseases ...<br>    MAPSETSCHEMEVERSION|2002<br>    MAPSETREALMID|<br>    MAPSETRULETYPE|<br>    TARGETSCHEMEID|2.16.840.1.113883.6.5.2.1<br></pre>
+In addition, this concept will contain attributes further describing
+the map set.&nbsp; These are also owned by the same SAB as the
+MAPSETVSAB.&nbsp; Those entries with a * are <span
+ style="font-style: italic;">required</span>.<br>
+<pre>  MRSAT.ATN,ATV:<br>  --------------<br>    MTH_UMLSMAPSETSEPARATOR|,<br>    *FROMVSAB|SNOMEDCT_2006_07_31<br>    *FROMRSAB|SNOMEDCT<br>    *TOVSAB|ICD9CM_2006<br>    *TORSAB|ICD9CM<br>    *MAPSETVSAB|SNOMEDCT_2006_07_31<br>    *MAPSETRSAB|SNOMEDCT<br></pre>
+Finally, we can have a standard set of "extended" attributes to
+describe the nature of the map set. These attributes are owned by the
+same SAB as the MAPSETVSAB. For example:
+<pre>  MRSAT.ATN,ATV<br>  --------------<br>    SOS|This set maps SNOMEDCT concept identifiers to ICD-9-CM codes<br>        where a single concept id can be mapped to one or more codes, etc.<br>    MTH_MAPSETCOMPLEXITY|N_TO_ONE<br>    MTH_MAPFROMCOMPLEXITY|SINGLE SCUI<br>    MTH_MAPTOCOMPLEXITY|SINGLE SCUI, MULTIPLE SCUI<br>    MTH_MAPTOEXHAUSTIVE|N<br>    MTH_MAPFROMEXHAUSTIVE|N<br></pre>
+<p> Additional attributes can easily be added to accommodate the
+specific needs of certain mapping sets (like associated
+expressions).&nbsp; <br>
+<br>
+Valid values for MTH_MAPFROMCOMPLEXITY and MTH_MAPTOCOMPLEXITY have two
+parts: the degree (SINGLE, MULTIPLE, BOOLEAN_EXPRESSION) and the type
+(STR, CODE, SCUI, SDUI, CUI) separated by a space.&nbsp; A comma separated list can be used
+to represent multiple values.<br>
+<br>
+Valid values for MTH_MAPSETCOMPLEXITY include: N_TO_ONE, N_TO_N, ONE_TO_ONE, and ONE_TO_N.&nbsp; This indicates how many mappings a single
+"FROM" expression will have and how many mappings a single "TO"
+expression will have.&nbsp; For example, in the SNOMEDCT to ICD9CM map
+set, each SNOMEDCT FROMEXPR has only a single mapping, but an ICD9CM
+TOEXPR may correspond with multiple SNOMEDCT concepts, thus the
+complexity is "N_TO_ONE" (N FROMEXPRs map TO ONE TOEXPR).&nbsp;&nbsp; <br>
+</p>
+<p>The STYPE of these attributes should always be CODE.<br>
+</p>
+<p>The MAPSETTYPE should describe the "kind" of mappings in this set.  It should either have a source provided value 
+(like in the example above) or should be one of the supported stock values.  These include.
+<ul><li>ATX - for Associated Expressions mappings</li>
+<li>SIMPLE - basic mappings that either do not use MAPSUBSETID or have exactly the same trivial value in every record (e.g. "0" or "0:0")</li>
+<li>RULE_BASED - complex mappings that fully utilize the MAPSUBSETID and MAPRANK semantics<br>
+</ul>
+</p>
+<p>The third part of the mapping structure is the MRMAP file itself.
+It contains information about what is mapped to what and what source is
+responsible for the mapping. The following proposal is designed to be
+as flexible as possible looking forward.</p>
+<pre>  MRMAP:<br>  ------<br>    MAPSETCUI: CUI of the map set<br>    MAPSETSAB: SAB of the map set<br>    MAPSUBSETID: Map subset identifier used to identify a subset of related mappings within a map set<br>    MAPRANK: Order in which mappings in a subset should be applied<br>    MAPID: Metathesaurus asserted identifier for mapping<br>    MAPSID: Source asserted identifier for mapping<br>    FROMID: Metathesaurus identifier for the entity being mapped from<br>    FROMSID: Source asserted identifier for the entity being mapped from<br>    FROMEXPR: The expression that a mapping is mapped from<br>    FROMTYPE: The type of expression that a mapping is mapped from<br>    FROMRULE: Machine processible rule applicable to the entity being mapped from<br>    FROMRES: Restriction applicable to the entity being mapped from<br>    REL: Relationship<br>    RELA: Relationship attribute<br>    TOID: Metathesaurus identifier for the entity being mapped to<br>    TOSID: Source asserted identifier for the entity being mapped to<br>    TOEXPR: The expression that a mapping is mapped to<br>    TOTYPE: The type of expression that a mapping is mapped to<br>    TORULE: Machine processible rule applicable to the entity being mapped to<br>    TORES: Restriction applicable to the entity being mapped to<br>    MAPRULE: Machine processible rule applicable to this mapping<br>    MAPRES: Restriction applicable to this mapping<br>    MAPTYPE: Type of mapping<br>    MAPATN: Mapping attribute name (for future use)<br>    MAPATV: Mapping attribute value (for future use)<br>    CVF: Content view flag<br></pre>
+A sample row might look like this:
+<pre>  MRMAP:<br>  ------<br>    C2000039|SNOMEDCT|||AT00312345|439234392|1001||212874005|SCUI|||RN||4023|9533976055|040.3,041.84|CODE|||||2||||<br></pre>
+There are a few notes about this structure.
+<ol>
+  <li>The MAPSETCUI field should contain the CUI of the map set concept
+in MRCONSO</li>
+  <li>The FROMID and TOID are the "source id" and "target id" used by
+the XMAPFROM and XMAPTO in the MID. They do not have a type because
+they are just ids for the MapObjects on each side of the mapping.</li>
+  <li>The FROMEXPR and TOEXPR can be simple or complex expressions. </li>
+  <li>The FROMTYPE, TOTYPE should be bounded sets of possible values
+which appear in MRDOC. Here are initial suggestions for valid types:
+    <pre>     CUI, AUI, SCUI, SDUI, SAUI, CODE, <br>     BOOLEAN_EXPRESSION_{type} (e.g. BOOLEAN_EXPRESSION_STR)<br></pre>
+  </li>
+  <li>We believe that the original style MR file MRATX should be folded
+into the MRMAP data structure. We can create the relevant MID data
+structures (including XM concepts) to represent the "ATX" mappings and
+the "Locators". A proposal for this will be submitted separately.</li>
+  <li>MAPSUBSETID is the MRMAP implementation of the SNOMEDCT MapGroup
+It can also be used more generically to just represent a subgrouping of
+mappings within a map set.</li>
+  <li>MAPRANK is the MRMAP implementation of the SNOMEDCT MapOption. It
+can also be used more generically to order the entries within a
+subgroup. The SNOMEDCT MapPriority will (for now) be represented as a
+MAPATN/MAPATV</li>
+  <li>MAPTYPE is the MRMAP implementation of the SNOMEDCT MapCategory.
+More generally, it describes the type of mapping, e.g. "ATX" for former
+MRATX data.</li>
+  <li>MAPRULE/MAPRES are the MRMAP implementations of the SNOMEDCT
+MapRule and MapAdvice fields. They are intended to represent
+information about how and when to use certain mappings based on machine
+or human readable rules.</li>
+  <li>We have MAPSETVSAB and MAPSETRSAB attributes in the MapSet
+concept, but we also have a MAPSETSAB field in MRMAP so that it is
+easier for MMSYS to handle this data structure. This is either
+versioned or root based on your MMSYS configuration.</li>
+</ol>
+The fourth part of the mapping structure is the MRSMAP file which is a
+projection of MRMAP which represents only the simple mappings and does
+so without all of the fields that make MRMAP both powerful and
+confusing.
+<pre>  MRSMAP:<br>  -------<br>    MAPSETCUI: Unique identifier for the map set concept<br>    MAPSETSAB: Source abbreviation for the map set<br>    MAPID: Mapping ID (ATUI value of XMAP)<br>    MAPSID: Source asserted Mapping ID<br>    FROMEXPR: Expression mapped from<br>    FROMTYPE: Type of mapped from expression<br>    REL: Relationship<br>    RELA: Relationship attribute<br>    TOEXPR: Expression mapped to<br>    TOTYPE: Type of mapped to expression<br>    CVF: Content view flag<br></pre>
+A sample row might look like this:
+<pre>  MRSMAP:<br>  -------<br>    C2000039|SNOMEDCT|AT0343929|240039123|212874005|SCUI|RN||040.3,041.84|CODE||<br></pre>
+<p> We keep the TYPE fields so that it is clear what kind of
+identifiers are used for the expressions. It is recommended that only
+the "simple" mappings be included in MRSMAP which means mappings that
+do not make use of the MAPSUBSETID and MAPRANK fields. Those entries
+are considered "compound" mappings.<br>
+<br>
+In some cases, mappings are redundantly represented as relationships in
+MRREL.&nbsp; Relationships are created from mappings only if these
+things are the case:<br>
+</p>
+<ul>
+  <li>FROMEXPR and TOEXPR are single UI expressions</li>
+  <li>Map set is not rule-based</li>
+  <li>REL is not XR</li>
+</ul>
+<p></p>
+<p>
+</p>
+<p> It is possible that only portions of a map set are redundantly
+represented (if some of the data meets these restrictions but not
+all).&nbsp; These relationships have the same SAB as the map set and
+are not labelled in any special way.&nbsp; Thus, to determine if a
+relationship from a particular SAB is based on MRMAP data or based on
+native source asserted relationships, a user must rely on documentation.<br>
+</p>
+<p>Finally, it is worth noting that we may have the need to
+arbitrarily extend the MRMAP data model. One obvious way to extend
+MRMAP is to allow ATUI attributes in MRSAT to be associated with MAPID
+values (which will be ATUI values). In this way, arbitrary additional
+attributes can be added to a mapping.
+</p>
+<a name="mid"></a>
+<h3>MID Representation</h3>
+<p> Representation in the MID is very similar to that in the release.
+There will be a concept containing an atom with an XM termgroup which
+names the subset and represents the concept that means that subset
+(this is where MRCONSO data comes from). The various metadata
+attributes will be connected to this atom in the attributes table.
+</p>
+<p> The mappings themselves will be represented as micro-syntax rows in
+the attributes table with attribute_name = 'XMAP' and attached to the
+XM atom for the map set. These attributes values will be ~ separated
+fields, one for each of the following MRMAP fields:
+</p>
+<pre>    MAPSUBSETID: Map sub set identifier<br>    MAPRANK: Order in which mappings in a subset should be applied<br>    FROMID: Identifier mapped from<br>    REL: Relationship<br>    RELA: Relationship attribute<br>    TOID: Identifier mapped to<br>    MAPRULE: Machine processable rule for when to apply mapping<br>    MAPTYPE: Type of mapping<br>    MAPATN: Row level attribute name associated with this mapping<br>    MAPATV: Row level attribute value associated with this mapping<br>    MAPSID: Source asserted Mapping ID<br>    MAPRES: Human readable restriction use of mapping<br></pre>
+<p> The two fields at the end are out of order because they were added
+after the fact and the remaining structure continues to work for
+backwards compatability.
+</p>
+<p> There will be one XMAP attribute per "mapping". For example, one
+row might have an attribute value like this:
+</p>
+<pre>  attributes:<br>  -----------<br>    XMAP|~~212874005~RN~~9533976055~~2~~~~<br></pre>
+<p> The FROMID and TOID are essentially pointers to XMAPFROM and XMAPTO
+attributes which represent the identifiers or combinations of
+identifiers used at each end of the mappings. These attributes will be
+represented as micro-syntax rows in the attributes table with the
+attribute_name of 'XMAPTO' or 'XMAPFROM and also attached to the XM
+atom. For each mapping the FROMID will be represented by an XMAPTO
+entry, and the TOID by an XMAPTO entry. These attributes will be ~
+separated fields, one for each of the following fields:
+</p>
+<pre>    ID: Identifier mapped to<br>    SID: Source asserted identifier mapped to<br>    EXPR: Expression mapped to<br>    TYPE: Type of mapped to expression<br>    RULE: Machine processable rule for when this "mapped from/to" is valid<br>    RES: Restriction on when this "mapped from/to" should be used<br></pre>
+Here is a sample XMAPFROM attribute value:
+<pre>  attributes:<br>  -----------<br>    XMAPFROM|1001~~212874005~SCUI~~<br></pre>
+Here is a sample XMAPTO attribute value:
+<pre>  attributes:<br>  -----------<br>    XMAPTO|4003~9533976055~040.3,041.84~CODES~~<br></pre>
+<p> It is important to represent map "to" and "from" objects separately
+from mappings in the MID because it is an editing envrionment. An
+editor should be able to change the definition of a "to id" without
+affecting the (possibly many) mappings connected to that id. For the
+release, we merely join the XMAPFROM and XMAPTO attributes back to the
+XMAP attributes to build the MRMAP file.
+</p>
+<a name="objects"></a>
+<h3>UMLS Objects API</h3>
+<p> The object API should be able to "natively" represent UMLS data
+structures, and so there is a Mapping object that reflects the MRMAP
+field structure. It also supports MapSet and shared MapFrom (for
+XMAPFROM) and MapTo (for XMAPTO) objects so that the mapping structure
+can be navigated completely from the object perspective.
+</p>
+<a name="meme"></a>
+<h3>MEME Representation</h3>
+<p> MEME implements the following objects.
+</p>
+<pre>  MapSet extends Concept<br>  Mapping extends Attribute<br>  MapObject extends Attribute<br></pre>
+<p> There is also a MEME client/service for providing editing functions
+to mappings from within MEME.
+</p>
+<a name="src"></a>
+<h3>.src File Representation</h3>
+<p> Inversion will produce load files containing the various data
+structures so that they can be loaded into the MID. Following are
+samples of .src files containing the various atoms and attributes. </p>
+<pre>  classes_atoms.src:<br>  ------------------<br>    72673553|SNOMEDCT_2006_07_31|SNOMEDCT_2006_07_31/XM|100046|N|Y|N|SNOMEDCT2006_07_31 to ICD9CM_2006 Mappings|N|100046|||ENG|1947543|<br></pre>
+Note, the code of the XM atom should be the MAPSETSID (if exists),
+otherwise a maintained "MTHU#" code.&nbsp; Next we have the semantic
+type for this
+concept.
+<pre>    1|100046|C|SEMANTIC_TYPE|Intellectual Product|SNOMEDCT_2006_07_31|R|Y|N|N|CODE_ROOT_SOURCE|SNOMEDCT||MD5|<br></pre>
+<p> Next are the various source-specific attributes for this map set.
+Note that they are attributed to SNOMEDCT_2006_07_31. Also note that
+they are source level attributes attached by CODE_ROOT_SOURCE (to ensure STYPE=CODE in MRSAT).<br>
+</p>
+<pre>  attributes.src<br>  --------------<br>    1001|100046|S|MAPSETNAME|ICD-9-CM|SNOMEDCT_2006_07_31|R|Y|N|N|CODE_ROOT_SOURCE|SNOMEDCT||MD5|<br>    1002|100046|S|MAPSETVERSION|2006_07_31|SNOMEDCT_2006_07_31|R|Y|N|N|CODE_ROOT_SOURCE|SNOMEDCT||MD5|<br>    1003|100046|S|MAPSETTYPE|2|SNOMEDCT_2006_07_31|R|Y|N|N|CODE_ROOT_SOURCE|SNOMEDCT||MD5|<br>    1004|100046|S|MAPSETSCHEMEID|2.16.840.1.113883.6.5.2.1|SNOMEDCT_2006_07_31|R|Y|N|N|CODE_ROOT_SOURCE|SNOMEDCT||MD5|<br>    1005|100046|S|MAPSETSCHEMENAME|International Classification of Diseases and Related Health Problems, 9th Revision, Clinical Modifications.|SNOMEDCT_2006_07_31|R|Y|N|N|CODE_ROOT_SOURCE|SNOMEDCT||MD5|<br>    1006|100046|S|MAPSETSCHEMEVERSION|2002|SNOMEDCT_2006_07_31|R|Y|N|N|CODE_ROOT_SOURCE|SNOMEDCT||MD5|<br>    1007|100046|S|MAPSETREALMID||SNOMEDCT_2006_07_31|R|Y|N|N|CODE_ROOT_SOURCE|SNOMEDCT||MD5|<br>    1008|100046|S|MAPSETSEPARATORCODE|&amp;#x7C;|SNOMEDCT_2006_07_31|R|Y|N|N|CODE_ROOT_SOURCE|SNOMEDCT||MD5|<br>    1009|100046|S|MAPSETRULETYPE||SNOMEDCT_2006_07_31|R|Y|N|N|CODE_ROOT_SOURCE|SNOMEDCT||MD5|<br>    1010|100046|S|MAPSETSCHEMEID|2.16.840.1.113883.6.5.2.1|SNOMEDCT_2006_07_31|R|Y|N|N|CODE_ROOT_SOURCE|SNOMEDCT||MD5|<br>    1011|100046|S|TARGETSCHEMEID|2.16.840.1.113883.6.5.2.1|SNOMEDCT_2006_07_31|R|Y|N|N|CODE_ROOT_SOURCE|SNOMEDCT|MD5|<br>    1012|100046|S|MAPSETSID|100046|SNOMEDCT_2006_07_31|R|Y|N|N|CODE_ROOT_SOURCE|SNOMEDCT||MD5|<br></pre>
+Next are the various general attributes for this map set. Note that
+they are attributed to SNOMEDCT.<br>
+<pre>    1013|100046|S|MTH_UMLSMAPSETSEPARATOR|,|SNOMEDCT_2006_07_31|R|Y|N|N|CODE_ROOT_SOURCE|SNOMEDCT||MD5|<br>    1014|100046|S|FROMVSAB|SNOMEDCT_2006_07_31|SNOMEDCT_2006_07_31|R|Y|N|N|CODE_ROOT_SOURCE|SNOMEDCT||MD5|<br>    1015|100046|S|FROMRSAB|SNOMEDCT|SNOMEDCT_2006_07_31|R|Y|N|N|CODE_ROOT_SOURCE|SNOMEDCT||MD5|<br>    1016|100046|S|TOVSAB|ICD9CM_2006|SNOMEDCT_2006_07_31|R|Y|N|N|CODE_ROOT_SOURCE|SNOMEDCT|MD5|<br>    1017|100046|S|TORSAB|ICD9CM|SNOMEDCT_2006_07_31|R|Y|N|N|CODE_ROOT_SOURCE|SNOMEDCT||MD5|<br>    1018|100046|S|MAPSETVSAB|SNOMEDCT_2006_07_31|SNOMEDCT_2006_07_31|R|Y|N|N|CODE_ROOT_SOURCE|SNOMEDCT||MD5|<br>    1019|100046|S|MAPSETRSAB|SNOMEDCT|SNOMEDCT_2006_07_31|R|Y|N|N|CODE_ROOT_SOURCE|SNOMEDCT||MD5|<br></pre>
+&nbsp;Here is a sample XMAP entry. It has the same attribute_value
+fields as described in the MID section above.
+<pre>  attributes.src<br>  --------------<br>    100001|100046|S|XMAP|~~212874005~RN~~9533976055~~2~~~~|SNOMEDCT_2006_07_31|R|Y|N|N|CODE_ROOT_SOURCE|SNOMEDCT||MD5|<br></pre>
+The mapping example below connects the following XMAPFROM and XMAPTO.
+<pre>  attributes.src<br>  --------------<br>    100034|100046|S|XMAPFROM|1001~~212874005~SCUI~~~|SNOMEDCT_2006_07_31|R|Y|N|N|CODE_ROOT_SOURCE|SNOMEDCT||MD5|<br>    100035|100046|S|XMAPTO|4003~9533976055~TARGETID~040.3,041.84~CODES~~|SNOMEDCT_2006_07_31|R|Y|N|N|CODE_ROOT_SOURCE|SNOMEDCT||MD5|<br></pre>
+<p> It is worth noting that all of the attributes are attached to the
+XM atom. The entire map set is represented by this single concept, and
+each of the mappings is an attribute of the concept, and each map
+object (mapped to and mapped from) is an attribute of the concept.
+</p>
+<a name="additional"></a>
+<h3>Additional Examples</h3>
+<p> It may be helpful to see a couple of additional examples. Following
+are some sample MRCONSO rows for a couple of potential map sets.
+</p>
+<pre>  MRCONSO:<br>  --------<br>    C2008323|ENG|P|L1234989|PF|S3332222|Y|A4388230||||MTH|XM|1001|MDR91 to SNOMEDCT_2006_07_31 Mappings|0|N||<br>    C2008324|ENG|P|L4989123|PF|S2334422|Y|A1273473||||MTH|XM|1002|MSH2007_2006_08_08 Associated Expressions|0|N||<br></pre>
+<p> Here are sample MRSAT rows for the two map sets defined above.
+Note, many of the SNOMEDCT specific attributes do not appear here
+because they are not necessarily applicable.
+</p>
+<pre>  MRSAT:<br>  ------<br>    C2008323|L1234989|S3332222|A4388230|CODE|AT16638531||MAPSETNAME|MTH|MDR91 to SNOMEDCT_2006_07_31 Mappings|N||<br>    C2008323|L1234989|S3332222|A4388230|CODE|AT16638531||MAPSETVERSION|MTH|20060715|N||<br>    C2008323|L1234989|S3332222|A4388230|CODE|AT16638531||MAPSETTYPE|MTH|ONE_TO_ONE|N||<br>    C2008323|L1234989|S3332222|A4388230|CODE|AT16638532||MAPSETSID|MTH|CODE|N||<br>    C2008323|L1234989|S3332222|A4388230|CODE|AT16638533||MAPSETSEPARATORCODE|MTH|,|N||<br>    C2008323|L1234989|S3332222|A4388230|CODE|AT16638534||MTH_UMLSMAPSETSEPARATOR|MTH|,|N||<br>    C2008323|L1234989|S3332222|A4388230|CODE|AT16638535||FROMRSAB|MTH|MDR|N||<br>    C2008323|L1234989|S3332222|A4388230|CODE|AT16638536||FROMVSAB|MTH|MDR61|N||<br>    C2008323|L1234989|S3332222|A4388230|CODE|AT16638537||TORSAB|MTH|SNOMEDCT|N||<br>    C2008323|L1234989|S3332222|A4388230|CODE|AT16638538||TOVSAB|MTH|SNOMEDCT_2004_01_31|N||<br>    C2008323|L1234989|S3332222|A4388230|CODE|AT16638539||MAPSETRSAB|MTH|MTH|N||<br>    C2008323|L1234989|S3332222|A4388230|CODE|AT16638541||MAPSETVSAB|MTH|MTH|N||<br>    C2008324|L4989123|S2334422|A1273473|CODE|AT16638631||MAPSETVERSION|MTH|20060808|N||<br>    C2008324|L4989123|S2334422|A1273473|CODE|AT16638631||MAPSETTYPE|MTH|ATX|N||<br>    C2008324|L4989123|S2334422|A1273473|CODE|AT16638632||MAPSETSID|MTH|1002|N||<br>    C2008324|L4989123|S2334422|A1273473|CODE|AT16638633||GRAMMAR|MTH|&lt;we could define the ATX grammar here&gt;|N||<br>    C2008324|L4989123|S2334422|A1273473|CODE|AT16638635||FROMRSAB|MTH|MTH|N||<br>    C2008324|L4989123|S2334422|A1273473|CODE|AT16638636||FROMVSAB|MTH|MTH|N||<br>    C2008324|L4989123|S2334422|A1273473|CODE|AT16638637||TORSAB|MTH|MSH|N||<br>    C2008324|L4989123|S2334422|A1273473|CODE|AT16638638||TOVSAB|MTH|MSH2007_2006_08_08|N||<br>    C2008324|L4989123|S2334422|A1273473|CODE|AT16638639||MAPSETRSAB|MTH|MTH|N||<br>    C2008324|L4989123|S2334422|A1273473|CODE|AT16638641||MAPSETVSAB|MTH|MTH|N||<br></pre>
+<p> Finally, here are the sample MRMAP rows for these two fictional map
+sets.
+</p>
+<pre>  MRMAP:<br>  ------<br>    C2008323|MTH|||AT58384932||1234||10000647|CODE|||SY||2443||9209005|SCUI|||||||||<br>    C2008323|MTH|||AT58384933||1235||10000058|CODE|||SY||2444||51197009|SCUI|||||||||<br>    C2008323|MTH|||AT58384934||1236||10000148|CODE|||SY||2446||81543006|SCUI|||||||||<br>    C2008324|MTH|||AT58384935||3212||C0000847|CUI|||RO||4733||&lt;Pulse&gt; AND &lt;Foot&gt;/&lt;blood supply&gt;|BOOLEAN_EXPRESSION_STR|||||ATX||||<br>    C2008324|MTH|||AT58384936||3213||C0002873|CUI|||RO||4734||&lt;Anemia&gt; AND &lt;Chronic Disease&gt;|BOOLEAN_EXPRESSION_STR|||||ATX||||<br>    C2008324|MTH|||AT58384937||3214||C0001539|CUI|||RO||4735||&lt;Adjustment Disorders&gt; AND &lt;Depression&gt;|BOOLEAN_EXPRESSION_STR|||||ATX||||<br></pre>
+<br>
+<br>
+<hr width="100%">
+<table nosave="" border="0" cols="2" width="100%">
+  <tbody>
+    <tr nosave="">
+      <td nosave="" align="left" valign="top">
+      <address><a href="/">Meta News Home</a></address>
+      </td>
+      <td nosave="" align="right" valign="top">
+      <address><font size="-1">Contact: <a
+ href="mailto:bcarlsen@apelon.com">Brian A. Carlsen</a></font></address>
+      <address><font size="-1">Created: 06/21/2005</font></address>
+      <address><font size="-1">Last Updated: 08/25/2009</font></address>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<!-- These comments are used by the What's new Generator --><!-- Changed On: 2005/11/14 --><!-- Changed by: MEME Team --><!-- Change Note: MEME - Developer Guides - MRMAP Specification -->
+<!-- Fresh for: 1 month -->
+</body>
+</html>

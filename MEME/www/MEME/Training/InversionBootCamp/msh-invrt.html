@@ -1,0 +1,131 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf8">
+  <title>MEME Boot Camp Schedule - &lt;session name here&gt;</title>
+</head>
+<body style="background-color: rgb(255, 255, 255); color: rgb(0, 0, 0);"
+ alink="#ff0000" link="#3333ff" vlink="#999999">
+<center>
+<h2>An Example of MeSH Inversion<br>
+</h2>
+</center>
+<hr width="100%">
+<blockquote> <b style=""><span
+ style="font-size: 14pt; font-family: &quot;Courier New&quot;;"></span></b><b
+ style=""><span style="font-size: 14pt; font-family: &quot;Courier New&quot;;"></span></b><b
+ style=""><span style="font-size: 14pt; font-family: &quot;Courier New&quot;;">Acetaminophen
+in MeSH<br>
+  <br>
+(Most of the XML tags have been omitted, Dates, ActiveMesh Years, List
+of Allowable Qualifiers, Notes, etc.) <br>
+Representation in the XML file 'desc2006.xml':<br>
+&lt;DescriptorUI&gt;D000082&lt;DescriptorName&gt;Acetaminophen<br>
+&nbsp;&nbsp; &lt;TreeNumber&gt;D02.065.199.092.040<br>
+&nbsp;&nbsp;&nbsp; &lt;CASN1Name&gt;Acetamide,
+N-(4-hydroxyphenyl)-&lt;/CASN1Name&gt;<br>
+&nbsp;&nbsp;&nbsp; &lt;RegistryNumber&gt;103-90-2&lt;/RegistryNumber&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;TermUI&gt;T000213&lt;/TermUI&gt;
+&lt;String&gt;Acetaminophen&lt;/String&gt;<br>
+(9 add. terms in the concept omitted...)<br>
+(8 More Concepts and 12 Term omitted...)<br>
+  <br>
+  <br>
+Representation in tagged file:<br>
+DESCRIPTOR<br>
+DescriptorClass|1<br>
+Level|DescriptorRecord<br>
+DescriptorRecordDescriptorUI|D000082<br>
+DescriptorRecordString|Acetaminophen<br>
+...<br>
+  <br>
+Representation in the meshr* files:<br>
+meshrjoin:<br>
+M0000115|T000213|C0000970|MH|D000082|Acetaminophen|P<br>
+M0000115|T000212|C0000970|EP|D000082|Acetamidophenol|T<br>
+(other concepts and term omitted...)<br>
+  <br>
+meshrrel:<br>
+|M0000115|NRW||M0000117||MSH02|||D000082<br>
+(7 rels omitted)<br>
+  <br>
+meshrdef:<br>
+M0000115|C0000970|MSH02|Analgesic antipyretic derivative of
+acetanilide. It has weak anti-inflammatory properties and is used as a
+common analgesic, but may cause liver, blood cell, and kidney damage.<br>
+  <br>
+meshrsty:<br>
+M0000115||T109|Organic Chemical<br>
+M0000115||T121|Pharmacologic Substance<br>
+  <br>
+meshrsat:<br>
+T000211|M0000114|C0000964|||D000082|LXT|MSH02|TRD<br>
+T000211|M0000114|C0000964|||D000082|RN|MSH02|0<br>
+T000211|M0000114|C0000964|||D000082|TH|MSH02|UNK (19XX)<br>
+T000211|M0000114|C0000964|||D000082|TermUI|MSH02|T000211<br>
+T000211|M0000114|C0000964|||D000082|UMLSCUI|MSH02|C0000964<br>
+(153 entries omitted...)<br>
+  <br>
+classes_atoms.src<br>
+97516502|MSH2006_2006_02_06|MSH2006_2006_02_06/MH|D000082|N|Y|N|Acetaminophen|N||M0000115|D000082|ENG|011087|<br>
+97516500|MSH2006_2006_02_06|MSH2006_2006_02_06/PEN|D000082|N|Y|N|Acetaco|N||M0000114|D000082|ENG|024383|<br>
+97516501|MSH2006_2006_02_06|MSH2006_2006_02_06/EP|D000082|N|Y|N|Acetamidophenol|N||M0000115|D000082|ENG|024384|<br>
+(18 atoms omitted...)<br>
+  <br>
+attributes.src:<br>
+97516500|1698|S|DID|D000082|MSH2006_2006_02_06|R|Y|N|N|SRC_ATOM_ID|||3c47ddef6aa23f53403adeac8084618a|<br>
+97516500|1699|S|LEXICAL_TAG|TRD|MSH2006_2006_02_06|R|Y|N|N|SRC_ATOM_ID|||ff40f2d9a65669ed8ab13509d87874dc|<br>
+97516500|1700|S|MUI|M0000114|MSH2006_2006_02_06|R|Y|N|N|SRC_ATOM_ID|||cc6c4e04161d9d4e3e538235b33029e4|<br>
+(85 attributes omitted...)<br>
+97516502|3959172|S|CONTEXT|1&nbsp;&nbsp;&nbsp;
+::~~~~~~&nbsp;&nbsp;&nbsp; MeSH~MeSH Descriptors~Index Medicus
+Descriptor~Chemicals and Drugs (MeSH Category)~Organic
+Chemicals~Amides~Anilides~Acetanilides&nbsp;&nbsp;&nbsp;
+Acetaminophen&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+Diamfenetide~Etidocaine~Inosine
+Pranobex~Lidocaine~Phenacetin~Practolol~Trimecaine|MSH2006_2006_02_06|R|n|N|N|SRC_ATOM_ID|||e591a9e7cac6ba1dd257ba500e148adb|<br>
+  <br>
+mergefacts.src:<br>
+97516502|SY|97516501|MSH2006_2006_02_06||N|N|MSH-SY|SRC_ATOM_ID||SRC_ATOM_ID||<br>
+(8 add. merges omitted...)<br>
+  <br>
+relationships.src:<br>
+65|S|M0000115|NT||M0000117|MSH2006_2006_02_06|MSH2006_2006_02_06|R|Y|N|N|SOURCE_CUI|MSH2006_2006_02_06|SOURCE_CUI|MSH2006_2006_02_06|||<br>
+(182 relationships omitted...)<br>
+  <br>
+  <br>
+Tree representation (Atom ID - Term) in contexts: <br>
+&nbsp;68041003 - MeSH<br>
+&nbsp;&nbsp; 97516003 - MeSH Descriptors<br>
+&nbsp;&nbsp;&nbsp;&nbsp; 97516005 - Index Medicus Descriptor<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 97516018 - Chemicals and Drugs
+(MeSH Category)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 97574714 - Organic
+Chemicals<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 97519689 -
+Amides<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+97520929 - Anilides<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+97516522 - Acetanilides<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+97516502 - Acetaminophen<br>
+  </span></b><b style=""><span
+ style="font-size: 14pt; font-family: &quot;Courier New&quot;;"> </span></b></blockquote>
+<hr width="100%">
+<table border="0" cols="2" width="100%">
+  <tbody>
+    <tr>
+      <td style="font-style: italic;" align="left" valign="top"><a
+ href="boot_camp_schedule.html">MEME Boot Camp Schedule</a></td>
+      <td align="right" valign="top">
+      <address> <font size="-1"> Contact: David D. Sherertz </font> </address>
+      <address><font size="-1">Created: 02/17/2006</font></address>
+      <address><font size="-1">Last Updated: 02/21/2006</font></address>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<!-- These comments are used by the What's new Generator --><!-- Changed On: 2006/02/02 --><!-- Changed by: Brian Carlsen --><!-- Change Note: MEME - Category - Topic --><!-- Fresh for: 1 month -->
+</body>
+</html>

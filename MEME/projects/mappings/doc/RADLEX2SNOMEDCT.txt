@@ -1,0 +1,39 @@
+Mapping:          RADLEX to SNOMEDCT
+Requested by:     Pat Mongkolwat (p-mongkolwat@northwestern.edu)
+                  via Sherri DeCoronado (decorons@mail.nih.gov)
+Requested output: Excel spreadsheet
+Script:           dump_radlex_mappings.csh
+
+Details:
+
+A caBIG user requested some info about RADLEX from the UMLS: definitions (from RADLEX and other sources sharing the same CUI), SNOMEDCT terms, and a list of RADLEX PTs with their associated SYs.
+
+I divided the output into three Excel tabs for readability.
+
+tab 1: CUI | RADLEX code | RADLEX PT | CUI PT [Source/Term Type] | definition | definition source
+tab 2: CUI | RADLEX code | RADLEX PT | CUI PT [Source/Term Type] | SNOMEDCT term | SNOMEDCT code
+tab 3: CUI | RADLEX code | RADLEX PT | CUI PT [Source/Term Type] | RADLEX SY
+
+This was done in TESTSW after copyout but before production, due to time constraints.
+
+-- jfw (joanne.f.wong@lmco.com)
+
+
+Additional Notes:
+
+From: De Coronado, Sherri (NIH/NCI) [E]
+Sent: Tuesday, April 05, 2011 3:57 PM
+To: Haber, Margaret (NIH/NCI) [E]; Laura A Roth; Lori L Whiteman
+Cc: Fragoso, Gilberto (NIH/NCI) [E]
+Subject: FW: Getting terms out from EVS
+
+Hi,
+Would like to request a report from the new NCI Meta RRF export that contains the new RadLex (probably not avail till end of week) - Gilberto and I discussed and think probably best to ask Alameda to produce this.  Info below, but in essence, here is what Pat is looking for.  (Note: he's the AIM project PI, this is in line with BSA report interests).
+
+RadLex 3.33 export in excel or some delimited format that includes the following:
+
+Source|CUI|Source Code (RID)|Preferred Term| Definition (any definition present, with source identification if possible)|SNOMED term if present|SNOMED ID if present|RadLex Synonyms|
+
+I realize it won't be quite this simply structured with multiple synonyms; you probably get multiple records per concept.  I'll ask if that is OK.  Similar for definitions.  I don't think he's thought about that.  Also, the SNOMED matches will be uncurated.  A flat file seems less than ideal for this.
+
+Happy to discuss further with Alameda once tasked.  Thanks, Sherri

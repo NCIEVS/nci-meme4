@@ -1,0 +1,196 @@
+<HTML>
+<PRE>
+
+Feb 2000
+suresh@nlm.nih.gov
+
+How to make release files and QA:
+--------------------------------
+
+Introduction:
+------------
+
+The release files are normally made on wthsun and start with the
+contents in a master directory and end with the TGZ (the tar,
+gzip compressed file for UNIX) and the ZIP (pkzip file for Windows).
+The only exceptions is that the following files are unpacked from
+a different directory:
+
+README.MMS (the MetamorphoSys README file)
+MetamorphoSysUnix.zip (the UNIX MetamorphoSys)
+MetamorphoSysWin.zip (the Windows MetamorphoSys)
+
+The name of the script is /site/umls/release/master2dist.pl.
+The directory structure it expects is as follows:
+
+- The top directory called TOP where everything is installed,
+  e.g., /d21/2000.
+
+- These directories are assumed to exist: {TOP}/MASTER, {TOP}/UNIX,
+  {TOP}/ISO, {TOP}/ZIP, {TOP}/TAR.  When the release script is run,
+  their contents are removed and fresh data installed.  The {TOP}/MASTER
+  is the master directory that has the latest, *verified* data in the
+  right structure.
+
+- When the process ends, the {TOP}/ZIP contains the ZIP image and
+  {TOP}/TAR contains the TGZ image of the Metathesaurus.
+
+
+The process:
+-----------
+
+The script logic is briefly summarized below:
+
+- The UNIX directory is populated with the contents of the MASTER
+  directory; the permissions on the files and directories are set to 644
+  and 755 respectively, and the timestamp is set to the value specified
+  in the script (usually Jan 1).  The README and CPYRIGHT files are
+  additionally copied from the MASTER/DOC directory to the top level
+  directory (UNIX/UMLS<year>).
+
+  The {TOP}/MetamorphoSysUnix.zip file is unzip'ed into
+  UNIX/UMLS<year>/META.  It is assumed that this zip file is zip'ed with
+  the METAMSYS directory at the root.  Also, its contents must already
+  have the right permissions as these are not affected by the
+  master2dist.pl script.  The {TOP}/README.MMS is copied into the right
+  places under UNIX (DOC, META/METAMSYS).
+
+- The ISO contents are created from the UNIX directory by recursively
+  running text files through unix2dos.  Perl's -B test is used to decide
+  what is text or binary.  The permissions and timestamp are set as
+  before and the README and CPYRIGHT are copied (after the unix2dos
+  transformation).
+
+  The MetamorphoSysWin.zip file is then unzip'ed in the right place.
+  Same caveats as for the UNIX version.  The {TOP}/README.MMS is
+  run through unix2dos and places in the right places.
+
+- The contents of the UNIX directory are then piped through tar and gzip
+  to create the TGZ file in the {TOP}/TAR directory.  Note that because
+  the intermediate files are > 2G, this has to be piped.  The README and
+  CPYRIGHT files are copied to the TAR directory as well and the
+  checksum and MD5 values are computed in TAR (but not released).
+
+- The contents of the ISO directory are ZIP'ed the create the ZIP file
+  for the distribution.  There are a couple of complications.  First,
+  there are two ZIP files in the distribution since the single one
+  exceeds the capacity of a CD.  Currently MRCXT is by itseld in the
+  second ZIP while everything else is in the first.  Secondly, because
+  of the multiple, incompatible ZIP programs (Winzip, pkzip, zip, gzip,
+  etc), the zip process has traditionally been done on the PC using
+  PKZIP.  So the master2dist.pl script makes intermediate tgz (small
+  _tgz_) files that mirror the ZIP versions.  These were then FTP'ed to
+  a PC and PKZIP'ed and FTP'ed back to the {TOP}/ZIP directory.
+
+  The master2dist.pl, however, also makes the Unix versions of the ZIP's
+  using the zip program from www.cdrom.com.  Preliminary tests indicate
+  that this is indeed compatible with the PC versions, but for 2000 the
+  data was still ZIP'ed on the PC.  All these files (intermediate tgz,
+  Unix ZIP) are deposited in the ZIP directory (but not released).  The
+  correct ZIP files then go into the {TOP}/ZIP/UM<year>.ZIP directory.
+
+NOTE: If the MR* files grow to the point that a different break up of
+the files is required, the script will need to be recoded.
+
+
+How to RUN:
+----------
+
+1) Ensure that the MASTER directory contents are correct and verified.
+   I.e., LTI's delivery of the MR* files, Alexa/Olivier's NET, Guy's
+   LEX content must have been tested and certified.  The contents of
+   MASTER directory are not modified, so the timestamps on the files,
+   directories, etc can be tracked.
+
+2) The latest MetamorphoSys*.zip and README.MMS files from LTI must
+   be verified (esp. important are file permissions and config file
+   settings) and copied over to {TOP}.
+
+3) The master2dist.pl script must be modified to run for the new release.
+   The $timestamp, $subdir, $prefix, @dirstruct should esp be checked.
+   If the distribution requirements need a different break up of files
+   to fit on multiple CDs, the code will need to be changed.
+
+4) Then as user 'wth', run:
+
+   /site/umls/release/master2dist.pl -d {TOP} >& master2dist.log
+
+   This will take ~3 hours to run and populate the ZIP and TAR directories
+   as described above.  If the ZIP's are made on the PC, do that and restore
+   them to the correct place under {TOP}/ZIP/
+
+   Scan the log file for the string "ERROR" (grep -i).
+
+5) Then make the CD images from the TAR/UMLS2000.TAR and ZIP/UMLS2000.ZIP
+   directories and test the result.
+
+6) Test MetamorphoSys from the CD image on Solaris, Linux, NT and Win98 and
+   create 1) default subset, 2) remove all sources, 3) remove no source,
+   4) remove single source, etc.  All of the following Q/A scripts can be run
+   on the the resulting subsetted Metathesaurus files.  Fix any errors
+   found and go to 1).  Repeat as often as necessary :-).
+
+
+
+Scripts for Testing and Q/A:
+---------------------------
+
+There are additional helper scripts that are used to test the veracity
+of directories and files.  All report errors with the string ERROR in
+the output.
+
+1) /site/bin/md5 can be used to verify that a two supposedly identical files
+   are indeed so.  E.g.
+
+	/site/bin/md5 < {TOP}/ZIP/UM2000_1.tgz
+
+2) Given two directories that contain the same contents, except that one has
+   Unix line-terminated text files and the other DOS line-terminated text
+   files, the script /site/umls/release/md5_cmp.pl can be used to recursively
+   compare the contents.  The script accounts for the line termination and
+   reports errors.  It takes a path to the Unix version in the -u option
+   and a DOS version in the -d option.  If both versions have the same line
+   termination, the -n option disables the unix2dos conversion.  The -e
+   option has directories (recursive) that you want to ignore in the comparison,
+   e.g., METAMSYS.  For example:
+
+   /site/umls/release/md5_cmp.pl -u {TOP}/UNIX/UMLS2000 -d {TOP}/ISO/UMLS2000 -e METAMSYS
+
+   Compare previous and current UNIX directories:
+
+   /site/umls/release/md5_cmp.pl -u {TOP}/UNIX/UMLS2000 -d {TOP}/UNIX.old/UMLS2000 -n
+
+   The script assumes that the directory in the -u option is the master.  Any files found
+   there but not in the -d option are reported.  The -r option reverses the sense of this.
+   So you normally want to run both ways.  E.g.,
+
+   /site/umls/release/md5_cmp.pl -u {TOP}/UNIX/UMLS2000 -d {TOP}/ISO/UMLS2000 -e METAMSYS
+   /site/umls/release/md5_cmp.pl -u {TOP}/UNIX/UMLS2000 -d {TOP}/ISO/UMLS2000 -e METAMSYS -r
+
+3) To ensure that MR files have the correct sort order and there are no duplicate lines,
+   run the script /site/umls/release/mrorder.pl as:
+
+   /site/umls/release/mrorder.pl -d {TOP}/UNIX/UMLS2000/META
+
+4) The cuiqa.pl script checks all MR files for intra-file CUI consistency.  It assumes
+   the MRCON, MRSO, MRSTY, MRXW.ENG, MRXNS.ENG, MRXNW.ENG have >0 rows for every CUI.
+   It reports errors if for example, MRCON has a CUI that is not found in MRSO.
+   It then checks the CUI fields in other files to ensure that these CUIs are actually
+   present in the files above.  It currently checks MRREL (fields 1,3), MRATX (1),
+   MRCOC (1, 3), MRCXT (1), MRDEF (1), MRLO (1), MRSAT (1).  Others can be added as
+   needed by editing the script.  Run as, for example:
+
+   /site/umls/release/cuiqa.pl -d {TOP}/UNIX/UMLS2000/META
+
+   Errors are reported to stdout.
+
+5) The script make-small-meta.pl makes a self-contained "small" Metathesaurus and takes
+   a list of CUI's to include (or uses a built in default 7 CUIs) and the path to the
+   full Metathesaurus.  If extracts the transitive closure for these CUIs from all the
+   MR files and makes the subset.  It is very useful for testing scripts that would
+   take inordinately long on the full Metathesaurus.
+
+</PRE>
+
+</HTML>
+

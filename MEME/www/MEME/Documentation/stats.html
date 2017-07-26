@@ -1,0 +1,137 @@
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf8">
+   <title>MEME4 Applications - Reporting Server Statistics</title>
+</head>
+<body text="#000000" bgcolor="#FFFFFF" link="#3333FF" vlink="#999999" alink="#FF0000">
+
+<center>
+<h3>
+<font size=+0>Reporting Server Statistics</font></h3></center>
+
+<hr><i>Following is documentation on how to have the MEME4 server report
+some important/interesting statistics.</i>
+<br>&nbsp;
+<center><table CELLPADDING=3 WIDTH="90%" NOSAVE >
+<tr NOSAVE>
+<td VALIGN=TOP NOSAVE><b>The Statistics</b></td>
+
+<td VALIGN=TOP NOSAVE><font size=-1>As the <i>MEME4</i> application server
+runs, it tracks a variety of different statistics that are accessible through
+this client application.&nbsp; Following is the current list of statistics
+reported (<i>note</i>: this list should be updated periodically):</font>
+<ul>
+<li>
+<font size=-1><b>Server Start Time</b>.&nbsp; This is the date that the
+server was started.</font></li>
+
+<li>
+<font size=-1><b>Server Run Time</b>. This is the total amount of time
+that the server has been running for.</font></li>
+
+<li>
+<font size=-1><b>Free Memory</b>. This is the amount of free memory left
+on the machine.</font></li>
+
+<li>
+<font size=-1><b>Memory Used By Server</b>. This is the total amount of
+memory being used by the server.</font></li>
+
+<li>
+<font size=-1><b>Total Request Count</b>. This is the total number of properly
+formatted requests that have entered the system.</font></li>
+
+<li>
+<font size=-1><b>Active Request Count</b>. This is the count of requests
+that are actively being processed by the server.</font></li>
+
+<li>
+<font size=-1><b>Processed Request Count</b>. This is the count of requests
+that the server has processed to completion (Total - Active should = Processed).</font></li>
+
+<li>
+<font size=-1><b>ThreadPool Statistics</b>. These are some statistics about
+the thread pool, including how many threads are being used, how many threads
+there are total, what the average usage of the threadpool has been, etc.</font></li>
+
+<li>
+<b><font size=-1>DataSourcePool Statistics</font></b><font size=-1>. These
+are some statistics about the data source pool, similar to the thread pool
+statistics.</font></li>
+
+<li>
+<font size=-1><b>Requests By Service</b>. This is a histogram of the requests
+by service name.</font></li>
+
+<li>
+<font size=-1><b>Requests By Type</b>. This is a histogram of the requests
+by type (Standard or CGI-style).</font></li>
+
+<li>
+<font size=-1><b>Exceptions</b>. This is a list of all exceptions that
+have occurred in the system by type.</font></li>
+</ul>
+</td>
+</tr>
+
+<tr NOSAVE>
+<td VALIGN=TOP NOSAVE><b>Getting the Statistics</b></td>
+
+<td VALIGN=TOP NOSAVE><font size=-1>For your convenience, a client script
+has been written which connects to the server and requests a formatted
+report of the statistics listed in the section above.&nbsp; The default
+host and port settings for this application come from the <tt>midsvcs.pl</tt>
+mappings for <tt>meme-server-host</tt> and <tt>meme-server-port</tt>.&nbsp;
+Following is the usage,</font>
+<pre><font size=-1>% admin.pl -s stats [-host=&lt;host>] [-port=&lt;port>]
+
+&nbsp;Options:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -host=&lt;host>:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name of the machine where server is running&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Default is localhost.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -port=&lt;port>:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Port on which server is listening, default is 8080
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -v[ersion]:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Print version information.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -[-]help:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; On-line help</font></pre>
+<font size=-1>In it simplest form, all that you have to do is call the
+script without any arguments.&nbsp; For example,</font>
+<pre><font size=-1>% admin.pl -s stats</font></pre>
+<font size=-1>If the application server is running on a machine or listening
+on a port other than the defaults (specified by the <tt>midsvcs.pl</tt>
+names <tt>meme-server-host</tt> and <tt>meme-server-port</tt>), you will
+need to invoke <tt>admin.pl -s stats</tt> with the <tt>-host</tt> and/or
+<tt>-port</tt>
+switches.&nbsp; For example,</font>
+<pre><font size=-1>% admin.pl -s stats -host oa.nlm.nih.gov -port 8081</font></pre>
+<font size=-1>If only the host <i>or</i> the port is different, you need
+only use one of the two switches.</font></td>
+</tr>
+</table></center>
+
+<p>
+<hr WIDTH="100%">
+<table BORDER=0 COLS=2 WIDTH="100%" NOSAVE >
+<tr NOSAVE>
+<td ALIGN=LEFT VALIGN=TOP NOSAVE>
+<address>
+<a href="/MEME/">MEME Home</a></address>
+</td>
+
+<td ALIGN=RIGHT VALIGN=TOP NOSAVE>
+<address>
+<font size=-1>Contact: <a href="mailto:bcarlsen@apelon.com">Brian Carlsen</a></font></address>
+
+<address>
+<font size=-1>Created: 12/20/2001</font></address>
+
+<address>
+<font size=-1>Last Updated: 03/05/2002</font></address>
+</td>
+</tr>
+</table>
+
+</body>
+<!-- These comments are used by the What's new Generator -->
+<!-- Changed On: 2002/03/05 -->
+<!-- Changed by: BAC -->
+<!-- Change Note: MEME4 Applications - Reporting Server Statistics. -->
+<!-- Fresh for: 1 month -->
+</html>

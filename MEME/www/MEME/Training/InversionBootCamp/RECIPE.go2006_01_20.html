@@ -1,0 +1,453 @@
+<html>
+    <head>
+      <title>RECIPE -- GO2006_01_20</title>
+    </head>
+    <body>        <h2>Load Section</h2>
+        <ol>
+          <li>
+            <h3>Load Data into Core Tables</h3>
+            <p>source name : GO2006_01_20<br>
+            <p>old source name : GO2005_12_20<br>
+            source language : ENG<br>
+            <ul>
+            <li>Concepts are being inserted.
+            <li>Atoms are being inserted.
+            <li>Attributes are being inserted.
+            <li>Relationships are being inserted.
+            </ul>
+          <br>
+          </li>
+        </ol>
+        <h2>Update Merge Section</h2>
+        <ol>
+          <li>
+            <h3>Merge Step - mergefacts.src</h3>
+            <table ALIGN=CENTER WIDTH=90% BORDER=1 CELLSPACING=1 CELLPADDING=2>
+              <tr><th colspan=2>Merge Parameters</th></tr>
+              <tr>
+                <td><b>Merge Set:</b></td><td>GO-SRC</td>
+              </tr>
+              <tr>
+                <td><b>Integrity Vector:</b></td><td>ALL</td>
+              </tr>
+              <tr>
+                <td><b>Demote:</b></td><td>Yes</td>
+              </tr>
+              <tr>
+                <td><b>Change Status:</b></td><td>Yes</td>
+              </tr>
+              <tr>
+                <td><b>Pre Insert:</b></td><td>N to N</td>
+              </tr>
+              <tr>
+                <td><b>Comments:</b></td><td>Changed to add all integrity vectors and change status = Y</td></tr>
+            </table>
+          <br>
+          </li>
+          <li>
+            <h3>Merge Step - mergefacts.src</h3>
+            <table ALIGN=CENTER WIDTH=90% BORDER=1 CELLSPACING=1 CELLPADDING=2>
+              <tr><th colspan=2>Merge Parameters</th></tr>
+              <tr>
+                <td><b>Merge Set:</b></td><td>GO2005_12_20-SY</td>
+              </tr>
+              <tr>
+                <td><b>Integrity Vector:</b></td><td>ALL</td>
+              </tr>
+              <tr>
+                <td><b>Demote:</b></td><td>Yes</td>
+              </tr>
+              <tr>
+                <td><b>Change Status:</b></td><td>Yes</td>
+              </tr>
+              <tr>
+                <td><b>Pre Insert:</b></td><td>N to N</td>
+              </tr>
+            </table>
+          <br>
+          </li>
+          <li>
+            <h3>Insert a Binary Integrity Check</h3>
+              <table ALIGN=CENTER WIDTH=90% BORDER=1>
+               <tr>
+                <th>Name</th>
+                <th>Type 1</th>
+                <th>Value 1</th>
+                <th>Type 2</th>
+                <th>Value 2</th>
+                <th>Negation</th>
+               </tr><tr>
+                <td ALIGN=CENTER>MGV_K</td>
+                <td ALIGN=CENTER>SOURCE</td>
+                <td ALIGN=CENTER>GO2006_01_20</td>
+                <td ALIGN=CENTER>SOURCE</td>
+                <td ALIGN=CENTER>GO2004_12_20</td>
+                <td ALIGN=CENTER>false</td>
+               </tr>
+              </table>
+          <br>
+          </li>
+          <li>
+            <h3>Merge Step - Replace all termgroups</h3>
+            <table WIDTH=90% BORDER=1 CELLSPACING=1 CELLPADDING=2>
+              <tr><th colspan=2>Merge Parameters</th></tr>
+              <tr>
+                <td><b>Merge Set:</b></td><td>GO-REPL</td>
+              </tr>
+              <tr>
+                <td><b>String Match:</b></td><td>BOTH</td>
+              </tr>
+              <tr>
+                <td><b>Code Match:</b></td><td>EXACT</td>
+              </tr>
+              <tr>
+                <td><b>Source AUI Match:</b></td><td>NONE</td>
+              </tr>
+              <tr>
+                <td><b>Source CUI Match:</b></td><td>NONE</td>
+              </tr>
+              <tr>
+                <td><b>Source DUI Match:</b></td><td>NONE</td>
+              </tr>
+              <tr>
+                <td><b>Term Type Match:</b></td><td>NONE</td>
+              </tr>
+              <tr>
+                <td><b>Source Termgroups:</b></td><td>GO2006_01_20/BSY, GO2006_01_20/ESY, GO2006_01_20/IS, GO2006_01_20/MTH_BSY, GO2006_01_20/MTH_ESY, GO2006_01_20/MTH_NSY, GO2006_01_20/MTH_OES, GO2006_01_20/MTH_OP, GO2006_01_20/MTH_ORS, GO2006_01_20/MTH_PT, GO2006_01_20/MTH_RLS, GO2006_01_20/NSY, GO2006_01_20/OBS, GO2006_01_20/OES, GO2006_01_20/ONS, GO2006_01_20/OP, GO2006_01_20/ORS, GO2006_01_20/PT, GO2006_01_20/RLS, GO2006_01_20/SY                </td>
+              </tr>
+              <tr>
+                <td><b>Source Options:</b></td><td>                  <ul>
+                    <li>Use Exclude List</li>
+                    <li>Use Norm-Exclude List</li>
+                    <li>Include termgroups in list</li>
+                  </ul>
+                </td>
+              </tr>
+              <tr>
+                <td><b>Target Termgroups:</b></td><td>GO2004_12_20/BSS, GO2004_12_20/BSX, GO2004_12_20/BSY, GO2004_12_20/ESS, GO2004_12_20/ESX, GO2004_12_20/ESY, GO2004_12_20/IS, GO2004_12_20/NSS, GO2004_12_20/NSX, GO2004_12_20/NSY, GO2004_12_20/OBS, GO2004_12_20/OES, GO2004_12_20/ONS, GO2004_12_20/OP, GO2004_12_20/OPS, GO2004_12_20/OPX, GO2004_12_20/PS, GO2004_12_20/PT, GO2004_12_20/PX, GO2004_12_20/RLSS, GO2004_12_20/RLSX, GO2004_12_20/RLSY, GO2004_12_20/SY                </td>
+              </tr>
+              <tr>
+                <td><b>Target Options:</b></td><td>                  <ul>
+                    <li>Use Exclude List</li>
+                    <li>Use Norm-Exclude List</li>
+                    <li>Include termgroups in list</li>
+                  </ul>
+                </td>
+              </tr>
+              <tr>
+                <td><b>Integrity Vector:</b></td><td>ALL</td>
+              </tr>
+              <tr>
+                <td><b>Demote:</b></td><td>Yes</td>
+              </tr>
+              <tr>
+                <td><b>Change Status:</b></td><td>Yes</td>
+              </tr>
+              <tr>
+                <td><b>Pre Insert:</b></td><td>One to One</td>
+              </tr>
+              <tr>
+                <td><b>Comments:</b></td><td>Merge all new termgroups with all old termgroups</td></tr>
+            </table>
+          <br>
+          </li>
+        </ol>
+        <h2>Safe Replacement Section</h2>
+        <ol>
+          <li>
+            <h3>Source Safe Replacement</h3>
+            <p>source name : GO2006_01_20<br>
+            old source name : GO2004_12_20<br>
+            string match : BOTH<br>
+            code match : EXACT<br>
+            source aui match : NONE<br>
+            source cui match : NONE<br>
+            source dui match : NONE<br>
+            term type match : NONE<br>
+            <ul>
+            <li>Change Status.
+            </ul>
+          <br>
+          </li>
+        </ol>
+        <h2>New Merge Section</h2>
+        <ol>
+          <li>
+            <h3>Merge Step - MID Merging</h3>
+            <table WIDTH=90% BORDER=1 CELLSPACING=1 CELLPADDING=2>
+              <tr><th colspan=2>Merge Parameters</th></tr>
+              <tr>
+                <td><b>Merge Set:</b></td><td>GO-MID</td>
+              </tr>
+              <tr>
+                <td><b>String Match:</b></td><td>BOTH</td>
+              </tr>
+              <tr>
+                <td><b>Code Match:</b></td><td>NONE</td>
+              </tr>
+              <tr>
+                <td><b>Source AUI Match:</b></td><td>NONE</td>
+              </tr>
+              <tr>
+                <td><b>Source CUI Match:</b></td><td>NONE</td>
+              </tr>
+              <tr>
+                <td><b>Source DUI Match:</b></td><td>NONE</td>
+              </tr>
+              <tr>
+                <td><b>Term Type Match:</b></td><td>NONE</td>
+              </tr>
+              <tr>
+                <td><b>Source Termgroups:</b></td><td>GO2006_01_20/BSY, GO2006_01_20/ESY, GO2006_01_20/IS, GO2006_01_20/MTH_BSY, GO2006_01_20/MTH_ESY, GO2006_01_20/MTH_NSY, GO2006_01_20/MTH_OES, GO2006_01_20/MTH_OP, GO2006_01_20/MTH_ORS, GO2006_01_20/MTH_PT, GO2006_01_20/MTH_RLS, GO2006_01_20/NSY, GO2006_01_20/OBS, GO2006_01_20/OES, GO2006_01_20/ONS, GO2006_01_20/OP, GO2006_01_20/ORS, GO2006_01_20/PT, GO2006_01_20/RLS, GO2006_01_20/SY                </td>
+              </tr>
+              <tr>
+                <td><b>Source Options:</b></td><td>                  <ul>
+                    <li>Use Exclude List</li>
+                    <li>Use Norm-Exclude List</li>
+                    <li>Restrict to New Atoms Only</li>
+                    <li>Include termgroups in list</li>
+                  </ul>
+                </td>
+              </tr>
+              <tr>
+                <td><b>Target Termgroups:</b></td><td>GO2006_01_20/BSY, GO2006_01_20/ESY, GO2006_01_20/IS, GO2006_01_20/MTH_BSY, GO2006_01_20/MTH_ESY, GO2006_01_20/MTH_NSY, GO2006_01_20/MTH_OES, GO2006_01_20/MTH_OP, GO2006_01_20/MTH_ORS, GO2006_01_20/MTH_PT, GO2006_01_20/MTH_RLS, GO2006_01_20/NSY, GO2006_01_20/OBS, GO2006_01_20/OES, GO2006_01_20/ONS, GO2006_01_20/OP, GO2006_01_20/ORS, GO2006_01_20/PT, GO2006_01_20/RLS, GO2006_01_20/SY                </td>
+              </tr>
+              <tr>
+                <td><b>Target Options:</b></td><td>                  <ul>
+                    <li>Use Exclude List</li>
+                    <li>Use Norm-Exclude List</li>
+                    <li>Exclude termgroups in list</li>
+                  </ul>
+                </td>
+              </tr>
+              <tr>
+                <td><b>Integrity Vector:</b></td><td>ALL</td>
+              </tr>
+              <tr>
+                <td><b>Demote:</b></td><td>Yes</td>
+              </tr>
+              <tr>
+                <td><b>Change Status:</b></td><td>Yes</td>
+              </tr>
+              <tr>
+                <td><b>Pre Insert:</b></td><td>None</td>
+              </tr>
+              <tr>
+                <td><b>Filters:</b></td><td>                  <ol>
+                 <li>Exclude safe replacement atoms from source.</li>
+                  </ol>
+                </td>
+              </tr>
+            </table>
+          <br>
+          </li>
+          <li>
+            <h3>Insert Relationships Based on Matches</h3>
+            <table ALIGN=CENTER WIDTH=90% BORDER=1 CELLSPACING=1 CELLPADDING=2>
+              <tr><th colspan=2>Insert Relationships from Matches (parameters)</th></tr>
+              <tr>
+                <td><b>String Match:</b></td><td>BOTH</td>
+              </tr>
+              <tr>
+                <td><b>Code Match:</b></td><td>NONE</td>
+              </tr>
+              <tr>
+                <td><b>Source Termgroups:</b></td><td>GO2006_01_20/BSY,GO2006_01_20/ESY,GO2006_01_20/IS,GO2006_01_20/MTH_BSY,GO2006_01_20/MTH_ESY,GO2006_01_20/MTH_NSY,GO2006_01_20/MTH_OES,GO2006_01_20/MTH_OP,GO2006_01_20/MTH_ORS,GO2006_01_20/MTH_PT,GO2006_01_20/MTH_RLS,GO2006_01_20/NSY,GO2006_01_20/OBS,GO2006_01_20/OES,GO2006_01_20/ONS,GO2006_01_20/OP,GO2006_01_20/ORS,GO2006_01_20/PT,GO2006_01_20/RLS,GO2006_01_20/SY                </td>
+              </tr>
+              <tr>
+                <td><b>Source Options:</b></td><td>                  <ul>
+                    <li>Include termgroups in list</li>
+                  </ul>
+                </td>
+              </tr>
+              <tr>
+                <td><b>Target Termgroups:</b></td><td>GO2004_12_20/BSS,GO2004_12_20/BSX,GO2004_12_20/BSY,GO2004_12_20/ESS,GO2004_12_20/ESX,GO2004_12_20/ESY,GO2004_12_20/IS,GO2004_12_20/NSS,GO2004_12_20/NSX,GO2004_12_20/NSY,GO2004_12_20/OBS,GO2004_12_20/OES,GO2004_12_20/ONS,GO2004_12_20/OP,GO2004_12_20/OPS,GO2004_12_20/OPX,GO2004_12_20/PS,GO2004_12_20/PT,GO2004_12_20/PX,GO2004_12_20/RLSS,GO2004_12_20/RLSX,GO2004_12_20/RLSY,GO2004_12_20/SY                </td>
+              </tr>
+              <tr>
+                <td><b>Target Options:</b></td><td>                  <ul>
+                    <li>Include termgroups in list</li>
+                  </ul>
+                </td>
+              </tr>
+              <tr>
+                <td><b>Relationship Type:</b></td><td>Demotions</td>
+              </tr>
+            </table>
+          <br>
+          </li>
+          <li>
+            <h3>Ad Hoc Step</h3>
+            <p>
+              <pre>$ORACLE_HOME/bin/sqlplus -s $user@$db &lt;&lt;EOF &gt;&! /tmp/t.$$.log
+    set serveroutput on size 100000
+    set feedback off
+    ALTER SESSION SET sort_area_size=200000000;
+    ALTER SESSION SET hash_area_size=200000000;
+    WHENEVER SQLERROR EXIT -1
+
+    exec MEME_UTILITY.drop_it('table','t1');
+    create table t1 as select concept_id_1,concept_id_2,atom_id_1,atom_id_2,
+                   relationship_name,relationship_attribute,
+                   source, source_of_label,status,generated_status,
+                   relationship_level,released,tobereleased,
+                   relationship_id, suppressible,
+                   sg_id_1, sg_type_1, sg_qualifier_1,
+                   sg_id_2, sg_type_2, sg_qualifier_2,
+                   source_rui, relationship_group
+    from relationships where 1=2;
+
+    insert into t1
+    select a.concept_id as concept_id_1,
+    b.concept_id as concept_id_2,
+    a.atom_id as atom_id_1,
+    b.atom_id as atom_id_2,
+    'RT' as relationship_name,
+    'exhibits' as relationship_attribute,
+    'MTHRELA' as source,
+    'MTHRELA' as source_of_label,
+    'R' as status,'Y' as generated_status,
+    'C' as relationship_level,
+    'N' as released,
+    'Y' as tobereleased,
+    0 as relationship_id,
+    'N' as suppressible,
+    a.concept_id as sg_id_1,
+    'CONCEPT_ID' as sg_type_1,
+    '' as sg_qualifier_1,
+    b.concept_id sg_id_2,
+    'CONCEPT_ID' as sg_type_2,
+    '' as sg_qualifier_2, 
+    '' as source_rui,
+    '' as relationship_group
+    from classes a, classes b, attributes e
+    where a.source in (select current_name from source_version where
+    source='GO')
+    and b.concept_id = e.concept_id
+    and a.concept_id != b.concept_id
+    and e.attribute_name='SEMANTIC_TYPE' and e.attribute_value='Enzyme'
+    and a.lui = b.lui;
+
+    exec MEME_UTILITY.drop_it('table','t2');
+    create table t2 as select concept_id_1,concept_id_2,atom_id_1,atom_id_2,
+                   relationship_name,relationship_attribute,
+                   source, source_of_label,status,generated_status,
+                   relationship_level,released,tobereleased,
+                   relationship_id, suppressible,
+                   sg_id_1, sg_type_1, sg_qualifier_1,
+                   sg_id_2, sg_type_2, sg_qualifier_2,
+                   source_rui, relationship_group
+    from relationships where 1=2;
+
+    insert into t2
+    select a.concept_id as concept_id_1,
+    b.concept_id as concept_id_2,
+    a.atom_id as atom_id_1,
+    b.atom_id as atom_id_2,
+    'RT' as relationship_name,
+    'measures' as relationship_attribute,
+    'MTHRELA' as source,
+    'MTHRELA' as source_of_label,
+    'R' as status,
+    'Y' as generated_status,
+    'C' as relationship_level,
+    'N' as released,
+    'Y' as tobereleased,
+    0 as relationship_id,
+    'N' as suppressible,
+    a.concept_id as sg_id_1,
+    'CONCEPT_ID' as sg_type_1,
+    '' as sg_qualifier_1,
+    b.concept_id sg_id_2,
+    'CONCEPT_ID' as sg_type_2,
+    '' as sg_qualifier_2,
+    '' as source_rui,
+    '' as relationship_group
+    from classes a, classes b, attributes e
+    where a.source in (select current_name from source_version where
+    source='GO')
+    and b.concept_id = e.concept_id
+    and a.concept_id != b.concept_id
+    and e.attribute_name='SEMANTIC_TYPE' and e.attribute_value='Laboratory Procedure'
+    and a.lui = b.lui;
+EOF
+
+if($status != 0) then
+   echo "Error creating data for MTHRELA rels"
+   cat /tmp/t.$$.log
+   exit 1
+endif
+
+insert.pl -rels t1 $db $authority &gt;&! insert.mthrela.log
+insert.pl -rels t2 $db $authority &gt;&gt;& insert.mthrela.log
+#cleanup
+
+$ORACLE_HOME/bin/sqlplus -s $user@$db &lt;&lt;EOF &gt;&! /tmp/t.$$.log
+    set serveroutput on size 100000
+    set feedback off
+    ALTER SESSION SET sort_area_size=200000000;
+    ALTER SESSION SET hash_area_size=200000000;
+    WHENEVER SQLERROR EXIT -1
+
+    drop table t1;
+    drop table t2;
+
+EOF</pre><br>
+          Comments: Insert relationships: Enzyme exhibits Activity, Laboratory Procedure measures Activity 
+
+
+          <br>
+          </li>
+        </ol>
+        <h2>Post-Merge Section</h2>
+        <ol>
+          <li>
+            <h3>Resolve Semantic Types</h3>
+            <table ALIGN=CENTER WIDTH=90% BORDER=1 CELLSPACING=1 CELLPADDING=2>
+              <tr><td><b>Sources:</b></td><td>
+                   GO2006_01_20
+              </tr>
+              <tr><td><b>Win or Lose:</b></td><td>
+                 Lose</td></tr>
+            </table>
+          <br>
+          </li>
+          <li>
+            <h3>Update Source Releasability</h3>
+            <table ALIGN=CENTER WIDTH=90% BORDER=1 CELLSPACING=1 CELLPADDING=2>
+              <tr><td><b>Sources:</b></td><td>
+                   GO2004_12_20
+              </tr>
+              <tr><td><b>TBR:</b></td><td>
+                 n</td></tr>
+            </table>
+          <br>
+          </li>
+          <li>
+            <h3>Standard Post Merge Steps</h3>
+            <table ALIGN=CENTER WIDTH=90% BORDER=1 CELLSPACING=1 CELLPADDING=2>
+              <tr>
+                <td><b>Handle 'NEC in' atoms</b></td></tr>
+              <tr>
+                <td><b>Map sg and obsolete relationships. </b></td></tr>
+              <tr>
+                <td><b>Delete unneeded MTH/TM atoms, insert new ones</b></td></tr>
+              <tr>
+                <td><b>Update String/Word Indexes</b></td></tr>
+              <tr>
+                <td><b>Run matrix initializer</b></td></tr>
+              <tr>
+                <td><b>Generate standard report tables</b></td></tr>
+              <tr>
+                <td><b>Set Core Table Ranks</b></td></tr>
+              </table>
+          <br>
+          </li>
+        </ol>
+        <p>
+         <!-- These comments are used by the What's new Generator -->
+         <!-- Changed On: 2006/01/27 -->
+         <!-- Changed by: MEME Team -->
+         <!-- Change Note: This page moved to NLM. -->
+         <!-- Fresh for: 1 month -->
+    </body>
+</html>

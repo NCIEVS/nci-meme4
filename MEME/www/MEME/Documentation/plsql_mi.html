@@ -1,0 +1,204 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+   
+  <meta http-equiv="Content-Type" content="text/html; charset=utf8">
+  <title>MEME_INTEGRITY Documentation</title>
+</head>
+<body style="background-color: rgb(255, 255, 255);">
+
+<center>
+<h2>
+MEME_INTEGRITY</h2></center>
+
+
+<center>
+<hr width="100%"></center>
+
+
+<p><br>
+</p>
+<center><table cols="1" width="90%">
+<tbody><tr>
+<td>This PLSQL package implements the integrity system;&nbsp; including
+<tt>matrix_initalizer</tt> and updater, <tt>integrity_snapshot</tt>, and
+procedures corresponding with all QA queries necessary to support the QA
+bins.
+<h2>
+<img src="/images/variables.gif" alt="Variables" height="38" width="153"></h2>
+<a name="MI_TABLE"></a><a name="MI_TIMESTAMP"></a><a name="MI_CATCHUP"></a><img src="/images/magenta-ball.gif" alt="o" height="12" width="12"><b>MI_TABLE</b>,
+<b>MI_TIMESTAMP</b>,&nbsp; <b>MI_CATCHUP</b>
+<pre>&nbsp;&nbsp;&nbsp; MI_TABLE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; CONSTANT VARCHAR2(10) := 'TABLE';<br>&nbsp;&nbsp;&nbsp; MI_TIMESTAMP&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; CONSTANT VARCHAR2(10) := 'TIMESTAMP';<br>&nbsp;&nbsp;&nbsp; MI_CATCHUP&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; CONSTANT VARCHAR2(10) := 'CATCHUP';</pre>
+
+<dl>
+<dd>
+These are the three valid modes for running the matrix updater.&nbsp; <tt>MI_TABLE</tt>
+tells the updater to only run on the subset of concepts in a named table.&nbsp;
+<tt>MI_TIMESTAMP</tt> tells the updater to process all actions from a specified
+timestamp. <tt>MI_CATCHUP</tt> looks up the last <tt>molecule_id</tt> processed
+in <tt>max_tab</tt> (<tt>table_name=MATRIX_INITIALIZER</tt>) and processes
+all actions from that <tt>molecule_id</tt> to the present..</dd>
+</dl>
+
+<h2>
+<img src="/images/methods.gif" height="38" width="151"></h2>
+<a name="set_releasability"></a><a name="set_em_status"></a><a name="set_cmesh_status"></a><a name="finalize_initialization"></a><img src="/images/green-ball.gif" height="12" width="12"><b>set_releasability,
+set_em_status, set_cmesh_status, finalize_initialization</b>
+<pre>&nbsp;&nbsp;&nbsp; PROCEDURE set_releasability (&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; table_name IN VARCHAR2 DEFAULT MEME_CONSTANTS.EMPTY_TABLE,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; work_id&nbsp;&nbsp;&nbsp; IN INTEGER DEFAULT 0 );<br><br>&nbsp;&nbsp;&nbsp; PROCEDURE set_em_status (<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; table_name IN VARCHAR2 DEFAULT 'editing_matrix',<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; work_id&nbsp;&nbsp;&nbsp; IN INTEGER DEFAULT 0 );<br><br>&nbsp;&nbsp;&nbsp; PROCEDURE set_cmesh_status (&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; table_name IN VARCHAR2 DEFAULT MEME_CONSTANTS.EMPTY_TABLE,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; work_id&nbsp; IN INTEGER );<br><br>&nbsp;&nbsp;&nbsp; PROCEDURE finalize_initialization;</pre>
+
+<dl>
+<dd>
+These are auxiliary procedures used by the matrix initializer/updater to
+modularize the functionality.&nbsp; <tt>set_releasability</tt> sets the
+<tt>tobereleased</tt> field in <tt>concept_status</tt>.&nbsp; <tt>set_em_status</tt>
+prepares some status fileds in <tt>editing_matrix</tt> which are used for
+<tt>concept_status.status</tt> computation.&nbsp; <tt>set_cmesh_status</tt>
+sets the status of atoms in <tt>cmesh_only</tt> concepts to <tt>U</tt>
+unless those CMeSH atoms are in the "roach motel".&nbsp; <tt>finalize_initialization</tt>
+does some cleanup and prepares a couple of small tables like <tt>is_handled_actions</tt>.</dd>
+</dl>
+<a name="matrix_initializer"></a><a name="matrix_updater"></a><img src="/images/green-ball.gif" height="12" width="12"><b>matrix_initializer,
+matrix_updater</b>
+<pre>&nbsp;&nbsp;&nbsp; PROCEDURE matrix_initializer;<br><br>&nbsp;&nbsp;&nbsp; PROCEDURE matrix_updater(run_mode IN VARCHAR2,&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; table_name IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; timestamp IN DATE );</pre>
+
+<dl>
+<dd>
+These are the matrix initializer and matrix updater procedures.&nbsp; Both
+have the same functionality, the matrix initializer runs on the whole database
+and the matrix updater runs on a subset which is computed based on its
+parameters.&nbsp; This code is responsible for computing the editing status
+and releasability of every concept it looks at.&nbsp; It reviews the status
+of the contituent parts of each concept (atoms, attributes, relationships),
+and then performs a couple of important integrity checks.&nbsp; If there
+is any indication that a concept should be edited, its status is set to
+N, otherwise its status is set to R.&nbsp; The releasability of the concept
+is set based on the releasability of the atoms (if at least one atom in
+the concept is releasable, the concept is releasable).&nbsp; These programs
+call the helper functions: <tt><a href="#set_releasability">set_releasability</a></tt>,
+<tt><a href="#set_em_status">set_em_status</a></tt>, and <tt><a href="#set_cmesh_status">set_cmesh_status</a></tt>.</dd>
+</dl>
+<a name="make_subset"></a><img src="/images/green-ball.gif" height="12" width="12"><b>make_subset</b>
+<pre>&nbsp;&nbsp;&nbsp; FUNCTION make_subset(run_mode IN VARCHAR2,&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; table_name IN VARCHAR2 DEFAULT MEME_CONSTANTS.EMPTY_TABLE,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; timestamp IN DATE DEFAULT NULL ) RETURN VARCHAR2;</pre>
+
+<dl>
+<dd>
+This function is called by the matrix updater in order to compute the subset
+of concepts that will be reviewed.&nbsp; The run_mode parameter must be
+one of: <tt><a href="#MI_CATCHUP">MI_CATCHUP</a></tt>, <tt><a href="#MI_TIMESTAMP">MI_TIMESTAMP</a></tt>,
+<tt><a href="#MI_TABLE">MI_TABLE</a></tt>.&nbsp; If it is either of the
+last two, then one of the other parameters must contain a value.</dd>
+</dl>
+<a name="actions_initializer"></a><a name="violations_initializer"></a><img src="/images/green-ball.gif" height="12" width="12"><b>actions_initializer,
+violations_initializer</b>
+<pre>&nbsp;&nbsp;&nbsp; FUNCTION actions_initializer (<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; table_name IN VARCHAR2 := 'editing_matrix'<br>&nbsp;&nbsp;&nbsp; ) RETURN INTEGER;<br>&nbsp;&nbsp;&nbsp; FUNCTION violations_initializer (<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; table_name IN VARCHAR2) RETURN INTEGER;</pre>
+
+<dl>
+<dd>
+These functions are called by the matrix initializer/updater.&nbsp; The
+<tt>actions_initializer</tt> ensures that any changes made by the matrix
+code are logged in atomic/molecular actions.&nbsp; The <tt>violations_initializer</tt>
+is currently unimplemented but ultimately will maintain the <tt>ic_violations</tt>
+table, if necessary.</dd>
+</dl>
+<a name="snapshot_pre"></a><a name="snapshot_post"></a><a name="snapshot_diff"></a><a name="calculate_snapshot"></a><img src="/images/green-ball.gif" height="12" width="12"><b>snaphshot_pre,
+snapshot_post, snapshot_diff, calculate_snapshot</b>
+<pre>&nbsp;&nbsp;&nbsp; PROCEDURE snapshot_pre;<br>&nbsp;&nbsp;&nbsp; PROCEDURE snapshot_post;<br>&nbsp;&nbsp;&nbsp; PROCEDURE snapshot_diff;<br>&nbsp;&nbsp;&nbsp; PROCEDURE calculate_snapshot ( pre_post_diff IN VARCHAR2);</pre>
+
+<dl>
+<dd>
+These methods are used to create an integrity snapshot.&nbsp; The <tt>MEME_SNAPSHOT_PROC.snapshot_*</tt>
+procedures just format calls to <tt>calculate_snapshot</tt> which actually
+does the work.&nbsp; A vector in <tt>ic_applications</tt> is used to control
+which checks the <tt>calculate_snapshot</tt> procedure will wind up looking
+at.</dd>
+</dl>
+<a name="monster_qa"></a><img src="/images/green-ball.gif" height="12" width="12"><b>monster_qa</b>
+<pre>&nbsp;&nbsp; PROCEDURE monster_qa;</pre>
+
+<dl>
+<dd>
+This procedure moves <tt>mid_qa_results</tt> to <tt>mid_qa_history</tt>
+and performs the queries found in mid_qa_queries and puts the output into
+<tt>mid_qa_results</tt>.&nbsp; These results can then be compared to <tt>src_qa_results</tt>,
+or to a previous run of <tt>monster_qa</tt> which can be found in <tt>mid_qa_history</tt>.&nbsp;
+This procedure can now be run from the web at:&nbsp; <a href="/cgi-lti-oracle/automated_qa.cgi">/cgi-lti-oracle/automated_qa.cgi</a>
+.</dd>
+</dl>
+<a name="src_monster_qa"></a><img src="/images/green-ball.gif" height="12" width="12"><b>src_monster_qa</b>
+<pre>&nbsp;&nbsp; PROCEDURE src_monster_qa;</pre>
+
+<dl>
+<dd>
+This procedure performs executes all of the queries in <tt>src_qa_queries</tt>
+and puts the results in <tt>src_qa_results</tt>.&nbsp; Run only from the source insertion environment.<br>
+</dd>
+</dl>
+<a name="src_mid_qa_diff"></a><img src="/images/green-ball.gif" height="12" width="12"><b>src_mid_qa_diff</b>
+<pre>&nbsp;&nbsp; PROCEDURE src_mid_qa_diff;</pre>
+
+<dl>
+<dd>
+Compare <tt>mid_qa_results</tt> to <tt>src_qa_results</tt>,
+and records results into <tt>qa_diff_results</tt>. This procedure can now
+be run from the web at:&nbsp; <a href="/cgi-lti-oracle/automated_qa.cgi">/cgi-lti-oracle/automated_qa.cgi</a>
+.</dd>
+</dl>
+<a name="src_obsolete_qa_diff"></a><img src="../../images/green-ball.gif" height="12" width="12"><b>src_obsolete_qa_diff</b>
+      <pre>&nbsp;&nbsp; PROCEDURE src_mid_qa_diff;</pre>
+
+
+      <dl>
+<dd>
+Compares <tt>src_obsolete_qa_results</tt> to <tt>src_qa_results</tt>,
+and records results into <tt>qa_diff_results</tt>. This procedure can now
+be run from the web at:&nbsp; <a href="../../cgi-lti-oracle/automated_qa.cgi">/cgi-lti-oracle/automated_qa.cgi</a>
+.</dd>
+      </dl>
+
+      <a name="mid_mid_qa_diff"></a><img src="/images/green-ball.gif" height="12" width="12"><b>mid_mid_qa_diff</b>
+<pre>&nbsp;&nbsp; PROCEDURE mid_mid_qa_diff;</pre>
+
+<dl>
+<dd>
+Bi-directionally compares <tt>mid_qa_results</tt> to <tt>mid_qa_history</tt>
+and records results into <tt>qa_diff_results</tt>.This procedure can now
+be run from the web at:&nbsp; <a href="/cgi-lti-oracle/automated_qa.cgi">/cgi-lti-oracle/automated_qa.cgi</a>
+.</dd>
+
+<br>&nbsp;</dl>
+</td>
+</tr>
+</tbody></table></center>
+
+
+<p>
+</p>
+<hr width="100%">
+<table nosave="" border="0" cols="2" width="100%">
+
+<tbody><tr nosave="">
+<td nosave="" align="left" valign="top">
+<address>
+<a href="/MEME/">MEME Home</a></address>
+</td>
+
+<td nosave="" align="right" valign="top">
+<address>
+<font size="-1">Contact: <a href="mailto:bcarlsen@apelon.com">Brian A. Carlsen</a></font></address>
+
+<address>
+<font size="-1">Created: 8/10/2000</font></address>
+
+<address>
+<font size="-1">Last Updated: 06/22/2005</font></address>
+</td>
+</tr>
+</tbody>
+</table>
+
+
+<!-- These comments are used by the What's new Generator --><!-- Changed On: 2005/06/22 --><!-- Changed by: Brian Carlsen --><!-- Change Note: MEME - Developer Guides - PL/SQL Documentation - MEME_INTEGRITY -->
+
+
+
+<!-- Fresh for: 1 month -->
+</body></html>

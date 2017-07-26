@@ -1,0 +1,132 @@
+
+<HTML>
+<HEAD>
+<TITLE>VANDF Editing Tips</TITLE></HEAD>
+<BODY>
+<H3 ALIGN="CENTER">VANDF  Editing Tips</H3>
+<p>Make sure to look at the <a href="http://meow.nlm.nih.gov/Sources/VANDF01.html">
+Source Information Page</a> to see what the different term types are and how 
+they relate.
+<p>Editing Birth Control Pills
+<pre>The concept below is a medical device not a clinical drug.
+21 day supplies are not eqv to the 28 day supplies of birth control
+pills. If they don't specify, they don't mean the same thing as the 21
+or 28 day supply. They should be related to the concept that contains
+the ingredients (ETHINYL ESTRADIOL 0.02 MG / FERROUS FUMARATE 75 MG / 
+NORETHINDRONE ACETATE 1 MG ORAL TABLET) which is a clinical drug.
+
+(Integrity information is stale and has been omitted.)
+...............................................................................
+CN# 4756949  LOESTRIN FE 1/20 TAB,28
+CUI 	Concept Status needs Review
+STY Clinical Drug   R
+ATOMS
+             N []  LOESTRIN FE 1/20 TAB,28 [VANDF01/CD/U006775] 
+             N         LOESTRIN FE 1/20 TAB,28 [VANDF01/PRN/L0121] 
+
+LEXICAL RELATIONSHIPS
+ { LOESTRIN FE 1/20 TAB,28 [SFO] / [LFO] LOESTRIN FE 1/20 TAB,28 {VANDF01} }
+ { LOESTRIN FE 1/20 TAB,28 [SFO] / [LFO] ETHINYL ESTRADIOL 0.02 MG / FERROUS 
+FUMARATE 75 MG / NORETHINDRONE ACETATE 1 MG ORAL TABLET {VANDF01} }
+
+CONTEXTS
+   VANDF01/CD1/U006775
+   VA National Drug File
+     VA NDF Classes
+       HORMONES / SYNTHETICS / MODIFIERS
+         CONTRACEPTIVES, SYSTEMIC
+          <LOESTRIN FE 1/20 TAB,28>
+
+Example:
+
+The Ortho-Novum 1/35 Tab, 28 belongs in it's own concept with the
+STY Medical Device. The Ethinyl Estradiol. . . .belongs in a concept
+with all the other matching strings and clinical drug. All the other
+matching strings are in concepts with TRD birth control pill packs so
+those all have to be split out. Then there is also missed synonymy,
+like another source has something that means Ortho-Novum 1/35 Tablets 28 days
+(but they probably shouldn't spend time looking for that).
+
+
+As of 15-nov-2001 00:26:37, this entry had the following problems/issues:
+     Demotions are present in Concept.
+     Concept contains an ambiguous string but no MTH/PN.
+     Concept contains an ambiguous string but is lacking a relationship to other 
+concepts sharing that string.
+...............................................................................
+CN# 4758188  ETHINYL ESTRADIOL 0.035 MG / NORETHINDRONE 1 MG ORAL TABLET <9>
+CUI 	Concept Status needs Review
+STY Clinical Drug   R
+ATOMS
+  S          R []  ETHINYL ESTRADIOL 0.035 MG / NORETHINDRONE 1 MG ORAL TABLET 
+<9> [MTH/TM/U009188] 
+  D          N       ETHINYL ESTRADIOL 0.035 MG / NORETHINDRONE 1 MG ORAL TABLET 
+[VANDF01/SCD/U004323] 
+             N []  ORTHO-NOVUM 1/35 TAB,28 [VANDF01/CD/U008235] 
+             N         ORTHO-NOVUM 1/35 TAB,28 [VANDF01/PRN/O0051] 
+
+LEXICAL RELATIONSHIPS
+ { ORTHO-NOVUM 1/35 TAB,28 [SFO] / [LFO] ORTHO-NOVUM 1/35 TAB,28 {VANDF01} }
+ { ORTHO-NOVUM 1/35 TAB,28 [SFO] / [LFO] ETHINYL ESTRADIOL 0.035 MG / 
+NORETHINDRONE 1 MG ORAL TABLET {VANDF01} }
+
+CONTEXTS
+   VANDF01/CD1/U008235
+   VA National Drug File
+     VA NDF Classes
+       HORMONES / SYNTHETICS / MODIFIERS
+         CONTRACEPTIVES, SYSTEMIC
+          <ORTHO-NOVUM 1/35 TAB,28>
+
+</pre>
+<p>Packaging Information
+<pre>
+In the hypothetical examples below, they would all end up with the same
+SNF (something like montelukast sodium 4 mg Oral Tablets) and we would
+merge them together. Because we don't care about how many pills
+are in the bottle or other packaging information. We only care about
+the ingredient, the dose, route, and form.
+
+
+Montelukast sodium 4 mg Tablets bottles of 30
+
+Montelukast sodium 4 mg Tablets bottles of 90
+
+Montelukast sodium 4mg Tablets bottles of 100 w/ child proof seal
+
+Montelukast sodium 4 mg Tablets 100 units, aluminum foil-backed peelable blister 
+packs
+
+Montelukast sodium 4 mg Tab single dose</pre>
+<p>Another Example
+<pre>
+The case below the PRN & CD appear to be synonymous with RCD. The SCD looks
+questionable but we are going to review those as a separate project. SO I
+would ignore for now. The STY does need to be changed to clinical drug.
+
+...............................................................................
+CN# 203861  BENZOYL PEROXIDE 10 MG/100ML BAR SOAP
+CUI C0543191    Concept Status needs Review
+STY Organic Chemical   R
+STY Pharmacologic Substance   R
+ATOMS
+  M          N []  BENZOYL PEROXIDE 10 MG/100ML BAR SOAP [VANDF01/SCD/U001931] 
+  M          N []  BENZOYL PEROXIDE 10% WASH [VANDF01/PRN/B0118] 
+  M          N         BENZOYL PEROXIDE 10% WASH [VANDF01/CD/U001722] 
+             R       Benzoyl peroxide 10% wash [RCD99/PT/m6zv.] 
+
+LEXICAL RELATIONSHIPS
+ { BENZOYL PEROXIDE 10% WASH [SFO] / [LFO] BENZOYL PEROXIDE 10 MG/100ML BAR SOAP
+ {VANDF01} }
+ { BENZOYL PEROXIDE 10% WASH [SFO] / [LFO] BENZOYL PEROXIDE 10% WASH {VANDF01} }
+
+CONTEXTS
+</pre>
+
+<HR>
+<ADDRESS>Contact: <A HREF="mailto:lad@nlm.nih.gov">Laura Roth</A></ADDRESS>
+<ADDRESS>Created: November 21, 2001</ADDRESS>
+<ADDRESS>Last Updated: November 21, 2001</ADDRESS><!-- These comments are used
+by the What's new Generator --><!-- Changed On: 1998/11/04--><!-- Changed by:
+Laura Davis --><!-- Change Note: AOD information page created --><!-- Fresh for:
+2 week --></BODY></HTML>

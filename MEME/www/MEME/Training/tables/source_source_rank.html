@@ -1,0 +1,211 @@
+
+<html>
+<head>
+   <title>MEME Tables Documentation - source_source_rank</title>
+    <script language="javascript">
+	function openDescription (thing,dsc) {
+	    var html = "<html><head><title>Description: "+thing;
+	    html = html + "</title></head><body bgcolor=#ffffff>" + dsc + "<center><form><input type=button onClick='window.close(); return true' value='Close'></form></center></body></html>";
+	    var win = window.open("","","scrollbars,width=500,height=250,resizable");
+	    win.document.open();
+	    win.document.write(html);
+	    win.document.close();
+	}; // end openDescription
+    </script>
+</head>
+
+<body text="#000000" bgcolor="#FFFFFF" link="#3333FF" vlink="#999999" alink="#FF0000">
+
+<center>
+
+<h2>MEME Tables</h2></center>
+
+<hr width="100%">
+
+<!-- Nav bar -->
+  <p><center>[ <a href="#overview">overview</a> | <a href="#details">details</a> | <a href="#references">references</a> ]</center></p>
+
+<!-- Image -->
+<p><center><tt><b>source_source_rank</b></tt><br>
+   <img src="/images/table.gif" alt="Table Icon"></center></p>
+
+<!-- Content section -->
+
+<blockquote>
+
+  <a name="overview"></a><h3>Overview/Objective</h3>
+  This document contains a description of <tt>source_source_rank</tt> 
+     and its various fields.  It also (may) include information
+  about how this table is used in the various stages of MID processing.
+<br>&nbsp;
+<a name="details"></a><h3>Details</h3>
+
+
+    <p>
+	
+	<!-- source_source_rank -->
+
+    <a name="source_source_rank"></a>
+    <center>
+      <table border="0" width="90%">
+        <tr><td valign="top" width="20%"><font size="-1"><b>Table name:</b></font></td><td valign="top" width="80%"><b><tt>source_source_rank</tt></b></td></tr>
+        <tr><td valign="top"><font size="-1"><b>Table Type:</b></font></td><td valign="top"><font size="-1">
+          <a href="javascript:openDescription('source','<p>MID Used as staging area for source insertion data.</p>')">source</a></font></td></tr>
+        <tr><td valign="top"><font size="-1"><b>Description:</b></font></td><td valign="top"><font size="-1">Staging area for new sources.</font></td></tr>
+        <tr><td valign="top"><font size="-1"><b>Fields:</b></font></td><td valign="top">
+	    <table border="1" cellpadding="2" width="90%">
+
+	<tr><td width="20%" valign="top"><tt>high_source</tt></td>
+	    <td width="20%" valign="top"><font size="-1"><b>VARCHAR2(20)</b></font></td>
+ 	    <td width="60%" valign="top"><font size="-1">a new or update source to add to <a href="source_rank.html">&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>low_source</tt></td>
+	    <td width="20%" valign="top"><font size="-1"><b>VARCHAR2(20)</b></font></td>
+ 	    <td width="60%" valign="top"><font size="-1">the source immediately above which the <tt>high_source</tt> should be ranked&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>restriction_level</tt></td>
+	    <td width="20%" valign="top"><font size="-1"><b>NUMBER(12)</b></font></td>
+ 	    <td width="60%" valign="top"><font size="-1">a 0-3 value indicating what type of licensing arrangement is necessary to use this source&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>normalized_source</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(20)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">used to map a <tt>source</tt> value that does not have an SRC concept to one that does, e.g. <tt>MSH2002HMCE</tt> has a normalized source of <tt>MSH2002</tt>&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>stripped_source</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(20)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">a value representing a source independent of version which can be used across time to mean the same source&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>source_official_name</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(3000)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">the SRC/VPT name for this source&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>source_family</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(20)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">a value representing a group of sources that are connected to one another, e.g. <tt>CPT</tt> and <tt>MTHCH</tt> have the same source family: <tt>CPT</tt>&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>version</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(20)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">the version number of a component/application&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>valid_start_date</tt></td>
+	    <td width="20%" valign="top"><font size="-1">DATE</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">the date that the source becomes valid&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>valid_end_date</tt></td>
+	    <td width="20%" valign="top"><font size="-1">DATE</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">the date that the source ceases to be valid&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>insert_meta_version</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(20)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">the version of the Metathesaurus in which the source first appears, e.g. <tt>2001AA</tt>&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>remove_meta_version</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(20)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">the version of the Metathesaurus in which the source is removed, e.g. <tt>2002AA</tt>&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>nlm_contact</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(100)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">the person at NLM responsible for this source&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>inverter_contact</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(100)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>acquisition_contact</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(1000)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">contact information for the person from whom the source can be obtained&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>content_contact</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(1000)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">contact information for the source provider person who can best answer content questions&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>license_contact</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(1000)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">contact information for the source provider person who can best answer licensing questions&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>release_url_list</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(1000)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">a list of URLs related to this source, for release to the public&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>context_type</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(100)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">a value indicating what type of contexts this source has, according to section 2.3.2 of the documentation&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>language</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(10)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">the name of a language&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>citation</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(4000)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">citation information&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>license_info</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(4000)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">information about obtaining a license for this source&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>character_set</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(50)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">an ISO character set name&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>rel_directionality_flag</tt></td>
+	    <td width="20%" valign="top"><font size="-1">VARCHAR2(1)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">a <tt>Y/N</tt> flag indicating whether or not this source asserts the direction of its relationships&nbsp;</font></td>
+	</tr>
+	<tr><td width="20%" valign="top"><tt>rank</tt></td>
+	    <td width="20%" valign="top"><font size="-1">NUMBER(12)</font></td>
+ 	    <td width="60%" valign="top"><font size="-1">the rank of this row, higher values are <i>better</i> ranks&nbsp;</font></td>
+	</tr>
+	    </table>
+        </td></tr>
+        <tr><td valign="top"><font size="-1"><b>Indexes:</b></font></td><td valign="top">
+
+            <font size="-1"><tt>No indexes</tt></font>
+	    
+        </td></tr>
+
+	<tr><td valign="top"><font size="-1"><b>Insertion&nbsp;Role:</b></font></td><td valign="top"><font size="-1">First, they are loaded from <a href="/MEME/Data/src_format.html#sources"><tt>sources.src</tt></a>, then the sources are prepared for insertion and finally they are loaded into <a href="source_rank.html"><tt>source_rank</tt></a>.&nbsp;</font></td></tr>
+
+      </table>
+    </center>
+    </p>
+
+<p>
+<a name="references"></a><h3>References/Links</h3>
+Use the following references for related information.
+<ol>
+  <li><a href="../tables_all.html" alt="All Tables Info">All MEME tables</a></li>
+</ol>
+</p>
+</blockquote>
+
+<p><center>[ <a href="#overview">overview</a> | <a href="#details">details</a> | <a href="#references">references</a> ]</center></p>
+
+<hr WIDTH="100%">
+<table BORDER=0 COLS=2 WIDTH="100%" NOSAVE >
+<tr NOSAVE>
+<td ALIGN=LEFT VALIGN=TOP NOSAVE>
+<address>
+<a href="/MEME/">MEME Home</a></address>
+</td>
+
+<td ALIGN=RIGHT VALIGN=TOP NOSAVE>
+<address>
+<font size=-1>Contact: <a href="mailto:bcarlsen@apelon.com">Brian A. Carlsen</a></font></address>
+
+<address>
+<font size=-1>Created: 7/27/2001</font></address>
+
+<address>
+<font size=-1>Last Updated: 03/07/2005</font></address>
+
+</td>
+</tr>
+</table>
+
+</body>
+<!-- These comments are used by the What's new Generator -->
+<!-- Changed On: 2005/03/07 -->
+<!-- Changed by: Brian Carlsen -->
+<!-- Change Note: MEME Schema documentation - source_source_rank  -->
+<!-- Fresh for: 1 month -->
+</html>

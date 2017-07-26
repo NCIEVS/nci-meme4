@@ -1,0 +1,422 @@
+<html>
+<head>
+            
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <title>MEME - Developer Guides - PL/SQL Documentation - MEME_SOURCE_PROCESSING</title>
+</head>
+<body bgcolor="#ffffff">
+      
+<center>   
+<h2> MEME_SOURCE_PROCESSING</h2>
+  </center>
+      
+<center>   
+<hr width="100%"></center>
+      
+<p><br>
+   </p>
+   
+<center>  
+<table cols="1" width="90%">
+   <tbody>
+      <tr>
+   <td>This PLSQL package is for inserting sources. There are two template 
+scripts for inserting sources that heavily leverage these procedures: <tt>$MEME_HOME/bin/source.csh</tt> 
+ for <i>english</i> language sources, and <tt>$MEME_HOME/Patch/insert_foreign.csh</tt> 
+ for <i>foreign</i> language sources.&nbsp; <br>
+  &nbsp;               
+      <h2> <img src="/images/methods.gif" height="38" width="151"
+ alt="Method List">
+        </h2>
+   <a name="assign_atuis"></a><img src="/images/green-ball.gif"
+ height="12" width="12" alt="method">
+        <b>assign_atuis</b>               
+      <pre>&nbsp;&nbsp;&nbsp; PROCEDURE assign_atuis(<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; authority&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; work_id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN INTEGER,<br>        table_name          IN VARCHAR := 'SA'<br>&nbsp;&nbsp;&nbsp; );</pre>
+                  
+      <dl>
+        <dd> This procedure takes an authority and using <tt>attributes_ui</tt>
+ it assigns new attribute unique identifiers (<a
+ href="/MEME/Training/glossary.html#atui">ATUI</a>) to <tt>source_attributes</tt>,
+ and inserts those new rows into <tt>attributes_ui</tt>.</dd>
+      </dl>
+   <a name="assign_auis"></a><img src="/images/green-ball.gif"
+ height="12" width="12" alt="method">
+        <b>assign_auis</b>               
+      <pre>&nbsp;&nbsp;&nbsp; PROCEDURE assign_auis(<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; authority&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; work_id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN INTEGER,<br>        table_name          IN VARCHAR := 'SC'<br>&nbsp;&nbsp;&nbsp; );</pre>
+                  
+      <dl>
+        <dd> This procedure takes an authority and using <tt>atoms_ui</tt>
+ it assigns new atom unique identifiers (<a
+ href="/MEME/Training/glossary.html#aui">AUI</a>) to <tt>source_classes_atoms</tt>,
+ and inserts those new rows into <tt>atoms_ui</tt>.&nbsp; This procedure
+works  for both <i>english</i> and <i>foreign</i> sources.</dd>
+      </dl>
+        <a name="assign_string_uis"></a><img
+ src="/images/green-ball.gif" height="12" width="12" alt="method">
+        <b>assign_string_uis</b>               
+      <pre>&nbsp;&nbsp;&nbsp; PROCEDURE assign_string_uis(<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; authority&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; work_id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN INTEGER<br>&nbsp;&nbsp;&nbsp; );</pre>
+                  
+      <dl>
+        <dd> This procedure takes an authority and using <tt>string_ui</tt>,
+           <tt>source_string_ui</tt>, and <tt>source_classes_atoms</tt> it
+ assigns new string_ids (SUI, LUI, ISUI) to <tt>source_classes_atoms</tt>,
+ and inserts those new rows into <tt>string_ui</tt>.&nbsp; This procedure
+works for both <i>english</i> and <i>foreign</i> sources.</dd>
+      </dl>
+   <a name="assign_source_ids"></a><img src="/images/green-ball.gif"
+ height="12" width="12" alt="method">
+        <b>assign_source_ids</b>               
+      <dl>
+        <pre>&nbsp;&nbsp;&nbsp; PROCEDURE assign_source_ids(<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; table_name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; authority&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; work_id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN INTEGER<br>&nbsp;&nbsp;&nbsp; );</pre>
+        <dd> Until the attributes.src and relationships.src files have source
+ ids, this procedure assigns source ids to <tt>relationships</tt> and <tt>attributes</tt>.&nbsp; 
+ This procedure is <i><b>deprecated</b>.</i></dd>
+      </dl>
+   <a name="assign_meme_ids"></a><img src="/images/green-ball.gif"
+ height="12" width="12" alt="method">
+        <b>assign_meme_ids</b>               
+      <dl>
+        <pre>&nbsp;&nbsp;&nbsp; PROCEDURE assign_meme_ids(<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; table_name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; authority&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; work_id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN INTEGER<br>&nbsp;&nbsp;&nbsp; );</pre>
+        <dd> This procedure assigns <a
+ href="../../MEME/Training/glossary.html#meme_id">meme ids</a> (<tt>atom_id</tt>,
+           <tt>relationship_id</tt>, <tt>concept_id</tt>, <tt>attribute_id</tt>) 
+ from <tt>max_tab</tt> to the source tables.</dd>
+      </dl>
+   <a name="assign_ruis"></a><img src="/images/green-ball.gif"
+ height="12" width="12" alt="method">
+   <b>assign_ruis</b>               
+      <pre>&nbsp;&nbsp;&nbsp; PROCEDURE assign_ruis(<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; authority&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; work_id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN INTEGER,<br>        table_name          IN VARCHAR := 'SR'<br>&nbsp;&nbsp;&nbsp; );</pre>
+                   
+      <dl>
+        <dd> This procedure takes an authority and using <tt>relationship_ui</tt>
+ it assigns new relationship unique identifiers (<a
+ href="/MEME/Training/glossary.html#rui">RUI</a>) to <tt>source_classes_atoms</tt>,
+ and inserts those new rows into <tt>relationships_ui</tt>.</dd>
+      </dl>
+        <a name="map_to_meme_ids"></a><img
+ src="/images/green-ball.gif" height="12" width="12" alt="method">
+       <b>map_to_meme_ids</b>               
+      <dl>
+        <pre>&nbsp;&nbsp;&nbsp; PROCEDURE map_to_meme_ids(<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; table_name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; authority&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; unique_flag&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; work_id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN INTEGER<br>&nbsp;&nbsp;&nbsp; );</pre>
+        <dd> This procedure maps any id type found in <tt>code_map</tt> where
+           <tt>table_name='sg_type'</tt>&nbsp; in the <tt>source_relationships</tt>
+ or <tt>source_attributes</tt> tables into <tt>atom_ids</tt> and <tt>concept_ids</tt>.
+ The <tt>source_attributes</tt> and <tt>source_relationships</tt> cannot
+be  mapped until <tt>source_classes_atoms</tt> has been inserted into <tt>source_id_map</tt>
+ AND <tt>classes</tt>.&nbsp; This procedure makes use of <tt><a
+ href="#map_sg_fields">map_sg_fields</a></tt>.</dd>
+      </dl>
+   <a name="insert_source_ids"></a><img src="/images/green-ball.gif"
+ height="12" width="12">
+        <b>insert_source_ids</b>               
+      <dl>
+        <pre>&nbsp;&nbsp;&nbsp; PROCEDURE insert_source_ids(<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; table_name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; authority&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; work_id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN INTEGER<br>&nbsp;&nbsp;&nbsp; );</pre>
+        <dd> This procedure inserts from the source tables into <tt>source_id_map</tt>.&nbsp; 
+ It must be run after <tt><a href="#assign_meme_ids">assign_meme_ids</a></tt>.</dd>
+      </dl>
+   <a name="safe_replacement"></a><img src="/images/green-ball.gif"
+ height="12" width="12">
+        <b>safe_replacement</b>               
+      <dl>
+        <pre>&nbsp;&nbsp;&nbsp; PROCEDURE safe_replacement(<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; string_parameter&nbsp;&nbsp;&nbsp; IN VARCHAR2 := 'NONE',<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; code_parameter&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2 := 'NONE',<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; old_source_table&nbsp;&nbsp;&nbsp; IN VARCHAR2 := '',<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; new_source_table&nbsp;&nbsp;&nbsp; IN VARCHAR2 := '',<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; old_termgroup_table IN VARCHAR2 := '',<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; new_termgroup_table IN VARCHAR2 := '',<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; change_status&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2 := MEME_CONSTANTS.NO,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; source&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; authority&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; work_id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN INTEGER<br>&nbsp;&nbsp;&nbsp; );</pre>
+        <dd> This procedure dynamically creates queries to perfom safe replacement
+ operations.&nbsp; The <tt>string_parameter</tt> must have values in ('NONE',
+ 'EXACT', 'NORM', 'NOT').&nbsp; The <tt>code_parameter</tt> must have values
+ in ('NONE','EXACT','NOT').&nbsp; If safe replacement is based on source
+names  the <tt>old_source_table</tt>, and <tt>new_source_table</tt> parameters
+should  point to tables with source fields.&nbsp; If safe replacement is
+based on  termgroups, the <tt>old_termgroup_table</tt> and <tt>new_termgroup_table</tt>
+ parameters should point to tables containing a single termgroup field.&nbsp;
+ The <tt>change_status</tt> flag indicates whether or not the status of the
+ replaced atoms should be changed.&nbsp; For sources that have multi-part,
+ complex safe replacement algorithms, use multiple calls to this procedure.&nbsp;
+ If a mistake is made, use <tt><a href="#reset_safe_replacement">reset_safe_replacement</a></tt> 
+ to undo all of the steps.&nbsp; It calls <tt><a
+ href="#meme_batch_actions">MEME_BATCH_ACTIONS</a></tt>.</dd>
+      </dl>
+   <a name="reset_safe_replacement"></a><img
+ src="/images/green-ball.gif" height="12" width="12">
+        <b>reset_safe_replacement</b>               
+      <dl>
+        <pre>&nbsp;&nbsp;&nbsp; PROCEDURE reset_safe_replacement(<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; source&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; authority&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2);</pre>
+        <dd> This removes rows from <tt>mom_safe_replacement</tt> and <tt>sr_predicate</tt> 
+ which match the <tt>source</tt> parameter..&nbsp;</dd>
+      </dl>
+   <a name="source_replacement"></a><img
+ src="/images/green-ball.gif" height="12" width="12">
+        <b>source_replacement</b>               
+      <dl>
+        <pre>&nbsp;&nbsp;&nbsp; PROCEDURE source_replacement(<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; old_source      &nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; new_source      &nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; authority&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; work_id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN INTEGER<br>&nbsp;&nbsp;&nbsp; );</pre>
+        <dd> This procedure is the key to an "efficient update" style source 
+insertion recipe. &nbsp;It relies on the existence of a replacement.src file 
+which contains the identifiers from a obsolete version of the source which 
+are essientially identical in the current version. &nbsp;The procedure goes 
+through and updates that content so that it appears to come from the current 
+version. &nbsp;It also makes all old-version context relationships obsolete 
+(since the entire context tree must be replaced).</dd>
+      </dl>
+  <a name="generate_facts"></a><img src="/images/green-ball.gif"
+ height="12" width="12">
+        <b>generate_facts</b>               
+      <dl>
+        <pre>&nbsp;&nbsp;&nbsp; PROCEDURE generate_facts(<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; termgroup_table_1&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; termgroup_table_2&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; merge_set&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; string_parameter&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; code_parameter&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; table_name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; source&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; authority&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; work_id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN INTEGER<br>&nbsp;&nbsp;&nbsp; );</pre>
+        <dd> This procedure is used to generate merge facts for pre-insert
+ merges as well as real merge sets.&nbsp; It takes two tables of termgroups,
+ the first correspond to the new ones, the second correspond to the existing
+ ones.&nbsp; The <tt>string_parameter</tt> must be in ('NORM','EXACT','BOTH','NONE','NOT'). 
+ The <tt>code_parameter</tt> must be in ('EXACT','NOT','NONE').&nbsp; The 
+          <tt>table_name</tt>  is the source of the facts and must be in ('RELATIONSHIPS','CLASSES','SOURCE_CLASSES_ATOMS').&nbsp;
+ Using these parameters,           <tt>generate_facts </tt>dynamically produces
+queries  and loads the table <tt>mom_candidate_facts</tt>.</dd>
+      </dl>
+   <a name="filter_facts"></a><img src="/images/green-ball.gif"
+ height="12" width="12">
+        <b>filter_facts</b>               
+      <dl>
+        <pre>&nbsp;&nbsp;&nbsp; PROCEDURE filter_facts(<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; type_1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; type_2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; arg_1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; arg_2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; not_1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; not_2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; merge_set&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; authority&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; source&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; work_id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN INTEGER<br>&nbsp;&nbsp;&nbsp; );</pre>
+        <dd> This procedure is largely unimplemented but will eventually
+allow for a wide variety of filtering predicates.&nbsp; It operates on the
+          <tt>mom_candidate_facts</tt> removing those that meet the filtering
+ criteria.&nbsp; For a list of allowable filtering types and descriptions,
+ see the <tt>code_map</tt> table where <tt>type='filter_type'</tt>.</dd>
+      </dl>
+   <a name="load_facts"></a><img src="/images/green-ball.gif"
+ height="12" width="12">
+        <b>load_facts</b>               
+      <dl>
+        <pre>&nbsp;&nbsp;&nbsp; PROCEDURE load_facts(<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; authority&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; merge_set&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; integrity_vector&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; violations_vector&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; change_status&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; make_demotion&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; work_id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN INTEGER<br>&nbsp;&nbsp;&nbsp; );</pre>
+        <dd> This procedure loads facts from <tt>mom_candidate_facts</tt>
+ into <tt>mom_merge_facts</tt>.</dd>
+      </dl>
+   <a name="move_processed_facts"></a><img src="/images/green-ball.gif"
+ height="12" width="12">
+        <b>move_processed_facts</b>               
+      <dl>
+        <pre>&nbsp;&nbsp;&nbsp; PROCEDURE move_processed_facts(<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; authority&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; work_id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN INTEGER<br>&nbsp;&nbsp;&nbsp; );</pre>
+        <dd> This procedure moves facts from <tt>mom_merge_facts</tt> to
+          <tt>mom_facts_processed</tt>.</dd>
+      </dl>
+   <a name="replacement_merges"></a><img
+ src="/images/green-ball.gif"
+ height="12" width="12">
+        <b>replacement_merges</b>               
+      <dl>
+        <pre>&nbsp;&nbsp;&nbsp; PROCEDURE replacement_merges(<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; merge_set&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; normalization_flag&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ambig_flag&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; authority&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; work_id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN INTEGER<br>&nbsp;&nbsp;&nbsp; );</pre>
+        <dd> This procedure implements a merging algorithm which sets <tt>concept_id</tt>s 
+ in <tt>source_classes_atoms</tt> to correspond with <tt>concept_id</tt>s 
+in classes, and unsets the <tt>source_concept_status</tt> switches for concepts
+ that no longer need to be inserted.&nbsp; The <tt>normalization_flag</tt> 
+ allows for merging of higher <tt>concept_id</tt>s into lower ones or vice 
+ versa.&nbsp; Use <tt>MEME_CONSTANTS.HIGHER_INTO_LOWER</tt>, or <tt>MEME_CONSTANTS.LOWER_INTO_HIGHER</tt>.&nbsp; 
+ The <tt>ambig_flag</tt> allows you to require that merges take place only 
+ if the facts are 1-1, so 2 new concepts cannot merge into the same existing 
+ one.&nbsp; Use a value of 0 if merging two concepts into the same concept 
+ is OK, and use 1 otherwise.</dd>
+      </dl>
+   <a name="prepare_src_mergefacts"></a><img
+ src="/images/green-ball.gif"
+ height="12" width="12">
+        <b>prepare_src_mergefacts</b>               
+      <dl>
+        <pre>&nbsp;&nbsp;&nbsp; PROCEDURE prepare_src_mergefacts(<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; unique_flag&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; authority&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; merge_set&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2 := '',<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; work_id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN INTEGER<br>&nbsp;&nbsp;&nbsp; );</pre>
+        <dd> This procedure prepares source merge facts.&nbsp; This procedure
+ maps any id type found in <tt>code_map</tt> where <tt>table_name='sg_type'</tt>&nbsp; 
+ in the <tt>mom_precomputed_fact</tt> tables into <tt>atom_ids</tt> and <tt>concept_ids</tt>.and 
+ then loads</dd>
+        <dd> data into <tt>mom_candidate_facts</tt>.</dd>
+      </dl>
+   <a name="setup_partitions"></a><img
+ src="/images/green-ball.gif"
+ height="12" width="12">
+        <b>setup_partitions</b>               
+      <dl>
+        <pre>&nbsp;&nbsp;&nbsp; PROCEDURE setup_partitions;</pre>
+        <dd> This procedure is unimplemented, but when we are using Oracle
+ 8i, it should be called at the beginning of the source insertion process
+to create partitions in the core tables big enough to hold all of the new
+rows.&nbsp; That way, editing can proceed while source insertion is taking
+place because the new and existing rows will be in different partitions.&nbsp;
+One requirement might be that when replacing a source, all atoms from that
+source must be put into unaccessible partitions, otherwise pre-insert merge
+sets might have unstable concept ids.</dd>
+      </dl>
+   <a name="insert_ranks"></a><img
+ src="/images/green-ball.gif"
+ height="12" width="12">
+        <b>insert_ranks</b>               
+      <dl>
+        <pre>&nbsp;&nbsp; PROCEDURE insert_ranks(<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; authority&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; work_id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN INTEGER<br>&nbsp;&nbsp;&nbsp; );</pre>
+        <dd> This procedure takes <tt>source_termgroup_rank</tt> and <tt>source_source_rank</tt> 
+ as input tables and inserts into <tt>termgroup_rank</tt> and <tt>source_rank</tt>. 
+ It also inserts rows into <tt>mom_exclude_list</tt> and <tt>mom_norm_exclude_list</tt> 
+ for termgroups which belong on these lists.</dd>
+      </dl>
+   <a name="undo_insert_ranks"></a><img
+ src="/images/green-ball.gif"
+ height="12" width="12">
+        <b>undo_insert_ranks</b>               
+      <dl>
+        <pre>&nbsp;&nbsp; PROCEDURE undo_insert_ranks(<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; authority&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; work_id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN INTEGER<br>&nbsp;&nbsp;&nbsp; );</pre>
+        <dd> This procedure removes rows from <tt>source_rank</tt> and <tt>termgroup_rank</tt> 
+ where they match <tt>source_source_rank</tt> and <tt>source_termgroup_rank</tt>..&nbsp;</dd>
+      </dl>
+   <a name="report_tables"></a><img
+ src="/images/green-ball.gif"
+ height="12" width="12">
+        <b>report_tables</b>               
+      <dl>
+        <pre>&nbsp;&nbsp;&nbsp; PROCEDURE report_tables(<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; source&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; authority&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; work_id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN INTEGER<br>&nbsp;&nbsp;&nbsp; );</pre>
+        <dd> This procedure generates report tables <tt>&lt;source&gt;_demotions</tt>, 
+           <tt>&lt;source&gt;_merges</tt>, <tt>&lt;source&gt;_need_review</tt>,
+ and <tt>&lt;source&gt;_replaced</tt>.</dd>
+      </dl>
+   <a name="update_releasability"></a><img
+ src="/images/green-ball.gif"
+ height="12" width="12">
+        <b>update_releasability</b>               
+      <dl>
+        <pre>&nbsp;&nbsp;&nbsp; PROCEDURE update_releasability(<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; old_source&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; new_source&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; authority&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; new_value&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; work_id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN INTEGER<br>&nbsp;&nbsp;&nbsp; );</pre>
+        <dd> This procedure sets the <tt>tobereleased</tt> field in <tt>classes</tt>, 
+           <tt>relationships</tt>, and <tt>attributes</tt> for all rows connected
+ to the source indicated in the <tt>old_source</tt> parameter. Typically,
+it is used to make an obsolete source unreleasable.&nbsp; This procedure
+calls           <tt><a href="#meme_batch_actions">MEME_BATCH_ACTIONS</a></tt>.</dd>
+      </dl>
+   <a name="resolve_stys"></a><img
+ src="/images/green-ball.gif"
+ height="12" width="12">
+        <b>resolve_stys</b>               
+      <dl>
+        <pre>&nbsp;&nbsp;&nbsp; PROCEDURE resolve_stys(<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; source&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sty_fate&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; authority&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; work_id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN INTEGER<br>&nbsp;&nbsp;&nbsp; );</pre>
+        <dd> This procedure resolves records whose semantic types (STY's)
+ are under consideration according to its fate, Win or Lose.&nbsp; Fate W,
+ means STY's from source win and others get deleted.&nbsp; Fate L, means
+STY's  from source</dd>
+        <dd> lose and get deleted.&nbsp; This procedure calls <tt><a
+ href="#meme_batch_actions">MEME_BATCH_ACTIONS</a></tt>.</dd>
+      </dl>
+   <a name="delete_demotions"></a><img
+ src="/images/green-ball.gif"
+ height="12" width="12">
+        <b>delete_demotions</b>               
+      <dl>
+        <pre>&nbsp;&nbsp;&nbsp; PROCEDURE delete_demotions(<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; source&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; authority&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; work_id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN INTEGER<br>&nbsp;&nbsp;&nbsp; );</pre>
+        <dd> This procedure deletes demotions that exist between concepts
+ that already have an approved concept level relationship if one of the atoms
+ connected to the demotion is a safe replacement atom in the specified source.</dd>
+      </dl>
+   <a name="foreign_classes_insert"></a><img
+ src="/images/green-ball.gif"
+ height="12" width="12">
+        <b>foreign_classes_insert</b>               
+      <dl>
+        <pre>&nbsp;&nbsp;&nbsp; PROCEDURE foreign_classes_insert(<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; authority&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; work_id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN INTEGER<br>&nbsp;&nbsp;&nbsp; );</pre>
+        <dd> This procedure is used instead of <tt><a
+ href="#core_table_insert">core_table_insert</a></tt> to insert foreign language
+ atoms..</dd>
+      </dl>
+   <a name="foreign_attributes_insert"></a><img
+ src="/images/green-ball.gif"
+ height="12" width="12">
+  <b>foreign_attributes_insert</b>               
+      <dl>
+        <pre>&nbsp;&nbsp;&nbsp; PROCEDURE foreign_attributes_insert(<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; authority&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; work_id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN INTEGER<br>&nbsp;&nbsp;&nbsp; );</pre>
+        <dd> This procedure is used instead of <tt><a
+ href="plsql_msp.html#core_table_insert">core_table_insert</a></tt> 
+to insert foreign language attributes.</dd>
+      </dl>
+  <a name="core_table_insert"></a><img
+ src="/images/green-ball.gif"
+ height="12" width="12">
+        <b>core_table_insert</b>               
+      <pre>&nbsp;&nbsp;&nbsp; PROCEDURE core_table_insert(&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; table_name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; authority&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; work_id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN INTEGER<br>&nbsp;&nbsp;&nbsp; );</pre>
+                  
+      <dl>
+        <dd> This procedure is the one responsible for loading data from
+the source tables to the core tables.&nbsp; It calls <tt><a
+ href="#meme_batch_actions">MEME_BATCH_ACTIONS</a></tt>.</dd>
+      </dl>
+   <a name="map_obsolete_rels"></a><img
+ src="/images/green-ball.gif"
+ height="12" width="12">
+        <b>map_obsolete_rels</b>               
+      <pre>&nbsp;&nbsp;&nbsp; PROCEDURE map_obsolete_rels(&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; stripped_source&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; authority&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; work_id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN INTEGER<br>&nbsp;&nbsp;&nbsp; );</pre>
+                  
+      <dl>
+        <dd> This procedure replaces <tt>atom_id</tt>s of a relationship
+belonging to the obsolete version of the source specified in <tt>stripped_source</tt> 
+ with <tt>atom_id</tt>s belonging to the updated version of that same source. 
+ The process looks up all of the relationships connected to atoms of an old
+ version of a source and finds which atoms in the new version of the source
+ best replace old atoms.&nbsp; This procedure calls <tt><a
+ href="#meme_batch_actions">MEME_BATCH_ACTIONS</a></tt>.</dd>
+      </dl>
+   <a name="map_sg_fields"></a><img
+ src="/images/green-ball.gif"
+ height="12" width="12">
+        <b>map_sg_fields</b>               
+      <pre>&nbsp;&nbsp;&nbsp; PROCEDURE map_sg_fields(&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; table_name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pair_flag&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2 := MEME_CONSTANTS.NO,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; concept_flag&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN INTEGER := MEME_CONSTANTS.YES<br>&nbsp;&nbsp;&nbsp; );</pre>
+                  
+      <dl>
+        <dd> By default, this procedure requires a table that has <tt>atom_id</tt>, 
+           <tt>concept_id</tt>, <tt>sg_id</tt>, <tt>sg_type</tt>, and <tt>sg_qualifier</tt>
+ fields (like <tt>source_attributes</tt>).&nbsp; It maps the <tt>sg_id</tt>,
+ given the type and qualifier to an <tt>atom_id</tt> and a <tt>concept_id</tt>.&nbsp; 
+ If the <tt>concept_flag</tt> is <tt>MEME_CONSTANTS.NO</tt>, then the <tt>concept_id</tt> 
+ field is unnecessary and goes unmapped.&nbsp; If the <tt>pair_flag</tt> is
+          <tt>MEME_CONSTANTS.YES</tt>, then the table must have two sets
+ of fields with the names above but with suffixes <tt>_1</tt> and <tt>_2</tt>
+ (like <tt>atom_id_1</tt>, <tt>atom_id_2</tt>).</dd>
+      </dl>
+   <a name="map_sg_data"></a><img
+ src="/images/green-ball.gif"
+ height="12" width="12">
+        <b>map_sg_data</b>               
+      <pre>&nbsp;&nbsp;&nbsp; PROCEDURE map_sg_data(&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; authority&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; work_id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp; );</pre>
+                  
+      <dl>
+        <dd> This procedure re-maps all relationships and attributes that
+ are natively connected to id types other than <tt>atom_id</tt>s or <tt>concept_id</tt>s.&nbsp; 
+ All such rows are identified in the <tt>sg_relationships</tt> and <tt>sg_attributes</tt> 
+ tables..</dd>
+        <br>
+&nbsp;
+        <p>&nbsp; <br>
+  &nbsp; <br>
+  &nbsp;</p>
+      </dl>
+   </td>
+   </tr>
+         
+  </tbody>  
+</table>
+  </center>
+      
+<hr width="100%">   
+<table border="0" cols="2" width="100%" nosave="">
+   <tbody>
+      <tr nosave="">
+   <td align="left" valign="top" nosave="">               
+      <address> <a href="/MEME/">MEME Home</a></address>
+   </td>
+    <td align="right" valign="top" nosave="">               
+      <address> <font size="-1">Contact: <a
+ href="mailto:bcarlsen@apelon.com">Brian A. Carlsen</a></font></address>
+                  
+      <address> <font size="-1">Created: 8/10/2000</font></address>
+                  
+      <address> <font size="-1">Last Updated: 09/02/2003</font></address>
+   </td>
+   </tr>
+         
+  </tbody>  
+</table>
+<!-- These comments are used by the What's new Generator -->
+<!-- Changed On: 2003/09/23 -->
+<!-- Changed by: Brian Carlsen -->
+<!-- Change Note: MEME - Developer Guides - PL/SQL Documentation - MEME_SOURCE_PROCESSING -->
+<!-- Fresh for: 1 month --> 
+           <br>
+   
+</body>
+</html>

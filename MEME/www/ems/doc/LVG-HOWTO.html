@@ -1,0 +1,503 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+<HEAD>
+<TITLE>LVG in MEME</TITLE>
+</HEAD>
+
+<BODY>
+<H1>LVG in MEME</H1>
+
+<P ALIGN=right>November 2004
+<P>
+
+With the lvg2005 release, LVG does not need a database backend
+to store the LVG tables.  It uses HSqlDb ("Hyper" SQL DB) that
+uses file-based indexing and searching and is reasonably fast.
+
+<P>
+With this, I've created new code to simplify installation, etc.
+Here are the steps to follow:
+
+<P>
+<OL>
+<P><LI>Download the full lexical distribution.  This is usually
+called LEX.tgz and should contain the lexicon and other data
+along with the lvg tools.  The unpacked LEX.tgz is what forms
+the contents of the LEX subdirectory of a UMLS release.
+
+<P><LI>In the LEX_PGMS subdirectory is the content for the LVG
+tools (norm, luinorm, etc).  Unpack this (with gzip, gtar) in
+smis:/d4/lvg.  This should create the versioned directory name
+such as lvg2005.
+
+<P><LI>Follow the installation directions for this version
+(usually there's an install subdirectory).  After installation,
+you should see the bin directory containing the programs we use.
+
+<P><LI>To allow access from other servers, we need to either
+rdist this directory to other machines, or create NFS links.
+I have opted for the latter for now, so /site/package/lvg/lvg2005
+is a link to /net/smis/c6/d4/lvg/lvg2005.  If you do this,
+make sure you edit the wrapper scripts (norm, luiNorm, etc)
+in the bin directory to make these NFS paths.  For example,
+change:
+
+<CODE>
+JAVA=/c6/umls/d4/lvg/lvg2005/bin/j2re1.4.2_05/bin/java
+
+to
+
+JAVA=/net/smis/c6/umls/d4/lvg/lvg2005/bin/j2re1.4.2_05/bin/java
+</CODE>
+
+Also edit the lvg.properties file in data/config to make the
+paths NFS accessible.
+
+<P><LI>The server scripts are in /site/umls/lvg/hsqldbserver.
+LVGServer.pl can be called on the new version with the -v option.
+Test locally with the -f option and as a server on a different
+port, say 50000.  Use /site/umls/lvg/cluinorm.pl as a test client
+(with the -p option).
+
+<P><LI>When all is happy, set the /site/package/lvg/current to
+point to the new version.  Test one final time with
+/site/umls/lvg/cluinorm.pl.
+
+</OL>
+<P>
+
+<HR><P>
+
+<P ALIGN=right>October 2002
+
+<P>
+The LVG team gives us a new release of LVG annually (fall).
+We use LVG in MEME to assign LUIs, compute STT and for flexible
+matching during insertion and Q/A.
+
+<P>
+
+As of 2002, LVG was reimplemented in Java.  The tables that LVG uses
+can be in memory (IDB), MySQL or Oracle.  The LVG distribution comes
+with load classes and configuration information for IDB and MySQL.
+With some tweaking we were successful in porting to Oracle, which is
+what we use since lvg2003.  The retrieval side works seamlessly in
+Oracle (JDBC).
+
+<P>
+
+This document describes how to install LVG with the modifications for
+use in the MEME system.  It also describes the LVG server and clients
+that we have implemented to interface the LVG system.
+
+
+<H1><A NAME="top">Table of Contents</A></H1>
+
+<UL>
+<LI><A HREF="#install">Installation</A>
+<LI><A HREF="#prop">Properties files</A>
+<LI><A HREF="#localidb">Local access to LVG using IDB</A>
+<LI><A HREF="#server">LVG Server</A>
+<LI><A HREF="#clients">Norm/Luinorm/Wordind clients</A>
+<LI><A HREF="#loading">Loading the LVG tables into Oracle</A>
+<LI><A HREF="#maintain">Things to maintain</A>
+</UL>
+
+<H1><A NAME="install">Installation</A></H1>
+
+The LVG distribution is obtained from:
+
+<PRE>
+<A HREF="http://umlslex.nlm.nih.gov/lvg">http://umlslex.nlm.nih.gov/lvg</A>
+</PRE>
+
+after we get word from the LVG team that it is ready.
+Due to the size of the distribution, it is only installed on machines
+that need it, currently smis.  The clients are on all machines.
+
+<P>
+
+<UL>
+
+<P><LI>
+So on machines that need LVG (smis, oa, mrd), create the directory:
+<PRE>
+
+/site/package/lvg/$VERSION
+
+</PRE>
+
+or link this to where the installation really is.
+
+<P><LI>
+On smis, follow the installation directions in:
+<A HREF="http://umlslex.nlm.nih.gov/lvg/current/docs/userDoc/index.html">Lexical Tools
+Documentation</A>.  Answer "no" to the MySQL install.  So you should have the IDB
+version installed and we handle the Oracle load and install ourselves.
+
+<P><LI>
+Set the link /site/package/lvg/current to point to the current version,
+say, /site/package/lvg/lvg2003 if you are satisfied with the installation
+process.
+
+<P><LI>
+On oa and mrd (and other machines that need direct LVG access), I simply
+link to the version on smis for now using NFS and automount.  If this is
+not satisfactory, you can install a local copy on these machines.
+I do:
+
+<PRE>
+
+oa% ln -s /net/smis/c6/umls/d4/lvg/lvg2003 /site/package/lvg/lvg2003
+
+</PRE>
+
+Copy the lvg.properties (usually in data/config) file to
+/site/etc/lvg.  Make Oracle, MySQL and IDB versions of this file
+(see examples already there).  Rdist these to all machines.
+
+</UL>
+<P>
+(<A HREF="#top">Back to table of contents</A>)
+
+<H1><A NAME="prop">Properties files</A></H1>
+
+On the machines that have the servers running, create the following files
+in the /site/etc/lvg directory where $V is the current LVG version, e.g.
+lvg2004.
+
+<P>
+<UL>
+<LI>$V.idb.properties
+<LI>$V.oracle.properties
+</UL>
+
+<P>
+The content for these files comes from the $LVGDIR/data/config/lvg.properties file
+with changes made to support either IDB or Oracle.
+When testing is complete, change the link current.*.properties to the new
+versions of these files.
+Also, ensure that the files are not world readable (640).
+
+<P>
+
+The master version is maintained on smis.  The rdist file is:
+smis:/d4/lvg/etc-dist.  Distribute this to other machines as
+root using rdist.
+
+<H1><A NAME="localidb">Local Access to LVG using IDB</A></H1>
+
+If you need the full LVG functionality locally, as for example, to
+compute the STT in the release, you can use the IDB database version
+directly.  You will need to set the classpath appropriately and use
+the Java properties file in /site/etc/lvg/current.idb.properties (this
+is a link to the IDB properties file for the current version of LVG).
+Here, for example is how you can use luiNorm directly on the mrd
+machine (CLASSPATH for LVG2003):
+
+<PRE>
+
+% setenv LVGDIR "/site/package/lvg/current";
+% setenv CLASSPATH "
+    $LVGDIR/lib/lvg2004api.jar:
+    $LVGDIR/lib/lvg2004dist.jar:
+    $LVGDIR/lib/jdbcDrivers/IDB/idb.jar:
+    $LVGDIR/lib/jdbcDrivers/IDB/jta-spec1_0_1.jar"
+% java luiNorm -x:/site/etc/lvg/current.idb.properties -i:/usr/dict/words -o:foo
+
+</PRE>
+<P>
+Note: using the -i and -o option will assume input and output to be
+UTF-8 encoded.  UNIX redirection does not always work.
+
+<P>
+
+NLM will maintain the links: /site/package/lvg/current and /site/etc/lvg/current.idb.properties
+so your code doesn't have to change.
+
+<P>
+(<A HREF="#top">Back to table of contents</A>)
+
+<H1><A NAME="server">LVG Server</A></H1>
+
+A lightweight server has been written to run on smis (or more
+generally on the host name returned by the MID service
+lvg-server-host).  It runs on the TCP port returned by the MID service
+lvg-server-port.  This server is implemented in Java and uses Oracle
+as the repository for LVG data.  The IDB version (used prior to
+lvg2003) tends to use a significant amount of memory.  Oracle was
+preferrable to MySQL only because we have many machines with Oracle
+databases (for redundancy) and it is professionally managed.
+
+<P>
+
+Note: the password for access to the database is obtained from the
+data in /etc/umls/oracle.passwd which should be present on the
+server host machine.  Also, the password is trivially rotated
+using the ROT13 algorithm from accidental disclosure.
+
+<P>
+
+All code related to the server is in the /site/umls/lvg/server
+directory.  The server can be run in network or local mode.  The
+latter does not incur the network overhead and runs as a UNIX filter
+reading from STDIN and writing to STDOUT.  It will still use the
+network to get to the Oracle database unless that happens to be local
+to the machine.  For truly local batch access, use the IDB version
+described above.
+<P>
+A perl script LVGServer.pl
+wraps up the Java call with simple options and provides defaults for
+the rest or looks them up as needed.
+
+<H2>LVGServer.pl Options</H2>
+<DL>
+<DT>-d {database}
+<DD>The TNS name of the database to use, e.g., oa_mid2003.  Default
+is to use the database that the MID service editing-db maps to.
+<DT>-v {LVG version}
+<DD>the name of an alternate version, e.g., lvg2003; default is "current" version
+<DT>-f {norm|luinorm|wordind}
+</DD>If you are running locally, you can specify the desired functionality with this.
+</DL>
+
+This script can be run as many times as needed (say via cron).  It
+detects other running instances and exits gracefully.
+
+<H2>Start up script in /etc/rc3.d</H2>
+There is a helper script in /site/umls/lvg/server/S95lvgserver that
+can be used to start, stop and restart the LVG server on the default
+host and port. It recognizes these single-word arguments:
+
+<P>
+<TABLE BORDER=1 CELLSPACING=0 CELLPADDING=5>
+<TR><TD>S95lvgserver <B>start</B></TD><TD>Starts the server</TD></TR>
+<TR><TD>S95lvgserver <B>stop</B></TD><TD>Stops the server</TD></TR>
+<TR><TD>S95lvgserver <B>restart</B></TD><TD>Stops the server and restarts it.  Use this to restart the
+	  server after changing the editing-db MID service.</TD></TR>
+<TR><TD>S95lvgserver <B>pid</B></TD><TD>The PID(s) of the LVG server process.</TD></TR>
+</TABLE>
+
+<P>
+There is a link to this script from /etc/rc3.d on smis.
+
+<P>
+(<A HREF="#top">Back to table of contents</A>)
+
+<H1><A NAME="clients">Norm/Luinorm/Wordind with Oracle</A></H1>
+
+Some of LVG's functionality such as norm, luinorm and wordind are available
+via client programs that use the LVG server.  These clients can be run in the
+local mode that bypasses the TCP overhead between client and server.
+It is possible that the databases are not on the same machine running the server,
+so there will be some hidden overhead due to that.
+<P>
+
+There client scripts are in /site/umls/lvg/client.  These are norm.pl, luinorm.pl,
+wordind.pl that can be used for local or remote access to LVG data.  These links
+are preserved for backward compatability:
+
+<P>
+For UNIX,
+
+<PRE>
+/site/umls/lvg/cnorm.pl->/site/umls/lvg/client/norm.pl
+/site/umls/lvg/cluinorm.pl->/site/umls/lvg/client/luinorm.pl
+/site/umls/lvg/cwordind.pl->/site/umls/lvg/client/wordind.pl
+</PRE>
+
+<P>
+For Windows:
+<P>
+The FTP site on oa (/d5/MEME3/ftp/pub/NT) has the new versions
+of the clients in place of the old names.
+
+<P>
+The perl clients take these arguments:
+
+<PRE>
+
+-s {server machine name} default is the name referred to by lvg-server-host
+-p {port} default is the port returned by lvg-server-port
+-l {run locally without TCP}
+
+</PRE>
+
+Local access will only work on server machines.  In general, use local
+access if you have many terms to process, network access if you have a
+few.  Tradeoffs are local CPU speed, network speed and Java startup
+time, etc.  Your mileage may vary.
+
+<P>
+For running the clients locally, you must have access to:
+<P>
+<OL>
+<LI>LVG code, specifically the lvg2003api.jar file usually in
+/site/package/lvg/current/lib.
+<LI>Oracle JDBC driver (usually in $ORACLE_HOME/jdbc/lib/classes12.zip)
+<LI>the database containing the LVG tables (usually oa_mid2003 or equivalent)
+<LI>contents of /site/umls/lvg/server/*.class
+</OL>
+<P>
+For example, on mrd:
+
+<CODE>
+
+/site/umls/lvg/client/luinorm.pl -l &lt; /usr/dict/words
+
+</CODE>
+
+will luinorm all the words in /usr/dict/words to STDOUT without
+the TCP overhead.
+
+<P>
+
+The output of the clients' will contain the query followed by the
+remaining fields ('|' separated).  For norm and wordind, which
+potentially have a one-to-many response, they are all in the same
+line.
+
+<P>
+(<A HREF="#top">Back to table of contents</A>)
+
+<H1><A NAME="loading">Loading the LVG tables into Oracle</A></H1>
+
+Currently the MySQL load classes that come with the distribution can be
+used to load the data into Oracle with a few changes described below.
+<P>
+The code that needs to be modified (for loading to Oracle) is currently
+in $LVGHOME/loadDb/sources/gov/nih/nlm/nls/lvg/loadDb/MySql/*.java.
+Copy these files to /site/umls/lvg/loadDB/$VERSION/.  I usually have
+a mirror on astra:~suresh/umls/lvg/loadDB/ where I install and test
+before I rdist to /site.
+
+<P>
+
+Edit these files to facilitate the Oracle load.  You can peek in
+previous versions to see what needs to be done.  But here is a brief
+summary of the changes needed:
+
+<UL>
+<P><LI>
+Modify DbBase.java to change the MySQL connect string to the Oracle connect string.
+
+<P><LI>
+Remove trailing ';' from SQL statements.
+
+<P><LI>
+
+Creating tables and indexing can be done in a single CREATE
+statement in MySQL.  In Oracle this needs to be split into two
+statements.  So:
+
+<PRE>
+
+  String query = "CREATE TABLE Acronym ("
+               + "expNpLc varchar(107) NOT NULL,"
+               + "exp     varchar(132) NOT NULL,"
+               + "aType    varchar(13),"
+               + "acrNpLc varchar(52) NOT NULL,"
+               + "acr     varchar(54) NOT NULL)"
+               + "INDEX index1(expNpLc),"
+               + "INDEX index2(acrNpLc))";
+
+                // execute Sql Query
+                db.ExecuteDdl(query);
+
+</PRE>
+
+becomes:
+
+<PRE>
+
+  String query = "CREATE TABLE Acronym ("
+               + "expNpLc varchar(107) NOT NULL,"
+               + "exp     varchar(132) NOT NULL,"
+               + "aType    varchar(13),"
+               + "acrNpLc varchar(52) NOT NULL,"
+               + "acr     varchar(54) NOT NULL)";
+
+                db.ExecuteDdl(query);
+
+</PRE>
+
+in LoadData followed in main by a calls to create indexes as:
+
+<PRE>
+
+                LoadData(db);
+                query = "CREATE INDEX x_Acronym_1 ON Acronym(expNpLc)";
+                db.ExecuteDdl(query);
+                query = "CREATE INDEX x_Acronym_2 ON Acronym(acrNpLc)";
+                db.ExecuteDdl(query);
+
+</PRE>
+
+I also had to put in a System.exit(2) in DbBase.java whenever exceptions are detected.
+This will apparently added in the next LVG release.  I also added a conn_.setAutoCommit(true)
+in OpenConnection() as there were intermittent errors in the loading or Oracle that
+seemed to be related to this.
+<P>
+I also put in print statements in ExecuteDdl and ExecuteSql in DbBase.java for
+diagnosing problems better.
+
+<P><LI>
+
+loadToOracle.pl has these options:
+
+<PRE>
+
+-d {database to load to}
+-s {the directory containing the modified source (load classes)
+   e.g., /site/umls/lvg/loadDB/lvg2003}
+-a (Oracle authentication info, username/password)
+-p {package name for the main classes, e.g., gov.nih.nlm.nls.lvg.loadDb.MySql}
+-l LVG directory, e.g., /d4/lvg/lvg2003
+-v {Oracle driver - default is oracle.jdbc.driver.OracleDriver}
+
+</PRE>
+
+For example:
+
+<PRE>
+
+/site/umls/lvg/loadToOracle.pl
+  -s /site/umls/lvg/loadDB/lvg2003
+  -d ob_mid2003
+  -a lvg/*******
+  -l /site/package/lvg/lvg2003
+  -p gov.nih.nlm.nls.lvg.loadDb.MySql
+
+</PRE>
+
+This should report progress to STDERR and take an hour or so to load
+all the tables.  Make sure to run this against all databases that
+are in use, esp. ones on oa, ob.  Note that these runs can be made
+in parallel.  Save the output to a log file or watch the terminal for
+errors.  I've encountered these types of errors in the past, although
+intermittently.
+<P>
+<UL>
+<LI>Exception: java.sql.SQLException: ORA-00942: table or view does not exist
+<LI>SQLException: ORA-00955: name is already used by an existing object
+</UL>
+</UL>
+
+<P>
+(<A HREF="#top">Back to table of contents</A>)
+
+<H1><A NAME="maintain">Things to maintain</A></H1>
+
+<OL>
+<LI>The lvg-server-port MID service (usually does not need to be changed)
+<LI>The lvg-server-host MID service.  Set this to whatever machine is hosting
+the LVG server.  Usually smis.
+<LI>The "current" link in /site/package/lvg on all machines that need access
+<LI>The "current.idb.properties" link in /site/etc/lvg.  This should only have
+	the IDB database property set.  It should also belong to the meme
+	group with 640 permissions.
+</OL>
+<P>
+(<A HREF="#top">Back to table of contents</A>)
+</BODY>
+</HTML>

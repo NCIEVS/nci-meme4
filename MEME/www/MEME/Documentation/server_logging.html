@@ -1,0 +1,264 @@
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf8">
+   <title>MEME4 Developer Guides - The Server Log</title>
+</head>
+<body text="#000000" bgcolor="#FFFFFF" link="#3333FF" vlink="#999999" alink="#FF0000">
+
+<center>
+<h3>
+<font size=+0>The Server Log</font></h3></center>
+
+<hr><i><font size=-1>Following is a description of MEME Application Server
+log</font>.</i>
+<br>&nbsp;
+<center><table CELLPADDING=3 WIDTH="90%" NOSAVE >
+<tr NOSAVE>
+<td VALIGN=TOP NOSAVE><b>The Log</b></td>
+
+<td VALIGN=TOP NOSAVE><font size=-1>As the application server runs it generates
+a (fairly) detailed log of its its operation.&nbsp; There are three main
+sections to the log, corresponding to the three main sections described
+below, they are:&nbsp; initialization, body, and finalization.&nbsp; The
+<i><a href="#init">initialization</a></i>
+section of the log is written as the application server goes through its
+initialization routine.&nbsp; The <i><a href="#body">body</a></i> of the
+log consists of information about each request that was processed and each
+exception that was triggered along the way.&nbsp; The <i><a href="#final">finalization</a></i>
+section is written as the application server shuts down.</font>
+<br><font size=-1>&nbsp;&nbsp;<br>
+The server log can be viewed by using the <tt><a href="/MEME/Documentation/showlog.html">admin.pl</a></tt>
+Perl client or the <tt><a href="/javadoc/gov/nih/nlm/meme/client/AdminClient.html">AdminClient</a></tt>
+Java client.&nbsp; Typically, the server log will be written to a file
+in the <tt>log</tt> subdirectory of <tt>$MEME_HOME</tt>.</font></td>
+</tr>
+
+<tr>
+<td><font size=-1>&nbsp;</font></td>
+
+<td><font size=-1>&nbsp;</font></td>
+</tr>
+
+<tr NOSAVE>
+<td VALIGN=TOP NOSAVE><a NAME="init"></a><b>Initialization</b></td>
+
+<td VALIGN=TOP NOSAVE><font size=-1>The first section of the log is the
+initialization section.&nbsp; This section details the start up process
+and has several sub-sections.&nbsp; The first subsection details the process
+of initializing the classes listed in the <tt>meme.server.bootstrap.classes</tt>
+property in the <a href="/MEME/Data/meme.prop">default
+properties file</a>.</font>
+<pre><font size=-1>[02-Apr-2002 15:38:22]&nbsp; INITIALIZE COMPONENT - gov.nih.nlm.meme.server.MIDDataSourcePool
+[02-Apr-2002 15:38:22]&nbsp;&nbsp;&nbsp; autoextend = true
+[02-Apr-2002 15:38:22]&nbsp;&nbsp;&nbsp; max_size = 100
+[02-Apr-2002 15:38:22]&nbsp;&nbsp;&nbsp; optimal_size = 5
+[02-Apr-2002 15:38:26]&nbsp; Initializing database session - open connection ...
+[02-Apr-2002 15:38:29]&nbsp;&nbsp;&nbsp; Cache source_rank data
+[02-Apr-2002 15:38:32]&nbsp;&nbsp;&nbsp; Cache termgroup_rank data
+[02-Apr-2002 15:38:33]&nbsp;&nbsp;&nbsp; Cache semantic types
+[02-Apr-2002 15:38:33]&nbsp;&nbsp;&nbsp; Cache relationship inverses
+[02-Apr-2002 15:38:33]&nbsp;&nbsp;&nbsp; Cache integrity checks
+[02-Apr-2002 15:38:34]&nbsp; Initializing database session - open connection ...
+[02-Apr-2002 15:38:34]&nbsp; Initializing database session - open connection ...
+[02-Apr-2002 15:38:35]&nbsp; Initializing database session - open connection ...
+[02-Apr-2002 15:38:35]&nbsp; Initializing database session - open connection ...
+[02-Apr-2002 15:38:35]&nbsp; INITIALIZE COMPONENT - gov.nih.nlm.meme.server.ThreadPool
+[02-Apr-2002 15:38:35]&nbsp;&nbsp;&nbsp; autoextend = true
+[02-Apr-2002 15:38:35]&nbsp;&nbsp;&nbsp; max_size = 100
+[02-Apr-2002 15:38:35]&nbsp;&nbsp;&nbsp; optimal_size = 5
+[02-Apr-2002 15:38:35]&nbsp; INITIALIZE COMPONENT - gov.nih.nlm.meme.server.HTTPRequestListener
+[02-Apr-2002 15:38:35]&nbsp; INITIALIZE COMPONENT - gov.nih.nlm.meme.server.SessionTimeoutThread</font></pre>
+<font size=-1>The header <tt>INITIALIZE COMPONENT</tt> marks a section
+where a component is initialized.&nbsp; In the example above, we see <tt><a href="/javadoc/gov/nih/nlm/meme/server/MIDDataSourcePool.html">MIDDataSourcePool</a></tt>,
+<tt><a href="/javadoc/gov/nih/nlm/meme/server/ThreadPool.html">ThreadPool</a></tt>,
+<tt><a href="/javadoc/gov/nih/nlm/meme/server/HTTPRequestListener.html">HTTPRequestListener</a></tt>,
+and <tt><a href="/javadoc/gov/nih/nlm/meme/server/SessionTimeoutThread.html">SessionTimeoutThread</a></tt>
+being initialized.&nbsp; The <tt><a href="/javadoc/gov/nih/nlm/meme/server/MIDDataSourcePool.html">MIDDataSourcePool</a></tt>
+section includes a number of other comments which detail the process.&nbsp;
+First, you see the data source pool initialization parameters, then the
+log shows a database connection being opened, then the cache is populated,
+then four more database connections are opened.&nbsp; The next component
+initialized is the <tt><a href="/javadoc/gov/nih/nlm/meme/server/ThreadPool.html">ThreadPool</a></tt>
+and it also lists its initialization parameters.&nbsp; Finally, the listener
+and timeout threads are initialzed, but print out no additional information.
+Each component is responsible for writing any additional comments to the
+log.</font>
+<p><font size=-1>The next section of the log details the process of loading
+the classes listed in the <tt>meme.server.services.classes</tt> property
+in the <a href="/MEME/Data/meme.prop">default properties
+file</a>.</font>
+<pre><font size=-1>[02-Apr-2002 15:45:11]&nbsp; SERVICE ADDED - ShutdownServer
+[02-Apr-2002 15:45:11]&nbsp; SERVICE ADDED - CGIShutdownServer
+[02-Apr-2002 15:45:11]&nbsp; SERVICE ADDED - DummyService
+[02-Apr-2002 15:45:11]&nbsp; SERVICE ADDED - ReportsGenerator
+[02-Apr-2002 15:45:11]&nbsp; SERVICE ADDED - AdminService
+[02-Apr-2002 15:45:11]&nbsp; SERVICE ADDED - MEMERelaEditorService
+[02-Apr-2002 15:45:11]&nbsp; SERVICE ADDED - AuxiliaryDataService</font></pre>
+<font size=-1>The <tt>SERVICE ADDED</tt> header indicates that a particular
+class implementing <tt><a href="/javadoc/gov/nih/nlm/meme/server/MEMEApplicationService.html">MEMEApplicationService</a></tt>
+has been successfully initialized and added to the list of services that
+clients can request.&nbsp; Next, the application lists some important environment
+information.</font>
+<pre><font size=-1>[02-Apr-2002 15:45:11]&nbsp; START SERVER
+[02-Apr-2002 15:45:11]&nbsp; meme.properties.file = /b1/W4gl/MEME/bin/meme.prop
+[02-Apr-2002 15:45:11]&nbsp; meme.mid.service.default = meme3
+[02-Apr-2002 15:45:11]&nbsp; meme.mid.connection.class = gov.nih.nlm.meme.sql.MIDConnection
+[02-Apr-2002 15:45:11]&nbsp; meme.mid.user.default = mth
+[02-Apr-2002 15:45:11]&nbsp; meme.server.port = 8081
+[02-Apr-2002 15:45:11]&nbsp; meme.debug = false
+[02-Apr-2002 15:45:11]&nbsp; meme.view = false
+[02-Apr-2002 15:45:11]&nbsp; meme.dtd.directory = xml/
+[02-Apr-2002 15:45:11]&nbsp; meme.tmp.directory = /tmp
+[02-Apr-2002 15:45:11]&nbsp; meme.env.MEME_HOME = /b1/W4gl/MEME
+[02-Apr-2002 15:45:11]&nbsp; meme.env.ORACLE_HOME = /u/oracle/817</font></pre>
+<font size=-1>This section of the log is written by protected <tt>logEnvironment()</tt>
+method of the <tt><a href="/javadoc/gov/nih/nlm/meme/server/MEMEApplicationServer.html">MEMEApplicationServer</a></tt>.&nbsp;
+The method is protected so that it can be overridden by subclasses (such
+as <tt><a href="/javadoc/gov/nih/nlm/mrd/server/MRDApplicationServer.html">MRDApplicationServer</a></tt>).&nbsp;&nbsp;
+The various settings shown here indicate how the server is currently configured
+so that the administrator can better diagnose problems.&nbsp; The next
+section lists versions of the various package components.</font>
+<pre><font size=-1>[02-Apr-2002 15:45:11]&nbsp; VERSION = gov.nih.nlm.meme: 4.4.0, Tue Mar 26 00:00:00 PST 200..
+[02-Apr-2002 15:45:11]&nbsp; VERSION = gov.nih.nlm.meme.client: 4.3.0, Tue Mar 26 00:00:00 ..
+[02-Apr-2002 15:45:11]&nbsp; VERSION = gov.nih.nlm.meme.common: 4.3.0, Tue Mar 26 00:00:00 ..
+[02-Apr-2002 15:45:11]&nbsp; VERSION = gov.nih.nlm.meme.integrity: 4.1.1, Thu Mar 07 00:00 ..
+[02-Apr-2002 15:45:11]&nbsp; VERSION = gov.nih.nlm.meme.server: 4.3.0, Tue Mar 26 00:00:00 ..
+[02-Apr-2002 15:45:11]&nbsp; VERSION = gov.nih.nlm.meme.sql: 4.3.0, Tue Mar 26 00:00:00 PST..
+[02-Apr-2002 15:45:11]&nbsp; VERSION = gov.nih.nlm.meme.xml: 4.2.0, Thu Jan 31 00:00:00 PST..</font></pre>
+<font size=-1>Version information for each package in the meme system is
+shown here.&nbsp; This section of the log is written by protected <tt>logVersions)</tt>
+method of the <tt><a href="/javadoc/gov/nih/nlm/meme/server/MEMEApplicationServer.html">MEMEApplicationServer</a></tt>.&nbsp;
+The method is protected so that it can be overridden by subclasses (such
+as <tt><a href="/javadoc/gov/nih/nlm/mrd/server/MRDApplicationServer.html">MRDApplicationServer</a></tt>).&nbsp;
+The final subsection is where the various server threads are started.</font>
+<pre><font size=-1>[02-Apr-2002 15:45:11]&nbsp; STARTING SERVER THREAD - gov.nih.nlm.meme.server.SessionTimeoutThread
+[02-Apr-2002 15:45:11]&nbsp; LISTENER STARTED</font></pre>
+<font size=-1>Any classes listed in the bootstrap property that implement
+<tt><a href="/javadoc/gov/nih/nlm/meme/server/ServerThread.html">ServerThread</a></tt>
+are started here, indicated with the <tt>STARTING SERVER THREAD</tt> header.&nbsp;
+Any implementations of <tt><a href="/javadoc/gov/nih/nlm/meme/server/MEMERequestListener.html">MEMERequestListener</a></tt>
+are a special case of that and so are afforded their own line, indicated
+with the <tt>LISTENER STARTED</tt> header.</font></td>
+</tr>
+
+<tr>
+<td><font size=-1>&nbsp;</font></td>
+
+<td><font size=-1>&nbsp;</font></td>
+</tr>
+
+<tr NOSAVE>
+<td VALIGN=TOP NOSAVE><a NAME="body"></a><b>The Body</b></td>
+
+<td><font size=-1>The bulk of the server log will most likely be here,
+in the body section.&nbsp; This section contains entries for every request
+that has entered the system, including requests that are successfully processed
+and requests that fail.&nbsp; For example,</font>
+<pre><font size=-1>[02-Apr-2002 16:01:08]&nbsp; REQUEST_ACCEPTED - MEMEServiceRequest (id=1)
+[02-Apr-2002 16:01:08]&nbsp;&nbsp;&nbsp; service = ReportsGenerator
+[02-Apr-2002 16:01:08]&nbsp;&nbsp;&nbsp; session = nosession
+[02-Apr-2002 16:01:08]&nbsp;&nbsp;&nbsp; data_source =&nbsp;
+[02-Apr-2002 16:01:08]&nbsp;&nbsp;&nbsp; parameters = {concept_id=[concept_id=100000], ...
+[02-Apr-2002 16:01:09]&nbsp; REQUEST PROCESSED (id=1, elapsed_time=00:00:01)</font></pre>
+<font size=-1>A block like this completely describes the processing of
+a request.&nbsp; It shows that it is a <tt><a href="/javadoc/gov/nih/nlm/meme/xml/MEMEServiceRequest.html">MEMEServiceRequest</a></tt>
+(as opposed to a <tt><a href="/javadoc/gov/nih/nlm/meme/xml/CGIStyleMEMEServiceRequest.html">CGIStyleMEMEServiceRequest</a></tt>)
+with request id <tt>1</tt>.&nbsp; This request wanted to generate a concept
+report (<tt>service = <a href="/javadoc/gov/nih/nlm/meme/server/ReportsGenerator.html">ReportsGenerator</a></tt>),
+used no session information (<tt>session = nosession</tt>), accessed the
+default data source (<tt>data_source = </tt>), and requested a report for
+<tt>concept_id</tt>
+100000 (<tt>parameters = ...</tt>).&nbsp; This request was successfully
+processed with an elapsed time of one second.</font>
+<p><font size=-1>Requests that fail generally produce additional information.</font>
+<pre><font size=-1>[02-Apr-2002 16:05:39]&nbsp; REQUEST_ACCEPTED - MEMEServiceRequest (id=2)
+[02-Apr-2002 16:05:39]&nbsp;&nbsp;&nbsp; service = ReportsGenerator
+[02-Apr-2002 16:05:39]&nbsp;&nbsp;&nbsp; session = nosession
+[02-Apr-2002 16:05:39]&nbsp;&nbsp;&nbsp; data_source =&nbsp;
+[02-Apr-2002 16:05:39]&nbsp;&nbsp;&nbsp; parameters = {concept_id=[concept_id=5],...
+[02-Apr-2002 16:05:39]&nbsp; REQUEST FAILED (id=2)
+[02-Apr-2002 16:05:39]&nbsp; REQUEST PROCESSED (id=2, elapsed_time=154 ms.)
+[02-Apr-2002 16:05:42]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Missing data.
+[02-Apr-2002 16:05:42]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {concept_id=5}
+[02-Apr-2002 16:05:42]&nbsp; Missing data.
+[02-Apr-2002 16:05:42]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {concept_id=5}
+[02-Apr-2002 16:05:42]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at gov.nih.nlm.meme.sql.MEMEConnection.getConcept(MEMECo...
+[02-Apr-2002 16:05:42]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at gov.nih.nlm.meme.server.ReportsGenerator.processReque...
+[02-Apr-2002 16:05:42]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at gov.nih.nlm.meme.server.MEMEApplicationServer.process...
+[02-Apr-2002 16:05:42]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at gov.nih.nlm.meme.server.HTTPRequestListener$RequestHa...
+[02-Apr-2002 16:05:42]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at gov.nih.nlm.meme.server.ThreadPool$WorkThread.run(Thr...</font></pre>
+<font size=-1>Here we see a request for <tt>concept_id</tt> 5 that fails
+because there is no <tt>concept_id</tt> 5.&nbsp; The log indicates that
+the request failed (<tt>REQUEST FAILED</tt>)&nbsp; and that processing
+of it completed (<tt>REQUEST PROCESSED</tt>).&nbsp; Once that is done,
+the error is written to the log along with any details, and then the stack
+trace for the error is printed to the log well.&nbsp; This is for easy
+diagnosis of problems after the fact.&nbsp; Typically, an email message
+containing this error will be sent to the email address assigned to the
+<tt>meme.admin.meme
+</tt>property
+in the <a href="/MEME/Data/meme.prop">default properties
+file</a>.</font>
+<p><font size=-1>Certain requests (such as <tt>admin.pl -s stats</tt>)
+will write additional request-specific information to the log.</font></td>
+</tr>
+
+<tr>
+<td><font size=-1>&nbsp;</font></td>
+
+<td><font size=-1>&nbsp;</font></td>
+</tr>
+
+<tr NOSAVE>
+<td VALIGN=TOP NOSAVE><a NAME="final"></a><b>Finalization</b></td>
+
+<td><font size=-1>When the server is shut down, the last part of the log
+details the shutdown process.&nbsp; It begins with a detail (like that
+shown in the body) for the shutdown request.</font>
+<pre><font size=-1>[02-Apr-2002 16:11:19]&nbsp; REQUEST_ACCEPTED - MEMEServiceRequest (id=3)
+[02-Apr-2002 16:11:19]&nbsp;&nbsp;&nbsp; service = AdminService
+[02-Apr-2002 16:11:19]&nbsp;&nbsp;&nbsp; session = nosession
+[02-Apr-2002 16:11:19]&nbsp;&nbsp;&nbsp; data_source = null
+[02-Apr-2002 16:11:19]&nbsp;&nbsp;&nbsp; parameters = {function=[function=shutdown]}
+[02-Apr-2002 16:11:19]&nbsp; STOPPING SERVER THREAD - gov.nih.nlm.meme.server.SessionTimeoutThread
+[02-Apr-2002 16:11:19]&nbsp; Waiting for active threads to finish (1)
+[02-Apr-2002 16:11:19]&nbsp; SERVER STOP</font></pre>
+<font size=-1>This shows the final incoming request (the parameters section
+reveals that it is a shutdown request).&nbsp; The next sub section lists
+all <tt><a href="/javadoc/gov/nih/nlm/meme/server/ServerThread.html">ServerThreads</a></tt>
+shutting down, indicated by the <tt>STOPPING SERVER THREAD</tt> header.&nbsp;
+Then, the server waits for any active threads to finish.&nbsp; When the
+active thread count reaches 1 (the current request) the server stops.&nbsp;
+The <tt>SERVER STOP</tt> header indicates that the server has shut down.</font></td>
+</tr>
+</table></center>
+
+<p>
+<hr WIDTH="100%">
+<table BORDER=0 COLS=2 WIDTH="100%" NOSAVE >
+<tr NOSAVE>
+<td ALIGN=LEFT VALIGN=TOP NOSAVE>
+<address>
+<a href="/MEME/">MEME Home</a></address>
+</td>
+
+<td ALIGN=RIGHT VALIGN=TOP NOSAVE>
+<address>
+<font size=-1>Contact: <a href="mailto:bcarlsen@apelon.com">Brian Carlsen</a></font></address>
+
+<address>
+<font size=-1>Created: 04/02/2002</font></address>
+
+<address>
+<font size=-1>Last Updated: 04/02/2002</font></address>
+</td>
+</tr>
+</table>
+
+</body>
+<!-- These comments are used by the What's new Generator -->
+<!-- Changed On: 2002/04/02 -->
+<!-- Changed by: BAC -->
+<!-- Change Note: MEME4 Developer Guides - The Server Log. -->
+<!-- Fresh for: 1 month -->
+</html>

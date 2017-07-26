@@ -1,0 +1,258 @@
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf8">
+   <title>MEME4 - Developer Guides - Source Editing in the MID</title>
+</head>
+<body text="#000000" bgcolor="#FFFFFF" link="#3333FF" vlink="#999999" alink="#FF0000">
+
+<center>
+<h2>
+<font size=+0>Source Editing in the <i>MID</i></font></h2></center>
+
+<hr><i>The following information is based on a meeting between Stuart and
+Apelon during his January 2002 visit to California.</i>
+<br>&nbsp;
+<center><table CELLPADDING=3 WIDTH="90%" NOSAVE >
+<tr NOSAVE>
+<td VALIGN=TOP NOSAVE><b>Introduction</b></td>
+
+<td NOSAVE><font size=-1>The <i>MEME</i> and the <i>MID</i> exist primarily
+as an environment for Metathesaurus editors to perform the editing operations
+necessary to integrate the constituent sources into the <i>Metathesaurus
+concept structure</i>.&nbsp; It is highly desirable to extend this functionality
+to allow editors of individual sources to maintain their content within
+the same system, allowing <i>source creation</i> and <i>source integration</i>
+to happen simultaneously with all of the advantages and rigor that the
+<i>MEME
+action model</i> affords.</font></td>
+</tr>
+
+<tr NOSAVE>
+<td VALIGN=TOP NOSAVE><b>Editing</b>
+<br><b>Requirements</b></td>
+
+<td><font size=-1>A source creation system in the <i>MID</i> would require
+(at least) the following functionality:</font>
+<ol>
+<li>
+<font size=-1>Management of a source level view of conceptness (orthogonal
+to CUIs).&nbsp; This should support the ability to create concepts, add
+atoms to concepts, merge concepts, move atoms from one concept to another,
+or split atoms out of a concept to create new concepts.&nbsp; Assertions
+of <i>synonymy</i> are made by either adding or moving atoms to an existing
+concept that contains other atoms..</font></li>
+
+<li>
+<font size=-1>Ability to assert relationships and relationship attributes.&nbsp;
+These assertions should allowed between source concepts within the same
+source, source atoms within the same source, or source concepts from one
+source to source concepts from another source (that presumably was also
+edited in this system).&nbsp; Code to code relationships should <i>not</i>
+be permitted.</font></li>
+
+<li>
+<font size=-1>Ability to connect attributes to source atoms or to source
+concepts.</font></li>
+
+<li>
+<font size=-1>Ability to edit hierarchies (contexts).&nbsp; A <i>context</i>
+for an atom is considered to be either just the path to the root, or the
+path to the root plus a relationship attribute (like in UWDA, indicating
+the tree that this context appears in).&nbsp; The system must allow either
+of these approaches to be used.&nbsp; Editing of hierarchies will be done
+in a top-down fashion where parent-child relationships will be created.&nbsp;&nbsp;
+For poly-hierarchies, an editor will not only have to choose a parent,
+but choose a complete path to the root (as the parent may have different
+paths to the root).</font></li>
+
+<li>
+<font size=-1>Ability to edit meta data to control values for things like
+termgroups, attribute names, attribute values, relationship names, etc.</font></li>
+
+<li>
+<font size=-1>There should be no semantics to the values used for the source
+concept identifiers.</font></li>
+
+<li>
+<font size=-1>An orthogonal notion of status will be required.&nbsp; Currently,
+editing at the Metathesaurus level is managed by a status field in each
+of the core tables.&nbsp; Here, we will require an additional source-specific
+status field.&nbsp; There should be at least four values for this field.</font></li>
+
+<ol>
+<li>
+<font size=-1><i>In Progress</i>.&nbsp; This is used to mark source content
+that is in the process of being edited and should not be seen by anyone
+except editors of this particular source.&nbsp; This kind of data is not
+subjected to validation.</font></li>
+
+<li>
+<font size=-1><i>Provisionally Approved</i>.&nbsp; This is used to mark
+content that has been <i>approved</i> by editors but which has not yet
+been validated.&nbsp;&nbsp; Any validation performed should include data
+marked this way.</font></li>
+
+<li>
+<font size=-1><i>Approved (for MID editing)</i>.&nbsp; Content with this
+status has been edited by source editors and has passed validation checks
+and should be visible to <i>MID</i> editors.</font></li>
+
+<li>
+<font size=-1><i>Approved (for source release)</i>.&nbsp; This status is
+reserved for a source that has been completely edited and validated and
+is ready for release.&nbsp; This content should also be visible to <i>MID</i>
+editors.</font></li>
+</ol>
+
+<li>
+<font size=-1>An orthogonal notion of releasability will be required.&nbsp;
+As with Metathesaurus editing, there is lots of content that is not useful
+to release, but is useful to have for editing purposes (for example, the
+various <i>note</i> attributes).</font></li>
+</ol>
+</td>
+</tr>
+
+<tr NOSAVE>
+<td VALIGN=TOP NOSAVE><b>Validation</b></td>
+
+<td VALIGN=TOP NOSAVE><font size=-1>Each source edited in the <i>MID</i>
+should have its own source-specific validation suite.&nbsp; The <a href="/cgi-lti-oracle/validate_mid.cgi">MID
+Validation</a> system may be extended to support this task.&nbsp; There
+are certain standard checks that we will probably want to perform on all
+sources, including:&nbsp;</font>
+<ol>
+<li>
+<font size=-1>Spell checking of atoms and attribute values.</font></li>
+
+<li>
+<font size=-1>No orphan check.</font></li>
+
+<li>
+<font size=-1>Referential Integrity.&nbsp; Generally, all content connected
+to atom/concept identifiers must use valid identifiers.&nbsp; This presents
+a problem with respect to the various status levels.&nbsp; Suppose you
+have a check that requires that a concept cannot become approved until
+all of its relationships point to approved concepts.&nbsp; If you have
+two concepts, neither of which are approved, that are related to each other
+then you will be unable to approve either one because each will point to
+an unapproved concept.</font></li>
+</ol>
+<font size=-1>There should be real time validation checks that take place
+during editing, as well as bulk validation scripts that run database wide
+and validate the entire source.&nbsp; To get around the referential integrity
+check problem we should have different sets of checks for content that
+is moving from <i>In Progress</i> to <i>Provisionally Approved</i> then
+we have for content moving from <i>Provisionally Approved</i> to <i>Approved</i>.&nbsp;
+Additionally, there should be checks that take place after approval (like
+Matrix initializer) that can unapprove content that does not satisfy the
+final checks.</font>
+<p><font size=-1>Finally, there should be some generic <i>metadata validation</i>
+that normalizes things like attribute names and values, termgroups, and
+relationship attributes.&nbsp; This can also include a generic mechanism
+for expressing rules such as one that would make termgroups representing
+abbreviations unreleasable.</font></td>
+</tr>
+
+<tr NOSAVE>
+<td VALIGN=TOP NOSAVE><b>Schema&nbsp;</b>
+<br><b>Changes</b></td>
+
+<td><font size=-1>Implementation of the editing requirements and validation
+suites will require some small changes to the existing <i>MID</i> schema.&nbsp;
+In particular, core data tables will need to track the source editing fields,
+including source concept identifiers, the source-editing notion of status,
+the source-editing notion of releasability, possibly additional timestamp
+fields, action tables for source actions, and a table for tracking meta
+data for source editing.</font></td>
+</tr>
+
+<tr NOSAVE>
+<td VALIGN=TOP NOSAVE><b>Versions</b></td>
+
+<td VALIGN=TOP NOSAVE><font size=-1>Source editors will be editing a source
+within the <i>MID</i> at the same time that Metathesaurus editors are editing
+the Metathesaurus.&nbsp; Because this is true, one thing that becomes very
+important is the visibility of source level information to Metathesaurus
+editors.&nbsp; In the past, the year starts with one complete version of
+each source present in the database.&nbsp; A source update introduces a
+second complete version of a source into the database.&nbsp; With this
+system, we will have a complete old version of a source along with a <i>partial</i>
+new version of a source.&nbsp;</font>
+<p><font size=-1>In order to prevent a conflict, we will have to keep <i>partially</i>
+edited content invisible to MTH editors while it the source is being edited.&nbsp;&nbsp;
+When the source is completely edited, some operation should be performed
+that makes the entire source visible to MTH editors as a new version of
+the source.&nbsp; As in the past, while MTH editors edit an updated source,
+the immediately previous version should remain visible to these editors.</font></td>
+</tr>
+
+<tr NOSAVE>
+<td VALIGN=TOP NOSAVE><b>Insertions</b></td>
+
+<td VALIGN=TOP NOSAVE><font size=-1>Our existing notion of a source involves
+taking files from some external organization, processing those files into
+a standard file format (inversion), and then bulk loading the data into
+the <i>MID</i> while no editors are active.&nbsp;&nbsp; Data loaded is
+the matched to existing <i>MID</i> content in order to facilitate the aggregation
+of new data into the existing concept structure.&nbsp; For sources that
+are edited within the <i>MID</i>, we will have to refine our notion of
+an insertion.&nbsp; It will most likely involve an operation that "turns
+on" an entire new version of a source, meaning that it makes it visible
+to Metathesaurus editors, then we will likely perform the same matching
+and post merging steps that we do now, although the safe-replacement algorithm
+will be much more obvious as it will be determined by the source editors.</font></td>
+</tr>
+
+<tr>
+<td>&nbsp;</td>
+
+<td>&nbsp;</td>
+</tr>
+
+<tr NOSAVE>
+<td VALIGN=TOP NOSAVE><b>Implementation</b>
+<br><b>Goals</b></td>
+
+<td><font size=-1>In the short term, the main goal is to refine some of
+these notions and test them out through the implementation of an editor
+kit for the <i>Semantic Normal Form</i> atoms.&nbsp; This tool will be
+used to edit existing&nbsp;</font>
+<br><font size=-1>SNF-CD atoms as well as add new ones.</font>
+<p><font size=-1>In the longer term, this is really a matter of extending
+the MEME database schema to accommodate additional concept_id and editing
+fields as well as additional action tables for <i>source actions</i>, and
+then implementing an MEME4 API (back end) for performing the editing operations,
+and finally implementing an interface (front end) for the actual work involved.</font></td>
+</tr>
+</table></center>
+
+<p>
+<hr WIDTH="100%">
+<table BORDER=0 COLS=2 WIDTH="100%" NOSAVE >
+<tr NOSAVE>
+<td ALIGN=LEFT VALIGN=TOP NOSAVE>
+<address>
+<a href="/MEME/">MEME Home</a></address>
+</td>
+
+<td ALIGN=RIGHT VALIGN=TOP NOSAVE>
+<address>
+<font size=-1>Contact: <a href="mailto:bcarlsen@apelon.com">Brian A. Carlsen</a></font></address>
+
+<address>
+<font size=-1>Created: 6/15/2000</font></address>
+
+<address>
+<font size=-1>Last Updated: 01/15/2002</font></address>
+</td>
+</tr>
+</table>
+
+</body>
+<!-- These comments are used by the What's new Generator -->
+<!-- Changed On: 2002/01/15 -->
+<!-- Changed by: Brian Carlsen -->
+<!-- Change Note: MEME4 - Developer Guides - Source Editing in the <i>MID</i> -->
+<!-- Fresh for: 1 month -->
+</html>

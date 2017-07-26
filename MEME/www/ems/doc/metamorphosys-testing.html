@@ -1,0 +1,113 @@
+<HTML>
+<HEAD>
+<TITLE>MetamorphoSys Testing</TITLE>
+</HEAD>
+
+<BODY>
+
+<P ALIGN=right>suresh@nlm.nih.gov 10/2000
+
+<H1>MetamorphoSys Testing</H1>
+
+At this point, the full release files have successfully passed all your Q/A.
+<P>
+<EM>MetamorphoSys</EM> is a program used for customizing the Metathesaurus and
+satisfying licensing requirements.  This needs to be tested on a variety
+of platforms (Solaris, Windows-NT and Windows-2000, Windows-98, Windows-ME, and Linux).
+
+<P>
+
+MetamorphoSys is tested from the ZIP and TAR files made from the master2dist.pl
+script.  The ZIP contains the NT/Windows version while the TAR (TGZ) contains
+the UNIX/Linux versions.  The following tests need to be done.
+Check the README.MMS file that comes with the distribution on how to run
+MetamorphoSys.
+
+<H2>1. Run the default MetamorphoSys</H2>
+
+The default MetamorphoSys excludes all sources with restriction level>0.
+The result is a Metathesaurus that is unencumbered by any licence restriction.
+
+<P>
+<UL>
+<LI>Run the default MetamorphoSys on Solaris, Linux, Mac OS X and NT
+<P>
+<LI>ZIP (tar) the result, FTP to a single machine (smis:/d3/Release/MMS-comparisons/$VERSION).
+Compare the different versions with compare-meta.pl:
+
+<FONT SIZE=-1>
+<PRE>
+
+/site/umls/release/compare-meta.pl -1 Solaris-default-subset.tgz -2 NT-default-subset.ZIP -d 2
+/site/umls/release/compare-meta.pl -1 Solaris-default-subset.tgz -2 linux-default-subset.ZIP
+
+</PRE>
+</FONT>
+
+<P>
+As before, look for errors in the output.  MRCOLS, MRFILES are typically different
+across the DOS/UNIX divide.  And mmsys.log will be different, if present.
+<P>
+<LI>
+Then examine the subsetted Metathesaurus.  For example, is all resulting content level 0
+(the 8th field of MRCON and the 7th field of MRSO should be 0).  Spot check a few known
+examples where you know there is restricted content.
+<P>
+<LI>
+You can and should run all the scripted QA scripts on the subset, e.g.,
+cuiqa.pl, format-qa.pl and sort-check.pl.
+</UL>
+
+<H2>2. More Extensive Testing, Debugging</H2>
+
+You should verify things like:
+
+<P>
+<UL>
+<LI>Are all the sources in MRSO (and other MR files with SAB like columns, e.g., MRLO)
+	present in the config files (source.txt)?
+<P>
+<LI>The sources.to.remove file is created by using the starred lines in source.txt.
+Do the lines in source.txt with a leading '*' contain only non-level 0 sources?
+These are also the sources that are first highlighted in the GUI as sources that will
+be removed.
+<P>
+<LI>Does prec.order look right?  Termgroups with the highest precedence should be
+at the top of the file.  Is MTH/PN on the first line?
+<P>
+<LI>Do the lines with a leading '*' in prec.order look like suppressible
+termgroups?
+<P>
+<LI>Is the README.MMS file accurate and correct?  We are responsible for
+this.
+<P>
+<LI>Does the mmsys.properties file look right?
+</UL>
+
+
+<H2>3. Non-default Subsetting</H2>
+You should run MetamorphoSys in other ways.  I check the boundary conditions of
+removing ALL sources and removing NO source.  You can also try removing a single
+source and using grep on the result for that SAB in all the MR files.
+The results should be intuitive.
+<P>
+You should also test the changing of the naming precedence and addition
+of more source/term-types to the default suppressible set.  Then examine the
+output and satisfy yourself that what was intended did in fact happen.
+Time permitting, try this on all platforms.
+
+<H2>4. A small Meta for testing MetamorphoSys logic</H2>
+Since it takes so long to run MetatmorphoSys on the full Metathesaurus, the
+script /site/umls/release/make-small-meta.pl takes an input of CUIs and
+makes a small Metathesaurus that contains those concepts and all other concepts
+linked to them (say via MRREL, MRCXT, etc).  I find this useful for testing.
+There is a pre-made "small" meta in smis:/d3/Release/sample-Meta.
+
+<H2>5. What if something goes wrong?</H2>
+If you discover error in the output of MetamorphoSys, notify Apelon at once.
+After they send you the fix, you get to re-test starting from Step 1.
+Boo! Hiss!!
+
+</BODY>
+</HTML>
+

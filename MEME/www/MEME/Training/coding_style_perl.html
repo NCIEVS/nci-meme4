@@ -1,0 +1,395 @@
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf8">
+   <title>Coding Style - Perl</title>
+<style>
+    A.noline { text-decoration: none; }
+</style>
+</head>
+<body text="#000000" bgcolor="#FFFFFF" link="#3333FF" vlink="#999999" alink="#FF0000">
+
+<center>
+<h2>
+Coding Style - Perl</h2></center>
+
+<hr><i>This document contains descriptions of important sections of a Perl
+script and is followed by a generic example.</i>
+<br>&nbsp;
+<center><table BORDER WIDTH="90%" NOSAVE >
+<tr NOSAVE>
+<td NOSAVE><b>General Rules</b></td>
+
+<td NOSAVE>
+<ul>
+<li>
+<font size=-1>Tabbing should be in increments of 4 spaces</font></li>
+
+<li>
+<font size=-1>Variable names should be lowercase and separated by underscore
+(_) characters.&nbsp; For example, <tt>$this_is_a_variable</tt></font></li>
+
+<li>
+<font size=-1>Procedure names should have capital letters for each word.&nbsp;
+For example:&nbsp; <tt>sub ThisIsAProcedure {...}</tt></font></li>
+
+<li>
+<font size=-1>Always use <tt>&amp;</tt> when calling a procedure, as in:
+<tt>&amp;ThisIsAProcedure($p1,$p2)</tt>.</font></li>
+
+<li>
+<font size=-1>Local procedures should be declared at the end of the script</font></li>
+
+<li>
+<font size=-1>Comment each section with 3 # chars, as in:</font></li>
+
+<pre><font size=-1>#
+# This is a new section
+#</font></pre>
+</ul>
+</td>
+</tr>
+
+<tr NOSAVE>
+<td NOSAVE><b>Header</b></td>
+
+<td><font size=-1>The first line of the program should indicate the path
+to perl.&nbsp; The paths exists at both NLM and Apelon.&nbsp; Currently,</font>
+<blockquote><tt><font size=-1>#!/site/bin/perl5</font></tt>
+<br><font size=-1>points to a pre 5.005 version of perl, and&nbsp;</font>
+<p><tt><font size=-1>#!/site/bin/perl5.005</font></tt>
+<br><font size=-1>points to a 5.005 version of perl.</font></blockquote>
+<font size=-1>Following that should be a simple header that includes the
+following information:&nbsp;</font>
+<blockquote><font size=-1>File name.</font>
+<br><font size=-1>Author.</font>
+<br><font size=-1>Usage.</font>
+<br><font size=-1>Description of Options.</font>
+<br><font size=-1>History of changes.</font></blockquote>
+</td>
+</tr>
+
+<tr>
+<td><b>Version Information</b></td>
+
+<td><font size=-1>All MEME components should track version information.&nbsp;
+The four key pieces of information are:&nbsp; release (release of the MEME
+system, 3 for MEME3), version (current version of this component), authority
+(who made the last changes/who is responsible for this script), date (when
+was the last change made).</font>
+<p><font size=-1>All of this information should be tracked in variables.&nbsp;
+Additionally, a history of changes with dates and version numbers should
+be maintained in the header section (see example below).&nbsp; Make sure
+to include the date <i>and</i> version number when adding a changes comment.</font></td>
+</tr>
+
+<tr>
+<td><b>Environment and Defaults</b></td>
+
+<td><font size=-1>After the version information section, you should set
+any environment variables and initialize any other variables with default
+values.&nbsp; If certain environment variables are required, the script
+should account for that in this section.&nbsp; Common environment variables
+are:&nbsp; MEME_HOME, ORACLE_HOME, NLS.</font></td>
+</tr>
+
+<tr>
+<td><b>Parsing Arguments</b></td>
+
+<td><font size=-1>There are a number of important things to do when parsing
+arguments.</font>
+<blockquote><font size=-1>1. Always support -v and -version flags.</font>
+<br><font size=-1>2. Always support --help and -help flags.</font>
+<br><font size=-1>3. Always loop through all arguments looking for switches,
+and pushing the regular parameters onto another array.&nbsp; In other words,
+don't assume that switches come before arguments.</font>
+<br><font size=-1>4. If a switch is illegal, make sure to report that fact.</font></blockquote>
+</td>
+</tr>
+
+<tr>
+<td><b>Printing Help/Version Info</b></td>
+
+<td><font size=-1>If the -v or -version switches were passed, the script
+should print version information and exit.&nbsp; If the -help or --help
+switches were passed, the script should print the help screen and exit.</font></td>
+</tr>
+
+<tr>
+<td><b>Getting Arguments</b></td>
+
+<td><font size=-1>Scripts can sometimes take variable numbers of arguments
+(depending on the switches).&nbsp; Read them from the array you pushed
+them onto during the parsing stage.&nbsp; If the wrong number of arguments
+is left behind, make sure to report that fact.</font></td>
+</tr>
+
+<tr>
+<td><b>Reporting Errors</b></td>
+
+<td><font size=-1>In the example below, you will see that error messages
+are kept in this hash called <tt>%errors</tt>.&nbsp; This is a useful mechanism
+to report good error messages.&nbsp; The previous code sets up error flags
+and details if any were encountered and at this point they are printed
+and the script exits.&nbsp; Make sure your error messages provide enough
+information.</font></td>
+</tr>
+
+<tr>
+<td><b>Program Logic</b></td>
+
+<td>This is the main part of the script that you will write.</td>
+</tr>
+
+<tr>
+<td><b>DBI, DBD::Oracle</b></td>
+
+<td><font size=-1>In some cases, perl scripts are called upon to interact
+with the database.&nbsp; In the past this was done via <tt>sql</tt> or
+<tt>sqlplus</tt>.&nbsp;
+That way of interacting with the database is very dirty and involves writing
+temporary command files and piping them into commands opened with the open
+command.&nbsp;&nbsp; Instead use the perl database interface DBI.</font>
+<br><font size=-1>For detailed information about how to use DBI use these
+commands,</font>
+<blockquote><tt><font size=-1>% perldoc DBI</font></tt>
+<br><tt><font size=-1>% perldoc DBD::Oracle</font></tt></blockquote>
+<font size=-1>Most likely, you will use DBI to call a PL/SQL procedure,
+so here is a simple example.&nbsp; At the top you must include the DBI
+library.&nbsp; Then you must open a connection, prepare a statement, bind
+variables, and then execute the statement.&nbsp; (<i>Note</i>: for this
+to work at the NLM, you must use /site/bin/perl5.005). For example,</font>
+<blockquote>
+<pre><font size=-1>#!/site/bin/perl5.005</font></pre>
+
+<pre><font size=-1>use DBI;
+
+# set variables
+$dbname = "oa_editing";
+$userpass = `/site/umls/scripts/get-oracle-pwd.pl`;
+chop($userpass);
+($user,$password) = split /\//, $userpass;
+
+# open connection
+$dbh = DBI->connect("dbi:Oracle:$dbname",$user,$password);
+
+# prepare statement
+my $work_id = 0;
+my $authority = "BAC";
+$sh = $dbh->prepare(q{
+&nbsp;&nbsp;&nbsp; BEGIN
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; :work_id := MEME_OPERATIONS.assign_cuis(
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; :authority);
+&nbsp;&nbsp;&nbsp; END;});
+
+# bind parameters
+$sh->bind_param(":authority",$authority);
+$sh->bind_param_inout(":work_id", \$work_id, 12);
+
+# execute statement
+$sh->execute;
+
+print "The work id is: $work_id\n";
+
+# disconnect from database
+$dbh->disconnect;</font></pre>
+</blockquote>
+</td>
+</tr>
+
+<tr>
+<td><b>Cleanup</b></td>
+
+<td><font size=-1>Scripts should ALWAYS clean up after themselves.&nbsp;
+If there are any temporary files you create, or temporary tables left around
+in the database, make sure you delete them before exiting.</font></td>
+</tr>
+
+<tr>
+<td><b>PrintHelp, PrintUsage, PrintVersion</b></td>
+
+<td><font size=-1>Reporting usage, help information, and version information
+are common enough tasks that all Perl scripts should have these three procedures.&nbsp;
+The example below should serve as a template.&nbsp; <tt>PrintUsage</tt>
+just prints a line indicating how to run the script.&nbsp; <tt>PrintVersion</tt>
+prints either a long form or a short form of the version (based on whether
+<tt>-version</tt>
+or <tt>-v</tt> was passed in). <tt>PrintHelp</tt> should print detailed
+info on how to use the script, including the meaning of the various switches&nbsp;
+(and parameters if necessary).&nbsp; It should also print the usage and
+version information.</font></td>
+</tr>
+</table></center>
+
+<p><i>Following is a template Perl program.</i>
+<br>&nbsp;
+<center><table COLS=1 WIDTH="100%" NOSAVE >
+<tr NOSAVE>
+<td NOSAVE>
+<pre><font size=-1>#!/site/bin/perl5.005
+#
+# File:&nbsp;&nbsp;&nbsp;&nbsp; template.pl
+# Author:&nbsp;&nbsp; Brian Carlsen&nbsp;
+#
+# This script has the following usage:
+# temlate.pl [-opt_switch] -req_switch &lt;req param> [opt param]
+#
+# Options:
+#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -opt_switch:&nbsp;&nbsp;&nbsp; an optional switch
+#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -req_switch:&nbsp;&nbsp;&nbsp; a required switch
+#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -v[ersion]:&nbsp;&nbsp;&nbsp;&nbsp; Print version information.
+#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -[-]help:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; On-line help
+#
+# Version Information
+# 2/7/2000 3.1.0: Ported and released
+# 3/6/2000 3.1.1: This script takes -d and -i flags
+#
+$release = "3";
+$version = "1.1";
+$version_date = "3/6/2000";
+$version_authority="BAC";
+
+#
+# Set environment
+#
+$ENV{"SOMETHING"} = "DEFAULT" unless $ENV{"SOMETHING"};
+
+#
+# Set Defaults
+#
+$varible="default";
+
+#
+# Parse arguments
+#
+while (@ARGV) {
+&nbsp;&nbsp;&nbsp; $arg = shift(@ARGV);
+&nbsp;&nbsp;&nbsp; push (@ARGS, $arg) &amp;&amp; next unless $arg =~ /^-/;
+
+&nbsp;&nbsp;&nbsp; if ($arg =~ /^-somearg=(.*)$/) {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $somearg = $1;&nbsp;}
+&nbsp;&nbsp;&nbsp; elsif ($arg eq "-v") {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $print_version="v";
+&nbsp;&nbsp;&nbsp; }
+&nbsp;&nbsp;&nbsp; elsif ($arg eq "-version") {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $print_version="version";
+&nbsp;&nbsp;&nbsp; }
+&nbsp;&nbsp;&nbsp; elsif ($arg eq "-help" || $arg eq "--help") {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $print_help=1;
+&nbsp;&nbsp;&nbsp; }
+&nbsp;&nbsp;&nbsp; else {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $badargs = 1;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $badswitch = $arg;
+&nbsp;&nbsp;&nbsp; }
+}
+
+#
+# Print Help/Version info, exit
+#
+&amp;PrintHelp &amp;&amp; exit(0) if $print_help;
+&amp;PrintVersion($print_version) &amp;&amp; exit(0) if $print_version;
+
+#
+# Get arguments
+#
+if ($badargs) {
+}&nbsp;
+elsif (scalar(@ARGS) == 1) {
+&nbsp;&nbsp;&nbsp; ($req_param) =&nbsp; @ARGS;&nbsp;
+}
+elsif (scalar(@ARGS) == 2) {
+&nbsp;&nbsp;&nbsp; ($req_param,$opt_param) =&nbsp; @ARGS;&nbsp;
+}
+else {
+&nbsp;&nbsp;&nbsp; $badargs = 2;
+&nbsp;&nbsp;&nbsp; $badopt = $#ARGS+1;
+}
+
+#
+# Print bad argument errors if any found
+#
+if ($badargs) {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; %errors = (1 => "Illegal switch: $badswitch",
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2 => "Bad number of arguments: $badopt"
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; );
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &amp;PrintUsage;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; print "\n$errors{$badargs}\n";
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; exit(0);
+&nbsp;&nbsp;&nbsp; }&nbsp;&nbsp;&nbsp;
+
+#
+# Program logic
+#
+...&nbsp;
+do some stuff
+...
+
+#
+# Cleanup &amp; Exit
+#
+...
+do cleanup stuff
+...
+exit (0);
+
+############################### local procedures #####################
+sub PrintVersion {
+&nbsp;&nbsp;&nbsp; my($type) = @_;
+&nbsp;&nbsp;&nbsp; print "Release $release: version $version, ".
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "$version_date ($version_authority).\n"&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if $type eq "version";
+&nbsp;&nbsp;&nbsp; print "$version\n" if $type eq "v";
+&nbsp;&nbsp;&nbsp; return 1;
+}
+
+sub PrintUsage {
+&nbsp;&nbsp;&nbsp; print qq{ This script has the following usage:
+&nbsp;template.pl [-opt_switch] -req_switch &lt;req param> [opt param]
+};
+}
+
+sub PrintHelp {
+&nbsp;&nbsp;&nbsp; &amp;PrintUsage;
+&nbsp;&nbsp;&nbsp; print qq{
+&nbsp;Options:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -opt_switch:&nbsp;&nbsp;&nbsp; an optional switch
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -req_switch:&nbsp;&nbsp;&nbsp; a required switch
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -v[ersion]:&nbsp;&nbsp;&nbsp;&nbsp; Print version information.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -[-]help:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; On-line help
+&nbsp;};
+&nbsp;&nbsp;&nbsp; &amp;PrintVersion("version");
+&nbsp;&nbsp;&nbsp; return 1;
+}</font></pre>
+</td>
+</tr>
+</table></center>
+
+<br>&nbsp;
+<p>
+<hr WIDTH="100%">
+<table BORDER=0 COLS=2 WIDTH="100%" NOSAVE >
+<tr NOSAVE>
+<td ALIGN=LEFT VALIGN=TOP NOSAVE>
+<address>
+<a href="/MEME/">MEME Home</a></address>
+</td>
+
+<td ALIGN=RIGHT VALIGN=TOP NOSAVE>
+<address>
+<font size=-1>Contact: <a href="mailto:bcarlsen@apelon.com">Brian A. Carlsen</a></font></address>
+
+<address>
+<font size=-1>Created: 5/31/2000</font></address>
+
+<address>
+<font size=-1>Last Updated: 6/02/2000</font></address>
+</td>
+</tr>
+</table>
+
+</body>
+<!-- These comments are used by the What's new Generator -->
+<!-- Changed On: 2000/06/02 -->
+<!-- Changed by: Brian Carlsen -->
+<!-- Change Note: Index page for list of training documents. -->
+<!-- Fresh for: 1 month -->
+</html>

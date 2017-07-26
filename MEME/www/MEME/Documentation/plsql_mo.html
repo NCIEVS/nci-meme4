@@ -1,0 +1,77 @@
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf8">
+   <title>MEME - Developer Guides - PL/SQL - MEME_OPERATIONS</title>
+</head>
+<body bgcolor="#ffffff">
+
+<center>
+<h2>
+MEME_OPERATIONS</h2></center>
+
+<center>
+<hr WIDTH="100%"></center>
+
+<br>&nbsp;
+<center><table COLS=1 WIDTH="90%" >
+<tr>
+<td>This PLSQL package implements <i>high level</i> MEME operations.&nbsp;&nbsp;&nbsp;
+<h2>
+<img SRC="/images/methods.gif" height=38 width=151></h2>
+<a NAME="assign_cuis"></a><img SRC="/images/green-ball.gif" height=12 width=12><b>assign_cuis</b>
+<pre>&nbsp;&nbsp;&nbsp; FUNCTION assign_cuis (&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; authority&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; work_id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN INTEGER DEFAULT 0,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; table_name&nbsp;&nbsp;&nbsp; IN VARCHAR2 DEFAULT MEME_CONSTANTS.EMPTY_TABLE,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; new_cui_flag&nbsp; IN VARCHAR2 DEFAULT MEME_CONSTANTS.NO,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; all_flag&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2 DEFAULT MEME_CONSTANTS.NO,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; qa_flag&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2 DEFAULT MEME_CONSTANTS.YES)
+&nbsp;&nbsp;&nbsp; RETURN INTEGER;</pre>
+
+<dl>
+<dd>
+This function implements the CUI assignment algorithm.&nbsp; It can either
+run on the entire database, or assign for a subset of concepts known to
+be <i>connected</i> in the MRD sense.&nbsp; If <tt>new_cui_flag</tt> is
+<tt>MEME_CONSTANTS.YES</tt>, the function will assign <i>official</i> CUIs
+to concepts which would otherwise have null CUIs (this should be used just
+prior to a production run).&nbsp; If <tt>new_cui_flag</tt> is 'TEMP', the
+function will assign temporary CUIs to concepts which would otherwise have
+null CUIs (things like CT0000001).&nbsp; If <tt>all_flag</tt> is <tt>MEME_CONSTANTS.YES</tt>,
+the function will look at <i>all</i> concepts, and not just those participating
+in splits and merges.&nbsp; If <tt>qa_flag</tt> is <tt>MEME_CONSTANTS.YES</tt>,
+the function wil run a few QA checks after assignment to ensure everything
+went well.&nbsp; This function is called by <tt>$MEME_HOME/bin/assign_cuis.pl</tt>.</dd>
+</dl>
+&nbsp;</td>
+</tr>
+</table></center>
+
+<hr WIDTH="100%">
+<table BORDER=0 COLS=2 WIDTH="100%" NOSAVE >
+<tr NOSAVE>
+<td ALIGN=LEFT VALIGN=TOP NOSAVE>
+<address>
+<a href="/MEME/">MEME Home</a></address>
+</td>
+
+<td ALIGN=RIGHT VALIGN=TOP NOSAVE>
+<address>
+<font size=-1>Contact: <a href="mailto:bcarlsen@apelon.com">Brian A. Carlsen</a></font></address>
+
+<address>
+<font size=-1>Created: 7/18/2001</font></address>
+
+<address>
+<font size=-1>Last Updated: 09/23/2003</font></address>
+</td>
+</tr>
+</table>
+
+</body>
+<!-- These comments are used by the What's new Generator -->
+<!-- Changed On: 2003/09/23 -->
+<!-- Changed by: Brian Carlsen -->
+<!-- Change Note: MEME - Developer Guides - PL/SQL - MEME_OPERATIONS -->
+<!-- Fresh for: 1 month -->
+</html>

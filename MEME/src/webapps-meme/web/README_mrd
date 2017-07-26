@@ -1,0 +1,23 @@
+
+README - 03/02/2005
+
+There are primarily three MRD applications
+
+1. Release Manager
+
+  Used for building release files
+  Represented by the page ReleaseManager.jsp
+  Accessed with the URL  /webapps-mrd/mrd/controller?state=ReleaseManager.jsp&host=mrd.nlm.nih.gov
+
+
+2. Release Manager View
+
+  Used for monitoring the process of the build
+  Represented by the page ReleaseManagerView.jsp
+  Accessed with the URL  /webapps-mrd/mrd/controller?state=ReleaseManagerView.jsp&host=mrd.nlm.nih.gov
+
+3. Process Medline
+
+  Used for processing MEDLINE data for MRCOC
+  Represented by the page ProcessMedline.jsp
+  Accessed with the URL /webapps-mrd/mrd/controller?state=ProcessMedline&host=mrd.nlm.nih.gov 

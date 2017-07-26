@@ -1,0 +1,884 @@
+
+<html>
+<head>
+   <title>MEME Tables Documentation</title>
+    <script language="javascript">
+	function openDescription (thing,dsc) {
+	    var html = "<html><head><title>Description: "+thing;
+	    html = html + "</title></head><body bgcolor=#ffffff>" + dsc + "<center><form><input type=button onClick='window.close(); return true' value='Close'></form></center></body></html>";
+	    var win = window.open("","","scrollbars,width=500,height=250,resizable");
+	    win.document.open();
+	    win.document.write(html);
+	    win.document.close();
+	}; // end openDescription
+    </script>
+</head>
+<body text="#000000" bgcolor="#FFFFFF" link="#3333FF" vlink="#999999" alink="#FF0000">
+
+<center>
+<h2>MEME Tables</h2></center>
+
+<!-- Nav bar -->
+  <p><center>[ <a href="#overview">overview</a> | <a href="#details">details</a> | <a href="#references">references</a> ]</center></p>
+
+<!-- Image -->
+<p><center><img src="/images/table.gif" alt="Table Icon">
+<img src="/images/table.gif" alt="Table Icon">
+<img src="/images/table.gif" alt="Table Icon">
+</center></p>
+
+<!-- Content section -->
+
+<blockquote>
+
+  <a name="overview"></a><h3>Overview/Objective</h3>
+  This document links to more detailed descriptions of the MEME tables.
+<br>&nbsp;
+<a name="details"></a><h3>Details</h3>
+This document was machine generated from the list of tables found in 
+the <tt>meme_tables</tt> table in the oa_mid2005 database.  The links below
+contain specific details about the tables themselves, including: 
+the field data types, whether they are null or not, the indexes present
+on each table, and how the table is used during insertion, editing,
+and production.
+<br>&nbsp;
+
+<a name="details"></a><h3>References/Links</h3>
+<center><table width=90%>
+   <tr><th valign="top">Table Name</th>
+       <th valigh="top">Type</th>
+       <th valigh="top">Description</th>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/action_log.html"
+       onMouseOver="window.status='Click here to see table action_log'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>action_log</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('action','<p>Used to log changes to system.</p>')"><tt>MID action</tt></a></td>
+       <td valigh="top"><font size="-1">Tracks all non-implied actions in the database.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/activity_log.html"
+       onMouseOver="window.status='Click here to see table activity_log'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>activity_log</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('action','<p>Used to log changes to system.</p>')"><tt>MID action</tt></a></td>
+       <td valigh="top"><font size="-1">Tracks major actions in the database.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/allocated_ui_ranges.html"
+       onMouseOver="window.status='Click here to see table allocated_ui_ranges'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>allocated_ui_ranges</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('not used','<p>Not currently in use.</p>')"><tt>MID not used</tt></a></td>
+       <td valigh="top"><font size="-1">Tracks ranges of UIs allocated for certain reasons.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/application_help.html"
+       onMouseOver="window.status='Click here to see table application_help'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>application_help</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('auxiliary','<p>Used for other processes or just general system maintenance.</p>')"><tt>MID auxiliary</tt></a></td>
+       <td valigh="top"><font size="-1">For use in a data-driven help application.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/application_versions.html"
+       onMouseOver="window.status='Click here to see table application_versions'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>application_versions</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('auxiliary','<p>Used for other processes or just general system maintenance.</p>')"><tt>MID auxiliary</tt></a></td>
+       <td valigh="top"><font size="-1">For use in a data-driven software version dependency tracking application.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/atomic_actions.html"
+       onMouseOver="window.status='Click here to see table atomic_actions'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>atomic_actions</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('action','<p>Used to log changes to system.</p>')"><tt>MID action</tt></a></td>
+       <td valigh="top"><font size="-1">Log of all row-level changes to core data in the <i>MID</i>.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/atoms.html"
+       onMouseOver="window.status='Click here to see table atoms'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>atoms</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('auxiliary','<p>Used for other processes or just general system maintenance.</p>')"><tt>MID auxiliary</tt></a></td>
+       <td valigh="top"><font size="-1">Holds atom names for each atom.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/atoms_ui.html"
+       onMouseOver="window.status='Click here to see table atoms_ui'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>atoms_ui</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('ui','<p>Used to tracks UI assignments, AUI, RUI, ATUI, SUI, LUI, ISUI, CUI, etc..</p>')"><tt>MID ui</tt></a></td>
+       <td valigh="top"><font size="-1">Maps sets of fields to unique identifiers.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/atom_ordering.html"
+       onMouseOver="window.status='Click here to see table atom_ordering'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>atom_ordering</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('auxiliary','<p>Used for other processes or just general system maintenance.</p>')"><tt>MID auxiliary</tt></a></td>
+       <td valigh="top"><font size="-1">Maintains an ordering of atom_ids.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/attributes.html"
+       onMouseOver="window.status='Click here to see table attributes'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>attributes</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('core','<p>Core table.</p>')"><tt>MID core</tt></a></td>
+       <td valigh="top"><font size="-1">Contains the attributes, including definitions, semantic types, atom/concept notes, source-specific attributes, etc.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/attributes_ui.html"
+       onMouseOver="window.status='Click here to see table attributes_ui'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>attributes_ui</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('ui','<p>Used to tracks UI assignments, AUI, RUI, ATUI, SUI, LUI, ISUI, CUI, etc..</p>')"><tt>MID ui</tt></a></td>
+       <td valigh="top"><font size="-1">Maps sets of fields to unique attribute identifiers.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/aui_history.html"
+       onMouseOver="window.status='Click here to see table aui_history'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>aui_history</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('auxiliary','<p>Used for other processes or just general system maintenance.</p>')"><tt>MID auxiliary</tt></a></td>
+       <td valigh="top"><font size="-1">Tracks history of AUI movement (birth,death,splits, etc).</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/classes.html"
+       onMouseOver="window.status='Click here to see table classes'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>classes</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('core','<p>Core table.</p>')"><tt>MID core</tt></a></td>
+       <td valigh="top"><font size="-1">This table contains the actual terms grouped together into synonymy classes, or concepts.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/coc_headings.html"
+       onMouseOver="window.status='Click here to see table coc_headings'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>coc_headings</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('auxiliary','<p>Used for other processes or just general system maintenance.</p>')"><tt>MID auxiliary</tt></a></td>
+       <td valigh="top"><font size="-1">Contains our representation of the Medline and other COC data.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/coc_subheadings.html"
+       onMouseOver="window.status='Click here to see table coc_subheadings'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>coc_subheadings</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('auxiliary','<p>Used for other processes or just general system maintenance.</p>')"><tt>MID auxiliary</tt></a></td>
+       <td valigh="top"><font size="-1">Contains subheadings that qualify headings in the Medline citation data.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/code_map.html"
+       onMouseOver="window.status='Click here to see table code_map'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>code_map</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('metadata','<p>Used to track high-level information about the system.</p>')"><tt>MID metadata</tt></a></td>
+       <td valigh="top"><font size="-1">Contains a variety of useful mappings.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/concept_status.html"
+       onMouseOver="window.status='Click here to see table concept_status'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>concept_status</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('core','<p>Core table.</p>')"><tt>MID core</tt></a></td>
+       <td valigh="top"><font size="-1">Contains one row for each concept in the database.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/content_views.html"
+       onMouseOver="window.status='Click here to see table content_views'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>content_views</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('auxiliary','<p>Used for other processes or just general system maintenance.</p>')"><tt>MID auxiliary</tt></a></td>
+       <td valigh="top"><font size="-1">Contains one entry for each defined content view.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/context_relationships.html"
+       onMouseOver="window.status='Click here to see table context_relationships'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>context_relationships</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('core','<p>Core table.</p>')"><tt>MID core</tt></a></td>
+       <td valigh="top"><font size="-1">Contains hierarchical relationships between atoms in the <i>MID</i>.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/cui_history.html"
+       onMouseOver="window.status='Click here to see table cui_history'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>cui_history</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('soon to be not used','<p></p>')"><tt>MID soon to be not used</tt></a></td>
+       <td valigh="top"><font size="-1">Contains MRCUI data.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/cui_map.html"
+       onMouseOver="window.status='Click here to see table cui_map'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>cui_map</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('auxiliary','<p>Used for other processes or just general system maintenance.</p>')"><tt>MID auxiliary</tt></a></td>
+       <td valigh="top"><font size="-1">Tracks the fate of CUIs that are no longer active.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/dead_atomic_actions.html"
+       onMouseOver="window.status='Click here to see table dead_atomic_actions'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>dead_atomic_actions</tt></a></td>
+       <td valigh="top"></td>
+       <td valigh="top"><font size="-1">Serves as a repository for rows removed from dead atomic actions.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/dead_atoms.html"
+       onMouseOver="window.status='Click here to see table dead_atoms'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>dead_atoms</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('auxiliary','<p>Used for other processes or just general system maintenance.</p>')"><tt>MID auxiliary</tt></a></td>
+       <td valigh="top"><font size="-1">Contains names of <i>deleted</i> atoms.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/dead_attributes.html"
+       onMouseOver="window.status='Click here to see table dead_attributes'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>dead_attributes</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('core','<p>Core table.</p>')"><tt>MID core</tt></a></td>
+       <td valigh="top"><font size="-1">Contains <i>deleted</i> attributes.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/dead_classes.html"
+       onMouseOver="window.status='Click here to see table dead_classes'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>dead_classes</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('core','<p>Core table.</p>')"><tt>MID core</tt></a></td>
+       <td valigh="top"><font size="-1">Contains <i>deleted</i> atoms.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/dead_concept_status.html"
+       onMouseOver="window.status='Click here to see table dead_concept_status'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>dead_concept_status</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('core','<p>Core table.</p>')"><tt>MID core</tt></a></td>
+       <td valigh="top"><font size="-1">Contains <i>deleted</i> concepts.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/dead_context_relationships.html"
+       onMouseOver="window.status='Click here to see table dead_context_relationships'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>dead_context_relationships</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('core','<p>Core table.</p>')"><tt>MID core</tt></a></td>
+       <td valigh="top"><font size="-1">Contains <i>deleted</i> context relationships.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/dead_foreign_classes.html"
+       onMouseOver="window.status='Click here to see table dead_foreign_classes'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>dead_foreign_classes</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('auxiliary','<p>Used for other processes or just general system maintenance.</p>')"><tt>MID auxiliary</tt></a></td>
+       <td valigh="top"><font size="-1">Container for deleted foreign atoms.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/dead_normstr.html"
+       onMouseOver="window.status='Click here to see table dead_normstr'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>dead_normstr</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('index','<p>Used for lookup.</p>')"><tt>MID index</tt></a></td>
+       <td valigh="top"><font size="-1">Contains normalized index strings of <i>deleted</i> atoms.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/dead_normwrd.html"
+       onMouseOver="window.status='Click here to see table dead_normwrd'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>dead_normwrd</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('index','<p>Used for lookup.</p>')"><tt>MID index</tt></a></td>
+       <td valigh="top"><font size="-1">Contains normalized index words of <i>deleted</i> atoms.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/dead_relationships.html"
+       onMouseOver="window.status='Click here to see table dead_relationships'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>dead_relationships</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('core','<p>Core table.</p>')"><tt>MID core</tt></a></td>
+       <td valigh="top"><font size="-1">Contains <i>deleted</i> relationships.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/dead_sims_info.html"
+       onMouseOver="window.status='Click here to see table dead_sims_info'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>dead_sims_info</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('metadata','<p>Used to track high-level information about the system.</p>')"><tt>MID metadata</tt></a></td>
+       <td valigh="top"><font size="-1">Tracks deleted source metadata.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/dead_stringtab.html"
+       onMouseOver="window.status='Click here to see table dead_stringtab'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>dead_stringtab</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('auxilary','<p></p>')"><tt>MID auxilary</tt></a></td>
+       <td valigh="top"><font size="-1">Contains <i>deleted</i> long attributes.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/dead_word_index.html"
+       onMouseOver="window.status='Click here to see table dead_word_index'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>dead_word_index</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('index','<p>Used for lookup.</p>')"><tt>MID index</tt></a></td>
+       <td valigh="top"><font size="-1">Contains lowercased words <i>deleted</i> atom names.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/deleted_cuis.html"
+       onMouseOver="window.status='Click here to see table deleted_cuis'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>deleted_cuis</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('not used','<p>Not currently in use.</p>')"><tt>MID not used</tt></a></td>
+       <td valigh="top"><font size="-1">Not yet being effectively used, this table tracks important information associated with deleted CUIs.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/editing_matrix.html"
+       onMouseOver="window.status='Click here to see table editing_matrix'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>editing_matrix</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('qa','<p>Used to perform Conservation of Mass and Semantic QA.</p>')"><tt>MID qa</tt></a></td>
+       <td valigh="top"><font size="-1">Tracks aggregate status information for a concept.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/editors.html"
+       onMouseOver="window.status='Click here to see table editors'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>editors</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('metadata','<p>Used to track high-level information about the system.</p>')"><tt>MID metadata</tt></a></td>
+       <td valigh="top"><font size="-1">Tracks valid meme editors.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/editor_preferences.html"
+       onMouseOver="window.status='Click here to see table editor_preferences'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>editor_preferences</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('metadata','<p>Used to track high-level information about the system.</p>')"><tt>MID metadata</tt></a></td>
+       <td valigh="top"><font size="-1">Tracks preference settings used by the editing interface.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/foreign_classes.html"
+       onMouseOver="window.status='Click here to see table foreign_classes'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>foreign_classes</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('auxiliary','<p>Used for other processes or just general system maintenance.</p>')"><tt>MID auxiliary</tt></a></td>
+       <td valigh="top"><font size="-1">This table contains the terms from languages other than <i>English</i>.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/ic_applications.html"
+       onMouseOver="window.status='Click here to see table ic_applications'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>ic_applications</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('integrity','<p>Used by integrity system or QA bins based on integrity checks.</p>')"><tt>MID integrity</tt></a></td>
+       <td valigh="top"><font size="-1">Maps applications to default integrity vectors.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/ic_override.html"
+       onMouseOver="window.status='Click here to see table ic_override'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>ic_override</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('integrity','<p>Used by integrity system or QA bins based on integrity checks.</p>')"><tt>MID integrity</tt></a></td>
+       <td valigh="top"><font size="-1">Maps editor levels to override integrity vectors.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/ic_pair.html"
+       onMouseOver="window.status='Click here to see table ic_pair'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>ic_pair</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('integrity','<p>Used by integrity system or QA bins based on integrity checks.</p>')"><tt>MID integrity</tt></a></td>
+       <td valigh="top"><font size="-1">Tracks data for binary integrity checks.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/ic_single.html"
+       onMouseOver="window.status='Click here to see table ic_single'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>ic_single</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('integrity','<p>Used by integrity system or QA bins based on integrity checks.</p>')"><tt>MID integrity</tt></a></td>
+       <td valigh="top"><font size="-1">Tracks data for unary integrity checks.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/integrity_constraints.html"
+       onMouseOver="window.status='Click here to see table integrity_constraints'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>integrity_constraints</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('integrity','<p>Used by integrity system or QA bins based on integrity checks.</p>')"><tt>MID integrity</tt></a></td>
+       <td valigh="top"><font size="-1">Tracks integrity checks.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/inverse_relationships.html"
+       onMouseOver="window.status='Click here to see table inverse_relationships'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>inverse_relationships</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('auxiliary,metadata','<p>Used for other processes or just general system maintenance.</p><p>Used to track high-level information about the system.</p>')"><tt>MID auxiliary,metadata</tt></a></td>
+       <td valigh="top"><font size="-1">Maps relationship names to their inverses.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/inverse_relationships_ui.html"
+       onMouseOver="window.status='Click here to see table inverse_relationships_ui'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>inverse_relationships_ui</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('ui','<p>Used to tracks UI assignments, AUI, RUI, ATUI, SUI, LUI, ISUI, CUI, etc..</p>')"><tt>MID ui</tt></a></td>
+       <td valigh="top"><font size="-1">Maps relationship identifiers to the identifiers corresponding to the inverse of the relationship specified by the first identifier.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/inverse_rel_attributes.html"
+       onMouseOver="window.status='Click here to see table inverse_rel_attributes'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>inverse_rel_attributes</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('auxiliary,metadata','<p>Used for other processes or just general system maintenance.</p><p>Used to track high-level information about the system.</p>')"><tt>MID auxiliary,metadata</tt></a></td>
+       <td valigh="top"><font size="-1">Maps relationship attributes to their inverses.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/language.html"
+       onMouseOver="window.status='Click here to see table language'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>language</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('auxiliary,metadata','<p>Used for other processes or just general system maintenance.</p><p>Used to track high-level information about the system.</p>')"><tt>MID auxiliary,metadata</tt></a></td>
+       <td valigh="top"><font size="-1">Maps language names to 3 letter language codes.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/level_status_rank.html"
+       onMouseOver="window.status='Click here to see table level_status_rank'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>level_status_rank</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('auxiliary,metadata','<p>Used for other processes or just general system maintenance.</p><p>Used to track high-level information about the system.</p>')"><tt>MID auxiliary,metadata</tt></a></td>
+       <td valigh="top"><font size="-1">Normalizes and ranks level, status values across core data.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/lui_assignment.html"
+       onMouseOver="window.status='Click here to see table lui_assignment'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>lui_assignment</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('ui','<p>Used to tracks UI assignments, AUI, RUI, ATUI, SUI, LUI, ISUI, CUI, etc..</p>')"><tt>MID ui</tt></a></td>
+       <td valigh="top"><font size="-1">Maps old <tt>LUI</tt> to new <tt>LUI</tt> values after <tt>LUI</tt> re-assignment.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/max_tab.html"
+       onMouseOver="window.status='Click here to see table max_tab'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>max_tab</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('auxiliary','<p>Used for other processes or just general system maintenance.</p>')"><tt>MID auxiliary</tt></a></td>
+       <td valigh="top"><font size="-1">Maintains the maximum id values for various kinds of IDs.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/meme_cluster_history.html"
+       onMouseOver="window.status='Click here to see table meme_cluster_history'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>meme_cluster_history</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('integrity','<p>Used by integrity system or QA bins based on integrity checks.</p>')"><tt>MID integrity</tt></a></td>
+       <td valigh="top"><font size="-1">Maintains map of "connections" between concepts based on integrity violations.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/meme_error.html"
+       onMouseOver="window.status='Click here to see table meme_error'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>meme_error</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('system','<p>Used to track information about MEME or the MID, MRD.</p>')"><tt>MID system</tt></a></td>
+       <td valigh="top"><font size="-1">Tracks errors in the <i>MEME</i> system.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/meme_indexes.html"
+       onMouseOver="window.status='Click here to see table meme_indexes'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>meme_indexes</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('system','<p>Used to track information about MEME or the MID, MRD.</p>')"><tt>MID system</tt></a></td>
+       <td valigh="top"><font size="-1">A projection of <tt>user_indexes</tt> that tracks indexes for <i>MEME</i> tables</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/meme_ind_columns.html"
+       onMouseOver="window.status='Click here to see table meme_ind_columns'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>meme_ind_columns</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('system','<p>Used to track information about MEME or the MID, MRD.</p>')"><tt>MID system</tt></a></td>
+       <td valigh="top"><font size="-1">A projection of <tt>user_ind_columns</tt> that tracks index columns for <i>MEME</i> tables</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/meme_progress.html"
+       onMouseOver="window.status='Click here to see table meme_progress'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>meme_progress</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('system','<p>Used to track information about MEME or the MID, MRD.</p>')"><tt>MID system</tt></a></td>
+       <td valigh="top"><font size="-1">Allows long-running PL/SQL operations to report their progress.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/meme_properties.html"
+       onMouseOver="window.status='Click here to see table meme_properties'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>meme_properties</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('metadata','<p>Used to track high-level information about the system.</p>')"><tt>MID metadata</tt></a></td>
+       <td valigh="top"><font size="-1">A catch-all table for tracking release data.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/meme_schedule.html"
+       onMouseOver="window.status='Click here to see table meme_schedule'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>meme_schedule</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('system','<p>Used to track information about MEME or the MID, MRD.</p>')"><tt>MID system</tt></a></td>
+       <td valigh="top"><font size="-1">An advanced table used for scheduling server processes.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/meme_tables.html"
+       onMouseOver="window.status='Click here to see table meme_tables'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>meme_tables</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('system','<p>Used to track information about MEME or the MID, MRD.</p>')"><tt>MID system</tt></a></td>
+       <td valigh="top"><font size="-1">A list of tables maintained by the <i>MEME</i> system.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/meme_work.html"
+       onMouseOver="window.status='Click here to see table meme_work'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>meme_work</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('system','<p>Used to track information about MEME or the MID, MRD.</p>')"><tt>MID system</tt></a></td>
+       <td valigh="top"><font size="-1">A record of large database operations.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/mid_qa_history.html"
+       onMouseOver="window.status='Click here to see table mid_qa_history'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>mid_qa_history</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('qa','<p>Used to perform Conservation of Mass and Semantic QA.</p>')"><tt>MID qa</tt></a></td>
+       <td valigh="top"><font size="-1">Historical record of <i>Monster QA</i> runs.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/mid_qa_queries.html"
+       onMouseOver="window.status='Click here to see table mid_qa_queries'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>mid_qa_queries</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('qa','<p>Used to perform Conservation of Mass and Semantic QA.</p>')"><tt>MID qa</tt></a></td>
+       <td valigh="top"><font size="-1">Contains queries used for <i>Monster QA</i> of the <i>MID</i> data.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/mid_qa_results.html"
+       onMouseOver="window.status='Click here to see table mid_qa_results'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>mid_qa_results</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('qa','<p>Used to perform Conservation of Mass and Semantic QA.</p>')"><tt>MID qa</tt></a></td>
+       <td valigh="top"><font size="-1">A record of the last <i>Monster QA</i> run against the <i>MID</i>.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/mid_validation_queries.html"
+       onMouseOver="window.status='Click here to see table mid_validation_queries'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>mid_validation_queries</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('qa','<p>Used to perform Conservation of Mass and Semantic QA.</p>')"><tt>MID qa</tt></a></td>
+       <td valigh="top"><font size="-1">This is the data that drives the online <i>MID Validation</i> system.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/mid_validation_results.html"
+       onMouseOver="window.status='Click here to see table mid_validation_results'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>mid_validation_results</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('qa','<p>Used to perform Conservation of Mass and Semantic QA.</p>')"><tt>MID qa</tt></a></td>
+       <td valigh="top"><font size="-1">This table tracks results from the <i>MID Validation</i> system.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/molecular_actions.html"
+       onMouseOver="window.status='Click here to see table molecular_actions'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>molecular_actions</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('action','<p>Used to log changes to system.</p>')"><tt>MID action</tt></a></td>
+       <td valigh="top"><font size="-1">The log of editor actions.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/mom_candidate_facts.html"
+       onMouseOver="window.status='Click here to see table mom_candidate_facts'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>mom_candidate_facts</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('source','<p>Used as staging area for source insertion data.</p>')"><tt>MID source</tt></a></td>
+       <td valigh="top"><font size="-1">Contains facts being considered for merging.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/mom_exclude_list.html"
+       onMouseOver="window.status='Click here to see table mom_exclude_list'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>mom_exclude_list</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('source','<p>Used as staging area for source insertion data.</p>')"><tt>MID source</tt></a></td>
+       <td valigh="top"><font size="-1">A list of termgroups used as a filter when generating some merge facts.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/mom_facts_processed.html"
+       onMouseOver="window.status='Click here to see table mom_facts_processed'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>mom_facts_processed</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('source','<p>Used as staging area for source insertion data.</p>')"><tt>MID source</tt></a></td>
+       <td valigh="top"><font size="-1">An archive of all of the merge facts that have been processed in a given calendar year.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/mom_merge_facts.html"
+       onMouseOver="window.status='Click here to see table mom_merge_facts'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>mom_merge_facts</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('source','<p>Used as staging area for source insertion data.</p>')"><tt>MID source</tt></a></td>
+       <td valigh="top"><font size="-1">Contains merge facts that are to be processed.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/mom_norm_exclude_list.html"
+       onMouseOver="window.status='Click here to see table mom_norm_exclude_list'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>mom_norm_exclude_list</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('source','<p>Used as staging area for source insertion data.</p>')"><tt>MID source</tt></a></td>
+       <td valigh="top"><font size="-1">A list of termgroups used as a filter when generating merge facts.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/mom_precomputed_facts.html"
+       onMouseOver="window.status='Click here to see table mom_precomputed_facts'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>mom_precomputed_facts</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('source','<p>Used as staging area for source insertion data.</p>')"><tt>MID source</tt></a></td>
+       <td valigh="top"><font size="-1">The repository of facts loaded from <tt>mergefacts</tt> files.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/mom_safe_replacement.html"
+       onMouseOver="window.status='Click here to see table mom_safe_replacement'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>mom_safe_replacement</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('auxiliary','<p>Used for other processes or just general system maintenance.</p>')"><tt>MID auxiliary</tt></a></td>
+       <td valigh="top"><font size="-1">A ranked mapping of atoms from obsolete sources to updated sources.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/nhsty.html"
+       onMouseOver="window.status='Click here to see table nhsty'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>nhsty</tt></a></td>
+       <td valigh="top"></td>
+       <td valigh="top"><font size="-1">A list of semantic types that cannot accompany <tt>NH</tt> flags.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/normstr.html"
+       onMouseOver="window.status='Click here to see table normstr'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>normstr</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('index','<p>Used for lookup.</p>')"><tt>MID index</tt></a></td>
+       <td valigh="top"><font size="-1">A normalized string index.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/normwrd.html"
+       onMouseOver="window.status='Click here to see table normwrd'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>normwrd</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('index','<p>Used for lookup.</p>')"><tt>MID index</tt></a></td>
+       <td valigh="top"><font size="-1">A normalized word index.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/qa_adjustment.html"
+       onMouseOver="window.status='Click here to see table qa_adjustment'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>qa_adjustment</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('qa','<p>Used to perform Conservation of Mass and Semantic QA.</p>')"><tt>MID qa</tt></a></td>
+       <td valigh="top"><font size="-1">Tracks adjustments to <i>Monster QA</i> discrepancies between SRC and <i>MID</i> counts.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/qa_diff_adjustment.html"
+       onMouseOver="window.status='Click here to see table qa_diff_adjustment'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>qa_diff_adjustment</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('qa','<p>Used to perform Conservation of Mass and Semantic QA.</p>')"><tt>MID qa</tt></a></td>
+       <td valigh="top"><font size="-1">Tracks adjustments to <i>Monster QA</i> discrepancies between current and historical <i>MID</i> counts.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/qa_diff_results.html"
+       onMouseOver="window.status='Click here to see table qa_diff_results'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>qa_diff_results</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('qa','<p>Used to perform Conservation of Mass and Semantic QA.</p>')"><tt>MID qa</tt></a></td>
+       <td valigh="top"><font size="-1">This is where discrepancies from <i>Monster QA</i> runs are stored.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/relationships.html"
+       onMouseOver="window.status='Click here to see table relationships'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>relationships</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('core','<p>Core table.</p>')"><tt>MID core</tt></a></td>
+       <td valigh="top"><font size="-1">Contains relationships between atoms and concepts.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/relationships_ui.html"
+       onMouseOver="window.status='Click here to see table relationships_ui'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>relationships_ui</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('ui','<p>Used to tracks UI assignments, AUI, RUI, ATUI, SUI, LUI, ISUI, CUI, etc..</p>')"><tt>MID ui</tt></a></td>
+       <td valigh="top"><font size="-1">Maps sets of fields to unique relationship identifiers.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/released_rank.html"
+       onMouseOver="window.status='Click here to see table released_rank'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>released_rank</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('auxiliary,metadata','<p>Used for other processes or just general system maintenance.</p><p>Used to track high-level information about the system.</p>')"><tt>MID auxiliary,metadata</tt></a></td>
+       <td valigh="top"><font size="-1">Normalizes and ranks values of <tt>released</tt> fields in the various core tables.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/semantic_types.html"
+       onMouseOver="window.status='Click here to see table semantic_types'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>semantic_types</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('metadata','<p>Used to track high-level information about the system.</p>')"><tt>MID metadata</tt></a></td>
+       <td valigh="top"><font size="-1">Contains valid semantic type values.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/sims_info.html"
+       onMouseOver="window.status='Click here to see table sims_info'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>sims_info</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('metadata,source','<p>Used to track high-level information about the system.</p><p>Used as staging area for source insertion data.</p>')"><tt>MID metadata,source</tt></a></td>
+       <td valigh="top"><font size="-1">Tracks source metadata.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/snapshot_results.html"
+       onMouseOver="window.status='Click here to see table snapshot_results'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>snapshot_results</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('integrity','<p>Used by integrity system or QA bins based on integrity checks.</p>')"><tt>MID integrity</tt></a></td>
+       <td valigh="top"><font size="-1">Contains results of an integrity snapshot run.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/source_attributes.html"
+       onMouseOver="window.status='Click here to see table source_attributes'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>source_attributes</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('source','<p>Used as staging area for source insertion data.</p>')"><tt>MID source</tt></a></td>
+       <td valigh="top"><font size="-1">Staging area for new attributes.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/source_classes_atoms.html"
+       onMouseOver="window.status='Click here to see table source_classes_atoms'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>source_classes_atoms</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('source','<p>Used as staging area for source insertion data.</p>')"><tt>MID source</tt></a></td>
+       <td valigh="top"><font size="-1">Staging area for new atoms.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/source_coc_headings.html"
+       onMouseOver="window.status='Click here to see table source_coc_headings'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>source_coc_headings</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('source','<p>Used as staging area for source insertion data.</p>')"><tt>MID source</tt></a></td>
+       <td valigh="top"><font size="-1">Staging area for new heading citations.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/source_coc_headings_todelete.html"
+       onMouseOver="window.status='Click here to see table source_coc_headings_todelete'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>source_coc_headings_todelete</tt></a></td>
+       <td valigh="top"></td>
+       <td valigh="top"><font size="-1">Staging area for deleted heading citation set information.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/source_coc_subheadings.html"
+       onMouseOver="window.status='Click here to see table source_coc_subheadings'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>source_coc_subheadings</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('source','<p>Used as staging area for source insertion data.</p>')"><tt>MID source</tt></a></td>
+       <td valigh="top"><font size="-1">Staging area for new subheading citations.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/source_concept_status.html"
+       onMouseOver="window.status='Click here to see table source_concept_status'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>source_concept_status</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('source','<p>Used as staging area for source insertion data.</p>')"><tt>MID source</tt></a></td>
+       <td valigh="top"><font size="-1">Staging area for new concepts.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/source_context_relationships.html"
+       onMouseOver="window.status='Click here to see table source_context_relationships'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>source_context_relationships</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('source','<p>Used as staging area for source insertion data.</p>')"><tt>MID source</tt></a></td>
+       <td valigh="top"><font size="-1">Staging area for new context relationships.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/source_id_map.html"
+       onMouseOver="window.status='Click here to see table source_id_map'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>source_id_map</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('auxiliary','<p>Used for other processes or just general system maintenance.</p>')"><tt>MID auxiliary</tt></a></td>
+       <td valigh="top"><font size="-1">Maintains a mapping of ids used in source files (<i>source ids</i>) to ids used in the <i>MID</i> (<i>meme ids</i>).</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/source_rank.html"
+       onMouseOver="window.status='Click here to see table source_rank'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>source_rank</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('auxiliary,metadata','<p>Used for other processes or just general system maintenance.</p><p>Used to track high-level information about the system.</p>')"><tt>MID auxiliary,metadata</tt></a></td>
+       <td valigh="top"><font size="-1">Maintains metadata information about the sources that contribute to Metathesaurus content.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/source_relationships.html"
+       onMouseOver="window.status='Click here to see table source_relationships'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>source_relationships</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('source','<p>Used as staging area for source insertion data.</p>')"><tt>MID source</tt></a></td>
+       <td valigh="top"><font size="-1">Staging area for new relationships.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/source_replacement.html"
+       onMouseOver="window.status='Click here to see table source_replacement'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>source_replacement</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('source','<p>Used as staging area for source insertion data.</p>')"><tt>MID source</tt></a></td>
+       <td valigh="top"><font size="-1">Staging area for a set of identifiers that comprise a subset of a source that has not changed from the previous version(s) to the present version.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/source_source_rank.html"
+       onMouseOver="window.status='Click here to see table source_source_rank'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>source_source_rank</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('source','<p>Used as staging area for source insertion data.</p>')"><tt>MID source</tt></a></td>
+       <td valigh="top"><font size="-1">Staging area for new sources.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/source_stringtab.html"
+       onMouseOver="window.status='Click here to see table source_stringtab'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>source_stringtab</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('source','<p>Used as staging area for source insertion data.</p>')"><tt>MID source</tt></a></td>
+       <td valigh="top"><font size="-1">Staging area for new long attributes.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/source_string_ui.html"
+       onMouseOver="window.status='Click here to see table source_string_ui'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>source_string_ui</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('source','<p>Used as staging area for source insertion data.</p>')"><tt>MID source</tt></a></td>
+       <td valigh="top"><font size="-1">Staging area for new names.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/source_termgroup_rank.html"
+       onMouseOver="window.status='Click here to see table source_termgroup_rank'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>source_termgroup_rank</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('source','<p>Used as staging area for source insertion data.</p>')"><tt>MID source</tt></a></td>
+       <td valigh="top"><font size="-1">Staging area for new termgroups.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/source_version.html"
+       onMouseOver="window.status='Click here to see table source_version'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>source_version</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('auxiliary,metadata','<p>Used for other processes or just general system maintenance.</p><p>Used to track high-level information about the system.</p>')"><tt>MID auxiliary,metadata</tt></a></td>
+       <td valigh="top"><font size="-1">Maintains a list of <i>current</i> and <i>previous</i> versions of sources.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/src_qa_queries.html"
+       onMouseOver="window.status='Click here to see table src_qa_queries'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>src_qa_queries</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('qa','<p>Used to perform Conservation of Mass and Semantic QA.</p>')"><tt>MID qa</tt></a></td>
+       <td valigh="top"><font size="-1">Contains queries used for <i>Monster QA</i> of new data added to the <i>MID</i>.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/src_qa_results.html"
+       onMouseOver="window.status='Click here to see table src_qa_results'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>src_qa_results</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('qa','<p>Used to perform Conservation of Mass and Semantic QA.</p>')"><tt>MID qa</tt></a></td>
+       <td valigh="top"><font size="-1">A record of the last <i>Monster QA</i> run against the <i>source core tables</i>.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/srdef.html"
+       onMouseOver="window.status='Click here to see table srdef'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>srdef</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('metadata','<p>Used to track high-level information about the system.</p>')"><tt>MID metadata</tt></a></td>
+       <td valigh="top"><font size="-1">Contains data from the UMLS file <tt>SRDEF</tt>.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/srstre2.html"
+       onMouseOver="window.status='Click here to see table srstre2'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>srstre2</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('integrity','<p>Used by integrity system or QA bins based on integrity checks.</p>')"><tt>MID integrity</tt></a></td>
+       <td valigh="top"><font size="-1">Contains relationships between semantic types.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/sr_predicate.html"
+       onMouseOver="window.status='Click here to see table sr_predicate'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>sr_predicate</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('auxiliary','<p>Used for other processes or just general system maintenance.</p>')"><tt>MID auxiliary</tt></a></td>
+       <td valigh="top"><font size="-1">Contains descriptions of the matching predicates used to compute safe replacement for the various current sources in the <i>MID</i>.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/stringtab.html"
+       onMouseOver="window.status='Click here to see table stringtab'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>stringtab</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('auxiliary','<p>Used for other processes or just general system maintenance.</p>')"><tt>MID auxiliary</tt></a></td>
+       <td valigh="top"><font size="-1">Contains long attribute values.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/string_ui.html"
+       onMouseOver="window.status='Click here to see table string_ui'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>string_ui</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('ui','<p>Used to tracks UI assignments, AUI, RUI, ATUI, SUI, LUI, ISUI, CUI, etc..</p>')"><tt>MID ui</tt></a></td>
+       <td valigh="top"><font size="-1">Contains one row for each string that has ever been in the <i>MID</i>.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/suppressible_rank.html"
+       onMouseOver="window.status='Click here to see table suppressible_rank'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>suppressible_rank</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('auxiliary,metadata','<p>Used for other processes or just general system maintenance.</p><p>Used to track high-level information about the system.</p>')"><tt>MID auxiliary,metadata</tt></a></td>
+       <td valigh="top"><font size="-1">Normalizes and ranks values of <tt>suppressible</tt> fields in the various core tables.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/system_status.html"
+       onMouseOver="window.status='Click here to see table system_status'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>system_status</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('system','<p>Used to track information about MEME or the MID, MRD.</p>')"><tt>MID system</tt></a></td>
+       <td valigh="top"><font size="-1">Generic mechanism for applications that need an ON/OFF switch.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/termgroup_rank.html"
+       onMouseOver="window.status='Click here to see table termgroup_rank'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>termgroup_rank</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('auxiliary,metadata','<p>Used for other processes or just general system maintenance.</p><p>Used to track high-level information about the system.</p>')"><tt>MID auxiliary,metadata</tt></a></td>
+       <td valigh="top"><font size="-1">Normalizes and ranks termgroup values.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/test_suite_statistics.html"
+       onMouseOver="window.status='Click here to see table test_suite_statistics'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>test_suite_statistics</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('system','<p>Used to track information about MEME or the MID, MRD.</p>')"><tt>MID system</tt></a></td>
+       <td valigh="top"><font size="-1">Stores statistics gathered during test suite runs.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/tobereleased_rank.html"
+       onMouseOver="window.status='Click here to see table tobereleased_rank'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>tobereleased_rank</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('auxiliary,metadata','<p>Used for other processes or just general system maintenance.</p><p>Used to track high-level information about the system.</p>')"><tt>MID auxiliary,metadata</tt></a></td>
+       <td valigh="top"><font size="-1">Normalizes and ranks values of <tt>tobereleased</tt> fields in the various core tables.</font></td>
+  </tr>
+
+   <tr><td valign="top"><a href="tables/word_index.html"
+       onMouseOver="window.status='Click here to see table word_index'; return true;"
+       onMouseOut="window.status=''; return true;"><tt>word_index</tt></a></td>
+       <td valigh="top"><a href="javascript:openDescription('index','<p>Used for lookup.</p>')"><tt>MID index</tt></a></td>
+       <td valigh="top"><font size="-1">A word index.</font></td>
+  </tr>
+
+</table>
+<p>
+<hr WIDTH="100%">
+<table BORDER=0 COLS=2 WIDTH="100%" NOSAVE >
+<tr NOSAVE>
+<td ALIGN=LEFT VALIGN=TOP NOSAVE>
+<address>
+<a href="/MEME/">MEME Home</a></address>
+</td>
+
+<td ALIGN=RIGHT VALIGN=TOP NOSAVE>
+<address>
+<font size=-1>Contact: <a href="mailto:bcarlsen@apelon.com">Brian A. Carlsen</a></font></address>
+
+<address>
+<font size=-1>Created: 7/27/2001</font></address>
+
+<address>
+<font size=-1>Last Updated: 03/07/2005</font></address>
+
+</td>
+</tr>
+</table>
+
+<!-- Nav bar -->
+  <p><center>[ <a href="#overview">overview</a> | <a href="#details">details</a> | <a href="#references">references</a> ]</center></p>
+
+</body>
+<!-- These comments are used by the What's new Generator -->
+<!-- Changed On: 2005/03/07 -->
+<!-- Changed by: Brian Carlsen -->
+<!-- Change Note: Index for MEME Schema documentation -->
+<!-- Fresh for: 1 month -->
+</html>

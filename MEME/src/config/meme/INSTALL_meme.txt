@@ -1,0 +1,59 @@
+INSTALL
+-------
+1. Choose $MEME_HOME
+2. Unzip dist_meme*.zip into $MEME_HOME
+3. Configure the properties file
+ a. Copy the etc/meme.prop_orig to etc/meme.prop
+ b. Edit the properties file.
+ c. In particular, set env.ENV_HOME and env.ENV_FILE.
+4. Edit $ENV_FILE and set MEME_HOME  property to $MEME_HOME path
+5. Edit the startup environment to run a server ($MEME_HOME/bin/meme_server.sh).
+ 
+  /usr/bin/env \
+  ENV_FILE=<path to ENV_HOME>/etc/env.prop \
+  ENV_HOME=<path to ENV_HOME> \
+  <path to MEME_HOME>/bin/meme_server.sh start 1526 your_tnsname <path to MEME_HOME>
+
+6. Reload PL/SQL packages from $MEME_HOME/etc/sql/meme_packages.sql
+7. Start a server.
+
+8. Configure nightly tasks
+  a. Copy $MEME_HOME/etc/nightly_tasks.csh_orig to 
+     $MEME_HOME/bin/nightly_tasks.csh
+  b. Configure a crontab entry to run it daily
+#
+# Run nightly tasks
+#
+00 04 * * 1-6 env ENV_HOME=<path to ENV_HOME> ENV_FILE=<path to ENV_HOME>/etc/env.prop <meme_home>/bin/nightly_tasks.csh
+
+  An alternative to using "env" is to just call 
+  $MEME_HOME/bin/nightly_tasks.csh and edit it to 
+  include lines to import the environment like this:
+  
+  setenv ENV_HOME <path to env home>
+  setenv ENV_FILE $ENV_HOME/etc/env.prop
+  source $ENV_HOME/bin/env.csh
+
+Dependencies
+-----------------------
+Subsystem Dependencies
+  $ENV_HOME
+  $EXT_LIB
+
+Network Dependencies
+  MIDSVCS Server - host/port specified in etc/meme.prop
+  LVG Server - host/port specified by MIDSVCS (lvg-server-host, lvg-server-port)
+
+Required Perl Libraries
+  Text::Wrap
+  Mail::Sender
+  DBI
+  DBD::Oracle
+  Socket
+  Net::FTP
+  Getopt::STD
+  Net::SFTP - recommended 
+   
+UPDATE
+------
+Same as install

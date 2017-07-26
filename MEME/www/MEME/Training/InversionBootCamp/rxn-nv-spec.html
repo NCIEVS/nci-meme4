@@ -1,0 +1,286 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf8">
+  <title>MEME Boot Camp Schedule - &lt;session name here&gt;</title>
+</head>
+<body style="background-color: rgb(255, 255, 255); color: rgb(0, 0, 0);"
+ alink="#ff0000" link="#3333ff" vlink="#999999">
+<center>
+<h2>The Current RxNorm auto-invert Specification File<br>
+</h2>
+</center>
+<hr width="100%">
+<blockquote> <b style=""><span
+ style="font-size: 14pt; font-family: &quot;Courier New&quot;;"></span></b><b
+ style=""><span style="font-size: 14pt; font-family: &quot;Courier New&quot;;"></span></b><b
+ style=""><span style="font-size: 14pt; font-family: &quot;Courier New&quot;;">SourceDir|/d1/project/rxnrrf/200601|recursive<br>
+SourceExt|.RRF<br>
+SourceFieldSep|BAR<br>
+SourceAtomIdBase|96113010<br>
+SourceAtomIdLimit|96492999<br>
+SourceSchemaDefType|InThisSpec<br>
+Schema|CONSO_RXN*|RXCUI|LAT|x1|x2|x3|x4|x5|RXAUI|SAUI|SCUI|SDUI|SAB|TTY|CODE|STR|x6|SUPPRESS|x8|<br>
+Schema|CONSO_upd*|RXCUI|LAT|x1|x2|x3|x4|x5|RXAUI|SAUI|SCUI|SDUI|SAB|TTY|CODE|STR|x6|SUPPRESS|x8|<br>
+Schema|CONSO_withAUI*|RXCUI|LAT|x1|x2|x3|x4|x5|RXAUI|SAUI|SCUI|SDUI|SAB|TTY|CODE|STR|x6|x7|x8|x9|AUI<br>
+Schema|RXNREL_trans*|RXCUI1|RXAUI1|STYPE1|REL|CUI2|AUI2|STYPE2|RELA|x1|SRUI|SAB|x2|x3|x4|SUPPRESS|x6|<br>
+Schema|RXNSAT*|RXCUI|x1|x2|RXAUI|STYPE|CODE|ATUI|SATUI|ATN|SAB|ATV|SUPPRESS|x3|<br>
+Schema|RXNSTY*|RXCUI|TUI|STN|STY|ATUI|x1<br>
+Schema|RXNSAB*|VCUI|RCUI|VSAB|RSAB|SON|SF|SVER|VSTART|VEND|IMETA|RMETA|SLC|SCC|SRL|TFR|CFR|CXTY|TTYL|ATNL|LAT|CENC|CURVER|SABIN|SSN|SCIT<br>
+  <br>
+  <br>
+# RXNORM classes_atoms<br>
+# Note: added extra field at end of classes_atoms for the RXAUI, so we
+can<br>
+# join to it later for making mergefacts; this extra field will be
+deleted<br>
+# later by invert.s<br>
+Dest|rxn/classes_atoms.src<br>
+SourceDir|/d1/project/rxnrrf/200601/rxn<br>
+Copy|rxn/class_src<br>
+SourceDir|/d1/project/rxnrrf/200601|recursive<br>
+  <br>
+Schema|tty_status|TTY|STATUS<br>
+Schema|suppress_map|RAW|META<br>
+  <br>
+Scan|CONSO_RXN*|where &lt;TTY&gt; matches tty_status.TTY &amp;&amp;
+&lt;SUPPRESS&gt; matches suppress_map.RAW<br>
+&nbsp;&nbsp;&nbsp;
+src_atom_id|RXNORM_06AA_060120F|RXNORM_06AA_060120F/&lt;TTY&gt;|&lt;CODE&gt;|tty_status.STATUS|Y|N|&lt;squeeze:STR&gt;|suppress_map.META|&lt;SAUI&gt;|&lt;SCUI&gt;|&lt;SDUI&gt;|ENG|needs_order_id|&lt;RXAUI&gt;<br>
+  <br>
+# updated-source classes_atoms<br>
+  <br>
+Schema|sab_vsab|SAB|VSAB<br>
+  <br>
+Scan|CONSO_upd*|where &lt;SAB&gt; ne 'RXNORM' &amp;&amp; &lt;SAB&gt;
+matches sab_vsab.SAB<br>
+&nbsp;&nbsp;&nbsp;
+src_atom_id|sab_vsab.VSAB|sab_vsab.VSAB/&lt;TTY&gt;|&lt;CODE&gt;|N|Y|N|&lt;squeeze:STR&gt;|N|&lt;SAUI&gt;|&lt;SCUI&gt;|&lt;SDUI&gt;|ENG|needs_order_id|&lt;RXAUI&gt;<br>
+  <br>
+#-----------------------------------------------------------------------------<br>
+  <br>
+# RXNORM attributes<br>
+Dest|rxn/attributes.src<br>
+SourceDir|/d1/project/rxnrrf/200601/rxn<br>
+Copy|rxn/attr_src<br>
+SourceDir|/d1/project/rxnrrf/200601|recursive<br>
+  <br>
+# do attributes from RXNSAT for RXNORM atoms<br>
+Scan|RXNSAT*|where &lt;SAB&gt; eq 'RXNORM' &amp;&amp; &lt;ATN&gt; ne
+'UMLSAUI' &amp;&amp; &lt;ATN&gt; ne 'UMLSCUI' &amp;&amp; &lt;RXAUI&gt;
+matches CONSO_RXN*.RXAUI<br>
+&nbsp;&nbsp;&nbsp;
+line_number|&lt;RXAUI&gt;|S|&lt;ATN&gt;|&lt;ATV&gt;|RXNORM_06AA_060120F|R|Y|N|N|ROOT_SOURCE_AUI|RXNORM||md5hash|<br>
+  <br>
+Schema|classes_atoms1|SRC_ATOM_ID|SOURCE|TERMGROUP|CODE|STATUS|TOBERELEASED|RELEASED|ATOM_NAME|SUPPRESSIBLE|SOURCE_AUI|SOURCE_CUI|SOURCE_DUI|LANGUAGE|ORDER_ID|RXAUI<br>
+Schema|sab_vsab|SAB|VSAB<br>
+  <br>
+# do attributes from RXNSAT for other updated sources (owned by them or
+RXNORM)<br>
+Schema|SAT_upd*|RXCUI|x1|x2|RXAUI|STYPE|CODE|ATUI|SATUI|ATN|SAB|ATV|SUPPRESS|x3|<br>
+  <br>
+Scan|SAT_upd*|where &lt;SAB&gt; matches sab_vsab.SAB &amp;&amp;
+&lt;RXAUI&gt; matches classes_atoms1.RXAUI<br>
+&nbsp;&nbsp;&nbsp;
+line_number|classes_atoms1.SRC_ATOM_ID|S|&lt;ATN&gt;|&lt;ATV&gt;|sab_vsab.VSAB|R|Y|N|N|SOURCE_ATOM_ID|||md5hash|<br>
+  <br>
+# do RXNORM's attributes from RXNSAT for non-updated sources<br>
+Scan|RXNSAT*|where &lt;SAB&gt; eq 'RXNORM' &amp;&amp; &lt;ATN&gt; ne
+'UMLSAUI' &amp;&amp; &lt;ATN&gt; ne 'UMLSCUI' &amp;&amp; &lt;RXAUI&gt;
+matches CONSO_withAUI*.RXAUI<br>
+&nbsp;&nbsp;&nbsp;
+line_number|CONSO_withAUI*.AUI|S|&lt;ATN&gt;|&lt;ATV&gt;|RXNORM_06AA_060120F|R|Y|N|N|AUI|||md5hash|<br>
+  <br>
+  <br>
+# do STY attributes for RXNORM concepts<br>
+Scan|RXNSTY*|where &lt;RXCUI&gt; matches CONSO_RXN*.RXCUI<br>
+&nbsp;&nbsp;&nbsp;
+line_number|&lt;RXCUI&gt;|C|SEMANTIC_TYPE|&lt;STY&gt;|E-RXNORM_06AA_060120|R|Y|N|N|ROOT_SOURCE_CUI|RXNORM||md5hash|<br>
+  <br>
+# do STY attributes for other updated sources<br>
+Schema|updrxaui_sab_sty|RXAUI|SAB|STY<br>
+  <br>
+Scan|updrxaui_sab_sty|where &lt;RXAUI&gt; matches classes_atoms1.RXAUI<br>
+&nbsp;&nbsp;&nbsp;
+line_number|classes_atoms1.SRC_ATOM_ID|C|SEMANTIC_TYPE|&lt;STY&gt;|E-RXNORM_06AA_060120|R|Y|N|N|SOURCE_ATOM_ID|||md5hash|<br>
+  <br>
+# do STY attributes for non-updated sources<br>
+Schema|metaaui_sty|AUI|STY<br>
+  <br>
+Scan|metaaui_sty<br>
+&nbsp;&nbsp;&nbsp;
+line_number|&lt;AUI&gt;|C|SEMANTIC_TYPE|&lt;STY&gt;|E-RXNORM_06AA_060120|R|Y|N|N|AUI|||md5hash|<br>
+  <br>
+  <br>
+# do RXAUI/RXCUI attributes for RXNORM atoms<br>
+Scan|CONSO_RXN*<br>
+&nbsp;&nbsp;&nbsp;
+line_number|&lt;RXAUI&gt;|S|RXAUI|&lt;RXAUI&gt;|RXNORM_06AA_060120F|R|Y|N|N|ROOT_SOURCE_AUI|RXNORM||md5hash|<br>
+&nbsp;&nbsp;&nbsp;
+line_number|&lt;RXAUI&gt;|S|RXCUI|&lt;RXCUI&gt;|RXNORM_06AA_060120F|R|Y|N|N|ROOT_SOURCE_AUI|RXNORM||md5hash|<br>
+  <br>
+# do RXAUI/RXCUI attributes for other updated sources<br>
+Schema|classes_atoms1|SRC_ATOM_ID|SOURCE|TERMGROUP|CODE|STATUS|TOBERELEASED|RELEASED|ATOM_NAME|SUPPRESSIBLE|SOURCE_AUI|SOURCE_CUI|SOURCE_DUI|LANGUAGE|ORDER_ID|RXAUI<br>
+  <br>
+Scan|CONSO_upd*|where &lt;RXAUI&gt; matches classes_atoms1.RXAUI<br>
+&nbsp;&nbsp;&nbsp;
+line_number|classes_atoms1.SRC_ATOM_ID|S|RXAUI|&lt;RXAUI&gt;|RXNORM_06AA_060120F|R|Y|N|N|SOURCE_ATOM_ID|||md5hash|<br>
+&nbsp;&nbsp;&nbsp;
+line_number|classes_atoms1.SRC_ATOM_ID|S|RXCUI|&lt;RXCUI&gt;|RXNORM_06AA_060120F|R|Y|N|N|SOURCE_ATOM_ID|||md5hash|<br>
+  <br>
+# do RXAUI/RXCUI attributes for non-updated sources<br>
+Scan|CONSO_withAUI*<br>
+&nbsp;&nbsp;&nbsp;
+line_number|&lt;AUI&gt;|S|RXAUI|&lt;RXAUI&gt;|RXNORM_06AA_060120F|R|Y|N|N|AUI|||md5hash|<br>
+&nbsp;&nbsp;&nbsp;
+line_number|&lt;AUI&gt;|S|RXCUI|&lt;RXCUI&gt;|RXNORM_06AA_060120F|R|Y|N|N|AUI|||md5hash|<br>
+  <br>
+#-----------------------------------------------------------------------------<br>
+  <br>
+# RXNORM relationships<br>
+Dest|rxn/relationships.src<br>
+SourceDir|/d1/project/rxnrrf/200601/rxn<br>
+Copy|rxn/rel_src<br>
+SourceDir|/d1/project/rxnrrf/200601|recursive<br>
+  <br>
+Schema|suppress_map|RAW|META<br>
+  <br>
+# Do the main RXNORM RXCUI1&lt;-&gt;RXNORM CUI2 rels<br>
+Scan|RXNREL_trans*|where &lt;SAB&gt; eq 'RXNORM' &amp;&amp;
+&lt;STYPE1&gt; eq 'CUI' &amp;&amp; &lt;SUPPRESS&gt; matches
+suppress_map.RAW<br>
+&nbsp;&nbsp;&nbsp;
+line_number|S|&lt;RXCUI1&gt;|&lt;REL&gt;|&lt;RELA&gt;|&lt;CUI2&gt;|RXNORM_06AA_060120F|RXNORM_06AA_060120F|R|Y|N|suppress_map.META|ROOT_SOURCE_CUI|RXNORM|ROOT_SOURCE_CUI|RXNORM|&lt;SRUI&gt;||<br>
+  <br>
+  <br>
+# Do RXNORM RXAUI1&lt;-&gt;RXNORM-or-other-updated-source AUI2 rels<br>
+Schema|classes_atoms1|SRC_ATOM_ID|SOURCE|TERMGROUP|CODE|STATUS|TOBERELEASED|RELEASED|ATOM_NAME|SUPPRESSIBLE|SOURCE_AUI|SOURCE_CUI|SOURCE_DUI|LANGUAGE|ORDER_ID|RXAUI<br>
+Schema|suppress_map|RAW|META<br>
+  <br>
+Scan|RXNREL_trans*|where &lt;SAB&gt; eq 'RXNORM' &amp;&amp;
+&lt;STYPE1&gt; eq 'AUI' &amp;&amp; &lt;AUI2&gt; matches
+classes_atoms1.RXAUI &amp;&amp; &lt;SUPPRESS&gt; matches
+suppress_map.RAW<br>
+&nbsp;&nbsp;&nbsp;
+line_number|S|&lt;RXAUI1&gt;|&lt;REL&gt;|&lt;RELA&gt;|classes_atoms1.SRC_ATOM_ID|RXNORM_06AA_060120F|RXNORM_06AA_060120F|R|Y|N|suppress_map.META|ROOT_SOURCE_AUI|RXNORM|SOURCE_ATOM_ID||&lt;SRUI&gt;||<br>
+  <br>
+  <br>
+# Do rels with an RXNORM RXAUI1 and an AUI2 from a non-updated source<br>
+Scan|RXNREL_trans*|where &lt;SAB&gt; eq 'RXNORM' &amp;&amp;
+&lt;STYPE1&gt; eq 'AUI' &amp;&amp; &lt;RXAUI1&gt; matches
+CONSO_RXN*.RXAUI &amp;&amp; &lt;AUI2&gt; matches CONSO_withAUI*.RXAUI<br>
+&nbsp;&nbsp;&nbsp;
+line_number|S|&lt;RXAUI1&gt;|&lt;REL&gt;|&lt;RELA&gt;|CONSO_withAUI*.AUI|RXNORM_06AA_060120F|RXNORM_06AA_060120F|R|Y|N|N|ROOT_SOURCE_AUI|RXNORM|AUI||&lt;SRUI&gt;||<br>
+  <br>
+  <br>
+# Do NDDF CUI-CUI rels<br>
+Schema|classes_atoms1|SRC_ATOM_ID|SOURCE|TERMGROUP|CODE|STATUS|TOBERELEASED|RELEASED|ATOM_NAME|SUPPRESSIBLE|SOURCE_AUI|SOURCE_CUI|SOURCE_DUI|LANGUAGE|ORDER_ID|RXAUI<br>
+Schema|classes_atoms2|SRC_ATOM_ID|SOURCE|TERMGROUP|CODE|STATUS|TOBERELEASED|RELEASED|ATOM_NAME|SUPPRESSIBLE|SOURCE_AUI|SOURCE_CUI|SOURCE_DUI|LANGUAGE|ORDER_ID|RXAUI<br>
+Schema|nddf_rels_byrxaui|RXAUI1|REL|RXAUI2|RELA|SRUI|SUPPRESS<br>
+  <br>
+Scan|nddf_rels_byrxaui|where &lt;RXAUI1&gt; matches
+classes_atoms1.RXAUI &amp;&amp; &lt;RXAUI2&gt; matches
+classes_atoms2.RXAUI<br>
+&nbsp;&nbsp;&nbsp;
+line_number|S|classes_atoms1.SRC_ATOM_ID|&lt;REL&gt;|&lt;RELA&gt;|classes_atoms2.SRC_ATOM_ID|NDDF_2005_12_28|NDDF_2005_12_28|R|Y|N|&lt;SUPPRESS&gt;|SOURCE_ATOM_ID||SOURCE_ATOM_ID||&lt;SRUI&gt;||<br>
+  <br>
+#-----------------------------------------------------------------------------<br>
+  <br>
+# RXNORM mergefacts<br>
+Dest|rxn/mergefacts.src<br>
+SourceDir|/d1/project/rxnrrf/200601/rxn<br>
+Copy|rxn/merge_src<br>
+SourceDir|/d1/project/rxnrrf/200601|recursive<br>
+  <br>
+# Merge each RXNORM RXAUI into its RXCUI<br>
+Scan|CONSO_RXN*<br>
+&nbsp;&nbsp;&nbsp;
+&lt;RXAUI&gt;|SY|&lt;RXCUI&gt;|RXNORM_06AA_060120F||N|N|RXNORM-CID|ROOT_SOURCE_AUI|RXNORM|ROOT_SOURCE_CUI|RXNORM|<br>
+  <br>
+# Merge between RXNORM and other updated sources by their RXCUIs<br>
+Schema|classes_atoms1|SRC_ATOM_ID|SOURCE|TERMGROUP|CODE|STATUS|TOBERELEASED|RELEASED|ATOM_NAME|SUPPRESSIBLE|SOURCE_AUI|SOURCE_CUI|SOURCE_DUI|LANGUAGE|ORDER_ID|RXAUI<br>
+  <br>
+Scan|CONSO_upd*|where &lt;RXCUI&gt; matches CONSO_RXN*.RXCUI &amp;&amp;
+&lt;RXAUI&gt; matches classes_atoms1.RXAUI<br>
+&nbsp;&nbsp;&nbsp;
+classes_atoms1.SRC_ATOM_ID|SY|&lt;RXCUI&gt;|RXNORM_06AA_060120F||N|N|RXNORM-CID|SOURCE_ATOM_ID||ROOT_SOURCE_CUI|RXNORM|<br>
+  <br>
+# Merge between RXNORM and non-updated sources by their RXCUIs<br>
+Scan|CONSO_withAUI*|where &lt;RXCUI&gt; matches CONSO_RXN*.RXCUI<br>
+&nbsp;&nbsp;&nbsp;
+&lt;AUI&gt;|SY|&lt;RXCUI&gt;|RXNORM_06AA_060120F||N|N|RXNORM-CID|AUI||ROOT_SOURCE_CUI|RXNORM|<br>
+  <br>
+# Merge atoms within and among other updated sources by their RXCUIs<br>
+Schema|classes_atoms1|SRC_ATOM_ID|SOURCE|TERMGROUP|CODE|STATUS|TOBERELEASED|RELEASED|ATOM_NAME|SUPPRESSIBLE|SOURCE_AUI|SOURCE_CUI|SOURCE_DUI|LANGUAGE|ORDER_ID|RXAUI<br>
+Schema|classes_atoms2|SRC_ATOM_ID|SOURCE|TERMGROUP|CODE|STATUS|TOBERELEASED|RELEASED|ATOM_NAME|SUPPRESSIBLE|SOURCE_AUI|SOURCE_CUI|SOURCE_DUI|LANGUAGE|ORDER_ID|RXAUI<br>
+Schema|updaui_merges|RXAUI1|RXAUI2<br>
+  <br>
+Scan|updaui_merges|where &lt;RXAUI1&gt; matches classes_atoms1.RXAUI
+&amp;&amp; &lt;RXAUI2&gt; matches classes_atoms2.RXAUI<br>
+&nbsp;&nbsp;&nbsp;
+classes_atoms1.SRC_ATOM_ID|SY|classes_atoms2.SRC_ATOM_ID|RXNORM_06AA_060120F||N|N|RXNORM-CID|SOURCE_ATOM_ID||SOURCE_ATOM_ID||<br>
+  <br>
+# Merge between other updated sources and non-updated sources by their
+RXCUIs<br>
+Schema|updrxaui_metaaui|RXAUI|AUI<br>
+  <br>
+Scan|updrxaui_metaaui|where &lt;RXAUI&gt; matches classes_atoms1.RXAUI<br>
+&nbsp;&nbsp;&nbsp;
+&lt;AUI&gt;|SY|classes_atoms1.SRC_ATOM_ID|RXNORM_06AA_060120F||N|N|RXNORM-CID|AUI||SOURCE_ATOM_ID||<br>
+  <br>
+  <br>
+# Do SY rels between an RXNORM AUI1 and a Meta AUI<br>
+Scan|RXNREL_trans*|where &lt;STYPE1&gt; eq 'AUI' &amp;&amp; &lt;REL&gt;
+eq 'SY' &amp;&amp; &lt;SAB&gt; eq 'RXNORM' &amp;&amp; &lt;AUI2&gt; =~
+/^A/ &amp;&amp; &lt;RXAUI1&gt; matches CONSO_RXN*.RXAUI<br>
+&nbsp;&nbsp;&nbsp;
+&lt;RXAUI1&gt;|SY|&lt;AUI2&gt;|RXNORM_06AA_060120F||N|N|RXNORM-SYR|ROOT_SOURCE_AUI|RXNORM|AUI||<br>
+  <br>
+Schema|CONSO2_RXN*|RXCUI|LAT|x1|x2|x3|x4|x5|RXAUI|SAUI|SCUI|SDUI|SAB|TTY|CODE|STR|x6|SUPPRESS|x8|<br>
+  <br>
+# Do SY rels between an RXNORM AUI1 and an RXNORM AUI2<br>
+Scan|RXNREL_trans*|where &lt;STYPE1&gt; eq 'AUI' &amp;&amp; &lt;REL&gt;
+eq 'SY' &amp;&amp; &lt;SAB&gt; eq 'RXNORM' &amp;&amp; &lt;RXAUI1&gt;
+matches CONSO_RXN*.RXAUI &amp;&amp; &lt;AUI2&gt; !~ /^A/ &amp;&amp;
+&lt;AUI2&gt; matches CONSO2_RXN*.RXAUI<br>
+&nbsp;&nbsp;&nbsp;
+&lt;RXAUI1&gt;|SY|&lt;AUI2&gt;|RXNORM_06AA_060120F||N|N|RXNORM-SYR|ROOT_SOURCE_AUI|RXNORM|ROOT_SOURCE_AUI|RXNORM|<br>
+  <br>
+# Do SY rels between an RXNORM AUI1 and an other-updated-source AUI2<br>
+Schema|classes_atoms1|SRC_ATOM_ID|SOURCE|TERMGROUP|CODE|STATUS|TOBERELEASED|RELEASED|ATOM_NAME|SUPPRESSIBLE|SOURCE_AUI|SOURCE_CUI|SOURCE_DUI|LANGUAGE|ORDER_ID|RXAUI<br>
+Schema|REL_upd*|RXAUI1|RXAUI2<br>
+  <br>
+Scan|REL_upd*|where &lt;RXAUI1&gt; matches CONSO_RXN*.RXAUI &amp;&amp;
+&lt;RXAUI2&gt; matches classes_atoms1.RXAUI<br>
+&nbsp;&nbsp;&nbsp;
+&lt;RXAUI1&gt;|SY|classes_atoms1.SRC_ATOM_ID|RXNORM_06AA_060120F||N|N|RXNORM-SYR|ROOT_SOURCE_AUI|RXNORM|SOURCE_ATOM_ID||<br>
+  <br>
+# Do SY rels between an RXNORM AUI1 and a non-updated-source AUI2<br>
+Scan|RXNREL_trans*|where &lt;STYPE1&gt; eq 'AUI' &amp;&amp; &lt;REL&gt;
+eq 'SY' &amp;&amp; &lt;SAB&gt; eq 'RXNORM' &amp;&amp; &lt;RXAUI1&gt;
+matches CONSO_RXN*.RXAUI &amp;&amp; &lt;AUI2&gt; !~ /^A/ &amp;&amp;
+&lt;AUI2&gt; matches CONSO_withAUI*.RXAUI<br>
+&nbsp;&nbsp;&nbsp;
+&lt;RXAUI1&gt;|SY|CONSO_withAUI*.AUI|RXNORM_06AA_060120F||N|N|RXNORM-SYR|ROOT_SOURCE_AUI|RXNORM|AUI||<br>
+  <br>
+# [there are no SY rels with a non-RXNORM RXAUI1]<br>
+  </span></b><b style=""><span
+ style="font-size: 14pt; font-family: &quot;Courier New&quot;;"><br>
+  </span></b></blockquote>
+<hr width="100%">
+<table border="0" cols="2" width="100%">
+  <tbody>
+    <tr>
+      <td style="font-style: italic;" align="left" valign="top"><a
+ href="boot_camp_schedule.html">MEME Boot Camp Schedule</a></td>
+      <td align="right" valign="top">
+      <address> <font size="-1"> Contact: David D. Sherertz </font> </address>
+      <address><font size="-1">Created: 02/17/2006</font></address>
+      <address><font size="-1">Last Updated: 02/21/2006</font></address>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<!-- These comments are used by the What's new Generator --><!-- Changed On: 2006/02/02 --><!-- Changed by: Brian Carlsen --><!-- Change Note: MEME - Category - Topic --><!-- Fresh for: 1 month -->
+</body>
+</html>

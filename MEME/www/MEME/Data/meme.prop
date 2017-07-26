@@ -1,0 +1,182 @@
+#
+# The properties file is a releasable MEME4 component
+# Here is its version information.
+# 04/09/2003 (4.10.0): Added ActivityMonitor to services list
+# 03/04/2003 (4.9.0): Upped pool optimial sizes to 10
+#                     Added MergeEngineService to services list
+#   
+#
+meme.properties.file.release=4.0
+meme.properties.file.version=10.0
+meme.properties.file.version.date=10-Apr-2003
+meme.properties.file.version.authority=MEME Group
+
+# 
+# Server attributes
+#
+
+# The port the server should listen to and client should connect to
+meme.server.port=1526
+
+# The Java class implementing MIDDataSource
+# Used by gov.nih.nlm.meme.sql.MEMEDataSourceFactory
+meme.mid.connection.class=gov.nih.nlm.meme.sql.MIDConnection
+
+# The Java class used for the database driver
+# This requires the classes12_01.zip to be in the CLASSPATH
+meme.mid.driver.class=oracle.jdbc.driver.OracleDriver
+
+# The midsvcs service name that the server connects to by default
+meme.mid.service.default=editing-db
+
+# The midsvcs service host and port
+meme.mid.service.host=midns.nlm.nih.gov
+meme.mid.service.port=5125
+
+# The default username/password used 
+# for database authentication 
+meme.mid.user.default=mth
+meme.mid.password.default=
+
+# The list of Initializable classes to be bootstrapped
+# when the server starts up
+meme.server.bootstrap.classes=gov.nih.nlm.meme.server.MIDDataSourcePool,gov.nih.nlm.meme.server.ThreadPool,gov.nih.nlm.meme.server.HTTPRequestListener,gov.nih.nlm.meme.server.SessionTimeoutThread
+
+# The list of MEMEApplicationService classes which
+# provide services to the outside world
+meme.server.services.classes=gov.nih.nlm.meme.server.ShutdownServer,gov.nih.nlm.meme.server.CGIShutdownServer,gov.nih.nlm.meme.server.DummyService,gov.nih.nlm.meme.server.ReportsGenerator,gov.nih.nlm.meme.server.AdminService,gov.nih.nlm.meme.server.MEMERelaEditorService,gov.nih.nlm.meme.server.AuxiliaryDataService,gov.nih.nlm.meme.server.ActionService,gov.nih.nlm.meme.server.FinderService,gov.nih.nlm.meme.server.RxNormService,gov.nih.nlm.meme.server.CoreDataService,gov.nih.nlm.meme.server.WorklistService,gov.nih.nlm.meme.server.MergeEngineService,gov.nih.nlm.meme.server.ActivityMonitor
+
+# MID or MRD, an indicator of which type of DataSource
+# the schedule object should be connected to, leave blank
+# for no schedule
+meme.server.schedule.service=
+
+# The schedule's delay setting
+meme.server.schedule.delay=100000
+
+# The default session timeout
+meme.server.session.timeout=3600000
+
+# The email address of the MIDSVCS administrator
+meme.admin.midsvcs=bcarlsen\@apelon.com
+
+# The email address of the MID/MRD database administrator
+meme.admin.database=bcarlsen\@apelon.com
+
+# The email address of the NLM system administrator
+meme.admin.system=bcarlsen\@apelon.com
+
+# The email address of the MEME application server administrator
+meme.admin.meme=bcarlsen\@apelon.com
+
+# The mail server used by MEMEMail
+meme.smtp.host=mail.apelon.com
+
+# The default validate actions
+meme.validate.actions.atomic=false
+meme.validate.actions.molecular=false
+
+# 
+# Client parameters
+#
+
+# The host/port on which the client expects the server to be running.
+meme.client.server.host=localhost
+meme.client.server.port=1526
+
+# The class implementing the network protocol for connecting to
+# the server.
+meme.client.protocol.class=gov.nih.nlm.meme.client.HTTPRequestClient
+
+# Authority used by client
+meme.client.authority=
+
+#
+# ThreadPool attributes
+#
+
+# Optimal size for the pool
+meme.threadpool.size.optimal=10
+
+# Maximum size for the pool
+meme.threadpool.size.max=100
+
+# Flag indicating if pool is allowed to autoextend
+meme.threadpool.autoextend=true
+
+#
+# MIDDataSourcePool attributes
+#
+
+# Optimal size for the pool
+meme.datasourcepool.size.optimal=10
+
+# Maximum size for the pool
+meme.datasourcepool.size.max=100
+
+# Flag indicating if pool is allowed to auto extend
+meme.datasourcepool.autoextend=true
+
+#
+# MIDServices attributes
+# (currently these are hardcoded in MEMEConstants)
+#
+# The norm server host
+#meme.lvg.host=smis.nlm.nih.gov
+#meme.services.host=midns.nlm.nih.gov
+#meme.services.port=5125
+#meme.services.norm.port=16001
+#meme.services.luinorm.port=16002
+#
+# Instead, use lvg-server-host, lvg-server-port
+
+#
+# General attributes
+#
+
+# Directory (subdirectory of $MEME_HOME) containing relevant DTDs
+meme.dtd.directory=xml/
+
+# Directory (subdirectory of $MEME_HOME) containing the log file
+# null value means no log
+#meme.log.path=log/trace.log
+meme.log.path=
+
+# Path to properties file
+meme.properties.file=
+
+# Debugging flag
+meme.debug=false
+
+# Flag indicating whether or not user wants to use a GUI
+# or command line interface
+meme.view=false
+
+# Temp file directory
+meme.tmp.directory=/tmp
+
+#
+# Environment variables
+#
+
+# These really should be set by perl wrappers
+# using the -D switch when calling java
+# Should be set to $MEME_HOME - should be set by .pl wrapper
+# meme.env.MEME_HOME=/d5/MEME4
+# Should be set to $ORACLE_HOME - should be set by .pl wrapper
+# meme.env.ORACLE_HOME=/u/oracle/817
+
+
+#
+# Application Specific properties
+#   Properties starting with "meme.app." are implicitly
+#   allowable properties as considered by the MEMEToolkit
+#   this means that they do not need to be explicitly
+#   listed in MEMEConstants.ALLOWABLE_PROPERTIES or elsewhere.
+#
+
+#
+# Concept report properties
+#
+meme.app.reports.mid.url=/cgi-oracle-meowusers/concept-report-meme4.pl
+meme.app.reports.release.url=/cgi-oracle-meowusers/concept-report-release.pl

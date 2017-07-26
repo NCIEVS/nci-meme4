@@ -1,0 +1,322 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"><html><head>
+  
+  <meta http-equiv="Content-Type" content="text/html; charset=utf8">
+  <title>MEME - Developer Guides - Source Replacement</title>
+
+  
+  <meta name="author" content="Brian Carlsen">
+  
+  
+  <meta name="description" content="This document describes the source replacement algorithm for atoms, attributes, relationshpis, and context_relationships.">
+</head><body style="color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);" link="#3333ff" vlink="#999999" alink="#ff0000">
+      
+<center>   
+<h2>Source Replacement<br>
+</h2>
+  </center>
+
+<hr>&nbsp;<br>
+ 
+<h3>Overview</h3>
+
+<blockquote>This document describes the insertion process used to
+compute the portion of an update source that is the "same" as the
+previous version of that same source.&nbsp;
+For any source update there is a portion of the old verison that can be
+considered old or deleted, a portion of the new version that can be
+considered new or changed, and a portion of overlap between the two
+where the content is identical.&nbsp; This is illustrated in the
+following diagram.<br>
+  <br>
+  <div style="text-align: center;"><img src="/images/source_replacement.gif" title="" alt="Diagram of overlap" style="width: 350px; height: 172px;"><br>
+  </div>
+  <br>
+For each of the following core data types, we use an algorithm based primarily on the Metathesaurus UI for that data type.<br>
+
+  <ul><li><a href="#atom">Atom (AUI)<br>
+</a></li><li><a href="#attribute">Attribute (ATUI)<br>
+      </a></li>
+    <li><a href="#relationship">Relationship (RUI)<br>
+      </a></li>
+    <li><a href="#context_relationship">Context Relationship (RUI)</a></li>
+</ul>For more on how these various UIs are assigned, see the <a href="meta_ui_semantics.html">Metathesaurus UI Semantics</a> page.<br>
+</blockquote>
+
+<h3><a name="atom"></a>Atoms</h3>
+
+<blockquote>&nbsp;The following table describes how source replacement is implemented for atoms.<br>
+&nbsp;<br>
+  <center>  
+<table cellpadding="2" cellspacing="2" border="1" width="90%">
+    <tbody>
+      <tr>
+        <td valign="top" align="left"><b>Data Type:</b><br>
+        </td>
+        <td valign="top">Atoms<br>
+        </td>
+      </tr>
+      <tr>
+        <td valign="top" align="left"><b>Description:</b><br>
+        </td>
+        <td valign="top">Two atoms that share AUIs across versions of a source are considered the same and are replaced..<br>
+        </td>
+      </tr>
+      <tr>
+        <td valign="top"><b>When:</b><br>
+        </td>
+        <td valign="top">Source replacement is computed for atoms in part 2 of the <span style="font-family: monospace;">$MEME_HOME/bin/load_section.csh</span> script.&nbsp; It happens just after AUIs are assigned and just before the core table insert call.&nbsp; <br>
+        </td>
+      </tr>
+      <tr>
+        <td valign="top"><b>Replacement Algorithm:</b></td><td valign="top">This is the algorithm used to compute source replacement:<br>
+<ul><li>Find <span style="font-family: monospace;">atom_id</span> values from <a href="/MEME/Training/tables/classes.html"><span style="font-family: monospace;">classes</span></a> where AUI values match those in <a href="/MEME/Training/tables/source_classes_atoms.html"><span style="font-family: monospace;">source_classes_atoms</span></a> and where the <a href="/MEME/Training/tables/classes.html"><span style="font-family: monospace;">classes</span></a> row is attributed to the previous version of the source and the <a href="/MEME/Training/tables/source_classes_atoms.html"><span style="font-family: monospace;">source_classes_atoms</span></a> is attributed to the current version of the source (based on data in <a href="/MEME/Training/tables/source_version.html"><span style="font-family: monospace;">source_version</span></a>).</li><li>Store this list of <span style="font-family: monospace;">atom_id</span>s in <a href="/MEME/Training/tables/source_replacement.html"><span style="font-family: monospace;">source_replacement</span></a>.</li><li>Create a temporary table of the <span style="font-family: monospace;">atom_id</span>s from <a href="/MEME/Training/tables/source_classes_atoms.html"><span style="font-family: monospace;">source_classes_atoms</span></a> and <a href="/MEME/Training/tables/classes.html"><span style="font-family: monospace;">classes</span></a> from the first step.&nbsp; Create an index on this table and then use it to update <a href="/MEME/Training/tables/source_id_map.html"><span style="font-family: monospace;">source_id_map</span></a> so that the <span style="font-family: monospace;">source_atom_id</span>s from the current file actually map to the <span style="font-family: monospace;">atom_id</span>s in <a href="/MEME/Training/tables/classes.html"><span style="font-family: monospace;">classes</span></a> instead of the atom_ids in <a href="/MEME/Training/tables/source_classes_atoms.html"><span style="font-family: monospace;">source_classes_atoms</span></a>.</li><li>Delete <a href="/MEME/Training/tables/source_classes_atoms.html"><span style="font-family: monospace;">source_classes_atoms</span></a> entries that overlap with classes according to the algorithm in the first step.</li>
+          <li>Update <a href="/MEME/Training/tables/classes.html"><span style="font-family: monospace;">classes</span></a> entries that overlap with <a href="/MEME/Training/tables/source_classes_atoms.html"><span style="font-family: monospace;">source_classes_atoms</span></a>
+according to the algorihtm in the first step; set the source values to
+be the current version of the source instead of the previous version of
+the source (report this change to MRD).</li>
+          <li>Load <a href="/MEME/Training/tables/mom_safe_replacement.html" style="font-family: monospace;">mom_safe_replacement</a> with all of the overlapping <span style="font-family: monospace;">atom_id</span> values from <a href="/MEME/Training/tables/classes.html"><span style="font-family: monospace;">classes</span></a>.&nbsp; Use the <span style="font-family: monospace;">atom_id</span> for the <span style="font-family: monospace;">old_atom_id</span> and <span style="font-family: monospace;">new_atom_id</span> values (e.g. each atom is a replacement of itself).<br>
+          </li>
+
+</ul>
+        </td>
+      </tr>
+      
+      <tr>
+        <td valign="top"><b>Quality Assurance:</b><br>
+        </td>
+        <td valign="top">We run a process
+to generate qa counts of the data in the source tables.&nbsp; These
+calculations are made before the source replacement step is done.&nbsp;
+It is expected that the number of rows deleted from the new version of
+the source will exactly match the number of rows whose source values
+were updated from the old verision to the new version.&nbsp; In this
+way, these conservation of mass QA queries should validate the source
+replacement algorihtm.</td></tr></tbody></table></center>
+ &nbsp;<br>
+</blockquote>
+
+
+
+
+
+
+<h3><a name="attributes"></a>Attributes</h3>
+
+<blockquote>&nbsp;The following table describes how source replacement is implemented for attributes.<br>
+&nbsp;<br>
+&nbsp;
+  <center>  
+<table cellpadding="2" cellspacing="2" border="1" width="90%">
+    <tbody>
+      <tr>
+        <td valign="top" align="left"><b>Data Type:</b><br>
+        </td>
+        <td valign="top">Attributes<br>
+        </td>
+      </tr>
+      <tr>
+        <td valign="top" align="left"><b>Description:</b><br>
+        </td>
+        <td valign="top">Two attributes that share (<span style="font-family: monospace;">ATUI</span>, <span style="font-family: monospace;">atom_id</span>) across versions of a source are considered the same and are replaced..<br>
+        </td>
+      </tr>
+      <tr>
+        <td valign="top"><b>When:</b><br>
+        </td>
+        <td valign="top">Source replacement is computed for attributes in part 2 of the <span style="font-family: monospace;">$MEME_HOME/bin/load_section.csh</span> script.&nbsp; It happens just after ATUIs are assigned and just before the core table insert call.&nbsp; <br>
+        </td>
+      </tr>
+      <tr>
+        <td valign="top"><b>Replacement Algorithm:</b></td><td valign="top">This is the algorithm used to compute source replacement:<br>
+<ul><li>Find <span style="font-family: monospace;">attribute_id</span> values from <a href="/MEME/Training/tables/attributes.html"><span style="font-family: monospace;">attributes</span></a> where <span style="font-family: monospace;">ATUI</span>, <span style="font-family: monospace;">atom_id</span> values match those in <a href="/MEME/Training/tables/source_attributes.html"><span style="font-family: monospace;">source_attributes</span></a> and where the <a href="/MEME/Training/tables/attributes.html"><span style="font-family: monospace;">attributes</span></a> row is attributed to the previous version of the source and the <a href="/MEME/Training/tables/source_attributes.html"><span style="font-family: monospace;">source_attributes</span></a> is attributed to the current version of the source (based on data in <a href="/MEME/Training/tables/source_version.html"><span style="font-family: monospace;">source_version</span></a>).</li><li>Store this list of <span style="font-family: monospace;">attribute_id</span>s in <a href="/MEME/Training/tables/source_replacement.html"><span style="font-family: monospace;">source_replacement</span></a>.</li><li>Create a temporary table of the overlapping <span style="font-family: monospace;">attribute_id</span>s from <a href="/MEME/Training/tables/attributes.html"><span style="font-family: monospace;">attributes</span></a> computed in the first step.&nbsp; Index the table.</li><li>Delete&nbsp;<a href="/MEME/Training/tables/source_attributes.html"><span style="font-family: monospace;">source_attributes</span></a> entries that overlap with <a href="/MEME/Training/tables/attributes.html"><span style="font-family: monospace;">attributes</span></a> according to the algorithm in the first step.</li><li>Delete the <a href="/MEME/Training/tables/source_stringtab.html"><span style="font-family: monospace;">source_stringtab</span></a> entries for long attributes removed in the previous step.<br>
+          </li>
+<li>Update&nbsp;<a href="/MEME/Training/tables/attributes.html"><span style="font-family: monospace;">attributes</span></a> entries that overlap with <a href="/MEME/Training/tables/source_attributes.html"><span style="font-family: monospace;">source_attributes</span></a>
+according to the algorihtm in the first step; set the source values to
+be the current version of the source instead of the previous version of
+the source (report this change to MRD).</li></ul><br>
+A slightly different set of rules applies to unreleasable attributes
+like CONTEXTs.&nbsp; This is because unreleasable attributes are not
+assigned ATUI values, and so an ATUI comparison would yield no
+results.&nbsp; Instead, we compare <span style="font-family: monospace;">atom_id</span>, <span style="font-family: monospace;">hashcode</span>, <span style="font-family: monospace;">attribute_value</span>, and <span style="font-family: monospace;">attribute_level</span>.&nbsp;
+This is considered adequate to meet our needs for data that will not be
+released anyway. Attributes are the only core data type with this
+exception as there is not a significant amount of unreleasable
+source-asserted data from the other core data types.<br>
+
+        </td>
+      </tr>
+      
+      <tr>
+        <td valign="top"><b>Quality Assurance:</b><br>
+        </td>
+        <td valign="top">We run a process
+to generate qa counts of the data in the source tables.&nbsp; These
+calculations are made before the source replacement step is done.&nbsp; It
+is expected that the number of rows deleted from the new version of the
+source will exactly match the number of rows whose source values were
+updated from the old verision to the new version.&nbsp; In this way, these
+conservation of mass QA queries should validate the source replacement
+algorihtm.</td></tr></tbody></table></center>
+  <br>
+<center></center>
+
+  <br>
+</blockquote>
+
+
+
+
+
+
+
+<h3><a name="relationships"></a>Relationships</h3>
+
+<blockquote>&nbsp;The following table describes how source replacement is implemented for relationships.<br>
+  <br>
+  <center>  
+<table cellpadding="2" cellspacing="2" border="1" width="90%">
+    <tbody>
+      <tr>
+        <td valign="top" align="left"><b>Data Type:</b><br>
+        </td>
+        <td valign="top">Relationships<br>
+        </td>
+      </tr>
+      <tr>
+        <td valign="top" align="left"><b>Description:</b><br>
+        </td>
+        <td valign="top">Two relationships that share (<span style="font-family: monospace;">RUI</span>, <span style="font-family: monospace;">atom_id_1</span>, <span style="font-family: monospace;">atom_id_2</span>, <span style="font-family: monospace;">relationship_group</span>) across versions of a source are considered the same and are replaced..<br>
+        </td>
+      </tr>
+      <tr>
+        <td valign="top"><b>When:</b><br>
+        </td>
+        <td valign="top">Source replacement is computed for relationships in part 2 of the <span style="font-family: monospace;">$MEME_HOME/bin/load_section.csh</span> script.&nbsp; It happens just after RUIs are assigned and just before the core table insert call.&nbsp; <br>
+        </td>
+      </tr>
+      <tr>
+        <td valign="top"><b>Replacement Algorithm:</b></td><td valign="top">This is the algorithm used to compute source replacement:<br>
+<ul><li>Find <span style="font-family: monospace;">relationship_id</span> values from <a href="/MEME/Training/tables/relationships.html"><span style="font-family: monospace;">relationships</span></a> where <span style="font-family: monospace;">RUI</span>, <span style="font-family: monospace;">atom_id_1</span>, <span style="font-family: monospace;">atom_id_2</span>, <span style="font-family: monospace;">relationship_group</span> values match those in <a href="/MEME/Training/tables/source_relationships.html"><span style="font-family: monospace;">source_relationships</span></a> and where the&nbsp;<a href="/MEME/Training/tables/relationships.html"><span style="font-family: monospace;">relationships</span></a> row is attributed to the previous version of the source and the <a href="/MEME/Training/tables/sourcE_relationships.html"><span style="font-family: monospace;">source_relationships</span></a>&nbsp; is attributed to the current version of the source (based on data in <a href="/MEME/Training/tables/source_version.html"><span style="font-family: monospace;">source_version</span></a>).</li><li>Store this list of <span style="font-family: monospace;">relationship_id</span>s in <a href="/MEME/Training/tables/source_replacement.html"><span style="font-family: monospace;">source_replacement</span></a>.</li><li>Create a temporary table of the overlapping <span style="font-family: monospace;">relationship_id</span>s from&nbsp;<a href="/MEME/Training/tables/relationships.html"><span style="font-family: monospace;">relationships</span></a> computed in the first step.&nbsp; Index the table.</li><li>Delete&nbsp;<a href="/MEME/Training/tables/source_relationships.html"><span style="font-family: monospace;">source_relationships</span></a> entries that overlap with <a href="/MEME/Training/tables/relationships.html"><span style="font-family: monospace;">relationships</span></a> according to the algorithm in the first step.</li><li>Update&nbsp;<a href="/MEME/Training/tables/relationships.html"><span style="font-family: monospace;">relationships</span></a> entries that overlap with&nbsp;<a href="/MEME/Training/tables/source_relationships.html"><span style="font-family: monospace;">source_relationships</span></a>
+according to the algorihtm in the first step; set the source values to
+be the current version of the source instead of the previous version of
+the source (report this change to MRD).</li></ul>
+        </td>
+      </tr>
+      
+      <tr>
+        <td valign="top"><b>Quality Assurance:</b><br>
+        </td>
+        <td valign="top">We run a process
+to generate qa counts of the data in the source tables.&nbsp; These
+calculations are made before the source replacement step is done.&nbsp; It
+is expected that the number of rows deleted from the new version of the
+source will exactly match the number of rows whose source values were
+updated from the old verision to the new version.&nbsp; In this way, these
+conservation of mass QA queries should validate the source replacement
+algorihtm.</td></tr></tbody></table></center>
+
+
+  <br>
+
+  
+  
+  <center>  
+</center>
+  
+
+
+  
+
+  
+</blockquote>
+
+
+
+
+
+<center>  
+</center>
+
+
+
+
+
+
+   
+<h3><a name="context_relationships"></a>Context Relationships<br>
+</h3>
+
+<blockquote>&nbsp;The following table describes how source replacement is implemented for context relationships.<br>
+  <br>
+  <center>  
+<table cellpadding="2" cellspacing="2" border="1" width="90%">
+    <tbody>
+      <tr>
+        <td valign="top" align="left"><b>Data Type:</b><br>
+        </td>
+        <td valign="top">Context Relationships<br>
+        </td>
+      </tr>
+      <tr>
+        <td valign="top" align="left"><b>Description:</b><br>
+        </td>
+        <td valign="top">Two context relationships that share (<span style="font-family: monospace;">RUI</span>, <span style="font-family: monospace;">parent_treenum</span>, <span style="font-family: monospace;">relationship_group</span>, <span style="font-family: monospace;">atom_id_1</span>, <span style="font-family: monospace;">atom_id_2</span>) across versions of a source are considered the same and are replaced..<br>
+        </td>
+      </tr>
+      <tr>
+        <td valign="top"><b>When:</b><br>
+        </td>
+        <td valign="top">Source replacement is computed for context relationships in part 2 of the <span style="font-family: monospace;">$MEME_HOME/bin/load_section.csh</span> script.&nbsp; It happens just after RUIs are assigned and just before the core table insert call.&nbsp; <br>
+        </td>
+      </tr>
+      <tr>
+        <td valign="top"><b>Replacement Algorithm:</b></td><td valign="top">This is the algorithm used to compute source replacement:<br>
+<ul><li>Find <span style="font-family: monospace;">relationship_id</span> values from <a href="/MEME/Training/tables/context_relationships.html"><span style="font-family: monospace;">context_relationships</span></a> where <span style="font-family: monospace;">RUI</span>, <span style="font-family: monospace;">parent_treenum</span>, <span style="font-family: monospace;">relationship_group</span>, <span style="font-family: monospace;">atom_id_1</span>, <span style="font-family: monospace;">atom_id_2</span> values match those in <a href="/MEME/Training/tables/source_context_relationships.html"><span style="font-family: monospace;">source_context_relationships</span></a> and where the&nbsp;<a href="/MEME/Training/tables/context_relationships.html"><span style="font-family: monospace;">context_relationships</span></a> row is attributed to the previous version of the source and the&nbsp;<a href="/MEME/Training/tables/source_context_relationships.html"><span style="font-family: monospace;">source_context_relationships</span></a>&nbsp; is attributed to the current version of the source (based on data in <a href="/MEME/Training/tables/source_version.html"><span style="font-family: monospace;">source_version</span></a>).</li><li>Store this list of <span style="font-family: monospace;">relationship_id</span>s in <a href="/MEME/Training/tables/source_replacement.html"><span style="font-family: monospace;">source_replacement</span></a>.</li><li>Create a temporary table of the overlapping <span style="font-family: monospace;">relationship_id</span>s from&nbsp;<a href="/MEME/Training/tables/context_relationships.html"><span style="font-family: monospace;">context_relationships</span></a> computed in the first step.&nbsp; Index the table.</li><li>Delete <a href="/MEME/Training/tables/source_context_relationships.html"><span style="font-family: monospace;">source_context_relationships</span></a> entries that overlap with&nbsp;<a href="/MEME/Training/tables/context_relationships.html"><span style="font-family: monospace;">context_relationships</span></a> according to the algorithm in the first step.</li><li>Update&nbsp;<a href="/MEME/Training/tables/context_relationships.html"><span style="font-family: monospace;">context_relationships</span></a> entries that overlap with <a href="/MEME/Training/tables/source_context_relationships.html"><span style="font-family: monospace;">source_context_relationships</span></a>
+according to the algorihtm in the first step; set the source values to
+be the current version of the source instead of the previous version of
+the source (report this change to MRD).</li></ul>
+        </td>
+      </tr>
+      
+      <tr>
+        <td valign="top"><b>Quality Assurance:</b><br>
+        </td>
+        <td valign="top">We run a process
+to generate qa counts of the data in the source tables.&nbsp; These
+calculations are made before the source replacement step is done.&nbsp; It
+is expected that the number of rows deleted from the new version of the
+source will exactly match the number of rows whose source values were
+updated from the old verision to the new version.&nbsp; In this way, these
+conservation of mass QA queries should validate the source replacement
+algorihtm.</td></tr></tbody></table></center>
+. <br>
+
+  </blockquote>
+
+<center>  
+</center>
+
+<hr width="100%">   
+<table border="0" cols="2" width="100%" nosave="">
+
+   <tbody>
+      <tr nosave="">
+   <td align="left" valign="top" nosave="">               
+      <address> <a href="/MEME">MEME Home</a></address>
+   </td>
+    <td align="right" valign="top" nosave="">               
+      <address> <font size="-1">Contact: <a href="mailto:bcarlsen@apelon.com">Brian A. Carlsen</a></font></address>
+                  
+      <address> <font size="-1">Created: 09/15/2004</font></address>
+                  
+      <address> <font size="-1">Last Updated: 09/24/2004</font></address>
+   </td>
+   </tr>
+  </tbody>  
+</table>
+<!-- These comments are used by the What's new Generator --><!-- Changed On: 2004/09/24 --><!-- Changed by: Brian Carlsen --><!-- Change Note: MEME - Developer Guides - Source Replacement --><!-- Fresh for: 1 month -->
+
+
+
+
+</body></html>

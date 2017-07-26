@@ -1,0 +1,156 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+   <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+   <META NAME="GENERATOR" CONTENT="Mozilla/4.0b2 (X11; I; SunOS 5.4 sun4m) [Netscape]">
+</HEAD>
+<BODY>
+
+<H1>
+Demotions</H1>
+
+<BR>Demotion reports generally involve PAIRS of concepts containing multiple
+terms (a.k.a. &quot;atoms&quot;). Occasionally, N-way concept demotions
+may occur, appearing as concept TRIPLES or worse on your reports.&nbsp;
+<BR>
+<BR>Fundamentally, a demotion can be defined as a failed/banned/prohibited
+merger of 2 ATOMS in DIFFERENT concepts which would have unified both CONCEPTS
+into a SINGLE one; instead, the matching fact (saying that atom A is identical
+to or a strong lexical variant of atom A') is &quot;demoted&quot; by our
+MID merging engine into an UNapproved [O] Relationship (UR) between these
+2 concepts. In paper concept reports, that demoted RELATIONSHIP (UR) is
+marked with a leading &quot;D&quot; or &quot;d&quot;; in addition, the
+demoted &quot;matching&quot; ATOMS in each concept are flagged with a leading
+&quot;D&quot; or &quot;d&quot;. These flags indicate the quality of the
+failed matching fact (D=exact match; d=lexical variant match); exact &quot;D&quot;
+match demotion concepts MUST become &quot;multiple meaning&quot; concepts
+upon Metathesaurus release, if the concepts remain unmerged.&nbsp;
+<BR>
+<BR>It's easy to identify which ATOMS matched! The hard part is to understand
+why the CONCEPT merge was prohibited.&nbsp;
+<BR>
+<BR>Let's take a simple case. One vocabulary source says atom A is synonymous
+with (or a lexical variant of) atom B, while another source says atom A'
+has a NON- synonymous AR relationship (RT/BT/NT) with atom B'. One &quot;source&quot;
+is actually the current state of the MID, often the previously released
+Metathesaurus. Atoms A and A' are identical or strong LV's, as are atoms
+B and B' -- hence a conflict that the engine cannot resolve!!! By random
+order of matching facts in the engine, A' and B' will either merge or demote,
+yielding two concepts. One concept, A-B-A' or A-B-B', a triple, will have
+a UR relationship to the concept with the remaining atom, either B' or
+A', respectively. This UR link is the so-called DEMOTION, visible from
+the concept on EITHER side of the UR relationship. In this case of conflicting
+relationships, the two concepts will also have an AR relationship inherited
+from the A'-to-B' source rel.&nbsp;
+<BR>
+<BR>First, a history lesson! From the school of hard knocks and experience
+since Meta-1.0 (=Meta90), we all learned to engineer a CONSERVATIVE MID
+merging engine. If there is any evidence that 2 concepts should NOT merge,
+even if that evidence is dated or WRONG, then don't merge, DEMOTE! Even
+today, it's still easier to merge 2 concepts in the editing interface than
+to split a single concept into 2 or more concepts; the latter requires
+dissecting atoms, redistributing MANY relationships, and reassigning semantic
+types ... all of which must be done on-line, at great human resource cost.&nbsp;
+<BR>
+<BR>To detect evidence that 2 concepts should be demoted instead of merging,
+the current MID merging engine has a collection of rules (a.k.a. Merge
+Inhibitors) which are toggled on or off in complex patterns (like bits
+in a byte) while sets of matching facts get processed in a stepwise manner.
+Frequently, custom rules are written for processing specific new sources
+and/or their termtypes.&nbsp;
+<BR>
+<BR>Generic Merge Inhibitors consist of rules like --&nbsp;
+<BR>
+<BR>* Don't merge 2 &quot;approved&quot; concepts (i.e., with previous released
+Meta atoms)&nbsp;
+<BR>
+<BR>* Don't merge 2 concepts containing MSH97 atoms * Don't merge 2 concepts
+containing other same-source atoms&nbsp;
+<BR>
+<BR>* Don't break strong MSH97 AR's (i.e., OK to merge across weak [o] AR's)
+* Don't break strong other source AR's (i.e., OK to merge across [o] AR's)&nbsp;
+<BR>
+<BR>* Don't merge a MSH97 D#1/Q#1/C#1 concept with a MSH97 D#2/Q#2/C#2 concept&nbsp;
+<BR>
+<BR>* Don't merge a MSH96/MH D#1 concept with a MSH97/XX D#2 concept&nbsp;
+<BR>
+<BR>Special Merge Inhibitors may have exceptions for specific sources or identical
+source code merges. During MID merge engine processing, various patterns
+of these M.I.'s may be toggled on or off at various points in the process,
+in order to achieve the desired semantic results MOST OF THE TIME.&nbsp;
+<BR>
+<BR>Although archeology can be interesting, you may never be able to unravel
+all the mysteries of why a demotion actually did occur, given very limited
+evidence in your concept reports. (We gurus need to explore database audit
+trails that tell us which merge inhibitors were active and when.) So, let's
+provide some caveats and guidelines!&nbsp;
+<BR>
+<BR>1) STOP LIVING IN THE PAST! Don't obsess about why, since the engine is
+conservative and might have been WRONG about failing to merge the concepts.&nbsp;
+<BR>
+<BR>2) Whether a pair or a gaggle of demoted concepts, EXAMINE EACH ONE IN
+THE GROUP INDIVIDUALLY FOR CONTENT ERRORS. These concepts were excluded
+from other editing sets because they needed to be paired up properly. They
+must be reviewed for all the usual problems (STY, multiple meanings, merge
+errors, PIR's, etc.) for the sources they contain. You may need to familiarize
+yourself with important issues relevant to reviewing these &quot;alien&quot;
+sources.&nbsp;
+<BR>
+<BR>3) DETERMINE IF THESE CONCEPTS SHOULD BE MERGED AS IS! Would doing so violate
+MeSH semantics or the semantics of other sources; for example, we usually
+prohibit merging atoms from the current year MeSH if those atoms have different
+MeSH codes (D#,Q#,C#) -- this is often the case with other sources as well,
+but MeSH is inviolate and generally triumphs in disputes. Most sources
+are incompletely specified, having &quot;entry term&quot; relationships
+that may be synonymous or not; the engine may have erred on the side of
+caution, given incomplete knowledge. If your HUMAN review detects NO compelling
+reasons to prohibit marriage, then merge the concepts ... the demotion
+was too cautious or frankly wrong!&nbsp;
+<BR>
+<BR>4) DETERMINE IF BRAIN SURGERY IS NECESSARY! Sometimes, as in routine editing,
+concepts will need to be split due to incorrect automatic merging. This
+may reflect multiple meanings, other subtleties, or simply MID merging
+engine snafus. For demotion concepts, you may need to split out certain
+atoms and merge them into the other paired concept, keeping the 2 concepts
+separate. Or splitting out and remerging may need to be bidirectional to
+repair BOTH concepts. In other cases, you may need to create yet another
+concept with selected atoms that connote an entirely different meaning;
+then, you may be able to merge the original pair of demoted concepts. The
+nasty part of all this is cleaning up the AR and UR rels, moving them between
+the proper pairs of concepts.&nbsp;
+<BR>
+<BR>5) DOUBLE-CHECK YOUR CHANGES! Whenever you do any splitting and/or remerging,
+print out the concept report(s) when you are done. Double-check the atoms,
+relationships, and other editable content to verify that the post-change
+state of affairs is correctly what you intended. Unforeseen messes may
+crop up after splits. Don't forget about atoms that may be hidden in the
+LV or string classes. If you have a problem finding something on-line but
+it still appears on the concept report, then it's still there. Ask for
+help if you are unsure.&nbsp;
+<BR>
+<BR>6) DON'T WORRY, BE HAPPY!!! Demotion concept review is the most interesting
+and challenging editing you'll encounter in this project. It's like cramming
+for final exams, helping you recall the details and put it all together.&nbsp;
+<BR>
+<BR>Good luck! :-)&nbsp;
+<BR>
+<BR>The demotion reports have been assembled as best as possible to pair up
+demoted concepts so they print adjacent to one another.&nbsp;&nbsp; This
+facilitates comparing the concepts to see whether they can be merged, and
+deciding on paper which atoms and rels to move (or merge) as needed.&nbsp;
+<BR>
+<BR>NOTE: The reports may contain 3-or-more-way demotions, apparent from the
+number of concepts with &quot;D&quot; or &quot;d&quot; flags in the UR
+slot. They should be printed together in DESCENDING ID# order.&nbsp;
+<BR>
+<BR>WARNING: Due to sort order, a given concept may appear in multiple places
+in a single report, or in different editor's reports. Since different demotions
+may involve concepts A, B, and C, e.g. A-B and B-C, concept B may appear
+twice in the same set or in different editor's sets. The last editor to
+change and stamp a concept wins! This means possible collisions, disagreements,
+and/or undoing of previous work! It is VERY important to study what is
+on-line (i.e., CURRENT!) carefully when editing demotions -- your paper
+report may be out of date!!!&nbsp;
+
+</BODY>
+</HTML>

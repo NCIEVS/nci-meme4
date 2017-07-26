@@ -1,0 +1,199 @@
+<HTML>
+<HEAD>
+<TITLE>ICD Editing Tips</TITLE></HEAD>
+<BODY>
+<H3 ALIGN="CENTER">ICD Editing Tips</H3>
+<p>International Classification of Diseases
+<UL>
+<LI><B>ICD</B>
+<UL>
+<LI>When a concept in ICD has an &quot;and&quot; in the concept name, it
+generally means &quot;or&quot; for editing purposes. For example, ICD has the
+concept &quot;Personal history of allergy to serum and vaccine. Read has the
+concept &quot;Personal history of serum or vaccine allergy&quot;. After
+examination, it has been determined that these two mean the same thing and can
+be merged.<BR></LI></UL><BR>
+<UL>
+<LI>Most ICD terms refer to diseases and not organisms.</LI></UL><BR>
+<UL>
+<LI>ICD 2 digit codes refer to procedures and 3 digit codes refer to diseases.</LI></UL><BR>
+<UL>
+<LI>ICD V codes should get the STYs of Finding or Population Group. The V codes
+should never get any procedure STY. (Added 6/8/99)</LI></UL><BR>
+<UL>
+<LI>Different V codes should not be merged into the same concept.  Here is an
+example of two concept types that were merged together and should not have been.
+(Added 6/8/99)<BR>Concept #1 is Contact with communicable diseases (V##). 
+Concept #2 is Contact with unspecified communicable disease (V##.#). Even though
+these concepts appear to follow the X can be merged with X,NOS rule, these
+concepts should be kept separate. Concept #1 is plural and means class. Concept
+#2 is singular and means one disease (that is just not specified).</LI></UL>
+<br><UL>
+<li>ICD E codes
+<pre>
+The ICD9 E codes all have source codes that begin with the letter E and are a 
+special part of ICD9. According to the ICD documentation, the E codes are:
+
+"This section is provided to permit the classification of environmental events, 
+circumstances, and conditions as the cause of injury, poisoning, and other 
+adverse effects.  Where a code from this section is applicable, it is intended 
+that it shall be used in addition to a code from one of the main chapters of 
+ICD-9-CM, indicating the nature of the condition."
+
+IT has been decided by NLM, that the E codes should be taken on face value. They
+can either be referring to the actual injury or to the cause of the injury. If
+it refers to the cause, the type should be assigned based on the cause and not
+the injury that may result.
+
+When looking at a concept, take the head noun and assign an STY based on that.
+For example:
+
+Accident by Methane - the head noun is accident so the type would be Phen. or 
+Process
+Tylenol causing adverse effects - the head noun is Tylenol so the type would be
+Pharmacologic Substance
+Fire of Prairie - fire is the head noun and the type is Phen or Process
+
+
+
+
+Some examples:
+
+**The STY for this should be: Phenomenon or Process
+The accident itself is a phenomenon and not the actual injury.
+
+CN# 2994287  Accident caused by methane
+CUI     Concept Status is Reviewed
+STY 
+ATOMS
+             R []  Accident caused by methane [MTHICD9/ET/E923.2] 
+
+REVIEWED RELATED CONCEPT(S)
+[NSY]  Accident caused by explosive gas NOS [RCD99/OP||MTHICD9|S-DAB] {465531} C
+
+There are also 1 hidden regular relationships not shown here.
+
+------------------------------------------------------------------------------
+
+**The STY for this should be: Pharmacologic Substance
+All drugs or chemicals causing adverse effects get Pharm. Substance. We will not
+be double typing these. Only Pharmacologic Substance will be assigned.
+
+CN# 476926  Fibrinolysis-affecting drugs causing adverse effects in 
+therapeutic use
+CUI C0261808    Concept Status needs Review
+STY 
+ ATOMS
+                R []  Fibrinolysis-affecting drugs causing adverse 
+effects in therapeutic use [ICD2000/PT/E934.4] 
+                R         {Fibrinolysis-affecting drugs causing adverse effects 
+in therapeutic use [ICD91/PT/E934.4]} 
+---------------------------------------------------------------------------------
+
+
+***The STY for this should be: Injury or Poisoning
+THe act of burning is an injury.
+
+CN# 2994300  Burning or scalding by liquid metal
+CUI     Concept Status is Reviewed
+STY 
+ATOMS
+             R []  Burning or scalding by liquid metal [MTHICD9/ET/E924.0] 
+
+REVIEWED RELATED CONCEPT(S)
+[NSY]  Accidents caused by hot liquids and vapors,including steam 
+[RCDAE/OP||MTHICD9|S-DAB] {466546} C
+
+There are also 1 hidden regular relationships not shown here.
+
+-------------------------------------------------------------------------------
+
+**The STY for this should be:  Injury or Poisoning
+
+CN# 453483  Acid chemical burn
+CUI C0332694    Concept Status is Reviewed
+STY 
+SCT {noun/noun phrase}
+ATOMS
+             R []  Acid chemical burn [SNMI98/PT/M-11151] 
+             R []  Acid burn [SNM2/RT/M-11150] 
+             R       Burns, acid [ICD91/IT/E924.1] 
+             R       Burning by acid [MTHICD9/ET/E924.1] 
+
+CONTEXTS
+   SNMI98/PT1/M-11151
+   SNOMED International
+     MORPHOLOGY
+       TRAUMATIC ABNORMALITIES
+         THERMAL, COLD AND IRRADIATION INJURIES
+           BURN INJURIES
+            Acid chemical burn
+
+REVIEWED RELATED CONCEPT(S)
+[BRD]  Burns, Chemical [MSH2000/MH||E-GLH|S-TMC] {1007614} C
+[NSY]  Accident caused by caustic and corrosive substances [ICD2000/PT||MTHICD9|E-DAB] {476883} C
+
+There are 1 context relationships not shown here.
+
+There are also 2 hidden regular relationships not shown here.
+
+-------------------------------------------------------------------------------
+
+** The STY for this should be:  Phenonmenon or Process
+
+As of 20-jul-2000 20:34:36, this entry had no problems/issues.
+...............................................................................
+CN# 2994332  Overexposure to radar radiation from industrial radiofrequency 
+induction heaters
+CUI     Concept Status is Reviewed
+STY 
+ATOMS
+             R []  Overexposure to radar radiation from industrial 
+             radiofrequency induction heaters [MTHICD9/ET/E926.0] 
+
+REVIEWED RELATED CONCEPT(S)
+[NSY]  Exposure to radiofrequency radiation [ICD2000/PT||MTHICD9|E-DAB] 
+{476889} C
+
+There are also 1 hidden regular relationships not shown here.
+
+------------------------------------------------------------------------------
+
+** The STY for this should be: Daily or Recreational Activity
+
+CN# 2994365  Overexertion from strenuous movements in recreational activities
+CUI     Concept Status is Reviewed
+STY 
+ATOMS
+             R []  Overexertion from strenuous movements in recreational 
+             activities [MTHICD9/ET/E927] 
+
+REVIEWED RELATED CONCEPT(S)
+[NSY]  Overexertion and strenuous movements [RCD99/OP||MTHICD9|S-DAB] {476896} C
+
+There are also 1 hidden regular relationships not shown here.
+
+------------------------------------------------------------------------------
+
+** The STY for this should be: Phenomenon or Process
+CN# 2994386  Knocked down, stated as accidentally inflicted but not otherwise 
+specified
+CUI     Concept Status is Reviewed
+STY 
+ATOMS
+             R []  Knocked down, stated as accidentally inflicted but not 
+             otherwise specified [MTHICD9/ET/E928.9] 
+
+REVIEWED RELATED CONCEPT(S)
+[NSY]  Accidents [MSH2000/MH||MTHICD9|S-DAB] {996058} C
+
+There are also 1 hidden regular relationships not shown here.</pre></li></ul></LI></UL>
+
+
+<HR>
+<ADDRESS>Contact: <A HREF="mailto:lad@nlm.nih.gov">Laura Roth</A></ADDRESS>
+<ADDRESS>Created: August 30, 1999</ADDRESS>
+<ADDRESS>Last Updated: August 23, 2001</ADDRESS><!-- These comments are used by
+the What's new Generator --><!-- Changed On: 1999/08/30--><!-- Changed by: Laura
+Roth --><!-- Change Note: Information on editing CCPSS. --><!-- Fresh for: 2
+week --></BODY></HTML>

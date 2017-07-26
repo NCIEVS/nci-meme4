@@ -1,0 +1,8 @@
+
+README - 07/12/2005
+
+File                    Description
+----------------------  -------------------------------------------------
+*.java			Java code
+
+myKeystore		Keystore for building signed jar files

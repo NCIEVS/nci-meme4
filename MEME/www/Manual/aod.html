@@ -1,0 +1,108 @@
+
+<HTML>
+<HEAD>
+<TITLE>AOD Editing Tips</TITLE></HEAD>
+<BODY>
+<H3 ALIGN="CENTER">AOD  Editing Tips</H3>
+<UL>
+<LI>The first rule is to always <STRONG>respect the source</STRONG>.
+</LI></UL>
+<UL>
+<LI>AOD DE (descriptor) terms are AOD's equivalent to preferred terms in other
+sources. They are accompanied by hierarchies and in some case definitions.  For
+context information:
+<PRE>The treenumbers were used to create contexts for AOD, and also
+to default semantic types.
+Some of the contexts look a little strange, e.g. 
+in the example below, AOD provided a broader/narrower rel between
+&quot;amphibia&quot; and &quot;bufo toad.&quot;  However, &quot;bufo toad&quot; is only treed
+under &quot;bufotenine.&quot;  This made the default semantic type for
+&quot;bufo toad&quot; become &quot;pharmacologic substance,&quot; because it was inherited
+from its &quot;tree&quot; parent.   If there are questions about the 
+data, please consult the AOD printed books before assuming
+the inversion was wrong!
+
+CONTEXTS
+   AOD95/DE1/0000000678
+    Alcohol and Other Drug Thesaurus
+      AOD substance or product
+        hallucinogens of abuse
+          bufotenine
+         &lt;bufo toad&gt;
+          toad licking
+
+ NEEDS REVIEW RELATED CONCEPT(S)
+  [BRD]  Amphibia [MSH99/MH|AOD95|AOD95] {999741} C
+  [BRD]  Bufotenin [MSH99/MH|AOD95|AOD95] {1007466} C
+  [NRW]  toad licking [AOD95/ET|AOD95|AOD95] {1409231} C
+</PRE></LI></UL>
+<UL>
+<LI>AOD NP (Non-Preferred) terms may be synonymous with a DE or other NP term
+in AOD.  They are similar to entry terms in other sources. For insertion
+purposes, many NPs were not merged with their corresponding DEs since synonymy
+could not be guaranteed. RT? relationships were created so that editors could
+review for synonymy.</LI></UL>
+<UL>
+<LI>AOD ET (Other Preferred) terms are considered to be neither a descriptor or
+a synonym to a descriptor.  AOD's  use of &quot;OP&quot; for &quot;Other
+Preferred Term&quot; is inconsistent  with other sources (it is not the same
+thing as a READ OP term). AOD's use of OP appears to correspond to our use of ET
+(entry term)  so they have been changed  to ET terms  to avoid confusion. Unlike
+other sources,  AOD ETs can have context with them. For example:
+<PRE>CN# 1049476  Mink
+CUI C0026179	Concept Status needs Review
+STY Mammal   R
+SCT noun/noun phrase
+DEF [Do not release]
+  CSP94/PT|previously ANIMALS, CHORDATES, MAMMALS, CARNIVORES, MINK
+DEF [Release]
+  MSH99/MH|**REMOVED**
+ATOMS
+             R []  Mink [MSH99/MH/D008907] 
+             R         Mink [SNM2/PT/E-4932] 
+             R         {Mink [MSH98/MH/D008907]} 
+             R       Minks [PSY94/PT/31600] 
+             R         Minks [LCH90/PT/U002992] 
+             R         Minks [MSH99/PM/D008907] 
+             R         {Minks [MSH98/PM/D008907]} 
+M            N       mink [AOD95/ET/0000014365] 
+             R         mink [CSP98/ET/0182-1425] 
+             R         {mink [CSP94/PT/0182-1450]} 
+             R       Mink, NOS [SNMI98/PT/L-81800] 
+             R         {Mink, NOS [SNMI97/PT/L-81800]} 
+
+ CONTEXTS
+   AOD95/ET1/0000014365
+    Alcohol and Other Drug Thesaurus
+      living organisms
+        eukaryote organism
+          animal
+            chordate
+              vertebrate
+                mammal
+                  Carnivora
+                    Canidae
+                      Mustelidae
+                        ferret
+                       &lt;mink&gt;
+                        skunk
+            REST OF CONCEPT REMOVED</PRE></LI></UL>
+<UL>
+<LI>According to AOD, there are several phrases which AOD has created internal
+acronyms for (for example AODU, &quot;other drugs and alcohol use&quot;). When a
+term contains one of these acronyms, it has been assigned to the termgroup *S
+(short form of whatever termgroup they belong to) and an expanded form has been
+created under the termgroup *X (Expanded Term). A SFO/LFO relationships  exists
+between the two forms.</LI></UL>
+<UL>
+<LI>Relationships marked as RT? may be synonymous, related, broader or
+narrower. In many cases, RT? is the relationships created between an NP and the
+DE it is associated with. Editors should carefully review RT? relationships
+between AOD terms while editing.</LI></UL>
+<HR>
+<ADDRESS>Contact: <A HREF="mailto:lad@nlm.nih.gov">Laura Roth</A></ADDRESS>
+<ADDRESS>Created: November 04, 1998</ADDRESS>
+<ADDRESS>Last Updated: August 23, 2001</ADDRESS><!-- These comments are used
+by the What's new Generator --><!-- Changed On: 1998/11/04--><!-- Changed by:
+Laura Davis --><!-- Change Note: AOD information page created --><!-- Fresh for:
+2 week --></BODY></HTML>

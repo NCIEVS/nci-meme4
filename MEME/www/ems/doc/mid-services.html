@@ -1,0 +1,101 @@
+<HTML>
+<HEAD>
+<TITLE>MID Services</TITLE>
+</HEAD>
+
+<BODY>
+
+<P ALIGN=right>suresh@nlm.nih.gov 11/2000
+
+<H1>MID Services - What is it?  Where is it?</H1>
+
+This is a service that was initially provided to map symbolic
+names to database names so that we could easily force our
+tools (which use the symbolic names) to point to one of the
+many databases that we use.  It has since been expanded for
+other "services", e.g., the service for remote software distribution
+on PCs.
+
+<P>
+
+The service runs on the hostname midns.nlm.nih.gov (midns=MID name service)
+which is mapped to smis.nlm.nih.gov on TCP port 5125.
+The server for this service is in /site/umls/scripts/midsvcs-server.pl
+(see the /etc/inet/inetd.conf file for midsvcs).
+The server reads the /etc/umls/mid-services file for the service
+name and its current setting.
+
+<P>
+
+The client is in /site/umls/scripts/midsvcs.pl and, if run without
+any arguments, list all the services currently supported along with
+their current setting.  Any TCP client can be used, e.g., telnet.
+
+<H1>/etc/umls/mid-services</H1>
+
+This file contains two fields: the service name and its value.
+The fields are '|' separated and empty lines and comments (lines with
+a leading #) are encouraged.
+The master copy of this file is on oa:/d5/MEME3/etc/mid-sevices and
+is rdist'ed from there to all servers using the rdist script:
+oa:/d5/MEME3/rdist/mid-services-dist.  Edit the data to suit,
+and use the following to distribute to smis (as root):
+
+<FONT SIZE=-1>
+<PRE>
+
+  rdist -f /d5/MEME3/rdist/mid-services-dist
+
+</PRE>
+</FONT>
+
+The change should take effect immediately (you may need to force your
+web browser to reload).  You can view the current settings here:
+<A HREF="/db.shtml">http://meow/db.shtml</A>.
+
+<H1>Why do we need this?</H1>
+
+We usually have a production database, a backup (or browse) database and several
+databases for testing software and source insertions.  The names for these
+databases (and the machines they are on) may change, but the symbolic name remains
+the same.  For example, <EM>current-editing-tns</EM> always refers to the production
+database.
+
+<P>
+
+Our tools use these symbolic names for accessing the data.  We can
+be quickly back in action after a disk failure, say, by pointing
+the service current-editing-tns to the backup database while the production
+database is being repaired.  Similarly, we can test source insertions, etc
+on different databases without hardwiring these names in all our scripts.
+<P>
+The distributed nature of this (it is implemented using the TCP/IP protocol)
+also means that remote clients query for the service name before accessing the
+database.
+<P>
+Here are some mappings and their meaning:
+
+<DL>
+<DT>current-editing-tns|oa_mid2001
+<DD>The current MEME-3 production database.
+<DT>current-partitioning-tns|oa_mid2001
+<DD>The database to partition by the script batch_partition.pl which is called
+	every morning after backup in the /etc/AutoDump/make_ready_for_nlm.s script.
+<DT>current-browse-tns|oa_mid2001
+<DD>The database that can be used for browsing (concept reports, etc) while the
+production database is used.  This is the default for concept reports on meow
+and usually points to the production database, except during insertions.
+<DT>current-unedited-tns|oc_unedited
+<DD>This is a beginning-of-the-year copy of the database before any editing has taken place.
+Useful for checking the last released version.
+<DT>current-testsrc-tns|oc_testsrc
+<DD>Database for testing source insertions.
+<DT>current-testsw-tns|oc_mid2001
+<DD>Database for testing software.
+<DT>current-training-tns|oc_training
+<DD>A training database for training editors.
+</DL>
+
+</BODY>
+</HTML>
+

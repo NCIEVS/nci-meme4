@@ -1,0 +1,153 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+<TITLE>EMS Documentation</TITLE>
+</HEAD>
+
+<BODY>
+
+<H1><A NAME="top">EMS Documentation</A></H1>
+
+<OL>
+<LI> <A HREF="#1">CGI Parameters</A>
+<LI> <A HREF="#2">Stamping</A>
+<LI> <A HREF="#3">Epochs</A>
+</OL>
+
+
+<HR>
+<P>
+<H1><A NAME="1">CGI Parameters</A></H1>
+The EMS (and the WMS) take parameters as CGI arguments that control what action
+is taken.  CGI arguments can be given as part of the URL following the '?'
+(e.g., http://meow/cgi-oracle-meowusers/ems.pl<B>?</B>db=oa_mid2001) or as part
+of a form.  The current list of CGI params are (shown in bold are generic to
+EMS and WMS):
+<P>
+<DL>
+<DT><B>service=</B>
+<DD>This tells the EMS which MID service to use to determine which database to
+connect to.  Either the service= or db= parameter can be used (not both).  The
+default is to use the MID service: current-editing-tns.
+<DT><B>db=</B>
+<DD>This tells the EMS which database to use.  It is preferable to use the
+service= parameter, but the db= parameter works.  The defalt database is
+the database returned by the MID service current-editing-tns.
+<DT>action=
+<DD>These describe specific actions performed by the EMS.  The default action
+is to display the EMS home page.  Allowed actions are (this list may be
+incomplete, see the ems.pl source for the current list):
+<P>
+<UL>
+<LI>home (display home page),
+<LI>db (change database), 
+<LI>access (change access restrictions),
+<LI>me_bins (show current ME bin partitioning), 
+<LI>me_repartition (do ME bin partitioning),
+<LI>me_repartition_log (show the log of ME bin partitioning), 
+<LI>me_refresh (refresh the counts of an ME bin), 
+<LI>me_checklist (make a checklist from an ME bin),
+<LI>me_worklist (make a worklist from an ME bin), 
+<LI>ah_bins (show current AH bin list and count), 
+<LI>ah_generate (generate the contents of an AH bin), 
+<LI>ah_refresh (refresh the counts of an AH bin), 
+<LI>ah_checklist (make an AH checklist), 
+<LI>ah_worklist (make an AH worklist), 
+<LI>qa_bins (show current list of QA bins and counts), 
+<LI>qa_generate (generate the contents of a QA bin), 
+<LI>qa_refresh (refresh the counts of a QA bin), 
+<LI>qa_checklist (make a QA checklist), 
+<LI>qa_worklist (make a QA worklist), 
+<LI>matrixinit (run the matrixinit in catchup mode), 
+<LI>matrixinitlog (display the log of a matrix init run), 
+<LI>epoch (change the current editing epoch), 
+<LI>daily_report (show daily editing report), 
+<LI>bin_history (show data for previous bin epochs), 
+<LI>assigncuis (run the CUI assignment program), 
+<LI>assigncuislog (view the log of the CUI assignment program), 
+<LI>viewfile (a helper action), 
+<LI>cutoff (sets the DBA cutoff), 
+<LI>table_help (show table help info), 
+<LI>rptstats (shows fun statistics for concept reports), 
+<LI>activity (shows the tail of EMS activity)
+</UL>
+
+</DL>
+
+<P>
+
+<A HREF="#top">&lt;Top&gt;</A>
+
+<HR>
+<P>
+<H1><A NAME="2">Stamping</A></H1>
+Worklists are "stamped" by NLM after passing quality assurance (QA) checks.  This implies
+batch approval of concepts on the worklist on behalf of the editor to whom it
+was assigned.  However, not all concepts on a worklist undergo the approval process.
+If there is newly merged content (status=N) since the worklist was created, or if the
+concept was recently approved in the editing interface, the concept is recycled for re-edit.
+<P>
+To re-iterate, a concept on a worklist is <EM>NOT</EM> stamped if:
+
+<UL>
+<LI> <CODE>concept_status.editing_timestamp</CODE> is more recent than &lt;worklist&gt;<CODE>.create_date</CODE>, or
+<LI> there is a new, i.e., more recent 'N' status atom, attribute or relationship in the concept, or
+<LI> there is a new, i.e., more recent 'U' status atom in the concept, or
+<LI> concept does not currently exist, i.e., has been merged
+</UL>
+
+<P>
+
+<A HREF="#top">&lt;Top&gt;</A>
+
+<P>
+<H1><A NAME="3">Epochs</A></H1>
+What are "epochs"?  An epoch is an interval of time that marks the editing of one or
+more sources.  In a sense this is an arbitrary time period, but has many implications
+as noted below.  An epoch is a 3 character string, the first two are digits signifying
+the release year followed by an alphabetic character, increasing from 'a' through 'z', e.g.,
+99a, 00d, etc.  Epochs past and current are recorded in the
+<A HREF="/cgi-oracle-meowusers/ems.pl?action=table_help&subaction=describe&table=ems_current_editing_epoch&owner=MEOW">
+ems_current_editing_epoch</A> table.
+<P>
+All worklist names are prefixed by the letters, 'wrk' followed by the epoch in which they
+were created.  This enables us to tell at a glance roughly when a worklist was extant,
+e.g., wrk01c_missyn_nc_12.  The EMS has an action to change the epoch.
+<P>
+As a rule of thumb you want to change epochs after one or more "major" source insertions.
+We have roughly 3 or 4 epochs during an editing cycle (year).
+Here are the implications of changing epochs:
+<P>
+<UL>
+<LI>Worklist created henceforth will have names with a different prefix
+<LI>Worklist numbers for <EM>ALL</EM> bins will be reset to 1
+<LI>An active entry is recorded in the ems_current_bin_epoch table
+<LI>For AH bins, there is a notion of global and local history.  Local history is
+	intra-epoch while global history is across all epochs.
+<LI>The WMS query menu will change (only active epochs shown)
+<LI>A subdirectory for this epoch will be created in /d3/ems/reports when a report is generated
+<LI>A ZIP file is created in /d3/ems/worklists for this epoch to store raw worklist data
+<LI>Many of these changes are hard to reverse, so please use this carefully!
+<LI>A new bin_epoch will be started in ems_bin_info for all types of bins
+</UL>
+
+<P>
+
+<A HREF="#top">&lt;Top&gt;</A>
+
+<P>
+<HR>
+<ADDRESS>Contact: <A HREF="mailto:suresh@nlm.nih.gov">Suresh Srinivasan</A></ADDRESS>
+<ADDRESS>Created: Aug 21, 2000</ADDRESS>
+<ADDRESS>Last Updated: Aug 21, 2000</ADDRESS>
+<ADDRESS><A HREF="/index.html">Meta News Home</A></ADDRESS>
+</BODY>
+
+<!-- These comments are used by the What's new Generator -->
+<!-- Changed On: Date in 2000/08/21 format -->
+<!-- Changed by: Suresh -->
+<!-- Change Note: EMS (Oracle) related documentation -->
+<!-- Fresh for: 10 days -->
+
+</BODY>
+</HTML>

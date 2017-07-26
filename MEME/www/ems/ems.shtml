@@ -1,0 +1,80 @@
+<HTML>
+
+<!-- $Id: ems.shtml,v 1.1.1.1 2006-05-25 16:14:11 aweinrich Exp $ -->
+
+<HEAD>
+<TITLE>Worklist Management System (WMS)</TITLE>
+<META DESCRIPTION="Internal Web site for use by UMLS Metathesaurus Editors">
+<META KEYWORDS="UMLS,Metathesaurus,NLM">
+</HEAD>
+
+<BODY>
+<H1>Editing Management System (EMS)</H1>
+
+The EMS is a Web-based system to track and manage the editing process for the UMLS
+Metathesaurus.  It allows information about bins to be entered and updated and
+the current status of the workload to be monitored.
+Once information is entered for a bin, worklists can be created from it.
+Worklist level management is available with the <A HREF="/wms/">Worklist Management System</A>.
+
+<P>
+
+Access is allowed to the only to users authenticated as <EM>nlmmgr</EM>.
+
+<P>
+
+Current Editing Epoch:<B><!--#exec cmd="/site/umls/ems/get-current-epoch.pl"--></B>
+
+<H1>Managing Epochs</H1>
+
+<UL>
+
+<LI> <FORM METHOD=POST ACTION="/cgi2/ems.pl">
+Change epoch to: <INPUT TYPE=text name="epoch" SIZE=3>
+<INPUT TYPE=hidden NAME="action" VALUE="change_epoch">
+<INPUT TYPE=hidden NAME="db" VALUE="m3b::meme2f"></FORM>
+
+<LI> <FORM METHOD=POST ACTION="/cgi2/ems.pl">
+Show all bins for epoch: <INPUT TYPE=text name="epoch" SIZE=3 VALUE=<!--#exec cmd=\"/site/umls/ems/get-current-epoch.pl\"-->
+<INPUT TYPE=hidden NAME="action" VALUE="show_epoch">
+<INPUT TYPE=hidden NAME="db" VALUE="m3b::meme2f"></FORM>
+
+
+</UL>
+
+<H1>Managing Bins</H1>
+
+<UL>
+<LI> <A HREF="/cgi2/ems.pl?action=update_bin_info&db=m3b::meme2f">Enter data for a new bin</A>
+<LI> <FORM METHOD=POST ACTION="/cgi2/ems.pl">
+View information for bin: <INPUT TYPE=text name="like" SIZE=13> (enter a "like" SQL pattern)
+<INPUT TYPE=hidden NAME="action" VALUE="view_bin_info">
+<INPUT TYPE=hidden NAME="db" VALUE="m3b::meme2f"></FORM>
+<LI> <FORM METHOD=POST ACTION="/cgi2/ems.pl">
+Update info for bin: <INPUT TYPE=text name="worklist_root" SIZE=13>
+<INPUT TYPE=hidden NAME="action" VALUE="update_bin_info">
+<INPUT TYPE=hidden NAME="db" VALUE="m3b::meme2f"> (enter the worklist root)</FORM>
+<LI> <FORM METHOD=POST ACTION="/cgi2/ems.pl">
+Delete info for bin: <INPUT TYPE=text name="worklist_root" SIZE=13>
+<INPUT TYPE=hidden NAME="action" VALUE="delete_bin_info">
+<INPUT TYPE=hidden NAME="db" VALUE="m3b::meme2f"> (enter the worklist root)</FORM>
+</UL>
+
+<H2>Tracking Information in Currently Active Bins</H2>
+
+<UL>
+<LI> How much data is left to edit?
+<LI> What is currently being edited (out on worklists)?
+<LI> <FORM METHOD=POST ACTION="/cgi2/ems.pl">
+Show data for bin: <INPUT TYPE=text name="worklist_root" SIZE=13>
+<INPUT TYPE=hidden NAME="action" VALUE="show_bin_stats">
+<INPUT TYPE=hidden NAME="db" VALUE="m3b::meme2f"></FORM>
+</UL>
+
+<P><HR>
+<ADDRESS>Contact: <A HREF="mailto:suresh@nlm.nih.gov">Suresh Srinivasan</A></ADDRESS>
+<ADDRESS>Created: March 1998</ADDRESS>
+<ADDRESS>Last Updated: 2/98</ADDRESS>
+<ADDRESS><A HREF="/index.html">Meta News Home</A></ADDRESS>
+</BODY>
+</HTML>

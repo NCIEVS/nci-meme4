@@ -1,0 +1,119 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"><html><head><title>MEME - Application Documentation - Adding or Removing a MEME Editor</title>
+  
+
+  
+  <meta name="author" content="Brian Carlsen">
+
+  
+  <meta name="description" content="Explains steps required to add a new editor to the system, or remove an existin gone."></head><body style="background-color: rgb(255, 255, 255);">
+  
+<h2 align="center">Adding/Removing a MEME Editor<br>
+</h2>
+
+  
+<hr>  
+<p align="center">[ <a href="#overview">overview</a> | <a href="#details">details</a> | <a href="#references">references</a> ]<br>
+<br>
+<img src="/images/text.gif" alt="Text File image" style="width: 148px; height: 180px;" title="">&nbsp;
+<img src="/images/table.gif" alt="Table image" style="width: 148px; height: 180px;" title="">&nbsp;
+</p>
+
+  
+<blockquote>   
+  <h3><a name="overview"></a> Overview/Objective</h3>
+   
+  <p>Periodically
+new editors need to be added to the system, and periodically old&nbsp;
+editors need to be removed.&nbsp; This document describes the series of
+steps that should be followed to add or remove and editor from the
+system.<br>
+&nbsp;</p>
+   
+  <h3><a name="details"></a> Details</h3><span style="font-weight: bold;">Adding an Editor</span><br>
+  <br>
+When a new editor is to be added to the system, the following steps should be taken:<br>
+  <ul>
+    <li>Create new database user.</li>
+    <li>Grant the MID_USER role to this new use.&nbsp; (MID_USER should
+be properly configured to allow CONNECT and ALL on all MTH and MEOW
+tables)</li>
+    <li>Add entry to editors table.&nbsp; Choose initials to not conflict with another user.<br>
+    </li>
+    <li>Add entry to editor_preferences table.&nbsp; Use same initials as for editors table.</li>
+    <li>Add an entry with corresponding username/password to the MEOW password file (e.g. /etc/umls/meow.passwd)</li><li>Add the new user to the "edtiors" group in the /etc/umls/meow.group file).<br>
+    </li>
+
+    <li>Restart the MEME server.<br>
+    </li>
+  </ul>
+  <br>
+  <span style="font-weight: bold;">Deactivating an Editor</span><br>
+  <br>
+This is done by setting the "cur" field in the editors table to N.<br>
+  <br>
+UPDATE editors SET cur = 'N' WHERE name = ?;<br>
+  <br>
+All queries that access editors should respect this setting when retrieving the list of active editors.<br>
+  <br>
+  <span style="font-weight: bold;">Removing an Editor</span><br>
+  <br>
+Generally, you are discouraged from removing an editor from the
+system.&nbsp; You should deactivate the editor instead.&nbsp; However,
+if it is important to have the information entirely removed, the
+following steps can be taken:<br>
+  <ul>
+    <li>Remove entry from editors table</li>
+    <li>Remove entry from editor_preferences table</li>
+    <li>MEOW password file (e.g. /etc/umls/meow.passwd)</li>
+    <li>Database user should be removed</li>
+    <li>Restart MEME server<br>
+    </li>
+  </ul>
+  <br>
+  <h3> References/Links</h3>
+   
+  <p>Use the following references for more information.   </p>
+  <ul>
+       <li><a href="/MEME/Training/tables/editors.html"><span style="font-family: monospace;">editors</span></a> table</li>
+    <li><a href="/MEME/Training/tables/editor_preferences.html"><span style="font-family: monospace;">editor_preferences</span></a> table</li></ul>
+   
+  
+ </blockquote>
+
+ 
+<div align="center">&nbsp;<br>
+ [ <a href="#overview">overview</a> | <a href="#details">details</a> | <a href="#references">references</a> ]<br>
+ &nbsp;<br>
+ </div>
+
+ 
+<hr width="100%"> 
+<div align="center"><br>
+</div>
+
+  
+<table border="0" cols="2" width="100%" nosave="">
+
+    <tbody>
+       <tr nosave="">
+    <td align="left" valign="top" nosave="">       
+      <address> <a href="/MEME/">MEME Home</a></address>
+    </td>
+     <td align="right" valign="top" nosave="">       
+      <address> <font size="-1">Contact:   <a href="mailto:bcarlsen@apelon.com">Brian A. Carlsen</a></font></address>
+        
+      <address> <font size="-1">Created: 05/16/2005</font></address>
+        
+      <address> <font size="-1">Last Updated: 05/16/2005</font></address>
+    </td>
+    </tr>
+    
+  </tbody> 
+</table>
+<!-- These comments are used by the What's new Generator --><!-- Changed On: 2005/05/16 --><!-- Changed by: Brian Carlsen --><!-- Change Note: MEME - Application Documentation - Add or Remove an Editor --><!-- Fresh for: 1 month -->
+  
+            <br>
+
+  <br>
+
+</body></html>

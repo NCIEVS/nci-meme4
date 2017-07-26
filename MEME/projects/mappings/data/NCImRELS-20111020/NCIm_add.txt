@@ -1,0 +1,16 @@
+Angiolymphoid hyperplasia|C0017531|
+Tinea Pedis|C0040259|
+Intestinal cramps|C0877617|
+Marginal ulcer|C0024799|
+Inflammatory Bowel Diseases|C0021390|
+House dust mite allergy|C0339808|
+Neuropathic Pain|CL428997|
+Intraocular pressure disorder|C0595921|
+Essential Hypertension|C0085580|
+Conn Syndrome|C1384514|
+Oedema due to renal disease|C0877560|
+Seasonal conjunctivitis|CL428793|
+Lymphoma, T-Cell, Cutaneous|C0079773|
+Large Body Habitus Artifact|C2828127|
+Vitamin D-resistant rickets|C2363065|
+Hyperchlorhydria|C0151713|

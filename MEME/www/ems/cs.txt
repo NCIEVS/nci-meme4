@@ -1,0 +1,187 @@
+suresh@nlm.nih.gov
+2/16/99
+
+     Problems with concept_status Currency and Worklist Stamping
+     -----------------------------------------------------------
+
+Background:
+-----------
+
+The concept status table has one row per concept and has 3 attributes
+of interest for this discussion: authority, timestamp and status
+(abbreviated as ATS) described below:
+
+1. status
+
+-> Concept is reviewed: R
+-> Concept is unreviewed and will not be reviewed: U
+-> Concept needs to be reviewed: N
+-> Concept is an embryo and is still being constructed: E
+
+This attribute is not maintained in real time but is computed by the
+matrix initialization batch process and is a function of the status of
+the various components of a concept, i.e., the status of the different
+classes (C), source and concept level attributes (A) and source and
+concept level relationships (R), collectively abbreviated as CAR.
+
+Additionally, relationship status can have the values S for suggested,
+and D for demotion.
+
+2. timestamp
+
+The most recent of the CAR timestamps.  This is also computed by the
+matrix initialization process.
+
+3. authority
+
+The authority of the CAR that has the most recent timestamp.
+Essentially the last person (or process) to affect the status of the
+concept.
+
+
+Problems, Issues:
+----------------
+
+When stamping concepts on a worklist, those with timestamps more
+recent than when the worklist was made are not submitted for approval
+since these have new content that the editor has not seen on paper.
+This critical "staleness" check was done incorrectly against
+concept_status.timestamp (which, as we now know, is not always
+up-to-date).
+
+Another important issue: When running in batch approvals (say the
+algorithmic addition of a new STY), one does not necessarily want to
+cause the concept's status to be set to N, or the timestamp and
+authority changed.  In addition we may not want to prevent stamping
+based on the timestamp condition.
+
+Third problem: Stamping fails for concepts on two extant worklists
+that have a relationship to one another and where one end of the REL
+has been approved (either by editor or by stamping).  Say concepts A
+and B are on two different worklists, and concept B is approved by the
+editor.  When NLM stamps the worklist which has A, it will not be
+approved since the rel has a more recent timestamp.
+
+Raised by BAC, OSM: Safe-replacement atoms are sometimes inserted as
+N, and then changed to R after merging.  What if matrix re-init is run
+in the interim?  Shouldn't this go in as E?  Will it affect stamping?
+
+Questions about Batch insertions:
+
+- Inserted with status R, N or U
+- Does or does not affect timestamp, authority? (Visible or invisible insertion)
+- Does inserting a REL affect both concepts ATS?
+
+Interactive Sessions:
+
+- Is concept_status.ATS recomputed for all affected concepts (all the
+ones in a split for e.g.)
+
+
+Proposal:
+--------
+
+This is an extension of the current state of affairs.  All timestamp
+computations are done at stamp time and there is no
+concept_editing_status table.  The current authority, timestamp is
+computed for each concept on the worklist in the manner done by the
+matrix initializer.  This is compared with the time of worklist
+creation to decide if a concept should be approved or not.
+
+We introduce new authority prefixes for batch insertions: BR, BN, BU,
+BE for reviewed, needs review, unreviewed, and embryo, resp.  The
+authority has a UI, e.g., BR-UI, as a suffix that is an indicator of
+the algorithm (or script) that was used to make the change.
+Essentially, every batch insertion/modification must deal explicitly
+with the following:
+
+Will the insertions/modifications trigger editing, i.e., will the
+status of the new CAR be R, N , E or E?  Use the appropriate
+authority.  The UI is some 7-char identifier that lets us track which
+algo should be blamed for the change, e.g., BR-0000023.
+
+New CAR's destined to be safe replacements go in as E (unlike N as
+now)?
+
+The timestamp should always be set to 'now' for the newly inserted
+CAR.  (Right?)
+
+At stamp time, the following logic will be executed:
+
+  For each concept C on the worklist {
+
+    Extract the authority of all CAR's with more recent timestamps
+    than worklist create_date into S
+
+    if [ S is empty ] {
+
+      # No recent changes, so stamp
+      stamp C
+
+    } else {
+
+      # Stamp if all recent changes were made by worklist editor
+      # or were batch edits not needing review
+
+      if [ all authorities in S are E-<editor> or BR-% or BU-%] {
+        stamp C
+      }
+
+      # Stamp if all recent edits are rels that have been added by some editor
+      # or run in as approved
+      # Rationale here is that someone looked at these from the other side
+      # of the REL, so it should prevent this concept from being stamped
+
+      if [ S contains only Rels with S-%, E-% or BR-% or BU-% authority ] {
+        stamp C
+      }
+
+      # Else, this concept will not be stamped
+    }
+}
+
+Notes:
+
+We need the bag of the ATS for all CAR's (set S above) since the
+concept's ATS captures only the *latest* change.  For example, if
+there are multiple E-% changes (by some other editor) followed by a
+BR-% change, this concept should not be stamped.
+
+Our current dictum for editors is "if you touch a concept you have to
+approve it in the interface".  This is probably the safest approach,
+but with this proposal, if nobody else touches the concept, it will be
+stamped.
+
+All batch operations must be conservative in affecting a concept's
+need for editing.  In other words, if some CAR's are added as R or U
+then the concept_status should not change to N.  I believe this is
+done correctly now, so this is just a reminder.
+
+What we need to know or have:
+----------------------------
+Does concept "approval" overwrite all CAR authority, timestamp and status or
+only the N CAR's?
+
+Logic for extracting all of a concept's CAR's into S (W is when worklist
+was created):
+
+select distinct authority from classes where
+	concept_id=C and
+	timestamp>W
+select distinct authority from attributes where
+	concept_id=C and
+	timestamp>W
+select distinct authority from relationships where
+	(concept_id_1=C or concept_id_2=C) and
+	timestamp>W
+(I assume the ATS of a rel has no directionality)
+
+Discipline and consistency in naming and running in batch changes, esp
+in this "year of QA"
+
+We may need a mini-matrix initializer that refreshes concept_status
+after some limited operation.  For example, after a batch insertion of
+some kind, we may need to run this on just the affected concepts so
+that concept_status can be recomputed and worklists can be made
+immediately (after perhaps repartitioning ME bins).  I know concept
+approval does this, but do insertions?

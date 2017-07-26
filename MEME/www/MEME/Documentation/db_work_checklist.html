@@ -1,0 +1,145 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+  <title>MEME - Documentation - Database Work Checklist</title>
+
+  
+
+  
+
+  
+  
+  
+  <script language="javascript">
+function ack(url) {
+   ok = confirm("This is to prevent automated processes\r\n"+
+                "from following this link. Please click OK");
+   if (ok) {
+      location.href=url;
+   }
+}
+  </script>
+  
+  <meta name="author" content="Brian Carlsen">
+
+  
+  <meta name="description" content="Checklist of things to do before sending database reponse message about work done.">
+</head><body style="color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);" alink="#ff0000" link="#3333ff" vlink="#999999">
+         
+<center>                    
+<h2> Database Work Checklist<br>
+</h2>
+                   </center>
+
+
+                                
+<hr><span style="font-style: italic;">Complete all of the checklist items</span>.<br>
+
+
+
+
+                   &nbsp;                    
+<center>                   
+<table style="width: 90%;" nosave="" border="0" cellpadding="2" cellspacing="2">
+                    <tbody>
+                       <tr nosave="" bgcolor="#ffffcc">
+                    <td colspan="1" nosave=""><br>
+                 </td><th style="vertical-align: top; text-align: center;">Condition<br>
+
+      </th>
+
+      <th style="vertical-align: top; text-align: center;"><b>Checklist Items</b>
+      </th>
+
+
+                    </tr>
+                     <tr>
+                 <td valign="top"><input type="checkbox"><br>
+                 </td>
+                 <td style="vertical-align: top;">Change made to core data<br>
+      </td>
+<td valign="top">Run the Matrix Initializer (<span style="font-family: monospace;">$MEME_HOME/bin/matrixinit.pl</span>)<br>
+                 </td>
+               </tr>
+               <tr>
+                 <td valign="top"><input type="checkbox"><br>
+                 </td>
+                 <td style="vertical-align: top;">Major change made to core data (&gt;100K rowS)<br>
+      </td>
+<td valign="top">Regenerate statistics<br>
+      <pre>   exec dbms_stats.gather_schema_stats( -<br>        ownname =&gt; 'MTH', degree =&gt; 8, options =&gt; 'GATHER_STALE');<br>   exec dbms_stats.export_schema_stats('MTH','MTHSTATS');<br></pre>
+
+                 </td>
+               </tr><tr>
+      <td style="vertical-align: top;">&nbsp;<br>
+      </td>
+      <td style="vertical-align: top;">&nbsp;<br>
+      </td>
+      <td style="vertical-align: top;">&nbsp;<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;"><input type="checkbox"></td>
+      <td style="vertical-align: top;">ALWAYS<br>
+      </td>
+      <td style="vertical-align: top;">Attempt to start MEME4 server on non-standard port to verify that data changes will not stop server from starting.<br>
+      <pre>    $MEME_HOME/bin/start.pl -port 8085 -mid &lt;mid&gt; -log= &amp;<br>    $MEME_HOME/bin/xreports.pl -c 100 -d &lt;mid&gt; -port 8085 -host localhost<br></pre>
+      </td>
+    </tr><tr>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;"><input type="checkbox"></td>
+      <td style="vertical-align: top;">TEST INSERTION<br>
+      </td>
+      <td style="vertical-align: top;">Review the various merge logs
+and look for "bad" merges.&nbsp; These will show up as "old" concept
+ids merging together where "old" means &lt; min(concept_id) from
+source_concept_status.<br>
+      </td>
+    </tr>
+
+  </tbody>
+                   </table>
+                   </center>
+
+
+
+<p> </p>
+
+
+
+<hr width="100%">                    
+<table nosave="" border="0" cols="2" width="100%">
+
+
+                    <tbody>
+                       <tr nosave="">
+                    <td nosave="" align="left" valign="top">            
+      <address> &nbsp;</address>
+                    </td>
+                     <td nosave="" align="right" valign="top">                                                            
+      <address> Contact: <a href="mailto:bcarlsen@apelon.com">Brian A. Carlsen</a></address>       
+      <address> Created: 05/20/2005</address>       
+      <address> Last Updated: 12/20/2005</address>
+                    </td>
+                    </tr>  </tbody>                   
+</table>
+
+<!-- These comments are used by the What's new Generator --><!-- Changed On: 2005/12/20--><!-- Changed by: BAC --><!-- Change Note: MEME - Documentation - Database Work Checklist --><!-- Fresh for: 1 month -->
+
+
+
+
+
+
+
+
+
+
+ 
+</body></html>

@@ -1,0 +1,229 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"><html><head>
+   
+  <meta http-equiv="Content-Type" content="text/html; charset=utf8"><title>MEME Boot Camp Schedule - Actions &amp; Integrities</title></head><body style="background-color: rgb(255, 255, 255); color: rgb(0, 0, 0);" alink="#ff0000" link="#3333ff" vlink="#999999">
+
+<center><h2>Actions &amp; Integrities<br>
+</h2></center>
+
+<hr width="100%">
+<blockquote>
+  <h3>Instructor</h3>
+BAC: Brian Carlsen<br>
+  <h3>Attendees</h3>
+  <table style="text-align: left; width: 100%;" border="0" cellpadding="0" cellspacing="0">
+<tbody><tr><td style="vertical-align: top;"><span style="font-weight: bold;">Apelon</span><br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+    
+    <tr>
+      <td style="vertical-align: top;">RBE: Bobby Edrosa<br>
+      </td>
+      <td style="vertical-align: top;"><a href="mailto:redrosa@apelon.com">redrosa@apelon.com</a><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">TK: Tim Kao<br>
+      </td>
+      <td style="vertical-align: top;"><a href="mailto:tkao@apelon.com">tkao@apelon.com</a><br>
+      </td>
+    </tr>
+    
+    <tr>
+      <td style="vertical-align: top;">SBM: Stuart Mayhugh<br>
+      </td>
+      <td style="vertical-align: top;"><a href="mailto:smayhugh@mail.nlm.nih.gov">smayhugh@mail.nlm.nih.gov</a><br>
+      </td>
+    </tr>
+    
+    
+    
+    
+    
+    <tr>
+      <td style="vertical-align: top;">&nbsp;<br>
+      </td>
+      <td style="vertical-align: top;">&nbsp;<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;"><span style="font-weight: bold;">OCCS</span></td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">KC: Karen Casey<br>
+      </td>
+      <td style="vertical-align: top;"><a href="mailto:caseyk@mail.nlm.nih.gov">caseyk@mail.nlm.nih.gov</a><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">CK: Chandrakanth Chebiyyam<br>
+      </td>
+      <td style="vertical-align: top;"><a href="mailto:chebiyc@mail.nlm.nih.gov">chebiyc@mail.nlm.nih.gov</a><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">NH: Naveen Hota<br>
+      </td>
+      <td style="vertical-align: top;"><a href="mailto:hotan@mail.nlm.nih.gov">hotan@mail.nlm.nih.gov</a><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">SL: Simon Liu<br>
+      </td>
+      <td style="vertical-align: top;"><a href="mailto:lius@mail.nlm.nih.gov">lius@mail.nlm.nih.gov</a><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">WM: Wei Ma<br>
+      </td>
+      <td style="vertical-align: top;"><a href="mailto:maw@mail.nlm.nih.gov">maw@mail.nlm.nih.gov</a><br>
+      </td>
+    </tr>
+  </tbody>
+  </table>
+
+  <br>
+
+
+
+  <h3>Goals</h3>
+  <ul>
+    <li><span style="font-weight: bold;">What you should learn:</span></li>
+    <ul>
+      <li>Basic editing actions</li><li>Types of integrity checks<br>
+      </li>
+
+    </ul>
+    <li><span style="font-weight: bold;">What you should be able to do:</span></li>
+    <ul>
+      <li>Edit integrity system settings</li><li>Perform actions in Jekyll</li>
+      <li>Look up log of actions performed<br>
+      </li>
+
+    </ul>
+  </ul>
+  <h3>Handouts</h3>
+  <ul>
+    <li><a href="/Transition/images/action%20and%20integrities%20use%20cases.jpg">Actions &amp; Integrities Use Cases</a></li><li><a href="/Transition/images/integrity%20and%20qa%20tables.JPG">Integrity Tables</a><br>
+    </li>
+    <li><a href="/MEME/Documentation/action_model.html">Action Model Documentation</a><br>
+    </li>
+
+    <li><a href="/MEME/Documentation/molecular_actions_index.html">Molecular Actions</a><br>
+</li>
+    <li><a href="/MEME/Documentation/integrity_system.html">Integrity System Documentation</a></li>
+  </ul>
+  <h3>Lecture Outline</h3>
+  <ol style="list-style-type: upper-roman;">
+    <li>Actions and Integrities interaction</li>
+    <ol style="list-style-type: upper-alpha;">
+      <li>Editor initiates action</li>
+      <li>Read concept (important for integrities)</li>
+      <li>Check integrities (pass, warning or violation)</li>
+      <li>Perform action<br>
+      </li>
+    </ol>
+    <li>Action Model</li>
+    <ol style="list-style-type: upper-alpha;">
+      <li>Work (work_id)<br>
+      </li>
+      <li>Activities <br>
+      </li>
+      <li>Transactions (transaction_id_<br>
+      </li>
+      <li>Molecular actions (molecule_ids)<br>
+      </li>
+      <li>Atomic actions (atomic_action_id)<br>
+      </li>
+    </ol>
+    <li>Integrity System</li>
+    <ol style="list-style-type: upper-alpha;">
+      <li>Data integrity checks</li>
+      <li>Merge inhibitors<br>
+      </li>
+      <li>Data-driven integrities</li>
+      
+      <ol>
+        <li>single (e.g. MGV_B)</li>
+        <li>pair (e.g. MGV_K)<br>
+        </li>
+
+      </ol>
+      <li>Application vectors</li>
+      <li>Override vectors<br>
+      </li>
+    </ol>
+    <li>Molecular Actions</li>
+    <ol style="list-style-type: upper-alpha;">
+      <li>Insert</li>
+      <li>Delete</li>
+      <li>Change</li>
+      <li>Approve</li>
+      <li>Merge</li>
+      <li>Move</li>
+      <li>Split<br>
+      </li>
+    </ol>
+    <li>Discussion and Questions<br>
+    </li>
+  </ol>
+
+  <h3>Hands On Experience</h3>In oc_testsrc, against oc:1526 MEME Server:<br>
+
+  <ul>
+    <li><a href="/webapps-meme/meme/controller?state=IntegrityEditor&amp;midService=oc_testsrc&amp;host=oc">Edit an integrity vector</a> (add MGV_A4:E to DEFAULT vector)<br>
+    </li>
+    <li>Peform an action (have it stopped by integrity system): Merge 1200 and 1201<br>
+</li>
+    <li>Edit override vector (add MGV_A4:W to level 5 editor)</li><li>Refresh Jekyll caches (reset server settings)<br>
+    </li>
+
+    <li>Perform action again</li><li>Show actions in Jekyll (undo/redo actions).</li>
+    <li>Undo action in Jekyll.</li>
+    <li>Close Jekyll.<br>
+    </li>
+
+    <li>Show action in <a href="/webapps-meme/meme/controller?state=ActionHarvester&amp;midService=oc_testsrc&amp;host=oc">action harvester</a></li><li>Put application and override vectors back<br>
+    </li>
+
+  </ul>
+
+
+</blockquote>
+
+<p>
+</p>
+<br>
+
+<hr width="100%">
+<table border="0" cols="2" width="100%">
+
+ <tbody><tr>
+  <td align="left" valign="top">
+   <address>
+    <a href="/MEME/Training/BootCamp/boot_camp_schedule.html">MEME Boot Camp Schedule</a>
+   </address>
+  </td>
+  <td align="right" valign="top">
+   <address>
+    <font size="-1">
+     Contact: <a href="mailto:bcarlsen@apelon.com">Brian A. Carlsen</a>
+    </font>
+   </address>
+   <address><font size="-1">Created: 03/21/2005</font></address>
+   <address><font size="-1">Last Updated: 03/21/2005</font></address>
+  </td>
+ </tr>
+</tbody>
+</table>
+<!-- These comments are used by the What's new Generator --><!-- Changed On: 2005/03/21 --><!-- Changed by: Brian Carlsen --><!-- Change Note: MEME - Category - Topic --><!-- Fresh for: 1 month -->
+
+
+
+
+
+
+</body></html>

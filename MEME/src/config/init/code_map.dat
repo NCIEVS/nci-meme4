@@ -1,0 +1,585 @@
+NON_CHEM_STY|filter_type|designates a non-chemical sty.|
+NORM_EXCLUDE_LIST|filter_type|remove facts having termgroups on the mom_norm_exclude_list (but only LUI matches).|
+NORM|string_match|LUI match only|
+NOT|code_match|Different codes only|
+NOT|string_match|Non-matches only|
+NO_FILTER|filter_type|used to make a binary filter a unary filter.|
+NRM|merge_level|Facts based on norm matches.|
+N|ic_state| |
+N|integrity_vector|no check|
+PP|coc_type|Co-occurrence of two problems within a patient record|
+P|violations_vector|passed|
+RE|molecular_action|MOLECULAR_REDO|
+R|table_name|relationships|
+R|violations_vector|repaired|
+SAFE_REPLACEMENT|filter_type|remove facts involving safe-replacement atoms.|
+SA|table_name|source_attributes|
+SCR|table_name|source_context_relationships|
+SCS|table_name|source_concept_status|
+SC|table_name|source_classes_atoms|
+SNAPSHOT|work_type|Work done by MEME_INTEGRITY.integrity_snaphot.|
+SOURCE_ATOM_ID|sg_type|indicates that a generic id field contains a source_atom_id.|
+SOURCE|filter_type|designates a source field.|
+SP|molecular_action|MOLECULAR_SPLIT|
+SR|table_name|source_relationships|
+STATUS|filter_type|used to filter by status.|
+SEMANTIC_TYPE|filter_type|designates a semantic type.|
+SY|merge_level|Synonymy facts.|
+S|action_field|status|
+S|atomic_action|change_status|
+S|batch_action_code|S|
+S|batch_action|MOLECULAR_CHANGE_STATUS|
+S|macro_action|MACRO_CHANGE_STATUS|
+S|violations_vector|stale|
+TERMGROUP|filter_type|designates a termgroup field.|
+T|action_field|tobereleased|
+T|atomic_action|change_tobereleased|
+T|batch_action_code|T|
+T|batch_action|MOLECULAR_CHANGE_TOBERELEASED|
+T|macro_action|MACRO_TOBERELEASED|
+UN|molecular_action|MOLECULAR_UNDO|
+V|violations_vector|violation|
+W|integrity_vector|warn|
+W|violations_vector|warning|
+action_field|valid_code_type|Map of action names to valid molecular_actions.action_field values.|
+atomic_action|valid_code_type|Abbreviation of an atomic action.|
+attributes|primary_key|attribute_id|
+batch_action_code|valid_code_type|Map of action names to batch_action codes.|
+batch_action|valid_code_type|Map of batch_actions codes to batch_action names.|
+classes|primary_key|atom_id|
+coc_type|valid_code_type|Valid values for MRCOC.COT.  Also used in coc_headings.|
+code_match|valid_code_type|Code representing a match type when comparing codes|
+concept_status|primary_key|concept_id|
+context_relationships|primary_key|relationship_id|
+filter_type|valid_code_type|Code representing a type of data used in filtering or ic checks, also used for the type fields in ic_single, ic_pair.|
+ic_state|valid_code_type|Map of integrity vector codes to violations vector codes.|
+integrity_check|valid_code_type|Code representing an integrity check. The value is the procedure name in MEME_INTEGRITY.|
+integrity_vector|valid_code_type|Code for a vector of integrity checks to apply.|
+macro_action|valid_code_type|Map of macro_actions codes to macro_action names.|
+map_sg_type|valid_code_type|Code representing a type of id that is tracked by the sg core tables and must be periodically re-mapped.|
+merge_inhibitor|valid_code_type|Code representing a merge inhibitor.|
+merge_level|valid_code_type|Valid levels for merge sets, used for sorting facts of different types. |
+molecular_action|valid_code_type|Abbreviation of a molecular action.|
+primary_key|valid_code_type|A map of table names to key fields.|
+relationships|primary_key|relationship_id|
+sg_type|valid_code_type|Code representing valid types of ids, used in src files.|
+snapshot_procedure|valid_code_type|Mapping between merge inhibitors and snapshot procedures|
+string_match|valid_code_type|Code representing a match type when comparing strings.|
+table_name|valid_code_type|Abbreviation for a core table.|
+valid_code_type|valid_code_type|A valid type for a code to have.|
+violations_vector|valid_code_type|Code for a vector of integrity violations.|
+work_type|valid_code_type|Code representing a valid type of work, for the meme_work table|
+DT_M1A|integrity_check|missing_sty_matrixinit|
+DT_I14|integrity_check|nothing|
+DT_MM4|integrity_check|nothing|
+AA|table_name|atomic_actions|
+ATOM_ID|sg_type|indicates that a generic id field contains an atom_id|
+A|action_field|atom_id|
+A|atomic_action|change_atom_id|
+A|batch_action_code|A|
+A|batch_action|MOLECULAR_CHANGE_ATOM_ID|
+A|macro_action|MACRO_CHANGE_ATOM_ID|
+A|table_name|attributes|
+BOTH|string_match|LUI or exact match|
+CA|molecular_action|MOLECULAR_CONCEPT_APPROVAL|
+CF|action_field|dummy|
+CF|atomic_action|change_field|
+CF|batch_action|MOLECULAR_CHANGE_FIELD|
+CF|macro_action|MACRO_CHANGE_FIELD|
+CF|molecular_action|MOLECULAR_CHANGE_FIELD|
+CHANGE_ATOM_ID|batch_action_code|A|
+CHANGE_FIELD|batch_action_code|CF|
+CHANGE_STATUS|batch_action_code|S|
+CHANGE_TOBERELEASED|batch_action_code|T|
+CHEM_STY|filter_type|designates a chemical sty.|
+CODE_SOURCE|map_sg_type|Codes must be re-mapped as sources are replaced.|
+CODE_SOURCE|sg_type|indicates that a generic id field contains an code and some auxiliary field contains the source of that code.|
+CODE_STRIPPED_SOURCE|map_sg_type|CODE_SOURCE with a stripped source.|
+CODE_STRIPPED_TERMGROUP|map_sg_type|CODE_TERMGROUP with termgroups like MSH/MH|
+CODE_TERMGROUP|map_sg_type|Codes must be re-mapped as sources are replaced.|
+CODE_TERMGROUP|sg_type|indicates that a generic id field contains an code and some auxiliary field contains the termgroup of that code.|
+CONCEPT_ID|sg_type|indicates that a generic id field contains a concept_id|
+CR|table_name|context_relationships|
+CS|batch_action_code|S|
+CS|molecular_action|MOLECULAR_CHANGE_STATUS|
+CS|table_name|concept_status|
+CT|batch_action_code|T|
+CT|molecular_action|MOLECULAR_CHANGE_TOBERELEASED|
+CUI_STRIPPED_SOURCE|map_sg_type|CUI values within a root source|
+CUI_ROOT_SOURCE|map_sg_type|CUI values within a root source|
+CUI_SOURCE|map_sg_type|CUI values within a source|
+CUI|map_sg_type|CUI values must be re-mapped as sources are replaced.|
+CUI|sg_type|indicates that a generic id field contains a CUI.|
+C|action_field|concept_id|
+C|atomic_action|change_concept_id|
+C|batch_action_code|C|
+C|batch_action|MOLECULAR_MOVE|
+C|integrity_vector|check|
+C|macro_action|MACRO_MOVE|
+C|table_name|classes|
+DELETE|batch_action_code|D|
+DE|integrity_vector|delay and enforce|
+DT_I10|integrity_check|msh_mh_diff|
+DT_I11|integrity_check|sfo_lfo|
+DT_I12|integrity_check|nh_sty|
+DT_I13|integrity_check|separated_pm|
+DT_I2|integrity_check|auto_merged|
+DT_I3B|integrity_check|nothing|
+DT_I3|integrity_check|demotions|
+DT_I4|integrity_check|pir|
+DT_I5|integrity_check|non_human|
+DT_I6|integrity_check|nothing|
+DT_I8AXR|integrity_check|xr_msh_d_orphan|
+DT_I8A|integrity_check|msh_d_orphan|
+DT_I8BXR|integrity_check|xr_msh_q_orphan|
+DT_I8B|integrity_check|msh_q_orphan|
+DT_I8CXR|integrity_check|xr_msh_c_orphan|
+DT_I8C|integrity_check|msh_c_orphan|
+DT_I9|integrity_check|msh_et_synonym|
+DT_M1|integrity_check|missing_sty|
+DT_M2|integrity_check|true_orphan|
+DT_M3|integrity_check|empty_concepts|
+DT_MM1|integrity_check|ambig_no_rel|
+DT_MM2|integrity_check|nothing|
+DT_MM3|integrity_check|mm_no_ambig|
+DT_PN1|integrity_check|ambig_no_pn|
+DT_PN2|integrity_check|multiple_pn|
+DT_PN3|integrity_check|nothing|
+DT_PN4|integrity_check|pn_pn_ambig|
+DW|integrity_vector|delay and warn|
+D|action_field|dead|
+D|atomic_action|delete|
+D|batch_action_code|D|
+D|batch_action|MOLECULAR_DELETE|
+D|macro_action|MACRO_DELETE|
+D|molecular_action|MOLECULAR_DELETE|
+EDITING|work_type|Work done by editors on worklists.|
+EXACT|code_match|Same codes only|
+EXACT|string_match|Case-insensitive exact match only|
+EXCLUDE_LIST|filter_type|remove facts having termgroups on the mom_exclude_list.|
+E|ic_state|V|
+E|integrity_vector|enforce|
+INITIALIZE|work_type|Work done by initialization processes.|
+INSERTION|work_type|Insertion of a new or update source.|
+INSERT|batch_action_code|I|
+I|action_field|dead|
+I|atomic_action|insert|
+I|batch_action_code|I|
+I|batch_action|MOLECULAR_INSERT|
+I|macro_action|MACRO_INSERT|
+I|molecular_action|MOLECULAR_INSERT|
+KN|coc_type|A negative association in a knowledge base|
+KP|coc_type|A positive association in a knowledge base|
+LQB|coc_type|A MSH Q#-D# co-occurrence|
+LQ|coc_type|A MSH D#-Q# co-occurrence|
+L|coc_type|A MSH D#-D# co-ocurrence|
+MACRO_CHANGE_ATOM_ID|batch_action_code|A|
+MACRO_CHANGE_STATUS|batch_action_code|S|
+MACRO_CHANGE_TOBERELEASED|batch_action_code|T|
+MACRO_DELETE|batch_action_code|D|
+MACRO_INSERT|batch_action_code|I|
+MACRO_MOVE|batch_action_code|CF|
+MAINTENANCE|work_type|Routine database maintenance work (e.g. inserting MTH/TM atoms)|
+MATRIX|work_type|Work done by processes which alter editing_matrix.|
+MA|table_name|molecular_actions|
+MGV_A1|merge_inhibitor|icproc_mgv_a1|
+MGV_A1|snapshot_procedure|snapshot_mgv_a1|
+MGV_A3|merge_inhibitor|icproc_mgv_a3|
+MGV_A3|snapshot_procedure|snapshot_mgv_a3|
+MGV_A4|merge_inhibitor|icproc_mgv_a4|
+MGV_A4|snapshot_procedure|snapshot_mgv_a4|
+MGV_ADHOC|merge_inhibitor|icproc_mgv_adhoc|
+MGV_ADHOC|snapshot_procedure|snapshot_mgv_adhoc|
+MGV_B2|merge_inhibitor|icproc_mgv_b2|
+MGV_B2|snapshot_procedure|snapshot_mgv_b2|
+MGV_B|merge_inhibitor|icproc_mgv_b|
+MGV_B|snapshot_procedure|snapshot_mgv_b|
+MGV_C|merge_inhibitor|icproc_mgv_c|
+MGV_C|snapshot_procedure|snapshot_mgv_c|
+MGV_D|merge_inhibitor|icproc_mgv_d|
+MGV_D|snapshot_procedure|snapshot_mgv_d|
+MGV_E|merge_inhibitor|icproc_mgv_e|
+MGV_E|snapshot_procedure|snapshot_mgv_e|
+MGV_F|merge_inhibitor|icproc_mgv_f|
+MGV_F|snapshot_procedure|snapshot_mgv_f|
+MGV_G|merge_inhibitor|icproc_mgv_g|
+MGV_G|snapshot_procedure|snapshot_mgv_g|
+MGV_H1|merge_inhibitor|icproc_mgv_h1|
+MGV_H1|snapshot_procedure|snapshot_mgv_h1|
+MGV_H2|merge_inhibitor|icproc_mgv_h2|
+MGV_H2|snapshot_procedure|snapshot_mgv_h2|
+MGV_I|merge_inhibitor|icproc_mgv_i|
+MGV_I|snapshot_procedure|snapshot_mgv_i|
+MGV_J|merge_inhibitor|icproc_mgv_j|
+MGV_J|snapshot_procedure|snapshot_mgv_j|
+MGV_K|merge_inhibitor|icproc_mgv_k|
+MGV_K|snapshot_procedure|snapshot_mgv_k|
+MGV_L|merge_inhibitor|icproc_mgv_l|
+MGV_L|snapshot_procedure|snapshot_mgv_l|
+MGV_MM|merge_inhibitor|icproc_mgv_mm|
+MGV_MM|snapshot_procedure|snapshot_mgv_mm|
+MGV_PN|merge_inhibitor|icproc_mgv_pn|
+MGV_PN|snapshot_procedure|snapshot_mgv_pn|
+MG|molecular_action|MOLECULAR_MERGE|
+MOLECULAR_CHANGE_ATOM_ID|batch_action_code|A|
+MOLECULAR_CHANGE_FIELD|batch_action_code|CF|
+MOLECULAR_CHANGE_STATUS|batch_action_code|S|
+MOLECULAR_CHANGE_TOBERELEASED|batch_action_code|T|
+MOLECULAR_DELETE|batch_action_code|D|
+MOLECULAR_INSERT|batch_action_code|I|
+MOLECULAR_MOVE|batch_action_code|C|
+MOVE|batch_action_code|C|
+MP|coc_type|Co-occurrence of modifier and problem within a patient record|
+MT|merge_level|Facts based on exact matches.|
+MV|molecular_action|MOLECULAR_MOVE|
+NONE|code_match|Same or different codes|
+NONE|string_match|Match or non-match|
+MGV_MUI|merge_inhibitor|icproc_mgv_mui|
+MGV_MUI|snapshot_procedure|snapshot_mgv_mui|
+SRC_ATOM_ID|sg_type|indicates that a generic id field contains a src atom id|
+SOURCE_CUI|sg_type|indicates that a generic field contains a source asserted concept id|
+SOURCE_AUI|sg_type|indicates that a generic field contains a source asserted atom id|
+SOURCE_DUI|sg_type|indicates that a generic field contains a source asserted descriptor id|
+SOURCE_RUI|sg_type|indicates that a generic field contains a source asserted relationship id|
+RUI|sg_type|Relationship unique identifier|
+DR|table_name|dead_relationships|
+DCR|table_name|dead_context_relationships|
+DA|table_name|dead_attributes|
+DC|table_name|dead_classes|
+FC|table_name|foreign_classes|
+DFC|table_name|dead_foreign_classes|
+FA|table_name|foreign_attributes|
+DFA|table_name|dead_foreign_attributes|
+SOURCE_CUI|map_sg_type|Source asserted concept ids with a source qualifier|
+SOURCE_AUI|map_sg_type|Source asserted atom  ids with a source qualifier|
+SOURCE_DUI|map_sg_type|Source asserted descriptors with a source qualifier|
+SOURCE_RUI|map_sg_type|Source asserted relationship ids with a source qualifier.  Gets mapped to the atom_id_1 of the relationship|
+CODE_STRIPPED_SOURCE|sg_type|CODE_SOURCE with a stripped source.|
+CODE_STRIPPED_TERMGROUP|sg_type|CODE_TERMGROUP with termgroups like MSH/MH|
+CUI_STRIPPED_SOURCE|sg_type|CUI values within a root source|
+CUI_ROOT_SOURCE|sg_type|CUI values within a root source|
+CUI_SOURCE|sg_type|CUI values within a source|
+ROOT_SOURCE_AUI|map_sg_type|Source asserted atom id with a root source qualifier|
+ROOT_SOURCE_CUI|map_sg_type|Source asserted concept id with a root source qualifier|
+CF|batch_action_code|CF|
+ROOT_SOURCE_DUI|map_sg_type|Source asserted descriptor with a root sourc equalifier|
+ROOT_SOURCE_RUI|map_sg_type|Source asserted relationship id with a root source qualifier|
+CODE_ROOT_TERMGROUP|map_sg_type|CODE_TERMGROUP with termgroups like MSH/MH|
+CODE_ROOT_SOURCE|map_sg_type|CODE_SOURCE with a stripped source|
+qa_test_name|valid_code_type|Code representing a production test_name from the qa_counts.csh script.|
+sab_tally|qa_test_name|Count of the number of lines in the file by SAB values.|
+aui_cnt|qa_test_name|Count of the number of distinct AUI values in the file.|
+cui_cnt|qa_test_name|Count of the number of distinct CUI values in the file.|
+row_cnt|qa_test_name|Count of the number of lines in the file.|
+termgrp_tally|qa_test_name|Count of the number of lines in the file by SAB, TTY.  The values are shown as "SAB/TTY" (e.g. MSHCZE/MH).|
+sab_srl_tally|qa_test_name|Count of the number of lines in the file by SAB, SRL in MRCONSO.RRF.  Generally, these counts should be the same as the line counts by SAB (sab_tally).|
+sab_scd_tally|qa_test_name|Count of the number of distinct CODE values in MRCONSO.RRF by SAB.  For sources that have unique codes for each atom, these counts will match the line counts by SAB (sab_tally).|
+cl_cnt|qa_test_name|Count of the number of distinct CUI,LUI values in the file.|
+lui_cnt|qa_test_name|Count of the number of distinct LUI values in the file.|
+sui_cnt|qa_test_name|Count of the number of distinct SUI values in the file.|
+cs_cnt|qa_test_name|Count of the number of distinct CUI,SUI values in the file.|
+cls_cnt|qa_test_name|Count of the number of distinct CUI,LUI,SUI values in the file.|
+c1_a1_c2_a2_cnt|qa_test_name|Count of the number of distinct CUI1,AUI1,CUI2,AUI2 values in the file.|
+coa_tally|qa_test_name|Sum of the counts assigned to the various COA codes in MRCOC.RRF.  For example, if a MRCOC.RRF line has a COA value of "AA=4,AB=3" and another with a COA value of "AA=2", the coa_tally value for AA will be 6 (4 + 2) and the coa_tally value for AB will be 3.  <br><br>Note: this means that it is not the number of lines in which that COA appears, or the number of times it appears, but rather the sum of all of the numbers on the right hand of the = expressions grouped by the codes on the left hand side of the = expressions.|
+cot_tally|qa_test_name|Count of the number of lines in the file by COT values.|
+cui1_aui1_cnt|qa_test_name|Count of the number of distinct CUI1,AUI1 values in the file.|
+cui2_aui2_cnt|qa_test_name|Count of the number of distinct CUI2,AUI2 values in the file.|
+sab_cot_tally|qa_test_name|Count of the number of lines in the file by SAB,COT values.|
+cui2_cnt|qa_test_name|Count of the number of distinct CUI2 values in the file.|
+plui_cnt|qa_test_name|Count of the number of distinct PLUI values in the file.  PLUI values are LUIs from previous release MRCONSO.RRF files that do not appear in the current version MRCONSO.RRF.|
+pcui_cnt|qa_test_name|Count of the number of distinct PCUI values in the file.  PCUI values are CUIs from previous release MRCONSO.RRF files that do not appear in the current version MRCONSO.RRF.|
+psui_cnt|qa_test_name|Count of the number of distinct PSUI values in the file.  PSUI values are SUIs from previous release MRCONSO.RRF files that do not appear in the current version MRCONSO.RRF.|
+plui_lui_cnt|qa_test_name|Count of the number of distinct PLUI,LUI values in the file.  PLUI values are LUIs from previous release MRCONSO.RRF files that do not appear in the current version MRCONSO.RRF.|
+rel_tally|qa_test_name|Count of the number of lines in the file by REL values.|
+rela_tally|qa_test_name|Count of the number of lines in the file by RELA values.|
+cui1_cnt|qa_test_name|Count of the number of distinct CUI1 values in the file.|
+rel_ver_tally|qa_test_name|Count of the number of lines in the file by REL,VER values.|
+pcui_cui_cnt|qa_test_name|Count of the number of distinct PCUI,CUI values in the file.  PCUI values are CUIs from previous release MRCONSO.RRF files that do not appear in the current version MRCONSO.RRF.|
+xc_cxl_tally|qa_test_name|Count of the number of lines in the file where the XC flag is set by CXL values. CXL values are ANC, CCP, CHD, and SIB.|
+aui2_cnt|qa_test_name|Count of the number of distinct AUI2 values in the file.|
+ca_cnt|qa_test_name|Count of the number of distinct CUI,AUI values in the file.|
+cxl_tally|qa_test_name|Count of the number of lines in the file by CXL values.  The CXL values are: ANC, CCP, CHD, SIB.|
+cxt_cnt|qa_test_name|Count of the number of distinct contexts represented in the file.  A context is made up of a singe path to the root (for a given RELA) along with any information about siblings and children.  In MRCXT.RRF this may be many rows, in MRHIER.RRF, it is a single row.|
+sab_cxl_rel_tally|qa_test_name|Count of the number of lines in the file by SAB,CXL,REL values. CXL values are ANC, CCP, CHD, and SIB.|
+sab_cxl_tally|qa_test_name|Count of the number of lines in the file by SAB,CXL values. CXL values are ANC, CCP, CHD, and SIB.|
+sab_cxn_tally|qa_test_name|Count of the number of lines in the file by SAB,CXN values.|
+sab_rel_tally|qa_test_name|Count of the number of lines in the file by SAB,REL values.|
+dockey_cnt|qa_test_name|Count of the number of lines in the file by DOCKEY values.|
+value_cnt|qa_test_name|Count of the number of lines in the file by VALUE values.|
+type_dockey_tally|qa_test_name|Count of the number of lines in the file by TYPE,DOCKEY.|
+type_cnt|qa_test_name|Count of the number of distinct TYPE values in the file.|
+type_dockey_cnt|qa_test_name|Count of the number of distinct TYPE,DOCKEY values in the file.|
+bts_cnt|qa_test_name|Sum of all of the BTS values for the file. This represents the total byte count of the Metathesaurus (with UNIX line termination).|
+col_cnt|qa_test_name|Count of the number of distinct COL values.  In other words, the total number of distinct column names.|
+col_tally|qa_test_name|Count of the number of lines by COL values.  In other words, the count of the number of files using it by column name used.|
+file_cnt|qa_test_name|Count of the total number of files in the Metathesaurus.|
+cui_aui_cnt|qa_test_name|Count of the number of distinct CUI,AUI values in the file.|
+cui_aui_cxn_cnt|qa_test_name|Count of the number of distinct CUI,AUI,CXN values in the file.  This is also the count of the total number of contexts.|
+toexpr_cnt|qa_test_name|Count of the number of distinct TOEXPR values in the file.  This is the count of the number of "map targets".|
+fromexpr_cnt|qa_test_name|Count of the number of distinct FROMEXPR values in the file.|
+key_cnt|qa_test_name|Count of the number of distinct key field values in the file. <ul><li>MRMAP: MAPSETCUI,MAPSUBSETID,MAPRANK,FROMID,TOUI</li></ul>|
+sab_cui_tally|qa_test_name|Count of the number of lines in the file by SAB,CUI values.  For MRMAP the fields are actually called MAPSETSAB,MAPSETCUI.|
+sab_tty_cnt|qa_test_name|Count of the number of distinct SAB,TTY values in the file.|
+suppress_tally|qa_test_name|Count of the number of lines in the file by SUPPRESS.|
+tty_tally|qa_test_name|Count of the number of lines in the file by TTY values.|
+r_r_s_s_tally|qa_test_name|Count of the number of lines in the file by REL,RELA,SAB,SL values.|
+r_s_s_tally|qa_test_name|Count of the number of lines in the file by REL,SAB,SL values.|
+rrss_selfref_tally|qa_test_name|Count of the number of lines in the file by REL,RELA,SAB,SL values where CUI1=CUI2.|
+sab_sl_tally|qa_test_name|Count of the number of lines in the file by SAB,SL values.|
+sl_tally|qa_test_name|Count of the number of lines in the file by SL values.|
+sab_dir_tally|qa_test_name|Count of the number of lines in the file by SAB,DIR values.  DIR is the flag indicating directionality of relationships.  Y indicates that this is the direction in which the source asserted the relationship.|
+aui_selfref_cnt|qa_test_name|Count of the number of lines in the file where AUI1=AUI2.|
+cui_selfref_cnt|qa_test_name|Count of the number of lines in the file where CUI1=CUI2.|
+sab_with_dir_cnt|qa_test_name|Count of the number of lines in the file by SAB values where DIR is not null.|
+t1_t2_sab_tally|qa_test_name|Count of the number of lines in the file by STYPE1,STYPE2,SAB values.|
+sf_cnt|qa_test_name|Count of the number of distinct SF (source family) values in the file.|
+rcui_cnt|qa_test_name|Count of the number of distinct RCUI (root SRC CUI) values in the file.|
+rsab_cnt|qa_test_name|Count of the number of distinct RSAB (root SAB) values in the file.|
+vsab_cnt|qa_test_name|Count of the number of distinct VSAB (versioned SAB) values in the file.|
+vcui_cnt|qa_test_name|Count of the number of distinct VCUI (versioned SRC CUI) values in the file.|
+sf_lat_cnt|qa_test_name|Count of the number of distinct SF,LAT (source family,language) values in the file.|
+atn_sab_tally|qa_test_name|Count of the number of lines in the file by ATN,SAB values.|
+atn_tally|qa_test_name|Count of the number of lines in the file by ATN (attribute name) values.|
+code_sab_tally|qa_test_name|Count of the number of lines in the file by CODE,SAB  values.|
+stype_sab_tally|qa_test_name|Count of the number of lines in the file by STYPE,SAB  values.|
+cu_cnt|qa_test_name|Count of the number of distinct CUI,METAUI values.|
+cm_cnt|qa_test_name|Count of the number of distinct CUI,METAUI values.|
+metaui_cnt|qa_test_name|Count of the number of distinct METAUI values.|
+stn_tally|qa_test_name|Count of the number of lines in the file by STN (STY tree number) values.|
+sty_tally|qa_test_name|Count of the number of lines in the file by STY values.|
+tui_tally|qa_test_name|Count of the number of lines in the file by TUI values.|
+con_row_cnt|qa_test_name|Count of the number of lines (or rows) in MRCON.|
+con_cui_cnt|qa_test_name|Count of the number of distinct CUI values in MRCON.|
+con_lui_cnt|qa_test_name|Count of the number of distinct LUI values in MRCON.|
+con_sui_cnt|qa_test_name|Count of the number of distinct SUI values in MRCON.|
+con_cls_cnt|qa_test_name|Count of the number of distinct CUI,LUI,SUI values in MRCON.|
+con_cl_cnt|qa_test_name|Count of the number of distinct CUI,LUI values in MRCON.|
+con_cs_cnt|qa_test_name|Count of the number of distinct CUI,SUI values in MRCON.|
+con_ls_cnt|qa_test_name|Count of the number of distinct LUI,SUI values in MRCON.|
+con_lang_tally|qa_test_name|Count of the number lines in MRCON by LAT values.|
+con_lat_ts_stt_tally|qa_test_name|Count of the number lines in MRCON by LAT,TS,STT values.|
+con_ts_tally|qa_test_name|Count of the number lines in MRCON by TS values.|
+con_stt_tally|qa_test_name|Count of the number lines in MRCON by STT values.|
+con_ts_stt_tally|qa_test_name|Count of the number lines in MRCON by TS,STT values.|
+con_lrl_tally|qa_test_name|Count of the number lines in MRCON by LRR values.|
+con_ambig_suis_cnt|qa_test_name|Count of the number of ambiguous SUI values in MRCON.|
+con_ambig_luis_cnt|qa_test_name|Count of the number of ambiguous LUI values in MRCON.|
+con_min_length|qa_test_name|Minimum length of the STR field in MRCON.|
+con_max_length|qa_test_name|Maximum length of the STR field in MRCON.|
+so_row_cnt|qa_test_name|Count of the number of lines (or rows) in MRSO.|
+so_cui_cnt|qa_test_name|Count of the number of distinct CUI values in MRSO.|
+so_lui_cnt|qa_test_name|Count of the number of distinct LUI values in MRSO.|
+so_sui_cnt|qa_test_name|Count of the number of distinct SUI values in MRSO.|
+so_cls_cnt|qa_test_name|Count of the number of distinct CUI,LUI,SUI values in MRSO.|
+so_cl_cnt|qa_test_name|Count of the number of distinct CUI,LUI values in MRSO.|
+so_cs_cnt|qa_test_name|Count of the number of distinct CUI,SUI values in MRSO.|
+so_ls_cnt|qa_test_name|Count of the number of distinct LUI,SUI values in MRSO.|
+so_termgrp_tally|qa_test_name|Count of the number lines in MRSO by SAB/TTY values.|
+so_sab_srl_tally|qa_test_name|Count of the number lines in MRSO by SAB,SRL values.|
+so_srl_tally|qa_test_name|Count of the number of lines in MRSO by SRL values.|
+so_sab_tally|qa_test_name|Count of the number of lines in MRSO by SAB values.|
+so_tty_tally|qa_test_name|Count of the number of lines in MRSO by TTY values.|
+so_nocode_cnt|qa_test_name|Count of the number of lines where CODE=NOCODE in MRSO.|
+so_suppr_termgrp_tally|qa_test_name|Count of the number of lines in MRSO by SAB/TTY values where SUPPRESS!=N.|
+mrx_cls_cnt|qa_test_name|Count of the number of distinct CUI,LUI,SUI values in the file.|
+rank_row_cnt|qa_test_name|Count of the number of lines in MRRANK.|
+rank_sab_tally|qa_test_name|Count of the number of lines in MRRANK by SAB values.|
+rank_tty_tally|qa_test_name|Count of the number of lines in MRRANK by TTY values.|
+rank_supprs_tally|qa_test_name|Count of the number of lines in MRRANK by TTY values.|
+rank_sab_tty_cnt|qa_test_name|Count of the number of lines in MRRANK by SAB,TTY values.|
+sty_row_cnt|qa_test_name|Count of the number of lines in MRSTY.|
+sty_sty_cnt|qa_test_name|Count of the number of distinct STY values in MRSTY (should match sty_tui_cnt).|
+sty_tui_cnt|qa_test_name|Count of the number of distinct TUI values in MRSTY (should match sty_sty_cnt).|
+sty_tui_sty_cnt|qa_test_name|Count of the number of distinct STY,TUI values in MRSTY (should match sty_sty_cnt).|
+sty_sty_tally|qa_test_name|Count of the number of lines in MRSTY by STY values.|
+sty_tui_tally|qa_test_name|Count of the number of lines in MRSTY by TUI values.|
+def_row_cnt|qa_test_name|Count of the number of lines in MRDEF.|
+def_cui_cnt|qa_test_name|Count of the number of distinct CUI values in MRDEF.|
+def_sab_tally|qa_test_name|Count of the number of distinct SAB values in MRDEF.|
+def_min_length|qa_test_name|Minimum length of DEF in MRDEF.|
+def_max_length|qa_test_name|Maximum length of DEF in MRDEF.|
+ambig_sui_cnt|qa_test_name|Number of lines in AMBIG.SUI.|
+ambig_lui_cnt|qa_test_name|Number of lines in AMBIG.LUI.|
+ambig_cs_cnt|qa_test_name|Total count of CUIs with ambiguous SUIs in AMBIG.SUI.|
+ambig_cl_cnt|qa_test_name|Total count of CUIs with ambiguous LUIs in AMBIG.LUI.|
+mrcui_row_cnt|qa_test_name|Count of the number of lines in MRCUI.|
+mrcui_cui1_cnt|qa_test_name|Count of the number of distinct CUI1 values in MRCUI.|
+mrcui_cui2_cnt|qa_test_name|Count of the number of distinct CUI2 values in MRCUI.|
+mrcui_crel_tally|qa_test_name|Count of the number of lines in MRCUI by CREL values.|
+mrcui_crel_ver_tally|qa_test_name|Count of the number of lines in MRCUI by CREL,VER values.|
+coc_row_cnt|qa_test_name|Count of the number of lines in MRCOC.|
+coc_cui1_cnt|qa_test_name|Count of the number of distinct CUI1 values in MRCOC.|
+coc_cui2_cnt|qa_test_name|Count of the number of distinct CUI2 values in MRCOC.|
+coc_c1_c2_cnt|qa_test_name|Count of the number of distinct CUI1,CUI2 values in MRCOC.|
+coc_cot_tally|qa_test_name|Count of the number of lines in MRCOC by COT values.|
+coc_soc_tally|qa_test_name|Count of the number of lines in MRCOC by SOC values.|
+cxt_row_cnt|qa_test_name|Count of the number of lines in MRCXT.|
+cxt_cui_cnt|qa_test_name|Count of the number of distinct CUI values in MRCXT.|
+cxt_sui_cnt|qa_test_name|Count of the number of distinct SUI values in MRCXT.|
+cxt_cs_cnt|qa_test_name|Count of the number of distinct CUI,SUI values in MRCXT.|
+cxt_cui2_cnt|qa_test_name|Count of the number of distinct CUI2 values in MRCXT.|
+cxt_cxt_cnt|qa_test_name|Count of the number of "contexts" in MRCXT.|
+cxt_sab_tally|qa_test_name|Count of the number of lines in MRCXT by SAB values.|
+cxt_cxl_tally|qa_test_name|Count of the number of lines in MRCXT by CXL values.|
+cxt_sab_cxl_tally|qa_test_name|Count of the number of lines in MRCXT by SAB,CXL values.|
+cxt_sab_cxn_tally|qa_test_name|Count of the number of lines in MRCXT by SAB,CXN values.|
+cxt_sab_rel_tally|qa_test_name|Count of the number of lines in MRCXT by SAB,REL values.|
+cxt_sab_cxl_rel_tally|qa_test_name|Count of the number of lines in MRCXT by SAB,CXL,REL values.|
+cxt_rel_tally|qa_test_name|Count of the number of lines in MRCXT by REL values.|
+cxt_xc_cxl_tally|qa_test_name|Count of the number of lines in MRCXT by CXL values where XC=+.|
+rel_row_cnt|qa_test_name|Count of the number of lines in MRREL.|
+rel_cui1_cnt|qa_test_name|Count of the number of distinct CUI1 values in MRREL.|
+rel_cui2_cnt|qa_test_name|Count of the number of distinct CUI2 values in MRREL.|
+rel_c1_c2_cnt|qa_test_name|Count of the number of distinct CUI1,CUI2 values in MRREL.|
+rel_rel_tally|qa_test_name|Count of the number of lines in MRREL by REL values.|
+rel_rela_tally|qa_test_name|Count of the number of lines in MRREL by RELA values.|
+rel_mg_tally|qa_test_name|Count of the number of lines in MRREL by MG values.|
+rel_sab_tally|qa_test_name|Count of the number of lines in MRREL by SAB values.|
+rel_sl_tally|qa_test_name|Count of the number of lines in MRREL by SL values.|
+rel_sab_sl_tally|qa_test_name|Count of the number of lines in MRREL by SAB,SAB values.|
+rel_r_s_s_tally|qa_test_name|Count of the number of lines in MRREL by REL,SAB,SL values.|
+rel_r_r_s_s_tally|qa_test_name|Count of the number of lines in MRREL by REL,RELA,SAB,SL values.|
+rel_rrss_selfref_tally|qa_test_name|Count of the number of lines in MRREL by REL,RELA,SAB,SL values where CUI1=CUI2.|
+rel_selfref_cnt|qa_test_name|Count of the number of lines in MRREL where CUI1=CUI2.|
+sat_row_cnt|qa_test_name|Count of the number of lines in MRSAT.|
+sat_cui_cnt|qa_test_name|Count of the number of distinct CUI values in MRSAT.|
+sat_lui_cnt|qa_test_name|Count of the number of distinct LUI values in MRSAT.|
+sat_sui_cnt|qa_test_name|Count of the number of distinct SUI values in MRSAT.|
+sat_cls_cnt|qa_test_name|Count of the number of distinct CUI,LUI,SUI values in MRSAT.|
+sat_cs_cnt|qa_test_name|Count of the number of distinct CUI,SUI values in MRSAT.|
+sat_scd_sab_tally|qa_test_name|Count of the number of lines in MRSAT by SAB,CODE values.|
+sat_atn_tally|qa_test_name|Count of the number of lines in MRSAT by ATN values.|
+sat_sab_tally|qa_test_name|Count of the number of lines in MRSAT by SAB values.|
+sat_atn_sab_tally|qa_test_name|Count of the number of lines in MRSAT by ATN,SAB values.|
+lo_row_cnt|qa_test_name|Count of the number of lines in MRLO.|
+lo_cui_cnt|qa_test_name|Count of the number of distinct CUI values in MRLO.|
+lo_sui_cnt|qa_test_name|Count of the number of distinct SUI values in MRLO.|
+lo_isn_tally|qa_test_name|Count of the number of lines in MRSO by ISN values.|
+lo_isn_un_tally|qa_test_name|Count of the number of lines in MRSO by ISN,UN values.|
+lo_sna_cnt|qa_test_name|Count of the number of lines in MRSO by SNA values.|
+lo_soui_cnt|qa_test_name|Count of the number of lines in MRSO by SOUI values.|
+atx_row_cnt|qa_test_name|Count of the number of lines in MRATX.|
+atx_cui_cnt|qa_test_name|Count of the number of distinct CUI values in MRATX.|
+atx_sab_tally|qa_test_name|Count of the number of lines in MRATX by SUI values.|
+atx_sab_rel_tally|qa_test_name|Count of the number of lines in MRATX by SAB,REL values.|
+atx_selfref_sab_tally|qa_test_name|Count of the number of lines in MRATX by SAB values where the ATX string is in the CUI.|
+sab_row_cnt|qa_test_name|Count of the number of lines in MRSAB.|
+sab_vcui_cnt|qa_test_name|Count of the number of distinct VCUI values in MRSAB.|
+sab_rcui_cnt|qa_test_name|Count of the number of distinct RCUI values in MRSAB.|
+sab_vsab_cnt|qa_test_name|Count of the number of distinct VSAB values in MRSAB (should match sab_vcui_cnt).|
+sab_sf_lat_cnt|qa_test_name|Count of the number of distinct SF,LAT values in MRSAB.|
+content_view_name|form_field|The display name of the content view.|
+a|form_field|b|
+form_field|valid_code_type|Description of a form field|
+content_view_contributor|form_field|The contributor of the content view.|
+content_view_contributor_version|form_field|The content view version number from the perspective of the contributor.|
+content_view_contributor_date|form_field|The content view version date from the perspective of the contributor.|
+content_view_maintainer_date|form_field|The content view version date from the perspective of the maintainer.|
+content_view_maintainer_version|form_field|The content view version number from the perspective of the maintainer.|
+content_view_maintainer|form_field|The authority responsible for maintaining the content view.  Typically will be either the same as the contributor or NLM.|
+content_view_class|form_field|The class of the content view as defined in the documentation.|
+content_view_category|form_field|The high level category to which this content view belongs.  For example, it may be an NLP (Natural Language Processing) content view.|
+content_view_subcategory|form_field|The sub category to which this content view belongs.  For example, an NLP (Natural Language Processing) content view may specifically be relevant in a Clinical context.|
+content_view_code|form_field|The value representing the CVF bit assigned to this content view.|
+content_view_description|form_field|Overall description of what is this content view represents. May be up to 4000 characters.|
+content_view_algorithm|form_field|Either a description of the algorithm used to create the members of the content view or an actual SQL query that runs in the mid and selects a <tt>meta_ui</tt> column which is used to directly insert into the content view members table.|
+content_view_generated|form_field|Indicates whether or not members of the set were generated from an SQL query.  This field need not be edited as it is set by the system.|
+content_view_cascade|form_field|Indicates whether or not information connected to members of the content view should also be included in the view.  For example, if the view is defined as a set of AUI values, should the attributes, relationships, contexts, etc. connected to those AUI values also be included in the content view.|
+CM|table_name|cui_map|
+ATUI|ui_length|8|
+ui_length|valid_code_type|The digit length after the prefix of aMetathesaurus identifier.  For example 7 digits in a CUI value|
+CUI|ui_length|7|
+AUI|ui_length|7|
+RUI|ui_length|8|
+LUI|ui_length|7|
+SUI|ui_length|7|
+ISUI|ui_length|7|
+ui_prefix|valid_code_type|The prefix used on a type of Metathesaurus identifier.  For example a C in a CUI value,|
+ATUI|ui_prefix|AT|
+AUI|ui_prefix|A|
+RUI|ui_prefix|R|
+CUI|ui_prefix|C|
+SUI|ui_prefix|S|
+ISUI|ui_prefix|I|
+LUI|ui_prefix|L|
+RUI|sg_type|RUI value|
+RUI|map_sg_type|Relationship unique identifier|
+no_remap_sg_type|valid_code_type|Code representing a type of id that should not be periodically remapped|
+SOURCE_CUI|no_remap_sg_type|Do not remap this type|
+SOURCE_DUI|no_remap_sg_type|Do not remap this type|
+SOURCE_AUI|no_remap_sg_type|Do not remap this type|
+SOURCE_RUI|no_remap_sg_type|Do not remap this type|
+ROOT_SOURCE_RUI|no_remap_sg_type|Do not remap this type|
+ROOT_SOURCE_AUI|no_remap_sg_type|Do not remap this type|
+ROOT_SOURCE_DUI|no_remap_sg_type|Do not remap this type|
+ROOT_SOURCE_CUI|no_remap_sg_type|Do not remap this type|
+STRIPPED_SOURCE_CUI|no_remap_sg_type|Do not remap this type|
+STRIPPED_SOURCE_DUI|no_remap_sg_type|Do not remap this type|
+STRIPPED_SOURCE_AUI|no_remap_sg_type|Do not remap this type|
+STRIPPED_SOURCE_RUI|no_remap_sg_type|Do not remap this type|
+map_sg_id_field|valid_code_type|Maps an sg_type to a core table field for the sg_id.|
+map_sg_qual_field|valid_code_type|Maps an sg_type to a core table field for the qualifier.|
+map_sg_table|valid_code_type|Maps an sg_type to the corresponding core table.|
+CODE_SOURCE|map_sg_id_field|code|
+CODE_TERMGROUP|map_sg_id_field|code|
+SOURCE_CUI|map_sg_id_field|source_cui|
+SOURCE_AUI|map_sg_id_field|source_aui|
+SOURCE_DUI|map_sg_id_field|source_dui|
+SOURCE_RUI|map_sg_id_field|source_rui|
+ROOT_SOURCE_AUI|map_sg_id_field|source_aui|
+ROOT_SOURCE_CUI|map_sg_id_field|source_cui|
+ROOT_SOURCE_DUI|map_sg_id_field|source_dui|
+ROOT_SOURCE_RUI|map_sg_id_field|source_rui|
+CODE_ROOT_TERMGROUP|map_sg_id_field|code|
+CODE_ROOT_SOURCE|map_sg_id_field|code|
+RUI|map_sg_id_field|rui|
+AUI|map_sg_id_field|aui|
+ATOM_ID|map_sg_id_field|atom_id|
+CONCEPT_ID|map_sg_id_field|concept_id|
+CUI|map_sg_id_field|last_release_cui|
+CUI_SOURCE|map_sg_id_field|last_release_cui|
+CUI_ROOT_SOURCE|map_sg_id_field|last_release_cui|
+SRC_ATOM_ID|map_sg_id_field|src_atom_id|
+SRC_REL_ID|map_sg_id_field|src_rel_id|
+CODE_SOURCE|map_sg_qual_field|source|
+CODE_TERMGROUP|map_sg_qual_field|termgroup|
+SOURCE_CUI|map_sg_qual_field|source|
+SOURCE_AUI|map_sg_qual_field|source|
+SOURCE_DUI|map_sg_qual_field|source|
+SOURCE_RUI|map_sg_qual_field|source|
+ROOT_SOURCE_AUI|map_sg_qual_field|root_source|
+ROOT_SOURCE_CUI|map_sg_qual_field|root_source|
+ROOT_SOURCE_DUI|map_sg_qual_field|root_source|
+ROOT_SOURCE_RUI|map_sg_qual_field|root_source|
+CODE_ROOT_TERMGROUP|map_sg_qual_field|root_termgroup|
+CODE_ROOT_SOURCE|map_sg_qual_field|root_source|
+RUI|map_sg_qual_field|none|
+AUI|map_sg_qual_field|none|
+ATOM_ID|map_sg_qual_field|none|
+CONCEPT_ID|map_sg_qual_field|none|
+CUI|map_sg_qual_field|none|
+CUI_SOURCE|map_sg_qual_field|source|
+CUI_ROOT_SOURCE|map_sg_qual_field|root_source|
+SRC_ATOM_ID|map_sg_qual_field|none|
+SRC_REL_ID|map_sg_qual_field|none|
+CODE_SOURCE|map_sg_table|classes|
+CODE_TERMGROUP|map_sg_table|classes|
+SOURCE_CUI|map_sg_table|classes|
+SOURCE_AUI|map_sg_table|classes|
+SOURCE_DUI|map_sg_table|classes|
+SOURCE_RUI|map_sg_table|relationships|
+ROOT_SOURCE_AUI|map_sg_table|classes|
+ROOT_SOURCE_CUI|map_sg_table|classes|
+ROOT_SOURCE_DUI|map_sg_table|classes|
+ROOT_SOURCE_RUI|map_sg_table|relationships|
+CODE_ROOT_TERMGROUP|map_sg_table|classes|
+CODE_ROOT_SOURCE|map_sg_table|classes|
+RUI|map_sg_table|relationships|
+AUI|map_sg_table|classes|
+ATOM_ID|map_sg_table|classes|
+CONCEPT_ID|map_sg_table|classes|
+CUI|map_sg_table|classes|
+CUI_SOURCE|map_sg_table|classes|
+CUI_ROOT_SOURCE|map_sg_table|classes|
+SRC_ATOM_ID|map_sg_table|classes|
+SRC_REL_ID|map_sg_table|relationships|

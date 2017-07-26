@@ -1,0 +1,1168 @@
+CREATE OR REPLACE PACKAGE MEME_OPERATIONS AS
+
+/*****************************************************************************
+ *
+ * PL/SQL File: MEME_OPERATIONS.sql
+ *
+ * This package contains code for regular MID maintenance work
+ *
+ * Version Information
+ * 5/16/2000 3.1.0: First Version
+ * 6/12/2000 3.1.2: Added initialize_trace and assign_cuis logs elapsed time
+ * 8/01/2000 3.2.0: Package handover version
+ * 8/30/2000 3.2.1: Optimized algorithm, allowed it to take table_name parameter. 
+ * 8/31/2000 3.3.0: Released
+ * 9/28/2000 3.3.1: update classes.last_ASSIGNED_cui!!!
+ * 9/29/2000 3.3.2: new_cuis
+ * 10/5/2000 3.3.3: new_cuis bug fix
+ * 11/10/2000 3.4.0: Released
+ * 12/05/2000 3.4.1: Slightly faster updates for concept_status,classes
+ *                   Fixed logic for pure merges, pure splits
+ * 12/11/2000 3.5.0: Fixed assign_cuis 1-1 logic, released
+ * 04/02/2001 3.5.1: In assigning split-merge cases the code was not
+ * 		     unassigning CUIs for concept_ids that lost their
+ *		     assignments.  This was fixed.  QA procedures were
+ *		     added to look for duplicate CUI or duplicate concept_id
+ *		     assignments in cui_assignment.  This QA would've caught
+ * 		     the problem we fixed.  Also, the code to assign null
+ *		     CUIs in concept_status,classes was not working correctly
+ *		     It was comparing NVL(b.cui,'null') to a.cui instead of
+ *		     to NVL(a.cui,'null').
+ * 04/12/2001 3.6.0: Released version
+ *
+ * Status:
+ *	Functionality:
+ *	Testing:
+ * 	Enhancements:
+ *	      Temporary cui assignments should not be reassigned each time
+ *	      Keep the CT% last_assigned_cui assignments, don't always 
+ *            reassign.
+ *
+ *****************************************************************************/
+
+    package_name	VARCHAR2(25) := 'MEME_OPERATIONS';
+    release_number	VARCHAR2(1) := '3';
+    version_number	VARCHAR2(3) := '6.0';
+    version_date	DATE := '12-Apr-2001';
+    version_authority	VARCHAR2(3) := 'BAC';
+
+    meme_operations_debug	BOOLEAN := FALSE;
+    meme_operations_trace	BOOLEAN := FALSE;
+
+    location		VARCHAR2(10);
+    err_msg		VARCHAR2(256);
+    method		VARCHAR2(256);
+
+    PROCEDURE initialize_trace (method IN VARCHAR2);
+
+    meme_operations_exception EXCEPTION;
+
+    --
+    -- MEME PACKAGE API
+    --
+    FUNCTION release
+    RETURN INTEGER;
+
+    FUNCTION version
+    RETURN FLOAT;
+
+    FUNCTION version_info
+    RETURN VARCHAR2;
+    PRAGMA restrict_references (version_info,WNDS,RNDS,WNPS);
+
+    PROCEDURE version;
+    PROCEDURE register_package;
+
+    PROCEDURE set_trace_on;
+    PROCEDURE set_trace_off;
+    PROCEDURE set_debug_on;
+    PROCEDURE set_debug_off;
+    PROCEDURE trace ( message IN VARCHAR2 );
+
+    PROCEDURE local_exec (query in varchar2);
+    FUNCTION local_exec (query IN VARCHAR2) RETURN INTEGER;
+
+    PROCEDURE help;
+
+    PROCEDURE help ( topic IN VARCHAR2 );
+
+    PROCEDURE self_test;
+
+    PROCEDURE meme_operations_error (
+    	method		    IN VARCHAR2,
+    	location	    IN VARCHAR2,
+    	error_code	    IN INTEGER,
+    	detail		    IN VARCHAR2
+    );
+
+    --
+    -- MEME_OPERATIONS Procedure declarations
+    --
+    FUNCTION assign_cuis(
+	authority	    IN VARCHAR2,
+	work_id 	    IN INTEGER := 0,
+	table_name	    IN VARCHAR2 := MEME_CONSTANTS.EMPTY_TABLE,
+	new_cui_flag	    IN VARCHAR2 := MEME_CONSTANTS.NO,
+	all_flag	    IN VARCHAR2 := MEME_CONSTANTS.NO,
+	qa_flag		    IN VARCHAR2 := MEME_CONSTANTS.YES
+    )RETURN INTEGER;
+
+
+END meme_operations;
+/
+SHOW ERRORS
+CREATE OR REPLACE PACKAGE BODY meme_operations AS
+
+--
+--  MEME Package API
+--
+
+--************************* RELEASE **********************************
+FUNCTION release
+RETURN INTEGER
+IS
+BEGIN
+
+    version;
+    return to_number(release_number);
+
+END release;
+
+--************************* VERSION INFO **********************************
+FUNCTION version_info
+RETURN VARCHAR2
+IS
+BEGIN
+    return package_name || ' Release ' || release_number || ': ' ||
+	   'version ' || version_number || ' (' || version_date || ')';
+END version_info;
+
+--************************* VERSION **********************************
+FUNCTION version
+RETURN FLOAT
+IS
+BEGIN
+
+    version;
+    return to_number(version_number);
+END version;
+
+--************************* VERSION **********************************
+PROCEDURE version
+IS
+BEGIN
+
+    DBMS_OUTPUT.PUT_LINE('Package: ' || package_name);
+    DBMS_OUTPUT.PUT_LINE('Release ' || release_number || ': ' ||
+			 'version ' || version_number || ', ' ||
+			 version_date || ' (' ||
+			 version_authority || ')');
+
+END version;
+
+--************************* SET trace on **********************************
+PROCEDURE set_trace_on
+IS
+BEGIN
+
+    meme_operations_trace := TRUE;
+
+END set_trace_on;
+
+--************************* SET trace off **********************************
+PROCEDURE set_trace_off
+IS
+BEGIN
+
+    meme_operations_trace := FALSE;
+
+END set_trace_off;
+
+--************************* SET debug on **********************************
+PROCEDURE set_debug_on
+IS
+BEGIN
+
+    meme_operations_debug := TRUE;
+
+END set_debug_on;
+
+--************************* SET debug off **********************************
+PROCEDURE set_debug_off
+IS
+BEGIN
+
+    meme_operations_debug := FALSE;
+
+END set_debug_off;
+
+--************************* TRACE **********************************
+PROCEDURE trace ( message IN VARCHAR2 )
+IS
+BEGIN
+
+    IF meme_operations_trace = TRUE THEN
+
+   	MEME_UTILITY.PUT_MESSAGE(message);
+
+    END IF;
+
+END trace;
+
+--************************* local_exec **********************************
+PROCEDURE local_exec ( query IN VARCHAR2 )
+IS
+BEGIN
+
+    IF meme_operations_trace = TRUE THEN
+	MEME_UTILITY.put_message(query);
+    END IF;
+
+    IF meme_operations_debug = FALSE THEN
+	MEME_UTILITY.exec(query);
+    END IF;
+
+END local_exec;
+
+--************************* local_exec **********************************
+FUNCTION local_exec ( query IN VARCHAR2 )
+RETURN INTEGER
+IS
+BEGIN
+
+    IF meme_operations_trace = TRUE THEN
+	MEME_UTILITY.put_message(query);
+    END IF;
+
+    IF meme_operations_debug = FALSE THEN
+	return MEME_UTILITY.exec(query);
+    END IF;
+
+    RETURN 0;
+
+END local_exec;
+
+--************************* HELP **********************************
+PROCEDURE help
+IS
+BEGIN
+    help('');
+END;
+
+--************************* HELP **********************************
+PROCEDURE help ( topic IN VARCHAR2 )
+IS
+BEGIN
+    -- This procedure requires SET SERVEROUTPUT ON
+   DBMS_OUTPUT.PUT_LINE('.');
+
+   IF topic IS NULL OR topic = '' THEN
+      DBMS_OUTPUT.PUT_LINE('.This package provides standard maintenance utilities.');
+      DBMS_OUTPUT.PUT_LINE('.');
+      DBMS_OUTPUT.PUT_LINE('. assign_cuis:		Assign concept_status.cui');
+   ELSE
+      DBMS_OUTPUT.PUT_LINE('.There is no help for the topic: "' || topic || '".');
+   END IF;
+
+    -- Print version
+    MEME_UTILITY.PUT_MESSAGE('.');
+    version;
+END help;
+
+--*********************** register_package ********************************
+PROCEDURE register_package
+IS
+BEGIN
+   register_version(
+      MEME_OPERATIONS.release_number,
+      MEME_OPERATIONS.version_number,
+      SYSDATE,
+      MEME_OPERATIONS.version_authority,
+      MEME_OPERATIONS.package_name,
+      '',
+      'Y',
+      'Y'
+   );
+END register_package;
+
+--************************* SELF_TEST ***************************
+PROCEDURE self_test
+IS
+BEGIN
+
+    DBMS_OUTPUT.ENABLE(100000);
+    -- This procedure requires SET SERVEROUTPUT ON
+
+END self_test;
+
+--************************* MEME_OPERATIONS_ERROR ***************************
+PROCEDURE meme_operations_error (
+    	method		    IN VARCHAR2,
+    	location	    IN VARCHAR2,
+    	error_code	    IN INTEGER,
+    	detail		    IN VARCHAR2
+)
+IS
+    error_msg	    VARCHAR2(100);
+BEGIN
+    IF error_code = 1 THEN
+	error_msg := 'MO0001: Unspecified error';
+    ELSIF error_code = 30 THEN
+	error_msg := 'MO0030: Bad count';
+    ELSE
+	error_msg := 'MO0000: Unknown Error';
+    END IF;
+
+    MEME_UTILITY.PUT_ERROR('Error in MEME_OPERATIONS::'||method||' at '||
+	location||' ('||error_msg||','||detail||')');
+
+END meme_operations_error;
+
+--************************* INITIALIZE_TRACE ***************************
+PROCEDURE initialize_trace (method IN VARCHAR2)
+IS
+BEGIN
+
+    location := '0';
+    err_msg := '';
+    meme_operations.method := method;
+
+END initialize_trace;
+
+--
+-- MEME_OPERATIONS Procedures
+--
+
+--************************* ASSIGN_CUIS ***************************
+--
+-- Assumption:
+--  mom safe replacement facts only count if atoms are in same concept
+--
+-- For the whole database
+-- 1. calculate suspect_concepts (cui splits/merges)
+--    assume that safe-replacement facts split across concepts
+--    do not constitute cui -splits
+-- 2. calculate cuis in suspect_concepts (get safe_replacement cuis too)
+-- 3. get atoms with those cuis (last_release_cui or mom_safe_replacement)
+--
+-- For a table_name subset
+-- 1. Pass in table of suspect concepts.  
+--    This set has the property that it is "connected".
+--    i.e. there are no concepts outside the set that would normally
+--    affect the cui assignments of concepts in the set.
+--
+-- For both
+-- 3. get suspect atoms (with atom_id,lrc,concept_id,termgroup)
+-- 4. calculate cui ranks of specified atoms.
+-- 5. assign merges
+-- 6. assign splits
+-- 7. assign split-merge
+-- 8. update concept_status, classes
+-- 9. QA
+--
+--
+-- new_cui_flag: TEMP,YES,NO
+--	used to assign temporary,real cuis to concepts that would otherwise
+--	have none.  If real cuis are assigned the CUI row in max tab is 
+--      updated and so this must be rewound if the operation needs to be
+--      undone.
+--
+-- all_flag: YES,NO
+--	assign all cuis including single last_release_cui
+--	and null cases (only if new_cui_flag is NO)	
+--
+-- qa_flag:  YES, NO
+--      Used to flag whether or not assignments should be QA'd
+--
+-- If all_flag = YES and new_cui_flag != NO, new cuis are assigned for all
+-- concepts where a null cui would be assigned.
+--
+FUNCTION assign_cuis (
+	authority	    IN VARCHAR2,
+	work_id 	    IN INTEGER := 0,
+	table_name	    IN VARCHAR2 := MEME_CONSTANTS.EMPTY_TABLE,
+	new_cui_flag	    IN VARCHAR2 := MEME_CONSTANTS.NO,
+	all_flag	    IN VARCHAR2 := MEME_CONSTANTS.NO,
+	qa_flag		    IN VARCHAR2 := MEME_CONSTANTS.YES
+) RETURN INTEGER
+IS
+    TYPE curvar_type IS REF CURSOR;
+    curvar			curvar_type;
+
+    query			VARCHAR2(1024);
+    local_work_id		INTEGER;
+    ct				INTEGER;
+    new_cui_ct			INTEGER := 0;
+    l_cid 			INTEGER;
+    l_cui			VARCHAR2(20);
+
+    uniq			VARCHAR2(50);
+    suspect_atoms		VARCHAR2(50);
+    suspect_concepts		VARCHAR2(50);
+    suspect_cuis		VARCHAR2(50);
+
+    tmp				VARCHAR2(50);
+    cui_rank			VARCHAR2(50);
+
+    work_table			VARCHAR2(50);
+    cui_assignment		VARCHAR2(50);
+    new_cui			VARCHAR2(50);
+    new_cui_candidates		VARCHAR2(50);
+    curr_concept		VARCHAR2(256);
+    curr_cui			VARCHAR2(256);
+    rowcount			INTEGER;
+
+    bad_assignments		VARCHAR2(50);
+    correct_assignments		VARCHAR2(50);
+    naked_concepts		VARCHAR2(50);
+    unassigned_cuis		VARCHAR2(50);
+    possible_cuis		VARCHAR2(50);
+    missed_assignments		VARCHAR2(50);
+
+BEGIN
+
+    MEME_UTILITY.timing_start;
+
+    -- if a table name is passed in, use its base name instead
+    -- of looking it up in get_unique_tablename
+    IF table_name = MEME_CONSTANTS.EMPTY_TABLE THEN
+        uniq := MEME_UTILITY.get_unique_tablename;
+    ELSE
+	uniq := table_name;
+    END IF;
+
+    -- Assign temp table names
+    suspect_concepts := uniq || '_sc';
+    suspect_atoms := uniq || '_sa';
+    suspect_cuis := uniq || '_scui';
+
+    tmp := uniq || '_tmp';
+    cui_rank := uniq || '_cr';
+
+    work_table := uniq || '_work';
+    cui_assignment := uniq || '_cassign';
+    new_cui := uniq || '_new';
+    new_cui_candidates := uniq || '_ncc';
+
+
+    bad_assignments := uniq || '_ba';
+    correct_assignments := uniq || '_ca';
+    naked_concepts := uniq || '_nc';
+    unassigned_cuis := uniq || '_unassign';
+    possible_cuis := uniq || '_pcui';
+    missed_assignments := uniq || '_miss';
+
+    IF meme_utility.meme_mode = MEME_CONSTANTS.MID_MODE THEN
+
+        -- Get Work_ID, or use passed in work_id
+    	location := '0';
+    	err_msg := 'Error getting new work_id.';
+    	IF work_id = 0 THEN
+	    local_work_id := MEME_UTILITY.new_work( 
+	    	authority => authority,
+	    	type => MEME_CONSTANTS.MW_MAINTENANCE, 
+	    	description => 'Assign CUIs (table_name=' || table_name || ')');
+        ELSE
+	    local_work_id := work_id;
+        END IF;
+
+    END IF;
+
+
+    -- IF table name is empty OR 
+    --    the suspect_concepts table passed in has > 5000 rows THEN
+    --  calculate the suspect concepts table
+    -- ELSE
+    --  treat table_name as suspect_concepts
+    --
+    IF table_name = MEME_CONSTANTS.EMPTY_TABLE OR
+	MEME_UTILITY.exec_count(table_name) > 5000 THEN
+
+	location := '130';
+    	MEME_UTILITY.put_message(LPAD('CREATE suspect_concepts table',45,'.'));
+    	err_msg := 'Error creating suspect_concepts';
+    	MEME_UTILITY.drop_it('table', suspect_concepts);
+    	local_exec(
+    	'CREATE table ' ||suspect_concepts||' as ' ||
+    	-- Get MERGED cuis
+    	'SELECT concept_id ' ||
+    	'FROM classes a ' ||
+    	'WHERE last_release_cui IS NOT NULL ' ||
+    	'GROUP BY concept_id HAVING count(distinct last_release_cui)>1 ' ||
+    	'UNION  ' ||
+    	-- Get SPLIT cuis
+    	'SELECT a.concept_id ' ||
+    	'FROM classes a, classes b ' ||
+    	'WHERE a.last_release_cui = b.last_release_cui ' ||
+    	'  AND a.last_release_cui IS NOT NULL ' ||
+    	'  AND a.concept_id != b.concept_id ');
+
+    ELSE -- table name is not EMPTY_TABLE, 
+
+	suspect_concepts := table_name;
+
+    END IF;
+
+    location := '135';
+    MEME_UTILITY.put_message(LPAD('ANALYZE suspect_concepts table',45,'.'));
+    err_msg := 'error analyzing suspect_cuis';
+    MEME_SYSTEM.analyze(suspect_concepts);
+
+    location := '140';
+    err_msg := 'Error creating suspect_atoms';
+    MEME_UTILITY.drop_it('table', suspect_atoms);
+    MEME_UTILITY.put_message(LPAD('Create suspect_atoms table',45,'.'));
+    query :=
+    'CREATE TABLE ' || suspect_atoms || ' AS ' ||
+    'SELECT atom_id, last_release_cui, a.concept_id, termgroup ' ||
+    'FROM classes a, ' || suspect_concepts || ' b ' ||
+    'WHERE a.concept_id = b.concept_id ' ||
+    '  AND a.last_release_cui IS NOT NULL ' ||
+    'UNION ' ||
+    'SELECT atom_id, last_release_cui, concept_id, termgroup FROM ' ||
+    '(SELECT new_atom_id as atom_id, a.last_release_cui, ' ||
+    '       b.concept_id, b.termgroup, max(a.rank) as rank ' ||
+    ' FROM mom_safe_replacement a, classes b, classes c, ' || 
+ 	  suspect_concepts || ' d ' ||
+    ' WHERE new_atom_id = b.atom_id ' ||
+    '   AND old_atom_id = c.atom_id ' ||
+    '   AND d.concept_id = b.concept_id ' ||
+    '   AND b.concept_id = c.concept_id ' ||
+    ' GROUP BY new_atom_id, a.last_release_cui, ' ||
+    ' b.concept_id, b.termgroup) '; 
+    local_exec(query);
+
+    -- no need to analyze suspect_atoms
+
+    --	 '0' + 			/* tobereleased_rank */
+    --	 '0000' +		/* Termgroup rank */
+    --	 '0' +			/* Released last year */
+    --	 '00000000' +		/* atom_id */
+    --	 '00'  			/* MM bracketed number */
+    --   '00000000' 	        /* last release cui */
+    location := '160';
+    err_msg := 'Error creating cui_rank';
+    MEME_UTILITY.drop_it('table', cui_rank);
+    MEME_UTILITY.put_message(LPAD('Create cui_rank table',45,'.'));
+    query :=
+    'CREATE table ' || cui_rank || ' as ' ||
+    'SELECT concept_id, last_release_cui as cui, max( ' ||
+    '	 LPAD(MEME_RANKS.rank_atom_for_release(atom_id,termgroup),18,0)) as rank ' ||
+    '	 FROM ' || suspect_atoms || ' ' ||
+    'GROUP BY concept_id, last_release_cui ' ;
+    local_exec(query);
+
+    /* Take CUI of highest ranking atom.  Assign it to the concept
+       that it is in.  Then, remove all atoms with that CUI and
+       that concept_id from consideration.  Repeat these steps until
+       no more CUIs can be assigned */
+
+    -- If table name is empty, work_table just IS cui_rank
+    -- we create work_table to preserve the cui_rank data
+    -- for QA later, but if table name is empty we do no QA.
+    IF qa_flag = MEME_CONSTANTS.YES THEN
+    	location := '300';
+    	MEME_UTILITY.put_message(LPAD('Create work_table',45,'.'));
+    	err_msg := 'Error creating work_table';
+    	MEME_UTILITY.drop_it('table', work_table);
+    	query :=
+    	'CREATE table ' ||work_table||' as ' ||
+    	'SELECT * ' ||
+    	'FROM ' ||cui_rank||' ';
+    	local_exec(query);
+    ELSE
+	work_table := cui_rank;
+    END IF;
+
+/*  These tables are pretty small, forget the indexes
+    MEME_UTILITY.put_message(LPAD('Create indexes',45,'.'));
+    location := '305';
+    err_msg := 'Error creating index on work_table';
+    query := 'create index '||work_table||'_rank on '||
+	      work_table||'(rank) compute statistics';
+    local_exec(query);
+
+    location := '306';
+    err_msg := 'Error creating index on work_table';
+    query := 'create index '||work_table||'_cui on '||
+	      work_table||'(cui) compute statistics';
+    local_exec(query);
+
+    location := '307';
+    err_msg := 'Error creating index on work_table';
+    query := 'create index '||work_table||'_concept_id on ' ||
+	      work_table||'(concept_id) compute statistics';
+    local_exec(query);
+*/
+
+    location := '310';
+    err_msg := 'Error creating cui_assignment';
+    MEME_UTILITY.drop_it('table', cui_assignment);
+    query :=
+    'CREATE table ' ||cui_assignment||' as ' ||
+    'SELECT cui, ' ||
+    '	    concept_id ' ||
+    'FROM ' ||work_table||
+    ' WHERE 0=1';
+    local_exec(query);
+
+    -- Process Pure Merges
+    --   get concept_ids with multiple CUIs (merges)
+    --   minus the concept_ids that go with (splits)
+    --   cuis having multiple concepts
+    location := '320.1';
+    MEME_UTILITY.put_message(LPAD('Process pure merges',45,'.'));
+    err_msg := 'Error processing pure-merges.';
+    local_exec(
+    'INSERT INTO ' || cui_assignment || ' ' ||
+    'SELECT SUBSTR(rank_cui, INSTR(rank_cui,''/'') +1),concept_id ' ||
+    'FROM ' ||
+    '(SELECT max(rank || ''/'' || cui) as rank_cui,concept_id ' ||
+    ' FROM ' || cui_rank || ' ' ||
+    ' WHERE concept_id IN ' ||
+    ' (SELECT concept_id FROM ' || cui_rank || 
+    '  GROUP BY concept_id HAVING count(DISTINCT cui)>1 ' ||
+    '  MINUS ' ||
+    '  SELECT concept_id FROM ' || cui_rank || ' WHERE cui IN ' ||
+    '   (SELECT cui FROM ' || cui_rank || ' GROUP BY cui ' ||
+    '	 HAVING count(DISTINCT concept_id)>1 ) ) ' ||
+    ' GROUP BY concept_id) ' );
+
+    location := '320.2';
+    err_msg:= 'Error deleting pure-merges from work table.';
+    local_exec (
+    'DELETE FROM ' || work_table || ' ' ||
+    'WHERE concept_id IN ' ||
+    '(SELECT concept_id FROM ' || cui_assignment || ')' );
+   
+    -- Process Pure Splits
+    --   get CUIs with multiple concept ids (Splits)
+    --   minus the CUIs that go with (Merges)
+    --   concept_ids having multiple CUIs
+    location := '325.3';
+    MEME_UTILITY.put_message(LPAD('Process pure splits',45,'.'));
+    err_msg := 'Error processing pure-splits.';
+    local_exec( 
+    'INSERT INTO ' || cui_assignment || ' ' ||
+    'SELECT cui, to_number(SUBSTR(rank_cid, INSTR(rank_cid,''/'') +1)) ' ||
+    'FROM ' ||
+    '(SELECT max(rank || ''/'' || concept_id) as rank_cid, cui ' ||
+    ' FROM ' || cui_rank || ' ' ||
+    ' WHERE cui IN ' ||
+    ' (SELECT cui FROM ' || cui_rank || 
+    '  GROUP BY cui HAVING count(DISTINCT concept_id)>1 ' ||
+    '  MINUS ' ||
+    '  SELECT cui FROM ' || cui_rank || ' WHERE concept_id IN ' ||
+    '   (SELECT concept_id FROM ' || cui_rank || ' GROUP BY concept_id ' ||
+    '	 HAVING count(DISTINCT cui)>1 ) ) ' ||
+    ' GROUP BY cui) ' );
+
+    location := '320.4';
+    err_msg:= 'Error deleting pure-splits from work table.';
+    local_exec (
+    'DELETE FROM ' || work_table || ' ' ||
+    'WHERE cui IN ' ||
+    '(SELECT cui FROM ' || cui_assignment || ')' );
+
+    location := '325';
+    err_msg := 'Error creating table tmp';
+    MEME_UTILITY.drop_it('table', tmp);
+    query :=
+    'CREATE table ' ||tmp||' as ' ||
+    'SELECT concept_id, cui ' ||
+    ' FROM ' ||work_table||
+    ' WHERE 0=1 ';
+    local_exec(query);
+
+    MEME_UTILITY.put_message(LPAD('Start cui assignment loop',45,'.'));
+    ct  := 0;
+    LOOP
+
+       location := '330';
+       err_msg := 'Error inserting into table tmp';
+       execute immediate
+	'INSERT INTO ' || tmp || ' 
+         (SELECT concept_id,cui FROM ' || work_table || '
+	 WHERE rank in (SELECT max(rank) FROM ' || work_table || '))';
+
+       location := '335';
+       err_msg := 'Error getting rowcount';
+       rowcount := MEME_UTILITY.exec_count(tmp);
+       IF rowcount = 0 THEN
+	 EXIT;
+       END IF;
+
+       location := '340';
+       err_msg := 'Error deleting concept_ids from work_table';
+       execute immediate
+	'DELETE FROM ' || work_table || ' WHERE concept_id IN 
+  	 (SELECT concept_id FROM ' || tmp || ')';
+
+       location := '350';
+       err_msg := 'Error deleting cuis from work_table';
+       execute immediate
+	'DELETE FROM ' || work_table || ' WHERE cui IN
+	 (SELECT cui FROM '|| tmp || ')';
+
+       location := '360';
+       err_msg := 'Error inserting cui and concept into cui_assignment';
+       execute immediate
+	'INSERT INTO ' || cui_assignment || '
+	 (SELECT cui,concept_id FROM ' || tmp || ')';
+
+       location := '375';
+       err_msg := 'Error deleting from tmp';
+       execute immediate
+	'TRUNCATE TABLE ' || tmp;
+  
+       ct := ct + 1;
+       IF MOD(ct,1000) = 0 THEN
+	   MEME_UTILITY.put_message(LPAD(ct || ' rows processed',45,'.'));
+       END IF;
+
+    END LOOP;
+
+    IF MOD(ct,1000) != 0 THEN
+       MEME_UTILITY.put_message(LPAD(ct || ' rows processed',45,'.'));
+    END IF;
+
+    -- For any concept_ids in cui_rank that have not
+    -- yet been assigned, make them null (unless we are making new cuis).
+    -- Splits (and split-merges) cause these cases
+    IF new_cui_flag = MEME_CONSTANTS.NO THEN
+    	MEME_UTILITY.put_message(LPAD('Assign null CUIs for split-merges',45,'.'));
+    	ct := local_exec (
+	  'INSERT INTO ' || cui_assignment || ' ' ||
+	  'SELECT '''', concept_id FROM ' ||
+	  '(SELECT concept_id FROM ' || cui_rank || ' ' ||
+	  ' MINUS SELECT concept_id FROM ' || cui_assignment || ')'
+	);
+        MEME_UTILITY.put_message(LPAD(ct || ' rows processed',45,'.'));
+    END IF;
+
+    -- Assign null cuis if all_flag is set and new_cui_flag is NO
+    --
+    IF all_flag = MEME_CONSTANTS.YES AND
+       new_cui_flag = MEME_CONSTANTS.NO  THEN
+
+    	location := '378.1';
+	MEME_UTILITY.put_message(LPAD('Assign null CUIs',45,'.'));
+	ct := local_exec (
+	    'INSERT INTO ' || cui_assignment || ' ' ||
+	    'SELECT '''', concept_id FROM ' ||
+	    '(SELECT concept_id FROM classes WHERE last_release_cui IS NULL ' ||
+	    ' MINUS ' ||
+	    ' SELECT concept_id FROM classes WHERE last_release_cui IS NOT NULL )'
+	);
+	MEME_UTILITY.put_message(LPAD(ct || ' rows processed',45,'.'));
+
+    END IF;
+
+    -- Assign single last_release_cui cases.
+    -- This means 1-1 map of concept_id to last_release_cui
+    IF all_flag = MEME_CONSTANTS.YES THEN
+    	location := '378.2';
+	MEME_UTILITY.put_message(LPAD('Assign single last_release_cui cases',45,'.'));
+	ct := local_exec (
+	    'INSERT INTO ' || cui_assignment || ' ' ||
+	    'SELECT a.cui, concept_id ' ||
+	    'FROM ' ||
+	    ' (SELECT min(last_release_cui) as cui, concept_id FROM classes ' ||
+	    '  WHERE last_release_cui IS NOT NULL ' ||
+	    '  GROUP BY concept_id HAVING count(distinct last_release_cui)=1 ) a, ' ||
+	    ' (SELECT last_release_cui as cui FROM classes ' ||
+	    '  WHERE last_release_cui IS NOT NULL ' ||
+	    '  GROUP BY last_release_cui HAVING count(distinct concept_id)=1 ) b ' ||
+	    'WHERE a.cui = b.cui '
+	); 
+	MEME_UTILITY.put_message(LPAD(ct || ' rows processed',45,'.'));
+
+    END IF;
+
+    -- Assign new CUIs
+    --   Get cases involved
+    --   Reassign previous (temp) cuis if available
+    --      and if we are assigning new (temp) cuis.
+    --   Count cases requiring re-assignment
+    IF new_cui_flag != MEME_CONSTANTS.NO THEN
+
+	MEME_UTILITY.put_message(LPAD('Assign new cuis (' || new_cui_flag || ')',45,'.'));
+
+	-- get new cui candidates
+	-- If all_flag is YES, new_cui_pre is: concept_status
+	IF all_flag = MEME_CONSTANTS.YES THEN
+	    new_cui_candidates := 'concept_status';
+	-- Else use suspect concepts
+	ELSE
+	    new_cui_candidates := suspect_concepts;
+  	END IF;
+
+    	location := '378.3';
+	local_exec(
+	    'CREATE TABLE ' || new_cui || ' AS ' ||
+	    'SELECT concept_id FROM ' || new_cui_candidates || ' ' ||
+	    'MINUS SELECT concept_id FROM ' || cui_assignment
+	);
+
+	-- If we are assigning TEMP cuis, first try to give these
+        -- things the same temp CUIs they had last time before giving
+	-- new ones out.
+	  
+	-- count how many there are
+    	location := '378.4';
+	ct := MEME_UTILITY.exec_select(
+	    'SELECT count(*) FROM ' || new_cui || ' ' ||
+	    'WHERE concept_id IN (SELECT concept_id FROM classes ' ||
+	    'WHERE tobereleased in (''Y'',''y''))'
+	);
+	MEME_UTILITY.put_message(LPAD(ct|| ' new cuis.',45,'.'));
+
+  	-- This is the count of new CUIs.
+  	new_cui_ct := ct;
+
+	IF new_cui_flag = MEME_CONSTANTS.YES THEN
+	    l_cui := 'CUI';
+   	ELSIF new_cui_flag = 'TEMP' THEN
+	    l_cui := 'TCUI';
+	END IF;
+	    
+	-- update max_tab
+    	location := '378.5';
+	UPDATE max_tab SET max_id = max_id + ct
+	WHERE table_name = l_cui;
+
+	-- If TCUI row does not exist, add it
+	IF SQL%ROWCOUNT = 0 THEN
+	    location := '378.6';
+	    INSERT INTO max_tab (table_name, max_id) 
+	    VALUES (l_cui, ct+1);
+	END IF;
+
+	-- Get ID to start with
+    	location := '378.7';
+	SELECT max_id - ct into ct FROM max_Tab
+	WHERE table_name = l_cui;
+
+	-- Add to cui_assignment table
+	IF new_cui_flag like 'TEMP%' THEN
+    	  location := '378.8';
+	  local_exec(
+	    'INSERT INTO ' || cui_assignment || ' ' ||
+	    'SELECT ''CT'' || LPAD(rownum+' || ct || ',7,0), concept_id ' ||
+	    'FROM ' || new_cui || ' ' ||
+	    'WHERE concept_id IN (SELECT concept_id FROM classes ' ||
+	    'WHERE tobereleased in (''Y'',''y''))'
+	  );
+	ELSIF new_cui_flag = MEME_CONSTANTS.YES THEN
+    	  location := '378.9';
+	  local_exec(
+	    'INSERT INTO ' || cui_assignment || ' ' ||
+	    'SELECT ''C'' || LPAD(rownum+'|| ct || ',7,0), concept_id ' ||
+	    'FROM ' || new_cui || ' ' ||
+	    'WHERE concept_id IN (SELECT concept_id FROM classes ' ||
+	    'WHERE tobereleased in (''Y'',''y''))'
+	  );
+	END IF;
+	
+    END IF;
+
+    -- debugging	
+    --meme_utility.drop_it('table','cui_assignment');
+    --meme_utility.exec('create table cui_assignment as select * from '||
+    --	cui_Assignment);
+
+    location := '379';
+    err_msg := 'Error analyzing cui_assignment';
+    MEME_SYSTEM.analyze(cui_assignment);
+
+    location := '380';
+    MEME_UTILITY.put_message(LPAD('Update concept_status.cui',45,'.'));
+    err_msg := 'Error updating concept_status';
+    ct := 0;
+    location := '380.2';
+    OPEN curvar FOR 'SELECT a.concept_id, a.cui FROM ' || cui_assignment ||
+		   ' a, concept_status b ' ||
+		    'WHERE a.concept_id = b.concept_id ' ||
+		    '  AND nvl(b.cui,''null'') != nvl(a.cui,''null'')';
+    LOOP
+        location := '380.2';
+	FETCH curvar INTO l_cid, l_cui;
+	EXIT WHEN curvar%NOTFOUND;
+
+        location := '380.3';
+	UPDATE concept_status SET cui = l_cui
+	WHERE concept_id = l_cid
+	AND NVL(cui,'null') != NVL(l_cui,'null');
+
+	ct := ct + SQL%ROWCOUNT;
+
+    END LOOP;   
+    MEME_UTILITY.put_message(LPAD(ct || ' rows assigned',45,'.'));
+
+    location := '390.1';
+    MEME_UTILITY.put_message(LPAD('Update classes.last_assigned_cui',45,'.'));
+    err_msg := 'Error updating classes';
+    ct := 0;
+    location := '390.2';
+    OPEN curvar FOR 'SELECT a.concept_id, a.cui FROM ' || cui_assignment ||
+		   ' a, classes b WHERE a.concept_id = b.concept_id ' ||
+		    'AND nvl(last_assigned_cui,''null'') != nvl(a.cui,''null'')';
+    LOOP	   
+        location := '390.2';
+	FETCH curvar INTO l_cid, l_cui;
+	EXIT WHEN curvar%NOTFOUND;
+
+        location := '390.3';
+	UPDATE classes SET last_assigned_cui = l_cui
+	WHERE concept_id = l_cid
+ 	  AND nvl(last_assigned_cui,'null') != NVL(l_cui,'null');
+
+	ct := ct + SQL%ROWCOUNT;
+
+    END LOOP;   
+    MEME_UTILITY.put_message(LPAD(ct || ' rows assigned',45,'.'));
+
+
+    -- ONLY perform QA if flag is set
+
+    IF qa_flag = MEME_CONSTANTS.YES THEN
+
+    	--
+    	--  QA section
+    	--
+    	-- These steps used to be executed by $META_PROD/QA/
+    	-- QA.cui_assignment.sql 
+    	MEME_UTILITY.put_message(LPAD('Finished, perform QA',45,'.'));
+	
+	-- Check that there is at least one atom in each concept with
+    	-- a last_release_cui equal to the CUI assigned by the algorithm 
+    	-- since we only use safe replacement facts still in the same
+    	-- concept, all we have to do is look at the last release cuis
+    	-- in the concepts because the safe-replacement inherited ones
+    	-- came from the same concept.
+    	location := '400';
+    	err_msg := 'Error creating bad_assignments';
+    	MEME_UTILITY.drop_it('table', bad_assignments);
+    	query :=
+    	'CREATE table ' ||bad_assignments|| ' as ( ' ||
+    	' SELECT a.concept_id, ' ||
+    	'	b.last_release_cui ' ||
+    	' FROM '||cui_assignment||' a, ' ||
+    	'   classes b' ||
+    	' WHERE a.concept_id = b.concept_id ' ||
+    	'   and b.last_release_cui IS NOT NULL ' ||
+    	'   and a.cui IS NOT NULL ' ||
+    	'   and a.cui NOT LIKE ''CT%'' ' ||
+    	') ';
+    	local_exec(query);
+
+    	location := '410';
+    	err_msg := 'Error creating correct_assignments';
+    	MEME_UTILITY.drop_it('table', correct_assignments);
+    	query :=
+    	'CREATE table ' ||correct_assignments|| ' as ( ' ||
+    	' SELECT distinct a.concept_id ' ||
+    	' FROM '||bad_assignments||' a, ' ||
+		cui_assignment|| ' b ' ||
+    	' WHERE a.concept_id = b.concept_id ' ||
+    	'   AND a.last_release_cui = b.cui' || 
+    	') ';
+    	local_exec(query);
+
+    	location := '420';
+    	err_msg := 'Error deleting concept_ids from bad_assignments';
+    	query :=
+    	'DELETE ' ||
+    	'FROM ' ||bad_assignments||
+    	' WHERE concept_id in ( ' ||
+    	' SELECT concept_id ' ||
+    	' FROM '||correct_assignments||
+    	')';
+    	local_exec(query);
+	
+    	COMMIT;
+
+    	/***************** This should be zero. ****************/
+	/***************** Or equal to new cui count ***********/
+    	location := '430';
+    	err_msg := 'Error getting rowcount of bad_assignments';
+    	rowcount := MEME_UTILITY.exec_count(bad_assignments);
+    	IF rowcount != 0 AND row_count != new_cui_ct THEN
+    	  err_msg := 'This rowcount should be 0 (' || rowcount || ')';
+--	    local_exec('create table bad_assignments as select * from '||bad_assignments);
+--	    local_exec('create table correct_assignments as select * from '||correct_assignments);
+          meme_operations_error('assign_cuis', location, 20,
+	    rowcount||', '|| err_msg || ': ' ||SQLERRM);
+          RAISE meme_operations_exception;
+    	END IF;
+
+    	-- Check to see that no concept without a CUI contains an
+    	-- atom with an unassigned last_release_cui
+
+    	location := '440';
+    	err_msg := 'Error creating naked_concepts';
+    	MEME_UTILITY.drop_it('table', naked_concepts);
+    	query :=
+    		'CREATE table ' || naked_concepts || ' as  ' ||
+    		'SELECT distinct concept_id ' ||
+    		'FROM ' || cui_rank || ' ' ||
+    		'MINUS ' ||
+		'SELECT concept_id FROM ' || cui_assignment;
+    	local_exec(query);
+
+    	location := '460';
+    	err_msg := 'Error creating unassigned_cuis';
+    	MEME_UTILITY.drop_it('table', unassigned_cuis);
+    	query :=
+    		'CREATE table ' ||unassigned_cuis|| ' as  ' ||
+    		'SELECT distinct cui ' ||
+    		'FROM ' || cui_rank || ' ' ||
+		'MINUS ' ||
+		'SELECT cui FROM ' || cui_assignment;
+    	local_exec(query);
+
+    	location := '480';
+    	err_msg := 'Error creating possible_cuis';
+    	MEME_UTILITY.drop_it('table', possible_cuis);
+    	query :=
+    	'CREATE table ' ||possible_cuis|| ' as ( ' ||
+    	' SELECT a.concept_id, ' ||
+    	'	b.last_release_cui '||
+    	' FROM '||naked_concepts||' a, ' ||
+    	'	 classes b ' ||
+    	' WHERE a.concept_id = b.concept_id ' ||
+    	') ';
+    	local_exec(query);
+
+    	location := '490';
+    	err_msg := 'Error creating missed_assignments';
+    	MEME_UTILITY.drop_it('table', missed_assignments);
+    	query :=
+    	'CREATE table ' ||missed_assignments|| ' as ( ' ||
+    	' SELECT concept_id, ' ||
+    	'	last_release_cui '||
+    	' FROM '||possible_cuis||' ,' ||
+		 unassigned_cuis||
+   	' WHERE last_release_cui = cui ' ||
+    	') ';
+    	local_exec(query);
+
+     	/***************** This should be zero. ****************/
+
+    	location := '495';
+    	err_msg := 'Error getting rowcount of missed_assignments';
+    	rowcount := MEME_UTILITY.exec_count(missed_assignments);
+    	IF rowcount != 0 THEN
+    	   err_msg := 'This rowcount should be 0 (' || rowcount || ') (cids: ' ||
+	   MEME_UTILITY.table_to_string(missed_assignments) || ').';
+       	   meme_operations_error('assign_cuis', location, 20,
+	  	rowcount||', '|| err_msg || ': ' ||SQLERRM);
+       	   RAISE meme_operations_exception;
+    	END IF;
+
+     	/***************** This should be zero. ****************/
+
+    	location := '497';
+    	err_msg := 'Error finding duplicate CUI assignments.';
+    	rowcount := MEME_UTILITY.exec_select(
+	    'SELECT count(*) FROM ' ||
+	    '(SELECT cui FROM ' || cui_assignment ||
+	    ' WHERE cui IS NOT NULL ' ||
+	    ' GROUP BY cui ' ||
+	    ' HAVING count(*)>1)');
+    	IF rowcount != 0 THEN
+    	   err_msg := 'This rowcount should be 0 (' || rowcount || ')';
+       	   meme_operations_error('assign_cuis', location, 20,
+	  	rowcount||', '|| err_msg || ': ' ||SQLERRM);
+       	   RAISE meme_operations_exception;
+    	END IF;
+
+     	/***************** This should be zero. ****************/
+
+    	location := '498';
+    	err_msg := 'Error finding duplicate conceptid assignments.';
+    	rowcount := MEME_UTILITY.exec_select(
+	    'SELECT count(*) FROM ' ||
+	    '(SELECT concept_id FROM ' || cui_assignment ||
+	    ' WHERE cui IS NOT NULL ' ||
+	    ' GROUP BY concept_id ' ||
+	    ' HAVING count(*)>1)');
+    	IF rowcount != 0 THEN
+    	   err_msg := 'This rowcount should be 0 (' || rowcount || ')';
+       	   meme_operations_error('assign_cuis', location, 20,
+	  	rowcount||', '|| err_msg || ': ' ||SQLERRM);
+       	   RAISE meme_operations_exception;
+    	END IF;
+
+
+    END IF; -- only do qa if qa_flag is MEME_CONSTANTS.YES
+
+    location := '500';
+    err_msg := 'Dropping temporary tables.';
+ 
+    -- only drop suspect_concepts if table_name is EMPTY_TABLE
+    IF table_name = MEME_CONSTANTS.EMPTY_TABLE THEN
+        MEME_UTILITY.drop_it('table', suspect_concepts );
+    END IF;
+    MEME_UTILITY.drop_it('table', suspect_atoms );
+    MEME_UTILITY.drop_it('table', suspect_cuis);
+
+    MEME_UTILITY.drop_it('table', tmp);
+    MEME_UTILITY.drop_it('table', cui_rank);
+
+    MEME_UTILITY.drop_it('table', work_table );
+    MEME_UTILITY.drop_it('table', work_table || '_backup' );
+    MEME_UTILITY.drop_it('table', cui_assignment );
+    MEME_UTILITY.drop_it('table', new_cui);
+
+    MEME_UTILITY.drop_it('table', bad_assignments);
+    MEME_UTILITY.drop_it('table', correct_assignments);
+    MEME_UTILITY.drop_it('table', naked_concepts);
+    MEME_UTILITY.drop_it('table', unassigned_cuis);
+    MEME_UTILITY.drop_it('table', possible_cuis);
+    MEME_UTILITY.drop_it('table', missed_assignments );
+
+    MEME_UTILITY.timing_stop;
+    MEME_UTILITY.put_message(LPAD('Finished, log results',45,'.'));
+    MEME_UTILITY.log_operation( authority,'MEME_OPERATIONS.assign_cuis',
+	'',0,local_work_id,MEME_UTILITY.elapsed_time);
+    RETURN local_work_id;
+
+EXCEPTION
+  WHEN OTHERS THEN
+    meme_operations_error('assign_cuis',location,1,err_msg||' '||SQLERRM);
+
+    IF table_name = MEME_CONSTANTS.EMPTY_TABLE THEN
+        MEME_UTILITY.drop_it('table', suspect_concepts );
+    END IF;
+    MEME_UTILITY.drop_it('table', suspect_atoms );
+    MEME_UTILITY.drop_it('table', suspect_cuis);
+
+    MEME_UTILITY.drop_it('table', tmp);
+    MEME_UTILITY.drop_it('table', cui_rank);
+
+    MEME_UTILITY.drop_it('table', work_table );
+    MEME_UTILITY.drop_it('table', work_table || '_backup');
+    MEME_UTILITY.drop_it('table', cui_assignment );
+    MEME_UTILITY.drop_it('table', new_cui);
+
+    MEME_UTILITY.drop_it('table', bad_assignments);
+    MEME_UTILITY.drop_it('table', correct_assignments);
+    MEME_UTILITY.drop_it('table', naked_concepts);
+    MEME_UTILITY.drop_it('table', unassigned_cuis);
+    MEME_UTILITY.drop_it('table', possible_cuis);
+    MEME_UTILITY.drop_it('table', missed_assignments );
+
+    RAISE meme_operations_exception;
+
+END assign_cuis;
+
+
+END MEME_OPERATIONS;
+/
+SHOW ERRORS
+
+set serveroutput on size 100000
+execute MEME_OPERATIONS.help;
+execute MEME_OPERATIONS.register_package
+

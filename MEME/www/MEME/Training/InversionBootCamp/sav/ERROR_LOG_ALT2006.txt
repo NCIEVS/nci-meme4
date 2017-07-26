@@ -1,0 +1,49 @@
+
+--------------- ATTRIBUTES.SRC ---------------
+---- Status not 'N' for SEMANTIC_TYPE : 1 ----
+1|92361401|C|SEMANTIC_TYPE|Intellectual Product|SRC|R|Y|N|N|SRC_ATOM_ID|||3d9e88091cf4ebbab774e90c8f6d4052|
+
+---- Source not 'E-<SAB>' for SEMANTIC_TYPE: 1 ----
+1|92361401|C|SEMANTIC_TYPE|Intellectual Product|SRC|R|Y|N|N|SRC_ATOM_ID|||3d9e88091cf4ebbab774e90c8f6d4052|
+
+
+--------------- CLASSES_ATOMS.SRC ---------------
+---- Unexpected Characters: 4 ----
+92362452|ALT2006|ALT2006/PT|CDAJV|N|Y|N|Having Chemo or Radiation Therapy?(C) individual each program narrative required|N||CDAJV||ENG|102015|
+92362453|ALT2006|ALT2006/PT|CDAJW|N|Y|N|Having Surgery?(C) individual each program narrative required|N||CDAJW||ENG|102017|
+92367081|ALT2006|ALT2006/AB|CDAJV|R|Y|N|Hvng Chemo/rad therp? ndvdl|Y||CDAJV||ENG|102016|
+92367082|ALT2006|ALT2006/AB|CDAJW|R|Y|N|Hvng srg? ndvdl ea.prgrm nar|Y||CDAJW||ENG|102018|
+
+---- Duplicate Term: 107 ----
+92361559|ALT2006|ALT2006/PT|ACCAE|N|Y|N|Detailed new in-facility 45 minutes|N||ACCAE||ENG|100298|
+92361560|ALT2006|ALT2006/PT|ACCAF|N|Y|N|Comprehensive new in-facility 60 minutes|N||ACCAF||ENG|100300|
+92361595|ALT2006|ALT2006/PT|ACDAD|N|Y|N|Simple existing in-facility 15 minutes|N||ACDAD||ENG|100369|
+92361597|ALT2006|ALT2006/PT|ACDAF|N|Y|N|Comprehensive existing in-facility 60 minutes|N||ACDAF||ENG|100373|
+92361985|ALT2006|ALT2006/PT|BBABZ|N|Y|N|Postural exercise individual each 15 minutes|N||BBABZ||ENG|101120|
+92362026|ALT2006|ALT2006/PT|BCABF|N|Y|N|Endurance therapeutic exercise individual each 15 minutes|N||BCABF||ENG|101197|
+92366528|ALT2006|ALT2006/AB|ADZBG|R|Y|N|Wstrnhrb/ntrl subst prep trn|Y||ADZBG||ENG|100858|
+92366773|ALT2006|ALT2006/AB|CABAE|R|Y|N|hypthrmc Tx flbdy ea.1min|Y||CABAE||ENG|101384|
+92366970|ALT2006|ALT2006/AB|CDABZ|R|Y|N|EMDR therp ea.15min|Y||CDABZ||ENG|101794|
+92366980|ALT2006|ALT2006/AB|CDACJ|R|Y|N|Behavior modification assist|Y||CDACJ||ENG|101814|
+---- Truncated at 10 ----
+
+---- Duplicate Case-insensitive Term: 266 ----
+92361559|ALT2006|ALT2006/PT|ACCAE|N|Y|N|Detailed new in-facility 45 minutes|N||ACCAE||ENG|100298|
+92361560|ALT2006|ALT2006/PT|ACCAF|N|Y|N|Comprehensive new in-facility 60 minutes|N||ACCAF||ENG|100300|
+92361595|ALT2006|ALT2006/PT|ACDAD|N|Y|N|Simple existing in-facility 15 minutes|N||ACDAD||ENG|100369|
+92361597|ALT2006|ALT2006/PT|ACDAF|N|Y|N|Comprehensive existing in-facility 60 minutes|N||ACDAF||ENG|100373|
+92361985|ALT2006|ALT2006/PT|BBABZ|N|Y|N|Postural exercise individual each 15 minutes|N||BBABZ||ENG|101120|
+92362026|ALT2006|ALT2006/PT|BCABF|N|Y|N|Endurance therapeutic exercise individual each 15 minutes|N||BCABF||ENG|101197|
+92366528|ALT2006|ALT2006/AB|ADZBG|R|Y|N|Wstrnhrb/ntrl subst prep trn|Y||ADZBG||ENG|100858|
+92366773|ALT2006|ALT2006/AB|CABAE|R|Y|N|hypthrmc Tx flbdy ea.1min|Y||CABAE||ENG|101384|
+92366889|ALT2006|ALT2006/AB|CBGAT|R|Y|N|watsu each 15 minutes|Y||CBGAT||ENG|101625|
+92366970|ALT2006|ALT2006/AB|CDABZ|R|Y|N|EMDR therp ea.15min|Y||CDABZ||ENG|101794|
+---- Truncated at 10 ----
+
+
+--------------- ./source_atoms.dat ---------------
+---- SAID not in Classes: 1 ----
+Line #    SAID not in classes_atoms.src
+--------  -----------------------
+  4714 1500273 
+

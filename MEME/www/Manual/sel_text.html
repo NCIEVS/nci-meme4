@@ -1,0 +1,252 @@
+
+<HTML>
+<HEAD>
+<TITLE>Concept Selector (SEL) screen</TITLE></HEAD>
+<BODY>
+<UL>
+<LI><B>7.1.3.0 Introduction to Concept Selector (SEL) screen - </B></LI></UL>
+<P ALIGN="CENTER"><IMG SRC="mainsel"></P>
+<P>The Concept Selector (SEL) screen is a good starting place for editing to
+begin. It compiles a list of the concept(s) to be edited and has links to other
+editing screens. A concept can be edited on the SEL screen only when it is the
+Current Concept (CC). The Current Concept  concept_id and concept name are
+displayed in the long yellow box at the top of the screen as well as the concept
+status, the preferred termgroup (which determines the concept name), and the
+preferred atom code. A concept can not be edited if it is not the CC. If a
+concept is selected from the Finder to be edited, it will automatically be the
+Current Concept. Other ways of making a concept be the Current Concept are
+discussed later on.</P>
+<P>Near the top left hand side of the screen is the Editor box. It lists the
+initials of the editor currently using the interface. These are the initials
+that will appear on the concept when changes are made to show which editor made
+the changes.</P>
+<P>The Edit List contains all the concepts being stored in the SEL screen. Only
+one can be the current concept but an editor  can keep a list of concepts ready
+to edit in the Edit List. The Edit List displays the termgroup of the preferred
+atom (which determines the concept name), the code of the preferred atom, the
+concept_id, the concept name, and the action being performed with the concept
+(under Action Selector). Concepts can be removed from the Edit List  by clicking
+on the white button &quot;Remove Concept from Edit List&quot;.  The Current
+Concept can not be removed from the list.</P>
+<P>At the top left of the screen, there are two green buttons. The Report
+button pulls up the concept report for the Current Concept.  The Finder button displays the Finder screen (see section 7.1.2)
+so that the editor can search for new concepts at any point it is needed. To the
+right, there are two orange buttons (Attribute and Sources) which will be
+discussed in the following sections.</P>
+<P>Also discussed in the following sections are the ADD buttons at the bottom
+left side of the screen and the approval buttons on the bottom right side of the
+screen.</P>
+<P><BR></P>
+<UL>
+<LI><B>7.1.3.1 Menu and Speed Keys - </B></LI></UL>
+<P>The Menu options at the top of the screen allow editors to perform the same
+editing actions as the buttons present throughout the screen. The speed keys
+allow editors to perform actions using the Control Key and another specified key
+on the keyboard (ex. Ctrl-C).</P>
+<P></P>
+<P ALIGN="CENTER"><IMG SRC="speedkeys"></P>
+<P>An action from the menu options is chosen by holding down the left mouse
+button and highlighting the desired action. Then, the mouse button is released
+and the action is performed. The Close menu allows the editor to close the SEL
+screen and any other screens that were opened from the SEL screen. The Report
+menu displays all the different options for displaying concept reports. The
+Status menu allows an editor to change the status of the Current Concept.  The Next menu moves an editor through a worklist by
+Approving or Not Approving concepts as the editor goes from concept to concept
+in the worklist. The ADD menu has the same search options as the ADD buttons at
+the bottom of the SEL screen. An editor can search for other concepts using the
+concept_id, code, file list or CUI. The Save menu is used if an editor wants to
+save the contents of an Edit List for future editing. The editor highlights this
+menu choice, provides a name for the file and then saves the file. The Speed
+Keys menu does not perform any actions. It just lists the keys that can be used
+to perform the same actions as the menus and the buttons on the SEL screen.</P>
+<P><BR></P>
+<UL>
+<LI><B>7.1.3.2 ADD buttons - </B></LI></UL>
+<P ALIGN="CENTER"><IMG SRC="lookup"></P>
+<P>At the bottom of the screen, there are 4 white rows  (with blue ADD buttons
+at the end of each) that aid editors in retrieving concepts (using codes and
+numbers instead of words). The first row is Concept_id. If an editor knows the
+id of a concept they would like to edit, the concept_id can be entered in the
+white box and the ADD button is clicked. The matching concept will appear in the
+Edit List. If another concept is in the list and is already the CC, the new
+concept will not automatically become the new CC. If the concept_id can not be
+found, a message box will appear saying &quot;Concept Not Found&quot;. The
+editor needs to click the OK button in the box in order to continue. A blank
+line will also appear in the edit list to indicate that no concept was found
+with that id.</P>
+<P>The next row is Read Edit List from file. An editor can save to a file a
+list of concepts that they have in the Edit List for editing at a future date.
+In this row, the editor lists the name of the file that was saved and clicks the
+ADD button. The list of  concepts saved in the file will appear in the Edit
+List.</P>
+<P>The next row is for Code. The code refers to the code that a source gives it
+terms to differentiate them in their vocabulary (ex. D000163 is a code MeSH uses
+with its Main Headings). The Metathesaurus tries to maintain these codes with
+their corresponding terms. So, if an editor knows the code of an atom in a
+concept, the code can be used to search for concepts with atoms assigned to that
+code. The code has to be entered into the box exactly as it appears in the
+source.</P>
+<P>The last row is for CUI. If an editor knows the CUI of a concept, the CUI
+can be entered into the box and the ADD button clicked. The matching concept
+will appear in the Edit List. Again, if another concept is already in the list
+as the CC, the new concept will not become the new CC. If the CUI is not found,
+an error message will appear (like the one an editor gets if the concept_id is
+not found).</P>
+<P><BR></P>
+<UL>
+<LI><B>7.1.3.3 Action Selector - </B></LI></UL>
+<P>The Action Selector is a picklist that appears with each concept row on the
+Edit List. It is a way to make a concept the Current Concept and to perform
+other actions like merging and relationship creation.</P>
+<P ALIGN="CENTER"><IMG SRC="actionsel"></P>
+<P>To use the Action Selector, an editor highlights the desired action from the
+picklist. Then, the blue &quot;Do the action&quot; button is clicked and the
+action is performed.  The actions that can be performed are as follows:</P>
+<P><STRONG>Make CC -
+</STRONG>This makes the concept in the corresponding row the Current Concept.</P>
+<P><STRONG>Link as BT to CC - </STRONG> A relationship of Broader Than will be
+made between the concept in the row and the Current Concept. When this action is
+performed, the relationship screen also has to be open.</P>
+<P><STRONG>Link as NT to CC - </STRONG>A relationship of Narrower Than will be
+made between the concept in the row and the Current Concept. When this action is
+performed, the relationship screen also needs to be open.</P>
+<P><STRONG>Link as RT to CC - </STRONG> A relationship of Other Related will be
+made between the concept in the row and the Current Concept. When this action is
+performed, the relationship screen also has to be open.</P>
+<P><STRONG>Link as XR to CC - </STRONG>A relationship of Not Related will be
+made between the concept in the row and the Current Concept. When this action is
+performed, the relationship screen also has to be open.</P>
+<P><STRONG>Merge into CC - </STRONG>If an editor feels that a concept is
+synonymous with the Current Concept, this action will merge the two concepts
+into one concept. The Edit List will display the newly merged concept once the
+action is complete.</P>
+<P><BR></P>
+<UL>
+<LI><B>7.1.3.4 Report - </B></LI></UL>
+<P>In the upper right hand corner, there is a green button with &quot;Report&quot;
+on it. This button leads editors to the Concept Report for the Current Concept
+in the Edit List.  There is also a menu option called Report. As seen in the
+image below, the Report Menu Option displays the different display choices for
+relationships on the concept report. Concepts can have  context relationships
+and hidden relationships that are not displayed on the default concept reports.
+The different display options allow editors more choices in the information they
+can view.  For more information on these report options,
+<A HREF="rels_concept.html">click here.</A></P>
+<P ALIGN="CENTER"><A><IMG SRC="report_options"></A></P>
+<P>If an editor wants to change the relationship display on a concept report,
+the editor opens the Report picklist. Then, highlights the option that is
+needed. Once this is done, the green Report button is clicked and the concept
+report screen will open. The new display option needs to be selected before the
+green Report button is clicked. Also, every time a new display option is
+selected, the green Report button needs to be clicked.</P>
+<P><BR></P>
+
+<UL>
+<LI><B>7.1.3.5 Attribute - </B></LI></UL>
+<P>The Attribute button is located on the top right side of the SEL screen.
+When clicked, it pulls up the Concept Attributes screen which shows editors all
+the attributes that are associated with the Current Concept. This is the only
+screen that displays this information.</P>
+<P>The name and concept_id  of the concept are displayed in the yellow row at
+the top of the screen.</P>
+<P ALIGN="CENTER"><IMG SRC="attribute"></P>
+<P>There are seven columns of information on this screen. There can be an
+unlimited number of rows of information containing attributes for the concept.
+</P>
+<UL>
+<LI>Switch - The two values in this column are Y (yes) and N (no). The switch
+has to be turned to Y in order for a row to be moved, deleted, etc. In order to
+change the switch to Y, an editor highlights the row to be edited and clicks the
+green &quot;Switch&quot; button. More than one row can be switched to Y at the
+same time.</LI></UL>
+<UL>
+<LI>Level - This provides information on  where the attribute came from. There
+can be two values -S and C. A S means that this attribute came from the source
+itself and is a source level attribute. A C means that the attribute was made at
+the concept level (by Metathesaurus processing or an editor) and it is a
+concept-level attribute. This includes attributes like CUIs and Semantic Types.</LI>
+<LI>Atom_id - This is the atom_id number that the attribute refers to. A
+concept can have multiple atoms and each atom can have one or more attributes.
+If there is a zero in the atom_id field, that means that the attribute is
+attached to the whole concept (like the CUI) and not just to an individual atom.</LI>
+<LI>Attribute Name - This describes what the attribute represents.</LI>
+<LI>Attribute Value - This is the actual attribute value.</LI>
+<LI>Source of Attribute - This lists an abbreviation of the source of the
+attribute. It can be an editor (i.e. E-TMC), a source, or the Metathesaurus.
+</LI>
+<LI>Status - This represents the Status of each attribute. A R means that the
+attribute is Reviewed, a N means that the attribute Needs Review and an U means
+that the attribute is Unreviewed.</LI></UL>
+<P>At the top of the screen is an option to Move or Delete attributes. To move
+an attribute to another concept, the new concept_id is entered into the white
+box at the top of the screen labeled &quot;Move to Concept_ID:&quot;. Then, the
+editor selects the move command at the top of the screen. If an editor wishes to
+delete an attribute, the attribute is highlighted and the delete option is
+selected. Only concept level attributes can be moved or deleted. Of concept
+level attributes, CUIs can not be deleted. If an editor tries to delete a CUI or
+a source level attribute, an error message will appear and the action will be
+blocked.</P>
+<P>The Status of an attribute can also be changed. At the top of the screen,
+there is a drop down menu for the different status options. In order to change
+the status, the row of the attribute to edit needs to be highlighted. The row is
+switched on, the desired Status is highlighted from the drop down menu and the 
+change occurs. The new status will appear automatically on the screen.</P>
+<P>The last feature on the interface is the sort option. If there are numerous
+attributes (number of attributes is displayed in a white box on the right hand
+side), the editor can use the Sort picklist to sort the attributes by any of the
+columns (except Switch). This provides a way for editors to reorganize the data
+on the screen for easier editing.</P>
+<P><BR></P>
+<UL>
+<LI><B>7.1.3.6 Sources - </B></LI></UL>
+<P>Sources allows an editor to see where each atom in the concept comes from.
+There are two screens that appear when the Sources button is clicked: Atoms and
+Sources.</P>
+<P ALIGN="CENTER"><IMG SRC="sources"></P>
+<P>The Sources screen lists all the sources that have an atom in the concept.
+The Atoms screen lists the atoms that come from each source. To view the atoms
+from a source, simply highlight the source from the Sources list and then click
+on the highlighted source. The corresponding atoms will appear in the Atoms
+screen. The Atoms screen lists the termgroup, code and atom name for each atom.
+These screens provide information for the editors but no editing can occur from
+these screens.</P>
+<P><BR></P>
+<UL>
+<LI><B>7.1.3.7 Approval buttons - </B></LI></UL>
+<P ALIGN="CENTER"><IMG SRC="approval"></P>
+<P>Once a concept has been edited, the goal is for it to become an approved
+concept. Approval of a concept gives it a Status of Reviewed (R) and it does not
+have to be edited again unless a change is made.  If an editor does not feel
+confident that a concept is correct, they can not approve a concept and move on.
+Not approving a concept leaves the status as Needs Review (N). </P>
+<P>The Approve/Next button is used when approving concepts from a worklist. The
+worklist has been selected by the editor to work on (see Section 7.1.1.3). As an
+editor moves thorough the worklist and concepts are ready for approval, the
+Approval/Next button will approve the concept and bring the next concept on the
+worklist to the SEL screen for editing.</P>
+<P>The Approve button can be used for any concept whether it is on a worklist
+or not. It simply approves the concept and leaves it on the SEL screen. The
+editor has to manually change another concept to the Current Concept in order
+for editing to continue. </P>
+<P>The Not Approved/Next button is also used with concepts from a worklist. If
+an editor does not want to approve a concept but wants to move on to the next
+concept on a worklist, this button would be used.</P>
+<P><BR></P>
+<UL>
+<LI><B>7.1.3.8 Access to other editing screens - </B></LI></UL>
+<P>The SEL screen can also be used to open other editing screens. When these
+screens are open, they provide more information on the Current Concept.  There
+are blue buttons near the Approval buttons that can be clicked to open the other
+screens.</P>
+<P>Concept opens the Concept screen. This screen provides details on the
+semantic types, context, concept notes and other information (See Section
+7.1.4). Class opens the Class screen which shows all the atoms in the Current
+Concept (See Section 7.1.5). Relationship opens the Relationship screen which
+shows all the relationships associated with the Current Concept to be viewed.</P>
+<HR>
+<ADDRESS>Contact: <A HREF="mailto:lad@nlm.nih.gov">Laura Roth</A></ADDRESS>
+<ADDRESS>Created: April 1, 1999</ADDRESS>
+<ADDRESS>Last Updated: July 03, 2001</ADDRESS><!-- These comments are used by
+the What's new Generator --><!-- Changed On: 1998/05/20--><!-- Changed by: Laura
+Davis --><!-- Change Note: Meme-II manual - main screen documentation.--><!--
+Fresh for: 2 week --></BODY></HTML>

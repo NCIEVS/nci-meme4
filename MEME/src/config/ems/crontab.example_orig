@@ -1,0 +1,57 @@
+
+#
+# Generate reports for waiting requests
+#
+0,5,10,15,20,25,30,35,40,45,50,55 * * * 0-6 /usr/bin/env ENV_FILE=<path to ENV_HOME>/etc/env.prop ENV_HOME=<path to ENV_HOME> <path to EMS_HOME>/bin/reportqueueviacron.pl
+
+# Daily
+
+#
+# Partition DB
+#
+01 04 * * 1-5 /usr/bin/env ENV_FILE=<path to ENV_HOME>/etc/env.prop ENV_HOME=<path to ENV_HOME> <path to EMS_HOME>/bin/batch_partition.pl
+
+#
+# Compute table of chemical concepts
+#
+01 05 * * * /usr/bin/env ENV_FILE=<path to ENV_HOME>/etc/env.prop ENV_HOME=<path to ENV_HOME> <path to EMS_HOME>/bin/chemconcepts.pl
+
+#
+# Accumulate daily snapshot and mail editing report
+#
+30 05 * * * /usr/bin/env ENV_FILE=<path to ENV_HOME>/etc/env.prop ENV_HOME=<path to ENV_HOME> <path to EMS_HOME>/bin/daily.pl
+
+# Weekly
+
+#
+# Regenerate QA and AH bins
+#
+00 07 * * 6 /usr/bin/env ENV_FILE=<path to ENV_HOME>/etc/env.prop ENV_HOME=<path to ENV_HOME> <path to EMS_HOME>/bin/batchqa.pl; <path to EMS_HOME>/bin/batchah.pl
+
+#
+# Generate source stats for the 2 latest sources or the two sources with most stale stats
+#
+10 13 * * 6 /usr/bin/env ENV_FILE=<path to ENV_HOME>/etc/env.prop ENV_HOME=<path to ENV_HOME> <path to EMS_HOME>/bin/sourcestats-generator.pl -n 2
+
+#
+# Compute and cache STY cooccurrences
+#
+30 08 * * 6 /usr/bin/env ENV_FILE=<path to ENV_HOME>/etc/env.prop ENV_HOME=<path to ENV_HOME> <path to EMS_HOME>/bin/batchems.pl -c "action=stycooc refresh=1 doit=1 degree=2,3,4,5"
+
+
+# Monthly
+
+#
+# Remove all temporary tables EMS3%TMP% with create dates more than a month ago
+#
+#Not implemented yet
+
+#
+# Remove all temporary files in $EMS_HOME/tmp that are at least a month old
+#
+#Not implemented yet
+
+#
+# Remove stale requests that are in DONE state and where the completion date is over a month old
+#
+#Not implemented yet

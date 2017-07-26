@@ -1,0 +1,136 @@
+
+<HTML>
+<HEAD>
+<TITLE>Editing Interface Manual</TITLE></HEAD>
+<BODY>
+<UL>
+<LI><B>7.1.1.0 Introduction to Main editing interface screen</B></LI></UL>
+<P ALIGN="CENTER"><IMG SRC="mainscreen"></P>
+<P>The main editing interface screen is what appears when the editing interface is first
+opened.  If editing is enabled, the main screen appears with no messages for the
+editors. If editing has been disabled, a message appears telling editors that
+editing is cutoff.</P>
+<P>There is some <STRONG>VERY</STRONG>  important information on the main
+screen. At the top, the database to be edited is listed - for example,
+oa::mid2002.  Since there are  multiple databases at NLM,  including the actual
+editing database, a test database and a production database, it is important
+that the correct database for editing is being used.</P>
+<P>The next piece of information shown is the editing interface image date.
+Again, an editor needs to make sure that the most current image is being used.
+Finally, the editor's initials are shown.  These are the initials used in the
+database to record authority. If the initials are not correct, NLM should be
+notified.</P>
+<P>An editor can use Meow to check to make sure that the information that
+appears on their interface is correct. The home page for Meow (<A
+HREF="http://meow.nlm.nih.gov">http://meow.nlm.nih.gov</A>) contains this
+information near the top under the Database Information section.</P>
+<P>At the top of the screen, there is a menu bar with five options.
+Close will shut down the editing interface. The other four menu options are
+described below.</P>
+<P><BR></P>
+<UL>
+<LI><B>7.1.1.1 EDIT - </B></LI></UL>
+<P>This option provides editors access to concepts using different
+retrieval methods.</P>
+<P><STRONG>Worklist</STRONG> displays the concepts on a  worklist the editor
+has already selected to edit.  If no worklist has been selected, the Concept_id
+screen will appear (See Section 7.1.1.2 <b>SET</b> - Work List  to find out more about selecting
+worklists).</P>
+<P><STRONG>Concept_id</STRONG> uses a concept_id to pull up the corresponding
+concept. It is used when an editor knows the exact concept_id and can zero in on the
+concept that needs to be looked at. To use, an editor types the concept_id
+number into the yellow box at the top of the screen. Then, the editor hits
+Return or uses the mouse and clicks on on the long grey box below. This causes
+the concept name to appear.</P>
+<P ALIGN="CENTER"><IMG SRC="concept_id"></P>
+<P>Then,  the EDIT button can be clicked to pull up the concept in the Concept
+Selector screen or the Concept button can be clicked to pull up the concept in
+the Concept screen. It is important that the concept name appear in the grey box
+otherwise the Selector screen and the Concept screen come up empty since the
+system does not recognize that a concept has been selected.</P>
+<P><B>Finder</B> is used to find concepts using search terms. For more
+information, please see section 7.1.2.</P>
+<P><BR></P>
+<UL>
+<LI><B>7.1.1.2 SET - </B></LI></UL>
+<P>This option allows editors to set some preferences for their editing
+interface.</P>
+<P><STRONG>Editor's Initials</STRONG> shows what initials are assigned to the
+editor. It also lists the editing level assigned. These values can only be
+changed by authorized users.</P>
+<P><STRONG>Editor's Preferences</STRONG> can be used to change the display
+options when an editor begins to edit. The default display  is for only the
+Selector screen to display when a concept is chosen but the other display
+options include the Concept screen, the Classes screen, the Relationships
+screen, and the Attributes screen. An editor has the option to turn these
+screens off or on for initial display of a concept to be edited.</P>
+<P ALIGN="CENTER"><IMG SRC="preferences"></P>
+<P>The Preferences screen consists of a list of the screen display choices and
+a box that indicates if the display is on or off. To turn a screen display on,
+the box to the right of the screen name is clicked. The screen then goes from
+Off to On and the box is  now black. To turn a screen display off, the black box
+to the right of the screen name is clicked and the box should become blank again
+and the display will be listed as Off. An editor can  go into the preferences at
+any time during an editing session and make changes to the preferences. </P>
+<P>When an editor makes changes to the Preferences, those changes are only good
+for the current editing session unless the Record feature is used. If an editor
+simply closes the preferences screen after making changes, the options selected
+will only last for the current editing session. Once the session is closed down, the
+preferences will switch back to the default.  The Record  function can be used
+to save the changes for future editing sessions. An editor can make changes and
+then click on the Record button. This will save the information until an editor
+makes changes to the preferences again. To undo the preferences recorded, an
+editor has to go back into the preferences screen and re-record.</P>
+<P><STRONG>Work List</STRONG> allows an editor to select a worklist to work
+on. A list of all the worklists available in the editing database are displayed.
+ The editor highlights the worklist to be edited. Then, the SELECT button is
+clicked and a list of all the concepts in the worklist are displayed with their
+concept_id and concept name. When an editor selects a worklist, this is what
+appears throughout the editing session as the worklist to edit. If an editor
+uses the Edit menu option later in the editing session and highlights Work List,
+the selected worklist will appear.</P>
+<P><BR></P>
+<P ALIGN="CENTER"><IMG SRC="worklist"></P>
+<P>The name of the worklist is displayed at the top of the screen (ex.
+wrk02b_uwda155_nc_47) and each concept on the worklist is displayed. An editor
+will see the concept name, concept_id, cluster_id, row_id and status for each concept on
+the worklist. If a concept needs editing, an editor can highlight the concept in
+the list. Then, click on the EDIT button. This will place the concept in the SEL
+screen and editing can begin. If the concept just needs approval, click on the
+Approve/Next button. If an editor does not want to approve a concept and wants
+to move on down the list, the Not Approved/Next button is clicked and the next
+concept on the list is highlighted.</P>
+<P>Concepts on worklists are also divided into clusters. Clusters are sets of
+concepts that should be edited together. Each concept displays a cluster_id in the Work List screen.
+If an editor wants to view all the concepts in a cluster,  highlight one of the
+concepts and click on the Copy Cluster button. This will  transfer all the
+concepts in the cluster to the SEL screen for editing. </P>
+<P><STRONG>Browse and Edit</STRONG> refer to the status of the database.
+Browse allows an editor to look at the database but no changes can be made. When
+the interface is in Browse mode, a Browse box appears on the main screen.</P>
+<P ALIGN="CENTER"><IMG SRC="browse"></P>
+<P>In the interface, the editing menu options will be greyed out and
+unavailable. The Edit mode is used to change the database from Browse back to
+Edit. This allows editing to continue.</P>
+<P><BR></P>
+<UL>
+<LI><B>7.1.1.3 HELP - </B></LI></UL>
+<P>Under HELP is the Use Menu and Show Versions box. The Use Menu displays short descriptions of the
+Main screen menu options and what they mean. The HELP screen also leads to the
+Show Versions screen. This screen lists  version information of the different
+components of the editing interface. If an editor is asked what versions are in
+the editing interface being used, this is where the information is found. It is
+automatically updated when new versions are released.</P>
+<P></P>
+<UL>
+<LI><B>7.1.1.4 DBA - </B></LI></UL>
+<P>This allows database administrators to cutoff and enable editing on the
+database. If authorization for this function is not allowed, the options in this
+menu are grey and unavailable. For most editors, this option will be grey. </P>
+<HR>
+<ADDRESS>Contact: <A HREF="mailto:lad@nlm.nih.gov">Laura Roth</A></ADDRESS>
+<ADDRESS>Created: May 20, 1998</ADDRESS>
+<ADDRESS>Last Updated: July 02, 2001</ADDRESS><!-- These comments are used by
+the What's new Generator --><!-- Changed On: 1998/05/20--><!-- Changed by: Laura
+Davis --><!-- Change Note: Meme-II manual - main screen documentation.--><!--
+Fresh for: 2 week --></BODY></HTML>

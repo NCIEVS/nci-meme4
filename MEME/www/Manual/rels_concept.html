@@ -1,0 +1,192 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+<TITLE>New Relationships display</TITLE></HEAD>
+<BODY>
+<H1 ALIGN="CENTER">Relationship display options for Concept Reports </H1>
+<P><BR></P>
+<H3 ALIGN="LEFT">Display options from the Editing Interface</H3>
+<P>In the past, the concept reports have shown only Winning relationships and
+no context relationships. The context relationships come from the sources 
+themselves and are distributed in the Metathesaurus release files. There are 
+also &quot;hidden&quot; relationships that can exist with a concept. These are
+generally  Source relationships that have been overridden by a new concept
+relationship. Source relationships are released with the release files.</P>
+<P>It was decided that it may be beneficial at times for editors to see this
+information. Instead of having the information always appear on concept reports 
+(which would have dramatically increased the length in many cases), NLM worked 
+on a way to allow editors to choose what relationships and what context
+relationships will be  displayed when necessary.
+</P>
+<P>The concept report display options can  be changed using the interface and
+in Meow. There will be statements on the worklists that will tell the  editors
+if more information exists. An editor can decide if they want to  see the
+additional information and  then go into the interface to view. If an editor is
+working  on a type of worklist and feels it would be beneficial to see
+additional  information on all the concepts in the worklist, please contact NLM
+and the worklist can be refreshed to display the additional information.</P>
+<P><BR></P>
+<P><B>What are the display options:</B></P>
+<P>There are  9 display options. Below is a description of what each means and
+what wording will display on the concept report screen to indicate the 
+option(s) selected.</P>
+<PRE>1. Show winning rels PAR CHD cxt rels if no context/rels (default)
+
+Display on report screen:
+Show WIN rels (default)		PAR &amp; CHD context (default)
+
+This option shows the winning rels (which is what editors are use to). If a 
+concept has no regular relationships OR it has no context displayed, the Parent 
+and Child context relationships for that concept will be shown. There are three 
+types of context relationships - Parent (PAR), Child (CHD) and Sibling (SIB). 
+
+2. Show winning rels PAR CHD SIB cxt rels if no context/rels
+
+Display on report screen:
+Show WIN rels (default)		PAR &amp; CHD context w/SIB
+
+This option shows the winning rels. The difference is that it will show PAR, 
+CHD, and SIB context rels if no relationships are already present or if no 
+context is present. The only difference between this option and #1 is that SIB 
+context rels will be shown.
+
+3. Show winning rels all context rels
+
+Display on report screen:
+Show WIN rels (default)		Show All Context Rels
+
+This option shows the standard winning rels. It will also display all context 
+rels present even if there are context and relationships present. This is a good 
+way to see all the context rels if other relationships are present and if there 
+is already a context displayed with the concept.
+
+4. Show winning rels, plus XRs and corresp. rels  PAR CHD cxt if no context/rels
+
+Display on report screen:
+Show WIN, XR &amp; correspond	PAR &amp; CHD context (default)
+
+This option shows the winning rels (default) plus any XR relationships that 
+exist. Along with the XR relationship, its corresponding rel is displayed. An XR 
+may have been created when a another rel was overridden. This will display both 
+rels side by side. Example:
+
+XR(S) AND CORRESPONDING RELATIONSHIP(S)
+[NOT]  {Cold brand of chlorpheniramine-phenylpropanolamine [MTH/PN|E-TPW|RCD99] 
+{1709051} C}
+[REL]  {Cold brand of chlorpheniramine-phenylpropanolamine [MTH/PN|RCD99|RCD99] 
+{1709051} P}
+
+The context rels follow the default of showing PAR and CHD context rels if no 
+rels or context are present.
+
+5. Show winning rels, plus XRs and corresp. rels PAR CHD SIB cxt rels if no 
+context/rels
+
+Display on report screen:
+Show WIN, XR &amp; correspond	PAR &amp; CHD context w/SIB
+
+This option shows the XR rels as explained in #4. The context rels are the same 
+as in #2 with the SIB rels displaying also.
+
+6. Show winning rels, plus XRs and corresp. rels  all context rels
+
+Display on report screen:
+Show WIN, XR and correspond		Show All Context Rels
+
+This option shows the XR rels as explained in #4. All of the context rels are 
+displayed regardless of the fact that relationships or context may already be 
+displayed (see #3).
+
+7. Show all rels  PAR CHD cxt rels if no context/rels
+
+Display on report screen:
+Show all rels				PAR &amp; CHD context (default)
+
+This shows all the relationships attached to the concept (both hidden and 
+winning). The default behavior for the context rels is used (see #1 for 
+details).
+
+8. Show all rels  PAR CHD SIB cxt rels if no context/rels
+
+Display on report screen:
+Show All Rels				PAR &amp; CHD context w/SIB
+
+This shows all the relationships attached to the concept (both hidden and 
+winning). The context rels are displayed as explained in #5.
+
+9. Show all rels  show all context rels
+
+Display on report screen:
+Show all rels				Show all context rels
+
+This shows all the relationships attached to the concept (both hidden and 
+winning). All context rels are also displayed regardless of the fact that 
+context or relationships may exist.
+
+There will be new section headings on the report in the relationships area. They 
+are:
+
+CONTEXT RELATIONSHIP(S) - where the context rels are displayed
+XR(S) AND CORRESPONDING RELATIONSHIPS - where the XR rels display option will 
+appear
+ALL RELATIONSHIP(S) - this heading is used when all the rels are displayed (both 
+winning and hidden)
+</PRE>
+<P><BR></P>
+<P><B>Examples of what an editor will see on a concept report:</B></P>
+<P>As mentioned, concept reports will show if there are context relationships
+present or hidden relationships present. This tells the editor that more
+information is available and can be seen from the editing interface. Examples of
+what will appear on the concept reports are:
+</P>
+<PRE>There are 11 context relationships not shown here.
+There are 23 hidden relationships not shown here.</PRE>
+<P><BR></P>
+<P><B>How to use the report display options in the editing interface:</B></P>
+<P>Concept reports can be called from the Concept Selector (SEL) screen or the
+Concept screen. On both of these windows, there is now a new menu option at the
+top called Report. It is a pull-down list that contains 9 options. If an editor
+just clicks the green Report button (as usual), the default concept report will
+be displayed (this is also #1 on the pull-down list). If an editor wants to 
+change the display, they choose one of the 9 options from the list. Then, click
+the green Report button. The concept report screen will pop up with the report
+displayed with the options selected. An editor can tell which display option is
+shown by looking at the bottom of the report screen. The type of rels displayed
+and the type of context rels displayed will be shown and should match the option
+the editor selected. If an editor keeps the report screen open but wants to 
+change the display option, simply choose a new option and click the green Report
+ button. The report screen will refresh with the new information.</P>
+<P><BR></P>
+<H3>Display options from Meow concept reports</H3>
+<P>The concept reports themselves will have the same features as the ones that
+are pulled up from the editing interface. The difference comes in how to tell
+the database that a different relationship display option is needed.</P>
+<P>An editor selects a concept report to view in the same manner as before and
+the default display option will be used. Once the default concept report is
+displayed, there will be some new picklists at the top of the screen.  The first
+picklist will define the relationship view. The options are Winning Rels (which
+is the default), Winning and XR rels, and Show All. The next picklist is for
+choosing the display of the Context Relationships. The options are Par+Chd if no
+Cxt Rels, Par+Chd+Sib if no Cxt Rels, and All Contexts. Any combination of the
+relationship view options can be used together with any of the context
+relationship options.</P>
+<P>To change the display, simply highlight the desired choice from one or both
+picklists. Then, click the Refresh button. The concept report will refresh with
+the selected options.</P>
+<P>There is also a button for seeing the CUI-centric report for the concept.
+The CUI-centric report uses information from the Release Files to supplement the
+information contained in the concept reports This view will be helpful when
+deciding what CUIs should be assigned to which concepts when splits and merges
+are done. To see this, simply click on the Get It button. If an editor wishes to
+change the relationship displays using the picklists, the Refresh button must be
+used. The Get It button will only show the CUI-centric report and not the
+relationship display options.</P>
+<HR>
+<ADDRESS>Contact: <A HREF="mailto:lad@nlm.nih.gov">Laura Roth</A></ADDRESS>
+<ADDRESS>Created: July 07, 1999</ADDRESS>
+<ADDRESS>Last Updated: July  09, 1999</ADDRESS>
+<ADDRESS><A HREF="/index.shtml">Meta News Home</A></ADDRESS><!-- These
+comments are used by the What's new Generator --><!-- Changed On: 1999/07/09--><!--
+Changed by:  Laura  Roth --><!-- Change Note: Information on relationship
+display options on concept reports. --><!--
+Fresh for:  2 weeks --></BODY></HTML>

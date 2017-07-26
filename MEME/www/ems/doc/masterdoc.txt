@@ -1,0 +1,118 @@
+From bounce-nlmreg-342@nlm.nih.gov Mon Jan  7 09:18 EST 2002
+X-Authentication-Warning: wthsun.nlm.nih.gov: billh owned process doing -bs
+Date: Mon, 7 Jan 2002 09:18:05 -0500 (EST)
+From: "William T. Hole, M.D." <billh@nlm.nih.gov>
+X-Sender: billh@wthsun
+To: Laura Roth <lad@nlm.nih.gov>
+cc: nlmreg@nlm.nih.gov, Joe Santoroski <santor@nlm.nih.gov>
+Subject: HOW TO UPDATE THE MASTER DOC DIRECTORY  
+MIME-Version: 1.0
+List-Unsubscribe: <mailto:leave-nlmreg-342F@umlsinfo.nlm.nih.gov>
+
+
+> Subject: Documentation update script is wthsun:/d21/QA/update.MASTER.docs.s
+
+The script location was in the subject line - here is a more extensive set
+of instructions for the record. 
+
+I just ran the script because it needs to be run as wth.  You can ask Joe
+to 'su' you to do this any time until we decide to change permissions so
+you can do it without the su. OK for next time? 
+
+I haven't finished the What's New - there was a major problem about
+the Pubmed mapping files, so I made them and need to hand off to Stuart
+- hopefully this AM after Suresh and I can double chcek.
+
+I will be in late morning...
+
+thanks, Bill
+-------
+HOW TO UPDATE THE MASTER DOC DIRECTORY
+
+This is necessary to ensure that the UMLSDOC.TXT file is updated
+correctly. Other html, gif, and pdf are simply copied.
+
+Release production is currently done on wthsun.
+
+The 'ReleaseDir' is /d21/<version>, for example /d21/2002AA/
+
+The TEMPDOCS file is /d21/<ReleaseDir>/TEMPDOCS, for example
+/d21/2002AA/TEMPDOCS/
+
+The script is: 
+  /d21/QA/update.MASTER.docs.s
+
+If you give the command without parameters, it reminds you what you need
+to add to actually run it, i.e.: 
+=======
+wthsun:/d21/QA/ update.MASTER.docs.s
+ 
+  ### NOT RUN 
+  * Usage: update.MASTER.docs.s ReleaseDir Version 
+    - e.g. /d21/QA/update.MASTER.docs.s /d21/2002AA 2002AA >&!
+/d21/QA/update.MASTER.docs.s.log
+  * Updates MASTER DOC directory and remakes UMLSDOC.TXT, from
+ReleaseDir/TEMPDOCS 
+  * Run each time any documentation files are changed there 
+ 
+ ** WARNING: ReleaseDir/README.MMS, MASTER...DOC/CPYRIGHT and
+README WIN!  
+             master2dist.pl replaces UNIX and ISO copies when run. 
+  ### Be sure to check the log file for errors! 
+========
+
+On Mon, 7 Jan 2002, Laura Roth wrote:
+
+> Where is this update.MASTER.docs.s script to create UMLSDOCS.TXT? Do you just 
+> want to run it?
+> 
+> Laura
+> 
+> ------------- Begin Forwarded Message -------------
+> 
+> Date: Thu, 12 Apr 2001 09:16:07 -0400 (EDT)
+> From: "William T. Hole" <wth@nlm.nih.gov>
+> Subject: Documentation update script is wthsun:/d21/QA/update.MASTER.docs.s 
+> To: lad@nlm.nih.gov, suresh@astra.nlm.nih.gov
+> Cc: nlmreg@nlm.nih.gov
+> MIME-Version: 1.0
+> Content-MD5: N7WGa9gF1UpspnAnsKe/ZA==
+> List-Unsubscribe: <mailto:leave-nlmreg-342F@umlsinfo.nlm.nih.gov>
+> 
+> Yes, it would be nice to get this into the production recipe document!
+> 
+> It updates the MASTER/DOC directory FROM the CURRENT 
+> 
+>   ReleaseDir/TEMPDOCS/TEMPDOCS/
+>   
+> directory.  It is run any time any documentations files are changed.
+> 
+> It is needed to recreate the UMLSDOC.TXT ascii file correctly
+> from the pieces created by saving the html sections as text.
+> 
+> Laura ususally moves the files to this directory and I have run this 
+> script and looked for any problems (including multiple <CR><LF>s from
+> pc  and sun editing and ftp  of originals already containing the 
+> <CR><LF>s
+> 
+> See the update.MASTER.docs.s file for more details.
+> 
+> -- Bill
+> 
+> 
+> ---
+> You are currently subscribed to nlmreg as: lad@ladsun.nlm.nih.gov
+> To unsubscribe send a blank email to leave-nlmreg-342F@umlsinfo.nlm.nih.gov
+> 
+> 
+> ------------- End Forwarded Message -------------
+> 
+> 
+> 
+
+
+---
+You are currently subscribed to nlmreg as: suresh@nlm.nih.gov
+To unsubscribe send a blank email to leave-nlmreg-342F@umlsinfo.nlm.nih.gov
+
+

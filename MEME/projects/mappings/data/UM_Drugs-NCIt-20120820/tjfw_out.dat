@@ -1,0 +1,663 @@
+(-)-catechin 	|C63654|Cianidanol|PT|1|
+(-)-catechin 	|C63654|Catechin|SY|2|
+(-)-catechin 	|C63654|2R-trans)-2-(3,4-dihydroxyphenyl)-3,4-dihydro-2H-1-benzopyran-3,5,7-triol|SY|2|
+(-)-catechin 	|C63654|2R,3S)-2-(3,4-dihydroxyphenyl)chroman-3,5,7-triol|SY|2|
+(-)-catechin 	|C63654|(+)-Catechin|SY|2|
+(-)-catechin 	|C63654|(2R-trans)-2-(3,4-Dihydroxyphenyl)-3,4-dihydro-2H-1-benzopyran-3,5,7-triol|CSN|2|
+3-hydroxy-DL-kynurenine 	|C63766|3-Hydroxykynurenine|PT|1|
+3-hydroxy-DL-kynurenine 	|C63766|alpha,2-Diamino-3-hydroxy-gamma-oxobenzenebutanoic Acid|CSN|2|
+3-hydroxy-DL-kynurenine 	|C63766|3-Hydroxy-DL-kynurenine|SY|2|
+3-hydroxy-DL-kynurenine 	|C63766|3-(3-Hydroxyanthraniloyl)alanine|CSN|2|
+HC toxin 	|C1121|HC-Toxin|PT|1|
+HC toxin 	|C1121|Cyclo(D-Pro-L-Ala-D-Ala-L-Aeo)|CSN|2|
+HC toxin 	|C1121|Cyclic(L-alanyl-D-alanyl-eta-oxo-L-alpha-aminooxiraneoctanoyl-D-prolyl)|CSN|2|
+acetylsalicylic acid 	|C287|Aspirin|PT|1|
+acetylsalicylic acid 	|C287|Acetylsalicylic Acid|SY|2|
+acetylsalicylic acid 	|C287|Aspergum|BN|2|
+acetylsalicylic acid 	|C287|Empirin|BN|2|
+acetylsalicylic acid 	|C287|Extren|BN|2|
+acetylsalicylic acid 	|C287|Measurin|BN|2|
+acetylsalicylic acid 	|C287|2-(Acetyloxy)benzoic Acid|CSN|2|
+acetylsalicylic acid 	|C287|Ecotrin|BN|2|
+acetylsalicylic acid 	|C287|Entericin|BN|2|
+acetylsalicylic acid 	|C287|ASA|AB|2|
+amitriptyline 	|C62005|Amitriptyline|PT|1|
+arachidonic acid 	|C282|Arachidonic Acid|PT|1|
+arachidonic acid 	|C282|(all-Z)-5,8,11,14-Eicosatetraenoic Acid|CSN|2|
+arachidonic acid 	|C282|Arachidonate|SY|2|
+azathioprine|C290|Azathioprine|PT|1|
+azathioprine|C290|AZA|AB|2|
+azathioprine|C290|AZTP|AB|2|
+azathioprine|C290|6-[(1-Methyl-4-nitro-1H-imidazol-5-yl)thio]-1H-purine|CSN|2|
+benserazide 	|C81109|Benserazide|PT|1|
+benserazide 	|C81109|Ro 4-4602|CCN|2|
+benserazide 	|C81109|DL-Seryltrihydroxybenzylhydrazine|CSN|2|
+bucladesine|C83562|Bucladesine|PT|1|
+carbamazepine 	|C341|Carbamazepine|PT|1|
+carbamazepine 	|C341|Epitol|BN|2|
+carbamazepine 	|C341|Tegretol|BN|2|
+carbamazepine 	|C341|5H-Dibenz(b,f)azepine-5-carboxamide|CSN|2|
+celecoxib 	|C1728|Celecoxib|PT|1|
+celecoxib 	|C1728|4-(5-(4-methylphenyl)-3-(trifluoromethyl)-1H-pyrazol-1-yl)benzenesulfonamide|CSN|2|
+celecoxib 	|C1728|SC-58635|CCN|2|
+celecoxib 	|C1728|YM 177|SY|2|
+celecoxib 	|C1728|Celebrex|BN|2|
+chlorpromazine 	|C367|Chlorpromazine|PT|1|
+chlorpromazine 	|C367|Thorazine|BN|2|
+chlorpromazine 	|C367|Chlor-PZ|FBD|2|
+chlorpromazine 	|C367|2-Chloro-10-(3-(dimethylamino)propyl)phenothiazine|CSN|2|
+chlorpropamide|C47447|Chlorpropamide|PT|1|
+chlorpropamide|C47447|Urea, 1-((p-chlorophenyl)sulfonyl)-3-propyl-|CSN|2|
+chlorpropamide|C47447|Prodiaben|BN|2|
+chlorpropamide|C47447|Diabinese|BN|2|
+chlorpropamide|C47447|4-Chloro-4-((propylamino)carbonyl)benzenesulfonamide|CSN|2|
+chlorpropamide|C47447|Benzenesulfonamide, 4-chloro-N-((propylamino)carbonyl)-|CSN|2|
+ciclosporin|C406|Cyclosporine|PT|1|
+ciclosporin|C406|Cyclosporin A|SY|2|
+ciclosporin|C406|CsA|AB|2|
+ciclosporin|C406|Ciclosporin|SY|2|
+ciclosporin|C406|SangCya|BN|2|
+ciclosporin|C406|OL 27-400|CCN|2|
+ciclosporin|C406|27-400|CCN|2|
+ciclosporin|C406|Sandimmune|BN|2|
+ciclosporin|C406|Sandimmun|BN|2|
+ciclosporin|C406|Cyclosporin|SY|2|
+ciclosporin|C406|Neoral|BN|2|
+clofibrate 	|C378|Clofibrate|PT|1|
+clofibrate 	|C378|Ethyl 2-(4-Chlorophenoxy)-2-methylpropanoate|CSN|2|
+clofibrate 	|C378|Atromid-S|BN|2|
+clofibrate 	|C378|2-(4-Chlorophenoxy)-2-methylpropanoic acid ethyl ester|CSN|2|
+clofibrate 	|C378|Ethyl p-Chlorophenoxyisobyturate|CSN|2|
+clofibrate 	|C378|CFB|AB|2|
+clotrimazole|C381|Clotrimazole|PT|1|
+clotrimazole|C381|Lotrimin|BN|2|
+clotrimazole|C381|Gyne-Lotrimin|BN|2|
+clotrimazole|C381|1-[(2-Chlorophenyl)diphenylmethyl]-1H-imidazole|CSN|2|
+clotrimazole|C381|Mycelex Troche|BN|2|
+clotrimazole|C381|CLOT|AB|2|
+clotrimazole|C381|Mycelex|BN|2|
+cobalt chloride|C77458|Cobaltous Chloride|PT|3|
+colchicine 	|C385|Colchicine|PT|1|
+colchicine 	|C385|(S)-N-(5,6,7,9-Tetrahydro-1,2,3,10-tetramethoxy-9-oxobenzo[a]heptalen-7-yl)acetamide|CSN|2|
+copper sulfate 	|C65354|Cupric Sulfate|PT|3|
+copper sulfate 	|C65354|Copper(II) Sulfate, Pentahydrate|SY|4|
+copper sulfate 	|C65354|Bluestone|SY|4|
+copper sulfate 	|C65354|Blue Copperas|SY|4|
+copper sulfate 	|C65354|Blue Vicking|SY|4|
+decitabine 	|C981|Decitabine|PT|1|
+decitabine 	|C981|5-Aza-2'deoxycytidine|CSN|2|
+decitabine 	|C981|5-Azadeoxycytidine|CSN|2|
+decitabine 	|C981|Decitabine for Injection|SY|2|
+decitabine 	|C981|Dacogen|BN|2|
+decitabine 	|C981|Dezocitidine|SY|2|
+decitabine 	|C981|5-Aza-2-deoxycytidine|CSN|2|
+decitabine 	|C981|5-Aza-2'-deoxycytidine|CSN|2|
+decitabine 	|C981|4-Amino-1-(2-deoxy-beta-D-erythro-pentofuranosyl)-1,3,5-triazin-2(1H)-one|CSN|2|
+decitabine 	|C981|Deoxyazacytidine|SY|2|
+decitabine 	|C981|2'-Deoxy-5-azacytidine|CSN|2|
+deferoxamine 	|C416|Deferoxamine|PT|1|
+deferoxamine 	|C416|N'-[5-[[4-[[5-(Acetylhydroxyamino)pentyl]amino]-1,4-dioxobutyl]hydroxyamino]pentyl]-N-(5-aminopentyl)-N-hydroxybutanediamide|CSN|2|
+deferoxamine 	|C416|1-Amino-6,17-dihydroxy-7,10,18,21-tetraoxo-27-(n-acetylhydroxylamino)-6,11,17,22-tetraazaheptaeicosane|CSN|2|
+deferoxamine 	|C416|N-[5-[3-[5-Aminopentyl)hydroxycarbamoyl]propionamido]pentyl]-3-[[5-(N-hydroxyacetamido)pentyl]carbamoyl]propionohydroxamic Acid|CSN|2|
+deferoxamine 	|C416|Desferrioxamine|SY|2|
+demecolcine|C419|Demecolcine|PT|1|
+demecolcine|C419|Methylcolchicine|SY|2|
+demecolcine|C419|(-)-Colchamine|SY|2|
+demecolcine|C419|Santavy's Substance F|SY|2|
+demecolcine|C419|N-Methyl-N-desacetylcolchicine|CSN|2|
+demecolcine|C419|X 153|CCN|2|
+depudecin 	|C1361|Depudecin|PT|1|
+depudecin 	|C1361|Oxiranemethanol, Alpha-ethenyl-3-(2-(3-(1-hydroxyethyl) oxiranyl)ethenyl)-, (2S- (2R*(E(2R*(S*),3R*)),3R*(S*)))-|CSN|2|
+depudecin 	|C1361|(2S-(2R*(E(2R*(S*),3R*)),3R*(S*)))-alpha-Ethenyl-3-(2-(3-(1-hydroxyethyl)oxiranyl)ethenyl)oxiranemethanol|CSN|2|
+depudecin 	|C1361|(2R,3S,4S,5E,7S,8S,9R)-2,9- Dihydroxy-3,4;7,8-diepoxy-undeca-5,10-diene|CSN|2|
+dexamethasone 	|C422|Dexamethasone|PT|1|
+dexamethasone 	|C422|Aacidexam|FBD|2|
+dexamethasone 	|C422|Visumetazone|FBD|2|
+dexamethasone 	|C422|Alin Oftalmico|FBD|2|
+dexamethasone 	|C422|Dexameth|BN|2|
+dexamethasone 	|C422|Gammacorten|BN|2|
+dexamethasone 	|C422|(11Beta,16alpha)-9-fluoro-11,17,21-trihydroxy-16-methylpregna-1,4-diene-3,20-dione|CSN|2|
+dexamethasone 	|C422|1-Dehydro-16alpha-methyl-9alpha-fluorohydrocortisone|CSN|2|
+dexamethasone 	|C422|Fluoro-9alpha Methyl-16alpha Prednisolone|CSN|2|
+dexamethasone 	|C422|16Alpha-methyl-9alpha-fluoro-1,4-pregnadiene-11beta,17alpha,21-triol-3,20-dione|CSN|2|
+dexamethasone 	|C422|Fluorodelta|FBD|2|
+dexamethasone 	|C422|Ambene|FBD|2|
+dexamethasone 	|C422|Decacort|FBD|2|
+dexamethasone 	|C422|Aquapred|FBD|2|
+dexamethasone 	|C422|Methylfluorprednisolone|SY|2|
+dexamethasone 	|C422|Deronil|BN|2|
+dexamethasone 	|C422|Cortidexason|FBD|2|
+dexamethasone 	|C422|Predni-F|FBD|2|
+dexamethasone 	|C422|Auxiloson|FBD|2|
+dexamethasone 	|C422|Mymethasone|FBD|2|
+dexamethasone 	|C422|Dexace|BN|2|
+dexamethasone 	|C422|Orgadrone|FBD|2|
+dexamethasone 	|C422|Dexacortin|FBD|2|
+dexamethasone 	|C422|Auricularum|FBD|2|
+dexamethasone 	|C422|Cortisumman|FBD|2|
+dexamethasone 	|C422|Corson|FBD|2|
+dexamethasone 	|C422|Anemul mono|FBD|2|
+dexamethasone 	|C422|Decasone R.p.|BN|2|
+dexamethasone 	|C422|Hexadrol|BN|2|
+dexamethasone 	|C422|9Alpha-fluoro-11beta,17alpha,21-trihydroxy-16alpha-methylpregna-1,4-diene-3,20-dione|CSN|2|
+dexamethasone 	|C422|Antimicotico|FBD|2|
+dexamethasone 	|C422|Dinormon|FBD|2|
+dexamethasone 	|C422|Baycuten N|FBD|2|
+dexamethasone 	|C422|Dexacortal|FBD|2|
+dexamethasone 	|C422|Dexamecortin|FBD|2|
+dexamethasone 	|C422|Alba-Dex|BN|2|
+dexamethasone 	|C422|Dexa-Rhinosan|FBD|2|
+dexamethasone 	|C422|Decadrol|BN|2|
+dexamethasone 	|C422|16Alpha-methyl-9alpha-fluoroprednisolone|CSN|2|
+dexamethasone 	|C422|Dexone|FBD|2|
+dexamethasone 	|C422|Amplidermis|FBD|2|
+dexamethasone 	|C422|Dexafluorene|FBD|2|
+dexamethasone 	|C422|Desamethasone|SY|2|
+dexamethasone 	|C422|Spersadex|FBD|2|
+dexamethasone 	|C422|Adexone|FBD|2|
+dexamethasone 	|C422|Dexa-Scheroson|FBD|2|
+dexamethasone 	|C422|9Alpha-fluoro-16alpha-methylprednisolone|CSN|2|
+dexamethasone 	|C422|Alin Depot|FBD|2|
+dexamethasone 	|C422|Baycuten|FBD|2|
+dexamethasone 	|C422|Dexamethasonum|SY|2|
+dexamethasone 	|C422|Deltafluorene|FBD|2|
+dexamethasone 	|C422|Dexamonozon|FBD|2|
+dexamethasone 	|C422|Hexadecadrol|SY|2|
+dexamethasone 	|C422|Dexapos|FBD|2|
+dexamethasone 	|C422|Dexa-sine|FBD|2|
+dexamethasone 	|C422|Dexafarma|FBD|2|
+dexamethasone 	|C422|Lokalison-F|FBD|2|
+dexamethasone 	|C422|Azona|FBD|2|
+dexamethasone 	|C422|9alpha-Fluoro-16alpha- methylprednisolone|CSN|2|
+dexamethasone 	|C422|Decameth|FBD|2|
+dexamethasone 	|C422|Decadron|BN|2|
+dexamethasone 	|C422|Aknichthol Dexa|FBD|2|
+dexamethasone 	|C422|Millicorten|FBD|2|
+dexamethasone 	|C422|Dexa-Mamallet|FBD|2|
+dexamethasone 	|C422|Dekacort|FBD|2|
+dexamethasone 	|C422|Ocasa|FBD|2|
+dexamethasone 	|C422|Alin|FBD|2|
+dexamethasone 	|C422|Dectancyl|FBD|2|
+dexamethasone 	|C422|Deenar|BN|2|
+dexamethasone 	|C422|Dexinoral|FBD|2|
+dexamethasone 	|C422|Decalix|FBD|2|
+dexamethasone 	|C422|Dex-4|BN|2|
+dexamethasone 	|C422|Desameton|FBD|2|
+dexamethasone 	|C422|Dexalocal|FBD|2|
+dexamethasone 	|C422|16Alpha-methyl-9alpha-fluoro-delta1-hydrocortisone|CSN|2|
+dexamethasone 	|C422|Loverine|FBD|2|
+dexamethasone 	|C422|Fortecortin|FBD|2|
+dexverapamil 	|C1563|Dexverapamil|PT|1|
+dexverapamil 	|C1563|R Verapamil|SY|2|
+dexverapamil 	|C1563|R-Verapamil|SY|2|
+diclofenac 	|C28985|Diclofenac|PT|1|
+diclofenac 	|C28985|2-[(2,6-Dichlorophenyl)amino]benzeneacetic Acid|CSN|2|
+dopamine|C62025|Dopamine|PT|1|
+doxycycline|C457|Doxycycline|PT|1|
+doxycycline|C457|Doxycycline Monohydrate|SY|2|
+estradiol|C2295|Estradiol|PT|1|
+estradiol|C2295|17-beta-Estradiol|SY|2|
+estradiol|C2295|17 Beta-Estradiol|SY|2|
+estradiol|C2295|(17beta)-Estra-1,3,5(10)-triene-3,17-diol|CSN|2|
+exemestane 	|C1097|Exemestane|PT|1|
+exemestane 	|C1097|6-Methyleneandrosta-1,4-diene-3,17-dione|CSN|2|
+exemestane 	|C1097|Aromasin|BN|2|
+exemestane 	|C1097|FCE-24304|CCN|2|
+exisulind|C1239|Exisulind|PT|1|
+exisulind|C1239|(Z)-5-Fluoro-2-methyl-1-[[4-(methylsulfonyl)phenyl]methylene]-1H-indene-3-acetic Acid|CSN|2|
+exisulind|C1239|Sulindac Sulfone|SY|2|
+exisulind|C1239|1H-Indene-3-acetic Acid, 5-Fluoro-2-methyl-1-((4-(methylsulfonyl)phenyl)methylene), (Z)|CSN|2|
+exisulind|C1239|FGN-1|CCN|2|
+exisulind|C1239|Aptosyn|BN|2|
+fasudil|C65624|Fasudil|PT|1|
+fasudil|C65624|1-(5-Isoquinolinesulfonyl)homopiperazine|CSN|2|
+fasudil|C65624|Hexahydro-1-(5-isoquinolinylsulfonyl)-1H-1,4-diazepine|CSN|2|
+fasudil|C65624|HA1077|CCN|2|
+fasudil|C65624|AT 877|CCN|2|
+felodipine 	|C29046|Felodipine|PT|1|
+felodipine 	|C29046|Plendil|BN|2|
+fludrocortisone 	|C71629|Fludrocortisone|PT|1|
+fluphenazine 	|C47536|Fluphenazine|PT|1|
+fluphenazine 	|C47536|1-Piperazineethanol, 4-(3-(2-(trifluoromethyl)-10H-phenothiazin-10-yl)propyl)-(9CI)|CSN|2|
+fulvestrant 	|C1379|Fulvestrant|PT|1|
+fulvestrant 	|C1379|ICI 182,780|CCN|2|
+fulvestrant 	|C1379|ZD9238|CCN|2|
+fulvestrant 	|C1379|7a-[9-[(4,4,5,5,5,-Pentafluoropentyl)sulphinyl]nonyl]-estra-1,3,5(10)-triene-3,17b-diol|CSN|2|
+fulvestrant 	|C1379|Faslodex|BN|2|
+gefitinib 	|C1855|Gefitinib|PT|1|
+gefitinib 	|C1855|Iressa|BN|2|
+gefitinib 	|C1855|ZD 1839|CCN|2|
+gefitinib 	|C1855|4-(3Chloro-4-flurophenylamine)-7-methoxy-6(3-(4morpholinyl)quinazoline|CSN|2|
+gefitinib 	|C1855|ZD1839|CCN|2|
+gefitinib 	|C1855|4-Quinazolinamine, N-(3-chloro-4-fluorophenyl)-7-methoxy-6-[3-4-morpholin] propoxy]|CSN|2|
+geldanamycin|C1112|Geldanamycin|PT|1|
+geldanamycin|C1112|Antibiotic U 29135|SY|2|
+genistein|C1113|Genistein|PT|1|
+genistein|C1113|Genisteol|SY|2|
+genistein|C1113|5,7-Dihydroxy-3-(4-hydroxyphenyl)-4H-1-benzopyran-4-one|CSN|2|
+genistein|C1113|Genestein|SY|2|
+genistein|C1113|Prunetol|SY|2|
+genistein|C1113|4',5,7-Trihydroxyisoflavone|CSN|2|
+haloperidol 	|C537|Haloperidol|PT|1|
+haloperidol 	|C537|R-1625|CCN|2|
+haloperidol 	|C537|McN-JR-1625|CCN|2|
+haloperidol 	|C537|Haldol|BN|2|
+haloperidol 	|C537|4-[4-(4-Chlorophenyl)-4-hydroxy-1-piperidinyl]-1-(4-fluorophenyl)-1-butanone|CSN|2|
+iloprost 	|C48397|Iloprost|PT|1|
+iloprost 	|C48397|ZK 36374|CCN|2|
+iloprost 	|C48397|Ciloprost|SY|2|
+iloprost 	|C48397|Ventavis|SY|2|
+iloprost 	|C48397|Iloprost Clathrate|SY|2|
+iloprost 	|C48397|Pentanoic Acid, 5-(hexahydro-5-hydroxy-4-(3-hydroxy-4-methyl-1-octen-6-ynyl)-2(1H)-pentalenylidene)-|CSN|2|
+iloprost 	|C48397|(E)-(3aS,4R,5R,6aS)-Hexahydro-5-hydroxy-4-((E)-(3S,4RS)-3-hydroxy-4-methyl-1-octen-6-ynyl)-delta(sup 2(1H),delta)-pentalenevaleric Acid|CSN|2|
+imatinib 	|C62035|Imatinib|PT|1|
+imatinib 	|C62035|4-[(4-Methyl-1-piperazinyl)methyl]-N-[4-methyl-3-[[4-(3-pyridinyl)-2-pyrimidinyl]amino]phenyl]benzamide|CSN|2|
+indometacin 	|C576|Indomethacin|PT|1|
+indometacin 	|C576|1-(4-chlorobenzoyl)-5-methoxy- 2-methyl-1-H-indole-3-acetic acid|CSN|2|
+indometacin 	|C576|Indocin|BN|2|
+indometacin 	|C576|Indometacin|SY|2|
+ionomycin 	|C596|Ionomycin|PT|1|
+mercaptopurine|C195|Mercaptopurine|PT|1|
+mercaptopurine|C195|1,7-Dihydro-6H-purine-6-thione|CSN|2|
+mercaptopurine|C195|Mern|SY|2|
+mercaptopurine|C195|Flocofil|FBD|2|
+mercaptopurine|C195|Purine-6-thiol Monohydrate|CSN|2|
+mercaptopurine|C195|Puri-Nethol|FBD|2|
+mercaptopurine|C195|Mercaptina|FBD|2|
+mercaptopurine|C195|1,7-Dihydro-6H-purine-6-thione Monohydrate|CSN|2|
+mercaptopurine|C195|Purinethol|BN|2|
+mercaptopurine|C195|6-Thiopurine|SY|2|
+mercaptopurine|C195|6-Purinethiol|SY|2|
+mercaptopurine|C195|6-Thioxopurine|SY|2|
+mercaptopurine|C195|6H-Purine-6-thione, 1,7-dihydro- (9CI)|CSN|2|
+mercaptopurine|C195|Leukerin|FBD|2|
+mercaptopurine|C195|6 Thiohypoxanthine|SY|2|
+mercaptopurine|C195|6 Thiopurine|SY|2|
+mercaptopurine|C195|U-4748|CCN|2|
+mercaptopurine|C195|6-Mercaptopurine Monohydrate|SY|2|
+mercaptopurine|C195|Mercaleukim|FBD|2|
+mercaptopurine|C195|Ismipur|FBD|2|
+mercaptopurine|C195|3H-Purine-6-thiol|CSN|2|
+mercaptopurine|C195|6-Mercaptopurine|SY|2|
+mercaptopurine|C195|Mercaleukin|SY|2|
+mercaptopurine|C195|Leupurin|SY|2|
+mercaptopurine|C195|7-Mercapto-1,3,4,6-tetrazaindene|CSN|2|
+mercaptopurine|C195|Purine-6-thiol, Monohydrate|CSN|2|
+mercaptopurine|C195|BW 57-323H|CCN|2|
+mercaptopurine|C195|6-MP|AB|2|
+mercaptopurine|C195|Azathiopurine|SY|2|
+mercaptopurine|C195|Mercapto-6-purine|CSN|2|
+mercaptopurine|C195|Mercapurin|SY|2|
+mercaptopurine|C195|Purinethiol|FBD|2|
+mercaptopurine|C195|Mercaptopurinum|BN|2|
+mercaptopurine|C195|Purimethol|SY|2|
+mercaptopurine|C195|Purine-6-thiol (8CI)|CSN|2|
+mercaptopurine|C195|WR-2785|CCN|2|
+mercaptopurine|C195|Alti-Mercaptopurine|FBD|2|
+mesalazine 	|C29249|Mesalamine|PT|1|
+mesalazine 	|C29249|Rowasa|BN|2|
+mesalazine 	|C29249|Asacol|BN|2|
+mesalazine 	|C29249|5-Aminosalicylic Acid|CSN|2|
+mesalazine 	|C29249|5-Amino-2-hydroxybenzoic Acid|CSN|2|
+mesalazine 	|C29249|Lialda|BN|2|
+mesalazine 	|C29249|Apriso|BN|2|
+mesalazine 	|C29249|Pentasa|BN|2|
+mesalazine 	|C29249|Mesalazine|SY|2|
+mesalazine 	|C29249|5-ASA|AB|2|
+metformin 	|C61612|Metformin|PT|1|
+metformin 	|C61612|N,N-Dimethylimidodicarbonimidic Diamide|CSN|2|
+metformin 	|C61612|1,1-Dimethylbiguanide|CSN|2|
+minocycline 	|C61849|Minocycline|PT|1|
+minocycline 	|C61849|(2E,4S,4aR,5aS,12aR)- 2-(amino-hydroxy-methylidene)- 4,7-bis(dimethylamino)-10,11,12a-trihydroxy-4a,5,5a,6- tetrahydro-4H-tetracene- 1,3,12-trione|CSN|2|
+monensin 	|C83971|Monensin|PT|1|
+monensin 	|C83971|4-{2-[2-Ethyl-3'-methyl-5'-(tetrahydro-6-hydroxy-6-hydroxymethyl-3,5-dimethylpyran-2-yl)perhydro-2,2'-bifuran-5-yl]-9-hydroxy-2,8-dimethyl-1,6-dioxaspiro[4.5]dec-7-yl}3-methoxy-2-methylpentanoic acid|CSN|2|
+nifedipine 	|C29290|Nifedipine|PT|1|
+nifedipine 	|C29290|Procardia|BN|2|
+nifedipine 	|C29290|Adalat|BN|2|
+nitrendipine 	|C90821|Nitrendipine|PT|1|
+nocodazole 	|C75228|Nocodazole|PT|1|
+nocodazole 	|C75228|Methyl (5-[2-thienylcarbonyl]-1H-benzimidazol-2-yl|CSN|2|
+nordihydroguaiaretic acid 	|C701|Masoprocol|PT|1|
+nordihydroguaiaretic acid 	|C701|NDHGA|AB|2|
+nordihydroguaiaretic acid 	|C701|4,4'-(2,3-Dimethyl-1,4-butanediyl)bis[1,2-benzenediol]|CSN|2|
+nordihydroguaiaretic acid 	|C701|Actinex|BN|2|
+nordihydroguaiaretic acid 	|C701|Nordihydroguaiaretic Acid|SY|2|
+nordihydroguaiaretic acid 	|C701|NDGA|AB|2|
+novobiocin 	|C705|Novobiocin|PT|1|
+paclitaxel|C1411|Paclitaxel|PT|1|
+paclitaxel|C1411|[2aR-[2a Alpha,4beta,4a beta,6beta,9alpha(alphaR*,betaS*),-11alpha,12alpha,12a alpha,12b alpha]]-beta-(benzoylamino)-alpha-hydroxybenzene-propanoic acid 6,12b-bis(acetyloxy)-12-(benzoyloxy)-1a,33,4,-41,5,6,9,10,11,12,12a,12b-dodecahydro-4,11-dihydroxy-41,8,-12,13-tetramethyl-5-oxo-7,11-methano-1H-cyclodeca[3,4]benz[1,2-b]oxet-9-yl Ester|CSN|2|
+paclitaxel|C1411|Anzatax|FBD|2|
+paclitaxel|C1411|5Beta,20-epoxy-1,2alpha,4,7beta,10beta,13alpha-hexahydroxytax-11-en-9-one, 4,10-Diacetate 2-Benzoate 13-Ester with (2R,3S)-N-Benzoyl-3-phenylisoserine|CSN|2|
+paclitaxel|C1411|Bristaxol|FBD|2|
+paclitaxel|C1411|Taxol Konzentrat|FBD|2|
+paclitaxel|C1411|Taxol|BN|2|
+paclitaxel|C1411|Praxel|FBD|2|
+paclitaxel|C1411|Asotax|FBD|2|
+pararosaniline|C87717|Pararosaniline|PT|1|
+pararosaniline|C87717|C.I. Basic Red 9|SY|2|
+pararosaniline|C87717|4-((4-Aminophenyl)(4-Imino-2,5-Cyclohexadien-1-Ylidene)Methyl)Benzenamine|CSN|2|
+pararosaniline|C87717|Homolka's Base|SY|2|
+pararosaniline|C87717|Alpha-(p-Aminophenyl)-.Alpha.-(4-Imino-2,5-Cyclohexadien-1-Ylidene)-P-Toluidine|CSN|2|
+pentamidine|C731|Pentamidine|PT|1|
+pentamidine|C731|Aerosolized Pentamadine|SY|2|
+phenformin 	|C81700|Phenformin|PT|1|
+phentolamine 	|C62066|Phentolamine|PT|1|
+phentolamine 	|C62066|2-[N-p'-Tolyl-N-(m'-hydroxyphenyl)aminomethyl]imidazoline|CSN|2|
+pirinixic acid|C29866|Pirinixic Acid|PT|1|
+pirinixic acid|C29866|WY-14,643|CCN|2|
+prazosin 	|C767|Prazosin|PT|1|
+prazosin 	|C767|2-[4-(2-furoyl)piperazin-1-yl]-4-amino-6,7-dimethoxyquinazoline|CSN|2|
+prazosin 	|C767|1-(4-amino-6,7-dimethoxy-2-quinazolinyl)-4-(2-furanylcarbonyl)piperazine|CSN|2|
+prazosin 	|C767|Furazosin|SY|2|
+prednisolone 	|C769|Prednisolone|PT|1|
+prednisolone 	|C769|Panafcortelone|FBD|2|
+prednisolone 	|C769|Dacortin H|FBD|2|
+prednisolone 	|C769|Sterane|SY|2|
+prednisolone 	|C769|Klismacort|FBD|2|
+prednisolone 	|C769|Delta-Phoricol|FBD|2|
+prednisolone 	|C769|(11beta)-11,17,21-Trihydroxypregna-1,4-diene-3,20-dione|CSN|2|
+prednisolone 	|C769|Gupisone|FBD|2|
+prednisolone 	|C769|Decaprednil|FBD|2|
+prednisolone 	|C769|Cortisolone|FBD|2|
+prednisolone 	|C769|Longiprednil|FBD|2|
+prednisolone 	|C769|Precortisyl|FBD|2|
+prednisolone 	|C769|Prelone|BN|2|
+prednisolone 	|C769|Cortalone|BN|2|
+prednisolone 	|C769|Delta(1)Hydrocortisone|SY|2|
+prednisolone 	|C769|Metacortandralone|SY|2|
+prednisolone 	|C769|Delta1-dehydro-hydrocortisone|SY|2|
+prednisolone 	|C769|Prenilone|FBD|2|
+prednisolone 	|C769|Di-Adreson-F|FBD|2|
+prednisolone 	|C769|Linola-H N|FBD|2|
+prednisolone 	|C769|Predeltilone|FBD|2|
+prednisolone 	|C769|Fisopred|FBD|2|
+prednisolone 	|C769|Delta-Cortef|BN|2|
+prednisolone 	|C769|Meticortelone|FBD|2|
+prednisolone 	|C769|Hostacortin H|FBD|2|
+prednisolone 	|C769|Aprednislon|FBD|2|
+prednisolone 	|C769|Deltacortril|FBD|2|
+prednisolone 	|C769|Hydeltrasol|BN|2|
+prednisolone 	|C769|Frisolona|FBD|2|
+prednisolone 	|C769|Linola-H-Fett N|FBD|2|
+prednisolone 	|C769|Meti Derm|SY|2|
+prednisolone 	|C769|Delta- Cortef|FBD|2|
+prednisolone 	|C769|Lepi-Cortinolo|FBD|2|
+prednisolone 	|C769|Opredsone|FBD|2|
+prednisolone 	|C769|Deltahydrocortisone|SY|2|
+prednisolone 	|C769|Dontisolon D|FBD|2|
+prednisolone 	|C769|Delta-F|SY|2|
+prednisolone 	|C769|Hydeltra|BN|2|
+prednisolone 	|C769|Estilsona|FBD|2|
+prednisolone 	|C769|Deltidrosol|FBD|2|
+prednisolone 	|C769|Pred-Clysma|FBD|2|
+prednisolone 	|C769|Predni-Helvacort|FBD|2|
+prednisolone 	|C769|Delta-Diona|FBD|2|
+prednisolone 	|C769|Kuhlprednon|FBD|2|
+prednisolone 	|C769|Capsoid|FBD|2|
+prednisolone 	|C769|1,2-Dehydrohydrocortisone|CSN|2|
+prednisolone 	|C769|Predni-Coelin|FBD|2|
+prednisolone 	|C769|Lenisolone|FBD|2|
+prednisolone 	|C769|Decortin H|FBD|2|
+prednisolone 	|C769|Dhasolone|FBD|2|
+prednisolone 	|C769|Prednisolonum|SY|2|
+prednisolone 	|C769|Deltasolone|FBD|2|
+prednisolone 	|C769|Adnisolone|FBD|2|
+prednisolone 	|C769|Prednicortelone|FBD|2|
+probucol 	|C66470|Probucol|PT|1|
+probucol 	|C66470|Lorelco|BN|2|
+prochlorperazine|C774|Prochlorperazine|PT|1|
+prochlorperazine|C774|RP 6140|CCN|2|
+prochlorperazine|C774|SKF-4657|CCN|2|
+prochlorperazine|C774|2-Chloro-10-(3-(1-methyl-4-piperazinyl)propyl)-phenothiazine|CSN|2|
+pyrvinium 	|C77330|Pyrvinium|PT|1|
+quercetin|C792|Quercetin|PT|1|
+quercetin|C792|C.I. Natural Yellow 10|SY|2|
+quercetin|C792|2-(3,4-dihydroxyphenyl)-3,5,7-trihydroxy-chromen-4-one|SY|2|
+quercetin|C792|3,3',4',5,7-Pentahydroxyflavone|CSN|2|
+raloxifene 	|C1518|Raloxifene|PT|1|
+raloxifene 	|C1518|Keoxifene|SY|2|
+raloxifene 	|C1518|LY 139481|CCN|2|
+raloxifene 	|C1518|[6-Hydroxy-2-(4-hydroxyphenyl)-benzo[b]thien-3-yl][4-[2-(1-piperidinyl)ethoxy]phenyl]methanone|CSN|2|
+resveratrol|C1215|Resveratrol|PT|1|
+resveratrol|C1215|3,4',5-Stilbenetriol|CSN|2|
+resveratrol|C1215|(E)-5-[2-(4-Hydroxyphenyl)ethenyl]-1,3-benzenediol|CSN|2|
+rofecoxib 	|C1832|Rofecoxib|PT|1|
+rofecoxib 	|C1832|MK 966|CCN|2|
+rofecoxib 	|C1832|Vioxx|BN|2|
+rofecoxib 	|C1832|4-[4'-(Methylsulfonyl)phenyl]-3-phenyl-2(5H)-furanone|CSN|2|
+rosiglitazone 	|C62076|Rosiglitazone|PT|1|
+sirolimus 	|C1212|Sirolimus|PT|1|
+sirolimus 	|C1212|9,10,12,13,14,21,22,23,24,25,26,27,32,33,34,34a-Hexadecahydro-9,27-dihydroxy-3-((1R)-2-((1S,3R,4R)-4-hydroxy-3-methoxycyclohexyl)-1-methylethyl)-10,21-dimethoxy-6,8,12,14,20,26-hexamethyl-23,27-epoxy-3H-pyrido(2,1-c)(1,4)oxaazacyclohentriacontine-1,5,11,2|CSN|2|
+sirolimus 	|C1212|RAPA|AB|2|
+sirolimus 	|C1212|SILA 9268A|CCN|2|
+sirolimus 	|C1212|AY 22989|CCN|2|
+sirolimus 	|C1212|Rapamycin|SY|2|
+sirolimus 	|C1212|WY-090217|CCN|2|
+sirolimus 	|C1212|Rapamune|BN|2|
+sodium 	|C830|Sodium|PT|1|
+sodium 	|C830|Na|AB|2|
+staurosporine 	|C1237|Staurosporine|PT|1|
+staurosporine 	|C1237|AM-2282|CCN|2|
+staurosporine 	|C1237|CGP-39360|CCN|2|
+staurosporine 	|C1237|Antibiotic 230|SY|2|
+staurosporine 	|C1237|Antibiotic AM 2282|SY|2|
+staurosporine 	|C1237|8,12-Epoxy-1H,8H-2,7b,12a-triazadibenzo(a,g)cyclonona(cde)trinden-1-one, 2,3,9,10,11,12-hexahydro-9-methoxy-8-methyl-10-(methylamino)-, (8alpha,9beta,10beta,12alpha)-(+)-|CSN|2|
+staurosporine 	|C1237|(9alpha,10beta,11beta,13alpha)-(+)-2,3,10,11,12,13-Hexahydro-10-methoxy-9-methyl-11-(methylamino)-9,13-epoxy-1H-9H-diindolo[1,2,3-gh:3',2',1'-lm]pyrrolo[3,4-j][1,7]benzodiazonin-1-one|CSN|2|
+sulfasalazine 	|C29469|Sulfasalazine|PT|1|
+sulfasalazine 	|C29469|Azulfidine|BN|2|
+sulfasalazine 	|C29469|Sulphasalazine|SY|2|
+sulfasalazine 	|C29469|Salazosulfapyridine|SY|2|
+sulfasalazine 	|C29469|2-Hydroxy-5-[[4-[(2-pyridinylamino)sulfonyl]phenyl]azo]benzoic Acid|CSN|2|
+sulindac 	|C850|Sulindac|PT|1|
+sulindac 	|C850|Citireuma|FBD|2|
+sulindac 	|C850|Aflodac|BN|2|
+sulindac 	|C850|Reumofil|FBD|2|
+sulindac 	|C850|Sudac|FBD|2|
+sulindac 	|C850|Clinoril|BN|2|
+sulindac 	|C850|Sulindac Sulfoxide|SY|2|
+sulindac 	|C850|cis-5-fluoro-2-methyl-1-[p-(methylsulfinyl)benzylidene]indene-3-acetic acid|CSN|2|
+sulindac 	|C850|Apo-Sulin|FBD|2|
+sulindac 	|C850|Algocetil|FBD|2|
+sulindac 	|C850|Artribid|FBD|2|
+sulindac 	|C850|Sulreuma|FBD|2|
+sulindac 	|C850|(Z)-5-fluoro-2-methyl-1-[[4-(methylsulfinyl)phenyl]methylene]-1H-indene-3-acetic acid|CSN|2|
+sulindac 	|C850|Reumyl|FBD|2|
+sulindac 	|C850|Novo-Sundac|FBD|2|
+sulindac 	|C850|MK-231|CCN|2|
+sulindac 	|C850|Imbaral|FBD|2|
+sulindac 	|C850|Sulinol|FBD|2|
+sulindac 	|C850|Arthrocine|FBD|2|
+sulindac 	|C850|Clisundac|FBD|2|
+sulindac sulfide 	|C29854|Sulindac Sulfide|PT|1|
+sulindac sulfide 	|C29854|(1Z)-5-Fluoro-2-methyl-1-[[4-(methylthio)phenyl]methylene]-1H-indene-3-acetic Acid|CSN|2|
+tacrolimus 	|C1311|Tacrolimus|PT|1|
+tacrolimus 	|C1311|Fujimycin|SY|2|
+tacrolimus 	|C1311|Prograf|BN|2|
+tacrolimus 	|C1311|Hexadecahydro-5,19-dihydroxy-3-[2-(4-hydroxy-3-methoxycyclohexyl)-1-methylethenyl]-14,16-dimethoxy-4,10,12,18-tetramethyl-8-(2-propenyl)-15,19-epoxy-3H-pyrido[2,1-c][1,4]oxaazacyclotricosine-1,7,20,21(4H,23H)-tetrone|CSN|2|
+tacrolimus 	|C1311|FK 506|CCN|2|
+tacrolimus 	|C1311|Protopic|BN|2|
+tamoxifen 	|C62078|Tamoxifen|PT|1|
+tamoxifen 	|C62078|1-p-beta-dimethylamino-ethoxyphenyl-trans-1,2-diphenylbut-1-ene|CSN|2|
+thalidomide 	|C870|Thalidomide|PT|1|
+thalidomide 	|C870|Alpha-Phthalimidoglutarimide|SY|2|
+thalidomide 	|C870|Distaval|FBD|2|
+thalidomide 	|C870|Talimol|FBD|2|
+thalidomide 	|C870|N-(2,6-Dioxo-3-piperidyl)phthalimide|CSN|2|
+thalidomide 	|C870|Sedalis|FBD|2|
+thalidomide 	|C870|Thalomid|BN|2|
+thalidomide 	|C870|Contergan|FBD|2|
+thalidomide 	|C870|Synovir|BN|2|
+thalidomide 	|C870|2,6-Dioxo-3-phthalimidopiperidine|CSN|2|
+thalidomide 	|C870|Pantosediv|FBD|2|
+thalidomide 	|C870|2-(2,6-Dioxo-3-piperidinyl)-1H-isoindole-1,3(2H)-dione|CSN|2|
+thalidomide 	|C870|N-Phthaloylglutamimide|SY|2|
+thalidomide 	|C870|3-Phthalimidoglutarimide|CSN|2|
+thalidomide 	|C870|Sedoval K-17|FBD|2|
+thalidomide 	|C870|Kevadon|FBD|2|
+thalidomide 	|C870|Softenon|FBD|2|
+thalidomide 	|C870|Neurosedyn|FBD|2|
+thalidomide 	|C870|N-Phthalylglutamic Acid Imide|SY|2|
+thioridazine 	|C61971|Thioridazine|PT|1|
+thioridazine 	|C61971|Mellaril-S|BN|2|
+tioguanine 	|C876|Thioguanine|PT|1|
+tioguanine 	|C876|2-Aminopurine-6(1H)-thione|CSN|2|
+tioguanine 	|C876|X 27|CCN|2|
+tioguanine 	|C876|Tabloid|BN|2|
+tioguanine 	|C876|2-Amino-6-mercaptopurine|CSN|2|
+tioguanine 	|C876|2-Aminopurine-6-thiol|CSN|2|
+tioguanine 	|C876|2-Amino-1,7-dihydro-6H-purine-6-thione|CSN|2|
+tioguanine 	|C876|2-Amino 6MP|CSN|2|
+tioguanine 	|C876|6-Mercapto-2-aminopurine|CSN|2|
+tioguanine 	|C876|Tioguanine|BN|2|
+tioguanine 	|C876|Lanvis|FBD|2|
+tioguanine 	|C876|BW 5071|CCN|2|
+tioguanine 	|C876|2-Aminopurin-6-thiol|CSN|2|
+tioguanine 	|C876|WR-1141|CCN|2|
+tioguanine 	|C876|Tioguanin|FBD|2|
+tioguanine 	|C876|6-Thioguanine|CSN|2|
+tioguanine 	|C876|Wellcome U3B|CCN|2|
+tioguanine 	|C876|2-Amino-6-purinethiol|CSN|2|
+tioguanine 	|C876|6-TG|AB|2|
+tioguanine 	|C876|6H-Purine-6-thione, 2-amino-1,7-dihydro- (9CI)|CSN|2|
+tioguanine 	|C876|6 Thioguanine|CSN|2|
+tioguanine 	|C876|6 Mercaptoguanine|CSN|2|
+tolbutamide 	|C66610|Tolbutamide|PT|1|
+tolbutamide 	|C66610|N-[(butylamino)carbonyl]-4-methylbenzenesulfonamide|CSN|2|
+tomelukast 	|C74135|Tomelukast|PT|1|
+topiramate 	|C47764|Topiramate|PT|1|
+topiramate 	|C47764|beta-D-Fructopyranose, 2,3:4,5-bis-O-(1-methylethylidene)-, Sulfamate|CSN|2|
+topiramate 	|C47764|Topamax|BN|2|
+tretinoin|C900|Tretinoin|PT|1|
+tretinoin|C900|(All-E)-3,7-Dimethyl-9-(2,6,6-trimethyl-1-cyclohexen-1-yl)-2,4,6,8-nonatetraenoic Acid|CSN|2|
+tretinoin|C900|Epi-Aberel|FBD|2|
+tretinoin|C900|Renova|BN|2|
+tretinoin|C900|Cordes Vas|FBD|2|
+tretinoin|C900|All-trans Retinoic Acid|SY|2|
+tretinoin|C900|Airol|FBD|2|
+tretinoin|C900|ATRA|AB|2|
+tretinoin|C900|Vitamin A Acid|SY|2|
+tretinoin|C900|Aknoten|BN|2|
+tretinoin|C900|Stieva-A|FBD|2|
+tretinoin|C900|Ro 5488|CCN|2|
+tretinoin|C900|Trans Retinoic Acid|SY|2|
+tretinoin|C900|trans-Retinoic Acid|SY|2|
+tretinoin|C900|Retin-A MICRO|BN|2|
+tretinoin|C900|beta-Retinoic Acid|SY|2|
+tretinoin|C900|Retin-A|BN|2|
+tretinoin|C900|Vesanoid|BN|2|
+tretinoin|C900|Retisol-A|FBD|2|
+tretinoin|C900|Stieva-A Forte|FBD|2|
+tretinoin|C900|Retinoic Acid|SY|2|
+tretinoin|C900|Tretinoinum|SY|2|
+tretinoin|C900|Avita|BN|2|
+tretinoin|C900|Vitinoin|FBD|2|
+tretinoin|C900|Eudyna|FBD|2|
+tretinoin|C900|Trans Vitamin A Acid|SY|2|
+tretinoin|C900|Dermairol|FBD|2|
+tretinoin|C900|All-trans Vitamin A Acid|SY|2|
+tretinoin|C900|Aberel|BN|2|
+trichostatin A 	|C1261|Trichostatin A|PT|1|
+trichostatin A 	|C1261|(2E,4E,6R)-7-[4-(Dimethylamino)phenyl]-N-hydroxy-4,6-dimethyl-7-oxo-2,4-heptadienamide|CSN|2|
+trifluoperazine 	|C62084|Trifluoperazine|PT|1|
+trifluoperazine 	|C62084|10-(3-(4-Methyl-1-piperazinyl)propyl)-2-(trifluoromethyl)-10H-phenothiazine|CSN|2|
+trifluoperazine 	|C62084|TFP|AB|2|
+troglitazone|C1522|Troglitazone|PT|1|
+troglitazone|C1522|Rezulin|BN|2|
+troglitazone|C1522|CS-045|CCN|2|
+troglitazone|C1522|Prelay|BN|2|
+troglitazone|C1522|5-[4-[(6-Hydroxy-2,5,7,8-tetramethylchroman-2-yl)methoxy]benzyl]-2,4-thiazolidinedione|CSN|2|
+troglitazone|C1522|5-[[4-[4(3,4-Dihydro-6-hydroxy-2,5,7,8-tetramethyl-2H-1-benzopyran-2-yl)methoxy]phenyl]methyl-2,4-thiazolidinedione|CSN|2|
+troglitazone|C1522|Romozin|BN|2|
+troglitazone|C1522|CI-991|CCN|2|
+tyrphostin AG-1478 	|C1715|Tyrphostin AG 1478|PT|1|
+tyrphostin AG-1478 	|C1715|AG 1478|SY|2|
+tyrphostin AG-825 	|C1688|Tyrphostin AG 825|PT|1|
+tyrphostin AG-825 	|C1688|AG 825|CCN|2|
+valproic acid 	|C29536|Valproic Acid|PT|1|
+valproic acid 	|C29536|2-Propylvaleric Acid|CSN|2|
+valproic acid 	|C29536|2-Propylpentanoic Acid|CSN|2|
+valproic acid 	|C29536|Valproate|SY|2|
+valproic acid 	|C29536|Di-n-propylacetic Acid|CSN|2|
+valproic acid 	|C29536|Depakene|BN|2|
+verapamil 	|C928|Verapamil|PT|1|
+verapamil 	|C928|alpha-[3-[[2-(3,4-Dimethoxyphenyl)ethyl]methylamino]propyl]-3,4-dimethoxy-alpha-(1-methylethyl)benzeneacetonitrile|CSN|2|
+vorinostat 	|C1796|Vorinostat|PT|1|
+vorinostat 	|C1796|Zolinza|BN|2|
+vorinostat 	|C1796|L-001079038|CCN|2|
+vorinostat 	|C1796|Suberoylanilide Hydroxamic Acid|CCN|2|
+vorinostat 	|C1796|SAHA|AB|2|
+vorinostat 	|C1796|Suberanilohydroxamic Acid|CCN|2|
+vorinostat 	|C1796|N-Hydroxy-N'-phenyloctanediamide|CSN|2|
+wortmannin|C1277|Wortmannin|PT|1|
+wortmannin|C1277|(1S,6bR,9aS,11R,11bR)-11-(Acetyloxy)-1,6b,7,8,9a,10,11,11b-octahydro-1-(methoxymethyl)-9a,11b-dimethyl-3H-furo[4,3,2-de]indeno[4,5-h]-2-benzopyran-3,6,9-trione|CSN|2|
+wortmannin|C1277|SL-2052|CCN|2|
+wortmannin|C1277|(1 Alpha,11 alpha)-11-(acetyloxy)-1-(methoxymethyl)-2-oxaandrosta-5,8-dieno(6,5,4-bc)furan- 3,7,17-trione|CSN|2|
+yohimbine|C77304|Yohimbine|PT|1|
+1,5-isoquinolinediol||||10|
+114445 	||||10|
+12,13-EODE 	||||10|
+15-delta prostaglandin J2 	||||10|
+17-allylamino-geldanamycin 	||||10|
+17-dimethylamino-geldanamycin 	||||10|
+2-deoxy-D-glucose||||10|
+3-aminobenzamide||||10|
+4,5-dianilinophthalimide 	||||10|
+5109870||||10|
+5140203 	||||10|
+5149715 	||||10|
+5151277||||10|
+5152487 	||||10|
+5162773 	||||10|
+5182598||||10|
+5186223 	||||10|
+5186324 	||||10|
+5211181||||10|
+5213008 	||||10|
+5224221 	||||10|
+5230742||||10|
+5248896||||10|
+5252917	l	||||10|
+5253409 	||||10|
+5255229||||10|
+5279552||||10|
+5286656||||10|
+5666823 	||||10|
+BW-13700 	||||10|
+DL-PPMP 	||||10|
+HNMPA-(AM)3 	||||10|
+LM-1685 	||||10|
+LY-294002||||10|
+MG-132||||10|
+MK-886||||10|
+N-phenylanthranilic acid||||10|
+NU-1025 	||||10|
+SC-58125||||10|
+TTNPB 	||||10|
+U0125 	||||10|
+W-13||||10|
+Y-27632 	||||10|
+alpha-estradiol 	||||10|
+arachidonyltrifluoromethane 	||||10|
+blebbistatin 	||||10|
+butein oxaprozin||||10|
+butirosin 	||||10|
+calmidazolium||||10|
+celastrol 	||||10|
+clozapine 	I	||||10|
+colforsin 	||||10|
+cytochalasin B||||10|
+dimethyloxalylglycine 	||||10|
+docosahexaenoic acid ethyl ester||||10|
+fisetin 	||||10|
+flufenamic acid 	||||10|
+ikarugamycin 	||||10|
+monastrol 	||||10|
+monordef 	||||10|
+oligomycin 	||||10|
+oxamic acid||||10|
+phenanthridinone||||10|
+phenyl biguanide 	||||10|
+quinpirole 	||||10|
+rottlerin||||10|
+splitomicin 	||||10|
+tetraethylenepentamine 	||||10|

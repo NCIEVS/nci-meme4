@@ -1,0 +1,45 @@
+
+README - 07/11/2005
+
+  Q - QA
+
+File				Description
+----------------------------	----------------------------------------------
+
+automated_qa.cgi	Q	Performs conservation of mass QA in the MID
+
+cronvalidate.csh	Q	Used to automate semantic validation.
+
+cui_compare.csh		Q	Compare CUIs in release files
+
+demotions.cgi		Q	Investigate demotions
+
+error_report.cgi	Q	Report errors.
+
+gold_script.csh		Q	Generate GOLD counts for release comparisons
+
+load_qa_file.csh	Q	Load a QA file (for release comparisons)
+
+orf_checks.csh		Q	Check ORF files
+
+orf_counts.csh		Q	Count ORF files
+
+qa_checks.csh		Q	Check release target
+
+qa_counts.csh		Q	Count release target
+
+qa_previous.csh		Q	Generate PREV Qa counts
+
+qa_report.csh		Q	Generate QA report
+
+report_qa_diff.csh	Q	Compare QA tables
+
+status_n.cgi		Q	Investigate status N concepts
+
+track_errors.cgi	Q	Track problems
+
+validate.pl		Q	Perform semantic validation
+
+validate_mid.cgi	Q	validate.pl wrapper for MID
+
+validate_mrd.cgi	Q	validate.pl wrapper for MRD

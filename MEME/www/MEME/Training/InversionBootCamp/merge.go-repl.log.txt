@@ -1,0 +1,83 @@
+Session ID:    8
+[08-Feb-2006 21:26:11] 	Using Environment File = /d5/MEME4/etc/env.prop
+[08-Feb-2006 21:26:11] 	Environment Setting NLS_LANG = AMERICAN_AMERICA.UTF8
+[08-Feb-2006 21:26:11] 	Environment Setting JAVA_HOME = /site/java/jdk
+[08-Feb-2006 21:26:11] 	Environment Setting PATH_TO_MD5 = /site/bin/md5
+[08-Feb-2006 21:26:11] 	Environment Setting ENV_VERSION = 1.0
+[08-Feb-2006 21:26:11] 	Environment Setting MEDLINE_DIR = /d5/MEME4/Medline
+[08-Feb-2006 21:26:11] 	Environment Setting EVN_DATE = 11-jul-2005
+[08-Feb-2006 21:26:11] 	Environment Setting LVG_HOME = /site/package/lvg/current
+[08-Feb-2006 21:26:11] 	Environment Setting ENV_AUTHORITY = BAC
+[08-Feb-2006 21:26:11] 	Environment Setting EMS_HOME = /d5/MEME4/EMS
+[08-Feb-2006 21:26:11] 	Environment Setting MIDSVCS_PORT = 5125
+[08-Feb-2006 21:26:11] 	Environment Setting MRD_HOME = 
+[08-Feb-2006 21:26:11] 	Environment Setting MIDSVCS_HOST = nsmis2.nlm.nih.gov
+[08-Feb-2006 21:26:11] 	Environment Setting MEME_HOME = /d5/MEME4
+[08-Feb-2006 21:26:11] 	Environment Setting EXT_LIB = /d5/MEME4/EXTLIB
+[08-Feb-2006 21:26:11] 	Environment Setting PATH_TO_PERL = /site/bin/perl5
+[08-Feb-2006 21:26:11] 	Environment Setting ORACLE_HOME = /u01/app/oracle/product/9.2/
+[08-Feb-2006 21:26:11] 	Environment Setting MIDSVCS_HOME = /d5/MEME4/EMS
+[08-Feb-2006 21:26:11] 	Environment Setting LVGIF_HOME = 
+[08-Feb-2006 21:26:11] 	Environment Setting SAFEBOX_HOME = 
+[08-Feb-2006 21:26:11] 	Environment Setting URIS_HOME = 
+[08-Feb-2006 21:26:11] 	Environment Setting PATH_TO_UNZIP = /site/bin/unzip
+Merge set 5% complete. Wed Feb 08 21:26:19 EST 2006
+Merge set 11% complete. Wed Feb 08 21:26:29 EST 2006
+Merge set 17% complete. Wed Feb 08 21:26:37 EST 2006
+Merge set 23% complete. Wed Feb 08 21:26:38 EST 2006
+Merge set 29% complete. Wed Feb 08 21:26:39 EST 2006
+Merge set 35% complete. Wed Feb 08 21:26:40 EST 2006
+Merge set 41% complete. Wed Feb 08 21:26:41 EST 2006
+Merge set 47% complete. Wed Feb 08 21:26:42 EST 2006
+Merge set 52% complete. Wed Feb 08 21:26:44 EST 2006
+Merge set 58% complete. Wed Feb 08 21:26:45 EST 2006
+Merge set 64% complete. Wed Feb 08 21:26:47 EST 2006
+Merge set 70% complete. Wed Feb 08 21:26:48 EST 2006
+Merge set 76% complete. Wed Feb 08 21:26:49 EST 2006
+Merge set 82% complete. Wed Feb 08 21:26:49 EST 2006
+Merge set 88% complete. Wed Feb 08 21:26:52 EST 2006
+Merge set 94% complete. Wed Feb 08 21:26:53 EST 2006
+Merge set 100% complete. Wed Feb 08 21:26:55 EST 2006
+Finished Wed Feb 08 21:26:55 EST 2006
+-------------------------------------------------
+Starting merge engine ...Wed Feb 08 21:26:11 EST 2006
+-------------------------------------------------
+Database:  noa_mid2006
+Merge Set: GO-REPL
+Authority: GO2006_01_20
+Work ID:   2703663
+Trans ID:  7216290
+
+    17950124 into 485705 ... Wed Feb 08 21:26:11 EST 2006  FAILED
+      <MGV_E:V><MGV_A4:V><MGV_H1:V><MGV_C:V>
+    10828622 into 1012762 ... Wed Feb 08 21:26:19 EST 2006  FAILED
+      <MGV_E:V><MGV_A4:V>
+    1411055 into 1073160 ... Wed Feb 08 21:26:29 EST 2006  FAILED
+      <MGV_E:V><MGV_A4:V><MGV_H1:V><MGV_C:V>
+    7945139 into 7945137 ... Wed Feb 08 21:26:37 EST 2006  FAILED
+      <MGV_B:V><MGV_A4:V>
+    7945141 into 7945137 ... Wed Feb 08 21:26:38 EST 2006  FAILED
+      <MGV_B:V><MGV_A4:V>
+    8003425 into 8003424 ... Wed Feb 08 21:26:39 EST 2006  FAILED
+      <MGV_E:V><MGV_A4:V>
+    10829152 into 10827150 ... Wed Feb 08 21:26:40 EST 2006  FAILED
+      <MGV_E:V><MGV_A4:V>
+    10829153 into 10827150 ... Wed Feb 08 21:26:41 EST 2006  FAILED
+      <MGV_E:V><MGV_A4:V>
+    28187323 into 10816475 ... Wed Feb 08 21:26:42 EST 2006  SUCCESS
+    28187479 into 8172442 ... Wed Feb 08 21:26:44 EST 2006  SUCCESS
+    28176039 into 8171962 ... Wed Feb 08 21:26:45 EST 2006  SUCCESS
+    10829154 into 10827173 ... Wed Feb 08 21:26:47 EST 2006  FAILED
+      <MGV_E:V><MGV_A4:V>
+    10829155 into 10827173 ... Wed Feb 08 21:26:48 EST 2006  FAILED
+      <MGV_E:V><MGV_A4:V>
+    17950124 into 485705 ALREADY FAILED
+    28168059 into 10816475 ... Wed Feb 08 21:26:49 EST 2006  SUCCESS
+    28170894 into 10828632 ... Wed Feb 08 21:26:52 EST 2006  SUCCESS
+    8171962 into 8171908 ... Wed Feb 08 21:26:53 EST 2006  FAILED
+      <MGV_A4:V>
+-------------------------------------------------
+Finished merge engine ...Wed Feb 08 21:26:55 EST 2006
+-------------------------------------------------
+
+Finished Wed Feb 08 21:26:55 EST 2006

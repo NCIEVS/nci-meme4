@@ -1,0 +1,66 @@
+<HTML>
+<HEAD>
+<TITLE>Comparing Metathesaurii</TITLE>
+</HEAD>
+
+<BODY>
+<h5><P ALIGN=right>suresh@nlm.nih.gov 12/2002 </h5>
+
+<H1>Comparing Metathesaurii</H1>
+
+The script: /site/umls/release/compare-meta.pl can be used to compare
+the contents of two Metathesauri using MD5.  You can use it to
+compare:
+
+<OL>
+<LI>the output of identical MetamorphoSys runs from two different platforms,
+e.g., Linux, Solaris
+<LI>the compressed version with the uncompressed, e.g.,
+UNIXCOMPRESS and UNIX
+<LI>the contents of a mastered CD with the Metathesaurus on wthsun, e.g.,
+/cdrom/2003AA_1.ZIP,/cdrom/2003AA_2.ZIP with UNIX
+</OL>
+
+<p>
+
+The different Metathesauri can be specified as directories, ZIP,
+TAR or TGZ files.  You can also specify that one or both
+Metathesauri contain ISO line-terminated files.
+Comparison is done using MD5 checksums.
+
+<H1>Options</H1>
+
+<UL>
+<P><LI>-1 (path to first Metathesaurus) can be a directory, ZIP, TAR or TGZ.
+	      Multiple files (for a single Metathesaurus)
+	      can be comma separated (no intervening spaces - see
+	      example #3 below).
+	      Path names can be absolute or relative to the current location.
+<P><LI>-2 (path to second Metathesaurus) can be a directory, ZIP, TAR or
+		  TGZ.  Multiple files can be comma separated.
+<P><LI>-d [1, 2 or 12] indicates which Metathesaurus has ISO line termination.
+		      "12" indicates both are ISO terminated.
+
+<P><LI>-t [tmpdir] an alternative path to a temporary directory with adequate
+			  disk space.
+</UL>
+
+Examples:
+
+<PRE>
+
+1. /site/umls/release/compare-meta.pl -1 UNIX -2 Linux.tgz -t /d4/tmp
+2. /site/umls/release/compare-meta.pl -1 UNIX.tgz -2 Win.ZIP -d 2
+3. /site/umls/release/compare-meta.pl -1 /cdrom/2003AA/2003AA_1.ZIP,/cdrom/2003AA/2003AA_2.ZIP -2 ISO
+
+</PRE>
+
+<P>
+
+The output indicates for each file, an "OK" message if it detected
+identity else an "ERROR" message.  Missing or additional files from
+either directories are also reported.
+
+</BODY>
+</HTML>
+

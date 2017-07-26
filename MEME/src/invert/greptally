@@ -1,0 +1,13 @@
+#!/bin/csh -f
+# Script: greptally 'greppattern' 'awkfield' file
+# Uses grep 'pattern' file to select lines
+# Then 'awkfield' to specify which "|"-delimited field to tally
+# Sample: greptally '|LT|' '$7' MRSAT  tallies lexical tag values in MRSAT
+
+if ($#argv != 3) then
+	echo "Usage: $0 'greppattern' 'awkfield' filename"
+	exit 1
+endif
+
+grep "$1" $3 | awk -F\| '{count['$2']++} END {for (x in count) {print x "	" count[x]; tot+=count[x]} print "~TOTAL	" tot}' | sort
+echo "~FILE	$3"

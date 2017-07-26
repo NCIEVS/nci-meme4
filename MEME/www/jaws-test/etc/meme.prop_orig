@@ -1,0 +1,65 @@
+#
+# NOTE: When releaseing meme.prop, include comments to 
+#       remind NLM to rebuild the Jekyll distribution
+#
+# 06/03/2005 (4.17.1): Removed RxNormSerice
+# 12/13/2004 (4.17.0): Released
+# 12/02/2004 (4.16.1): smayhugh@mail.nih.gov added to list
+#                      Added MaintenanceService to services list
+# 09/08/2004 (4.16.0): Fixed mail server(again)
+# 08/23/2004 (4.15.1): tkao@apelon.com added to all admin lists
+# 07/16/2004 (4.15.0): Added ContentViewService to services list
+#                      and MappingService
+# 12/01/2003 (4.14.0): tkao@apelon.com added to admin lists
+# 09/30/2003 (4.13.0): mail.apelon.com -> lhc.nlm.nih.gov
+# 06/06/2003 (4.12.0): No ShutdownServer anymore
+# 05/21/2003 (4.11.0): Added ActionSequences to services list
+# 04/09/2003 (4.10.0): Added ActivityMonitor to services list
+# 03/04/2003 (4.9.0): Upped pool optimial sizes to 10
+#                     Added MergeEngineService to services list
+#   
+#
+meme.properties.file.release=4.0
+meme.properties.file.version=17.1
+meme.properties.file.version.date=03-Jun-2005
+meme.properties.file.version.authority=MEME Group
+
+# 
+# Server properties
+#
+
+#
+# The midsvcs service name that the server connects to by default
+# when initializing its data source pool.  This property is
+# commonly overridden when the server is started
+#
+meme.mid.service.default=editing-db
+
+#
+# The midsvcs service host and port
+# Generally these properites are not overridden and should 
+# not be changed once they are set correctly
+#
+env.MIDSVCS_HOST=midns.nlm.nih.gov
+env.MIDSVCS_PORT=5125
+
+# 
+# Client parameters (MUST BE USED BY CLIENT)
+#
+
+#
+# The host/port on which the client expects the server to be running 
+# by default.  Once running, Client APIs can interactively change
+# these settings.
+#
+meme.client.server.host=localhost
+meme.client.server.port=1526
+meme.server.port=1526
+
+#
+# The class implementing the network protocol for connecting to
+# the server.  Generally, this property is not overridden and
+# should not change unless a new protocol class is implemented.
+#
+meme.client.protocol.class=gov.nih.nlm.meme.client.HTTPRequestClient
+

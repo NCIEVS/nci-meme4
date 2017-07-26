@@ -1,0 +1,131 @@
+conservation of mass file for ICPC2P_2005
+
+ATOMS
+
+wc -l Orig/ATT355079.txt
+    8319 Orig/ATT355079.txt
+
+same file with vb instead of csv
+
+wc -l icpc2p.txt 
+     8319 icpc2p.txt
+
+Active/inactive:
+
+tallyfield '$6' icpc2p.txt
+A       7410
+I       909
+~TOTAL  8319
+
+if $3=="n/a" no PTN or OPN was created
+awk -F\| '$6=="A" && $3!="n/a"' icpc2p.txt | wc -l
+	7410
+
+awk -F\| '$6=="I" && $3!="n/a"' icpc2p.txt | wc -l
+      85     
+
+tallyfield '$3' classes_atoms.src
+ICPC2P_2005/MTH_OP      49
+ICPC2P_2005/MTH_OPN     8
+ICPC2P_2005/MTH_PT      514
+ICPC2P_2005/MTH_PTN     512
+ICPC2P_2005/OP  909
+ICPC2P_2005/OPN 85
+ICPC2P_2005/PT  7410
+ICPC2P_2005/PTN 7410
+SRC/VAB 1
+SRC/VPT 1
+~TOTAL  16899
+
+suppressibility:  *O* ttys should be "O":
+
+ tallyfield.pl '$3$9' classes_atoms.src
+ ICPC2P_2005/MTH_OPN|O 8
+ ICPC2P_2005/MTH_OP|O 49
+ ICPC2P_2005/MTH_PTN|N 512
+ ICPC2P_2005/MTH_PT|N 514
+ ICPC2P_2005/OPN|O 85
+ ICPC2P_2005/OP|O 909
+ ICPC2P_2005/PTN|N 7410
+ ICPC2P_2005/PT|N 7410
+ SRC/VAB|N 1
+ SRC/VPT|N 1
+ ====================
+ TOTAL 16899
+
+  status:  *N* ttys should be reviewed:
+
+  tallyfield.pl '$3$5' classes_atoms.src
+  ICPC2P_2005/MTH_OPN|R 8
+  ICPC2P_2005/MTH_OP|N 49
+  ICPC2P_2005/MTH_PTN|R 512
+  ICPC2P_2005/MTH_PT|N 514
+  ICPC2P_2005/OPN|R 85
+  ICPC2P_2005/OP|N 909
+  ICPC2P_2005/PTN|R 7410
+  ICPC2P_2005/PT|N 7410
+  SRC/VAB|N 1
+  SRC/VPT|N 1
+  ====================
+  TOTAL 16899
+
+
+
+MERGEFACTS:
+
+
+ tallyfield '$8' mergefacts.src
+
+tallyfield '$8' mergefacts.src
+ICPC2P-AE       1083
+ICPC2P-SRC      1
+ICPC2P-SY       7495
+~TOTAL  8579
+
+SY facts connect PT+PTN, OP+OPN
+7410+85=7495
+
+AE facts connect MTH* ttys
+49+8+514+512=1083
+
+RELATIONSHIPS
+
+SFO/LFO rels were not made between PT & PTN, OP & OPN
+RT? rels connect OPs and PTs
+
+ tallyfield.pl '$2$4$5$7' relationships.src
+ S|BT|has_version|SRC 1
+ S|RT?|replaces|ICPC2P_2005 909
+ S|SFO/LFO|expanded_form_of|ICPC2P_2005 7495
+ S|SFO/LFO|mth_british_form_of|ICPC2P_2005 1083
+ ====================
+ TOTAL 9488
+
+tallyfield.pl '$2$4$5$7$14$16' relationships.src
+S|BT|has_version|SRC|SRC/VPT|SRC/RPT 1
+S|RT?|replaces|ICPC2P_2005|ICPC2P_2005/OP|ICPC2P_2005/PT 909
+S|SFO/LFO|expanded_form_of|ICPC2P_2005|ICPC2P_2005/OP|ICPC2P_2005/OPN 85
+S|SFO/LFO|expanded_form_of|ICPC2P_2005|ICPC2P_2005/PT|ICPC2P_2005/PTN 7410
+S|SFO/LFO|mth_british_form_of|ICPC2P_2005|ICPC2P_2005/OPN|ICPC2P_2005/MTH_OPN 8
+S|SFO/LFO|mth_british_form_of|ICPC2P_2005|ICPC2P_2005/OP|ICPC2P_2005/MTH_OP 49
+S|SFO/LFO|mth_british_form_of|ICPC2P_2005|ICPC2P_2005/PTN|ICPC2P_2005/MTH_PTN 512
+S|SFO/LFO|mth_british_form_of|ICPC2P_2005|ICPC2P_2005/PT|ICPC2P_2005/MTH_PT 514
+====================
+TOTAL 9488
+
+
+
+ATTRIBUTES.SRC
+
+ tallyfield '$4' attributes.src
+ICPCCODE        8319
+RXR     909
+SEMANTIC_TYPE   5777
+TERMCODE        8319
+TERMID  8319
+TERMSTATUS      8319
+~TOTAL  39962
+
+
+PTs + OPs  = 7410+909=8419
+RXR is for all obsoletes

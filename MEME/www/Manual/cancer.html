@@ -1,0 +1,205 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.51 [en] (X11; I; SunOS 5.6 sun4u) [Netscape]">
+</head>
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EE" vlink="#551A8B" alink="#FF0000">
+<font size=+1>Editing Carcinoma, Cancer, and Malignant Neoplasms</font>
+<br>&nbsp;
+<ul>
+<li>
+Malignant Neoplasms are NOT equal to Carcinomas (the two should NEVER be
+merged)</li>
+
+<li>
+Carcinomas are NRW than Malignant Neoplasms</li>
+
+<li>
+Cancer may be = Carcinoma</li>
+
+<li>
+Cancer may be = Malignant Neoplasms</li>
+</ul>
+
+<p><br>&nbsp;&nbsp; If I have an atom with "cancer" what do I do?
+<br>&nbsp;
+<ul>
+<li>
+RESPECT THE SOURCE (note examples may be hypothetical)</li>
+</ul>
+&nbsp;&nbsp;&nbsp; If you have:&nbsp;&nbsp; Carcinoma of the right toes
+(PDQ/SY/208-1234)
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Cancer of the right toes (PDQ/PT/208-1234)
+<p>Since PDQ is asserting synonymy between the cancer and carcinoma term
+(same codes), the PDQ atom for
+<br>Cancer of the right toes, means Carcinoma of the right toes.&nbsp;
+Remember, we need to edit what we have in the
+<br>Metathesaurus from the sources.&nbsp; If NCI decides to change PDQ
+for next year, we will make the appropriate changes
+<br>and we have ways during a source insertion to detect that codes or
+meanings may have changed for a given string.
+<br>However, until we receive an official updated version from NCI (or
+any other source) we go with what we have.
+<br>&nbsp;
+<ul>
+<li>
+What if the source isn't giving me enough information to tell?</li>
+</ul>
+MeSH has:&nbsp; Cancer of the right toes (MSH2000/EN/D012345)
+<br>&nbsp;I know it is an NRW entry term to Right Toe Neoplasms but there
+is no further information.
+<br>&nbsp;If a source does not give you enough information re: whether
+they mean "carcinoma" or "malignant neoplasms"
+<br>&nbsp;you should assume they mean "malignant neoplasms.&nbsp; In the
+case above, you will end up with a multi-meaning
+<br>&nbsp;since PDQ means carcinoma, MeSH is taken to mean Malignant Neoplasms.&nbsp;
+That is OK.&nbsp; You should not merge
+<br>MeSH with the PDQ atom just because you can't tell what MeSH means
+by "cancer"
+<br>&nbsp;
+<p>MDR has:&nbsp; 1)&nbsp; Carcinoma of the right toes (MDR/LT/12345345)
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+2)&nbsp; Malignant Neoplasms of the right toes (MDR/LT/1347583)
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+3)&nbsp; Cancer of the right toes (MDR/LT/13948935)
+<br>&nbsp;
+<p>Again, there is not enough information in MDR to tell what the atom
+for "cancer" means so it gets merged with
+<br>the ones for malignant neoplasms.
+<p><u><font size=+1>Changes NLM is going to make to help avoid further
+confusion</font></u>
+<ul>
+<li>
+If a concept contains the string "mumble cancer" we will add a PN with
+either "Malignant Neoplasms of. . ." or "Carcinoma of. . ."</li>
+</ul>
+For cases where there is a concept meaning "Malignant neoplasms of . .
+. " another one meaning "Carcinoma of. . . " , and one of the two concepts
+has an atom with the word cancer, we will create an MTH/PT atom with the
+word cancer in the corresponding concept.&nbsp; Editors should not move
+MTH/PT atoms for cancer around unless they are sure of
+<br>the meaning.&nbsp; We will try to add atom notes for the cancer terms
+to help avoid confusion.
+<p>Examples:
+<p>CN# 2878950&nbsp; Malignant neoplasm of lung
+<br>CUI C0242379 Concept Status needs Review
+<br>ATOMS
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+R []&nbsp; Malignant neoplasm of lung [MTH/PN/NOCODE]
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+N&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; MALIGNANT LUNG NEOPLASM [COS89/PT/466]
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+N&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Malignant neoplasm of lung, NOS [SNMI98/PT/D2-F1103]
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+N []&nbsp; CA - Lung cancer [RCD99/SY/Xa0KG]
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+N []&nbsp; Lung Cancer [MSH2000/EP/D008175]
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+N&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Cancers, Lung [MSH2000/PM/D008175]
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+N&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Lung Cancers [MSH2000/PM/D008175]
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+N&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; lung cancer [PDQ99/PT/208/00030]
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+N&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; lung cancer [AOD99/ET/0000004588]
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+N&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; lung cancer [BI98/PT/BI00185]
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+N&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Lung cancer [RCD99/SY/Xa0KG]
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+N&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {Lung cancer [MDR99/LT/10025044]}
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+N&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {Cancer of lung [MDR99/LT/10007096]}
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+N&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {Lung cancer NOS [MDR99/LT/10025056]}
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+N&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; LUNG CANCER [CCPSS99/PT/1018238]
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+N&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Cancer of Lung [MSH2000/EP/D008175]
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+N&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Cancer of the Lung [MSH2000/EN/D008175]
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+N []&nbsp; Malignant tumor of lung [RCDAE/PT/Xa0KG]
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+N []&nbsp; Malignant tumour of lung [RCD99/PT/Xa0KG]
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+N []&nbsp; Pulmonary Cancer [MSH2000/EP/D008175]
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+N&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Cancer, Pulmonary [MSH2000/PM/D008175]
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+N&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Cancers, Pulmonary [MSH2000/PM/D008175]
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+N&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Pulmonary Cancers [MSH2000/PM/D008175]
+<p>CN# 1427150&nbsp; Carcinoma of lung
+<br>CUI C0684249 Concept Status is Reviewed
+<br>STY Neoplastic Process&nbsp;&nbsp; R
+<br>ATOMS
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+R []&nbsp; Carcinoma of lung [MTH/PN/NOCODE]
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+R&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Carcinoma of lung [MTH/PT/NOCODE]
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+R&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {Carcinoma of lung [MDR99/LT/10007433]}
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+R&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; LUNG CARCINOMA [COS89/PT/460]
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+R&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; LUNG CARCINOMA [CST95/GT/CARCINOMA
+LUNG]
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+R&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; CARCINOMA OF LUNG [CST95/PT/CARCINOMA
+LUNG]
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+R&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; CARCINOMA OF LUNG [COS89/PT/145]
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+R&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; CARCINOMA OF LUNG [MTH/PT/460]
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+R&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; CARCINOMA LUNG [CST95/GT/CARCINOMA
+LUNG]
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+R&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {Carcinoma lung [MDR99/LT/10007420]}
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+R&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {Lung carcinoma [MDR99/LT/10025064]}
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+R []&nbsp; PULMONARY CARCINOMA [WHO97/PT/0906]
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+R&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; PULMONARY CARCINOMA [CST95/GT/CARCINOMA
+LUNG]
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+R&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {Pulmonary carcinoma [MDR99/LT/10037344]}
+<br>&nbsp;
+<p>It may take us some time to clean up all the existing records and add
+the appropriate PNs.&nbsp; Editors should remember that the meaning of
+the concept can NOT be determined by the concept name alone.&nbsp; They
+need to look at all members of the class, the context, and other information
+found on the concept report.&nbsp; If a concept has an atom with malignant
+neoplasms, then that is probably the meaning even if the concept name contains
+cancer.&nbsp; If the concept has atoms with carcinoma, then that is probably
+the meaning.&nbsp; If a concept contains both atoms for malignant neoplasms
+and carcinoma, that is probably indication that something is wrong and
+the concept needs to be cleaned up.
+<br>
+<hr WIDTH="100%">
+<br>&nbsp;
+<address>
+Contact: <a href="mailto:powell@nlm.nih.gov">Tammy Powell</a> or <a href="mailto:lad@nlm.nih.gov">Laura
+Roth</a></address>
+
+<address>
+Created: February 29, 20000</address>
+
+<address>
+Last Updated: March 2, 2000</address>
+
+<br><a href="/index.shtml">Meta News Home</a>
+<br><!-- Changed On:
+2000/03/01 --><!-- Fresh for:  1 week --><!-- Changed By:  Tammy Powell --><!--
+Change Note: New Page on cancer/carinoma/malignant neoplasms -->
+<br>&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+</body>
+</html>

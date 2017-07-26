@@ -1,0 +1,1803 @@
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf8">
+   <meta name="Author" content="Brian Carlsen">
+   <title>Writing a shell script for an Insertion</title>
+</head>
+<body text="#000000" bgcolor="#FFFFFF" link="#3333FF" vlink="#999999" alink="#FF0000">
+
+<center>
+<h2>
+How to Script an Insertion</h2></center>
+
+<hr><i>Following is a description of the steps involved in writing an insertion
+script from a recipe.</i>
+<br>&nbsp;
+<center><table COLS=1 WIDTH="90%" >
+<tr>
+<td>Each section of a recipe corresponds to a particular command or set
+of commands.&nbsp; Below is a description of each Section/Step in the recipe
+and the corresponding shell script code to enable that part of the recipe.&nbsp;
+Templates for all sections are available in the $MEME_HOME/bin-insert/source.csh
+script.&nbsp; Generally, it is a good idea for an update source to start
+with the insertion script from the past insertion and update it as needed.</td>
+</tr>
+</table></center>
+
+<br>&nbsp;
+<center><table WIDTH="90%" >
+<tr>
+<td><a NAME="initialization"></a><b><font size=-1>Step/Section:</font></b></td>
+
+<td><tt>Initialization</tt></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP><b><font size=-1>Description:</font></b></td>
+
+<td><font size=-1>This does not actually correspond to any part of the
+recipe but is necessary to set up all of the information needed to make
+the rest of the script work.</font></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP><b><font size=-1>Recipe:</font></b></td>
+
+<td><tt>N/A</tt></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP><b><font size=-1>Script:</font></b></td>
+
+<td><font size=-1>Rather than putting the code here, I will just refer
+you to the <tt>$MEME_HOME/bin-insert/source.csh</tt> script.&nbsp; The
+initialization section is everything up through (and including) the "Get
+username/password and work_id" section.&nbsp; The most important part is
+the setting up of the variables. For example,</font>
+<pre><font size=-1>set authority=MSH2002
+set old_source=MSH2001
+set new_source=MSH2002
+set stripped_source=MSH
+set mode=test
+set db=oc_testsrc
+#set work_id=1703</font></pre>
+
+<p><br><font size=-1>It is important that each of these variables be set.&nbsp;
+For a test insertion, the mode should be <tt>test</tt>, and for a real
+insertion it should be <tt>real</tt>.&nbsp; The database should be set
+to the current test insertion database for the test insertion and to the
+real editing database for the real insertion.&nbsp; Finally, there is code
+near the end of the initialization section that sets the <tt>work_id</tt>
+from the database.&nbsp; If you perform an insertion in multiple days,
+you will have to go back and re-assign the <tt>work_id</tt>, rather than
+generating a new one, you should store the work_id from the first time
+you generated it so you can set it to the same thing later.</font></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP><b><font size=-1>Notes:</font></b></td>
+
+<td></td>
+</tr>
+</table></center>
+
+<br>&nbsp;
+<center><table WIDTH="90%" >
+<tr>
+<td VALIGN=TOP><a NAME="load_section"></a><b><font size=-1>Step/Section:</font></b></td>
+
+<td><tt>Load Section</tt></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP><b><font size=-1>Description:</font></b></td>
+
+<td><font size=-1>This is the part of the recipe where the data from the
+.src files is actually loaded into the database.&nbsp; It involves: loading
+.src files, assigning string identifiers, assigning MEME ids, inserting
+source ids, updating source and termgroup ranks, updating source_version,
+inserting data into core tables.</font></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP><b><font size=-1>Recipe:</font></b></td>
+
+<td>
+<h3>
+Load Section</h3>
+
+<blockquote>
+<h3>
+Load Data into Core Tables</h3>
+source name : PDQ2001
+<br>old source name : PDQ2000&nbsp;
+<br>source language : ENG&nbsp;
+<ul>
+<li>
+Concepts are being inserted.</li>
+
+<li>
+Atoms are being inserted.</li>
+
+<li>
+Attributes are being inserted.&nbsp;</li>
+
+<li>
+Relationships are being inserted</li>
+</ul>
+</blockquote>
+</td>
+</tr>
+
+<tr>
+<td VALIGN=TOP><b><font size=-1>Script:</font></b></td>
+
+<td>
+<pre>#####################################################
+# Load Section
+#####################################################
+$MEME_HOME/bin/load_section.csh $authority $old_source \
+&nbsp; $new_source $stripped_source $db >&amp;! load_section.log</pre>
+</td>
+</tr>
+
+<tr>
+<td VALIGN=TOP><b><font size=-1>Notes:</font></b></td>
+
+<td><font size=-1>This load section script can only be used if the insertion
+does not require pre-insertion merge steps.&nbsp; If it does you must actually
+put the code from this script into your .csh script and place pre-insert
+merge steps just before the <tt>core_table_insert</tt> code.</font></td>
+</tr>
+</table></center>
+
+<br>&nbsp;
+<center><table WIDTH="90%" >
+<tr>
+<td VALIGN=TOP><a NAME="pre-insert_merge_step"></a><b><font size=-1>Step/Section:</font></b></td>
+
+<td><tt>Pre-insert Merge Step</tt></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP><b><font size=-1>Description:</font></b></td>
+
+<td><font size=-1>Currently, the merge engine processes approximately 10000
+merge facts per hour.&nbsp; With a source that contains 80000 atoms this
+means there is likely to be <i>at least</i> 8 hours of merging.&nbsp; One
+way of speeding this process up is to pre-insert merge the content.&nbsp;
+Typically, a new or update source is inserted into the database in such
+a way that each new atom gets its own new concepts, then various matching
+predicates are used to put it with the existing MID content that it belongs
+with.&nbsp; Here, we compute where the new/update content should go in
+advance of inserting it into <tt>classes</tt>/<tt>concept_status</tt> and
+set the <tt>concept_id</tt> fields in <tt>source_classes_atoms</tt>.&nbsp;
+That way, the content is inserted directly into the existing concepts where
+it belongs.</font></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP><b><font size=-1>Recipe:</font></b></td>
+
+<td>
+<h3>
+Merge Step - ......</h3>
+
+<table BORDER CELLPADDING=2 WIDTH="90%" >
+<tr>
+<th COLSPAN="2">Merge Parameters</th>
+</tr>
+
+<tr>
+<td><b>Merge Set:</b></td>
+
+<td>PDQ2001-M1</td>
+</tr>
+
+<tr>
+<td><b>...</b></td>
+
+<td>...</td>
+</tr>
+
+<tr>
+<td><b>Pre Insert:</b></td>
+
+<td><font color="#CC0000">n to One</font></td>
+</tr>
+</table>
+
+<p><font size=-1>The key here is the "Pre Insert" row.&nbsp; If it has
+a value of "n to One" or "One to One", then a pre-insert merge step is
+in order.&nbsp; You must look through <i>all</i> merge steps that take
+place before the MID merging step to see if there should be pre-insert
+merge steps.</font></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP><b><font size=-1>Script:</font></b></td>
+
+<td><font size=-1>If it is a precomputed merge step that requires a pre-insert
+merge it will involve code like this:</font>
+<pre>############################################################
+# Pre-insert Merge (Precomputed)
+############################################################
+# Load mergefacts.src
+$MEME_HOME/bin/load_src.csh $db mergefacts.src
+
+$ORACLE_HOME/bin/sqlplus -s $user@$db &lt;&lt;EOF
+&nbsp;&nbsp;&nbsp; set serveroutput on size 100000
+&nbsp;&nbsp;&nbsp; set feedback off
+&nbsp;
+&nbsp;&nbsp;&nbsp; exec MEME_SOURCE_PROCESSING.prepare_src_mergefacts( -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; authority => '$authority', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; work_id => $work_id);
+
+&nbsp;&nbsp;&nbsp; exec MEME_SOURCE_PROCESSING.load_facts ( -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <font color="#000000">merge_set => </font><font color="#CC0000">'$new_source-M1'</font><font color="#000000">,</font> -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; integrity_vector => '', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; change_status => 'N', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; make_demotion => 'N', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; authority => '$authority', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; work_id => $work_id);
+
+&nbsp;&nbsp;&nbsp; -- Put them together because then 1-1 is more meaningful.
+&nbsp;&nbsp;&nbsp; exec MEME_SOURCE_PROCESSING.replacement_merges ( -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <font color="#000000">merge_set => </font><font color="#CC0000">'$new_source-M1'</font><font color="#000000">,</font> -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; normalization_flag => 1, -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <font color="#000000">ambig_flag =></font><font color="#CC0000"> 1</font>, -&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; authority => '$authority', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; work_id => $work_id);
+
+&nbsp;&nbsp;&nbsp; exec MEME_SOURCE_PROCESSING.move_processed_facts ( -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; authority => '$authority', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; work_id => $work_id);
+EOF</pre>
+<font size=-1>If it is a generated merge step that requires a pre-insert
+merge, it will involve code like this:</font>
+<pre>############################################################
+# Pre-insert Merge (Generated)
+############################################################
+
+$ORACLE_HOME/bin/sqlplus -s $user@$db &lt;&lt;EOF
+&nbsp;&nbsp;&nbsp; set serveroutput on size 100000
+&nbsp;&nbsp;&nbsp; set feedback off
+
+&nbsp;&nbsp;&nbsp; <font color="#000000">drop table t1;
+&nbsp;&nbsp;&nbsp; drop table t2;
+&nbsp;&nbsp;&nbsp; create table t1 (termgroup varchar2(20) not null);
+&nbsp;&nbsp;&nbsp; create table t2 (termgroup varchar2(20) not null);
+</font><font color="#CC0000">&nbsp;&nbsp;&nbsp; insert into t1 values ('LNC203/LN');
+&nbsp;&nbsp;&nbsp; insert into t1 values ('LNC203/LX');
+&nbsp;&nbsp;&nbsp; insert into t1 values ('LNC203/LO');
+&nbsp;&nbsp;&nbsp; insert into t2 values ('LNC10o/LN');
+&nbsp;&nbsp;&nbsp; insert into t2 values ('LNC10o/LX');
+&nbsp;&nbsp;&nbsp; insert into t2 values ('LNC10o/LO');
+
+</font>&nbsp;&nbsp;&nbsp; -- source classes atoms not classes
+&nbsp;&nbsp;&nbsp; exec MEME_SOURCE_PROCESSING.generate_facts ( -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; termgroup_table_1 => 't1', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; termgroup_table_2 => 't2', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <font color="#000000">merge_set =></font><font color="#CC0000"> '$new_source-M2',</font> -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; string_parameter => '<font color="#CC0000">NONE</font>', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; code_parameter => '<font color="#CC0000">EXACT</font>', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; tty_parameter => '<font color="#CC0000">N</font>', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; table_name => 'source_classes_atoms', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; source => '$new_source', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; authority => '$authority', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; work_id => $work_id );
+
+&nbsp;&nbsp;&nbsp; exec MEME_SOURCE_PROCESSING.load_facts ( -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <font color="#000000">merge_set => </font><font color="#CC0000">'$new_source-M2',</font> -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; integrity_vector => '', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; change_status => 'N', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; make_demotion => 'N', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; authority => '$authority', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; work_id => $work_id);
+
+&nbsp;&nbsp;&nbsp; exec MEME_SOURCE_PROCESSING.replacement_merges ( -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <font color="#000000">merge_set => </font><font color="#CC0000">'$new_source-M2'</font><font color="#000000">,</font> -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; normalization_flag => 1, -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <font color="#000000">ambig_flag =></font><font color="#CC0000"> 0</font><font color="#000000">,</font> -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; authority => '$authority', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; work_id => $work_id);
+
+&nbsp;&nbsp;&nbsp; exec MEME_SOURCE_PROCESSING.move_processed_facts ( -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; authority => '$authority', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; work_id => $work_id);
+
+EOF</pre>
+</td>
+</tr>
+
+<tr>
+<td VALIGN=TOP><b><font size=-1>Notes:</font></b></td>
+
+<td><font size=-1>The things in <font color="#CC0000">red</font> are the
+things that you will have to edit.&nbsp; The merge set name should match
+the merge set that you are currently merging.&nbsp; If the recipe indicates
+"n to One" merging, the <tt>ambig_flag</tt> should be 0, if it indicates
+"One to One", the <tt>ambig_flag</tt> should be 1.&nbsp;&nbsp; For a generated
+pre-insert merge step, you will have to specify the termgroups to be merged
+as well as the code, string, and tty parameters.&nbsp; The same rules apply
+for merge set and <tt>ambig_flag</tt>.&nbsp;&nbsp; For more information
+on setting these parameters, see the <a href="#generated_merge_step">generated
+merge step</a> and <a href="#precomputed_merge_step">precomputed merge
+step</a> documentation..</font></td>
+</tr>
+</table></center>
+
+<br>&nbsp;
+<center><table WIDTH="90%" >
+<tr>
+<td VALIGN=TOP><a NAME="precomputed_merge_step"></a><b><font size=-1>Step/Section:</font></b></td>
+
+<td><tt>Precomputed Merge Step</tt></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP><b><font size=-1>Description:</font></b></td>
+
+<td><font size=-1>This is a merge step whose merge facts come from a file
+called <tt>mergefacts.src</tt>.&nbsp; There may be multiple merge sets
+in the same file, in which case the recipe will contain multiple precomputed
+merge steps.</font></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP><b><font size=-1>Recipe:</font></b></td>
+
+<td>
+<h3>
+Merge Step - mergefacts.src</h3>
+
+<table BORDER CELLPADDING=2 WIDTH="90%" >
+<tr>
+<th COLSPAN="2">Merge Parameters</th>
+</tr>
+
+<tr>
+<td><b>Merge Set:</b></td>
+
+<td>PDQ2001-P5</td>
+</tr>
+
+<tr>
+<td><b>Integrity Vector:</b></td>
+
+<td>ALL</td>
+</tr>
+
+<tr>
+<td><b>Demote:</b></td>
+
+<td><font color="#000000">Yes</font></td>
+</tr>
+
+<tr>
+<td><b>Change Status:</b></td>
+
+<td><font color="#000000">Yes</font></td>
+</tr>
+
+<tr>
+<td><b>Pre Insert:</b></td>
+
+<td><font color="#000000">None</font></td>
+</tr>
+</table>
+</td>
+</tr>
+
+<tr>
+<td VALIGN=TOP><b><font size=-1>Script:</font></b></td>
+
+<td>
+<pre>#####################################################
+# Precomputed Merge Step (PDQ2001-P5)
+#####################################################
+$MEME_HOME/bin/load_src.csh $db mergefacts.src
+
+$ORACLE_HOME/bin/sqlplus -s $user@$db &lt;&lt;EOF
+&nbsp;&nbsp;&nbsp; set feedback off;
+&nbsp;&nbsp;&nbsp; set serveroutput on size 100000;
+&nbsp;&nbsp;&nbsp; exec MEME_SOURCE_PROCESSING.prepare_src_mergefacts( -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; authority => '$authority', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; work_id => $work_id);
+
+&nbsp;&nbsp;&nbsp; exec MEME_SOURCE_PROCESSING.load_facts ( -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; merge_set => <font color="#CC0000">'$new_source-P5'</font>, -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; integrity_vector => <font color="#CC0000">''</font>, -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; change_status => <font color="#CC0000">'Y'</font>, -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; make_demotion => <font color="#CC0000">'Y'</font>, -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; authority => '$authority', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; work_id => $work_id);
+
+&nbsp;&nbsp;&nbsp; -- Set integrity vector to ALL
+&nbsp;&nbsp;&nbsp; <font color="#CC0000">update mom_merge_facts
+&nbsp;&nbsp;&nbsp; set integrity_vector = (select integrity_Vector from
+&nbsp;&nbsp;&nbsp; ic_applications where application='MERGE_O_MATIC');
+</font>EOF
+
+#&nbsp;
+# Write ORWeL package for merge engine
+#
+cat &lt;&lt; EOF >! /tmp/package
+&lt;PACKAGE>
+&lt;SERVICE>merge_engine_wrapper&lt;/SERVICE>
+&lt;PARAMETERS>
+work_id|$work_id&lt;R>
+authority|$authority&lt;R>
+&lt;/PARAMETERS>
+&lt;/PACKAGE>
+EOF
+
+#
+# Run merge engine
+#
+ORWeL.pl -m$MEME_HOME/bin $db /tmp/package >&amp;! <font color="#CC0000">merge.p5.log
+
+</font>#
+# Move Processed Facts
+#
+$ORACLE_HOME/bin/sqlplus -s $user@$db &lt;&lt;EOF
+&nbsp;&nbsp;&nbsp; set feedback off
+&nbsp;&nbsp;&nbsp; set serveroutput on size 100000
+&nbsp;&nbsp;&nbsp; exec meme_source_processing.move_processed_facts( -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; authority => '$authority', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; work_id => $work_id);
+EOF</pre>
+</td>
+</tr>
+
+<tr>
+<td VALIGN=TOP><b><font size=-1>Notes:</font></b></td>
+
+<td><font size=-1>This code performs the merge step shown in the recipe
+section above.&nbsp; The things in <font color="#CC0000">red</font> are
+what you will have to change depending upon the parameters in the recipe.&nbsp;</font>
+<p><font size=-1>The <tt>merge_set</tt>, <tt>change_status</tt>, and <tt>make_demotion</tt>
+flags should be pretty obvious.&nbsp;</font>
+<p><font size=-1>If the <tt>integrity_vector</tt> is ALL use the query
+shown.&nbsp; If the <tt>integrity_vector</tt> is empty, simply comment
+out the query shown, and if it is a specific set of checks (say <tt>'MGV_A2,
+MGV_A3, MGV_A4'</tt>), then set the <tt>integrity_vector</tt> parameter
+accordingly (in this case to <tt>'&lt;MGV_A2:E>&lt;MGV_A3:E>&lt;MGV_A4:E>'</tt>).&nbsp;</font>
+<p><font size=-1>Finally,the log name shown near the end should reflect
+the name of the merge set being processed.&nbsp;</font>
+<p><font size=-1>If the recipe shows has a "Pre Insert" value of something
+other than "None", you will need a <a href="#pre-insert_merge_step">pre-insert
+merge step</a>.</font></td>
+</tr>
+</table></center>
+
+<br>&nbsp;
+<center><table WIDTH="90%" >
+<tr>
+<td VALIGN=TOP><a NAME="generated_merge_step"></a><b><font size=-1>Step/Section:</font></b></td>
+
+<td><tt>Generated Merge Step</tt></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP><b><font size=-1>Description:</font></b></td>
+
+<td><font size=-1>This is a merge step whose merge facts are generated
+by a matching predicate.</font></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP><b><font size=-1>Recipe:</font></b></td>
+
+<td>
+<h3>
+Merge Step - Generated Facts</h3>
+
+<table BORDER CELLPADDING=2 WIDTH="90%" >
+<tr>
+<th COLSPAN="2">Merge Parameters</th>
+</tr>
+
+<tr>
+<td><b>Merge Set:</b></td>
+
+<td>PDQ2001-M1</td>
+</tr>
+
+<tr>
+<td><b>String Match:</b></td>
+
+<td>EXACT</td>
+</tr>
+
+<tr>
+<td><b>Code Match:</b></td>
+
+<td>EXACT</td>
+</tr>
+
+<tr>
+<td><b>Source Termgroups:</b></td>
+
+<td>PDQ2001/PT, PDQ2001/RT, PDQ2001/SY&nbsp;</td>
+</tr>
+
+<tr>
+<td><b>Source Options:</b></td>
+
+<td>
+<ul>
+<li>
+Include termgroups in list</li>
+</ul>
+</td>
+</tr>
+
+<tr>
+<td><b>Target Termgroups:</b></td>
+
+<td>PDQ2001/PT, PDQ2001/RT, PDQ2001/SY&nbsp;</td>
+</tr>
+
+<tr>
+<td><b>Target Options:</b></td>
+
+<td>
+<ul>
+<li>
+Include termgroups in list</li>
+</ul>
+</td>
+</tr>
+
+<tr>
+<td><b>Integrity Vector:</b></td>
+
+<td></td>
+</tr>
+
+<tr>
+<td><b>Demote:</b></td>
+
+<td>No</td>
+</tr>
+
+<tr>
+<td><b>Change Status:</b></td>
+
+<td>No</td>
+</tr>
+
+<tr>
+<td><b>Pre Insert:</b></td>
+
+<td>n to One</td>
+</tr>
+</table>
+</td>
+</tr>
+
+<tr>
+<td VALIGN=TOP><b><font size=-1>Script:</font></b></td>
+
+<td>
+<pre>#####################################################
+# Generated Merge Step (PDQ2001-M1)
+#####################################################
+$ORACLE_HOME/bin/sqlplus -s $user@$db &lt;&lt;EOF
+&nbsp;&nbsp;&nbsp; set feedback off
+&nbsp;&nbsp;&nbsp; set serveroutput on size 100000
+
+&nbsp;&nbsp;&nbsp; drop table t1;
+&nbsp;&nbsp;&nbsp; drop table t2;
+&nbsp;&nbsp;&nbsp; create table t1 (termgroup varchar2(20) not null);
+&nbsp;&nbsp;&nbsp; create table t2 (termgroup varchar2(20) not null);
+&nbsp;&nbsp;&nbsp; <font color="#CC0000">insert into t1 values ('PDQ2001/PT');
+</font>&nbsp;&nbsp;&nbsp; <font color="#CC0000">insert into t1 values ('PDQ2001/RT');
+</font>&nbsp;&nbsp;&nbsp; <font color="#CC0000">insert into t1 values ('PDQ2001/SY');
+</font>&nbsp;&nbsp;&nbsp; <font color="#CC0000">insert into t2 values ('PDQ2001/PT');
+</font>&nbsp;&nbsp;&nbsp; <font color="#CC0000">insert into t2 values ('PDQ2001/RT');
+</font>&nbsp;&nbsp;&nbsp; <font color="#CC0000">insert into t2 values ('PDQ2001/SY');
+
+</font>&nbsp;&nbsp;&nbsp;&nbsp; exec MEME_SOURCE_PROCESSING.generate_facts ( -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; termgroup_table_1 => 't1', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; termgroup_table_2 => 't2', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; merge_set => <font color="#CC0000">'$new_source-M1'</font>, -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; string_parameter => <font color="#CC0000">'EXACT'</font>, -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; code_parameter => <font color="#CC0000">'EXACT'</font>, -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; table_name => 'classes', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; source => '$new_source', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; authority => '$authority', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; work_id => $work_id );
+
+&nbsp;&nbsp;&nbsp; exec MEME_SOURCE_PROCESSING.load_facts ( -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; merge_set => <font color="#CC0000">'$new_source-M1'</font>, -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; integrity_vector => <font color="#CC0000">''</font>, -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; change_status => <font color="#CC0000">'N'</font>, -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; make_demotion => <font color="#CC0000">'N'</font>, -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; authority => '$authority', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; work_id => $work_id);
+
+&nbsp;&nbsp;&nbsp; -- Set integrity vector&nbsp;
+&nbsp;&nbsp;&nbsp; -- Comment out to because we have an empty vector
+<font color="#CC0000">&nbsp;&nbsp;&nbsp; --update mom_merge_facts
+&nbsp;&nbsp;&nbsp; --set integrity_vector = (select integrity_Vector from
+&nbsp;&nbsp;&nbsp; --ic_applications where application='MERGE_O_MATIC');
+</font>EOF
+
+#&nbsp;
+# Write ORWeL package for merge engine
+#
+cat &lt;&lt; EOF >! /tmp/package
+&lt;PACKAGE>
+&lt;SERVICE>merge_engine_wrapper&lt;/SERVICE>
+&lt;PARAMETERS>
+work_id|$work_id&lt;R>
+authority|$authority&lt;R>
+&lt;/PARAMETERS>
+&lt;/PACKAGE>
+EOF
+
+#
+# Run merge engine
+#
+ORWeL.pl -m$MEME_HOME/bin $db /tmp/package >&amp;! <font color="#CC0000">merge.m1.log
+
+</font>#
+# Move Processed Facts
+#
+$ORACLE_HOME/bin/sqlplus -s $user@$db &lt;&lt;EOF
+&nbsp;&nbsp;&nbsp; set feedback off
+&nbsp;&nbsp;&nbsp; set serveroutput on size 100000
+&nbsp;&nbsp;&nbsp; exec meme_source_processing.move_processed_facts( -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; authority => '$authority', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; work_id => $work_id);
+EOF</pre>
+</td>
+</tr>
+
+<tr>
+<td VALIGN=TOP><b><font size=-1>Notes:</font></b></td>
+
+<td><font size=-1>This code performs the merge step shown in the recipe
+section above.&nbsp; The things in <font color="#CC0000">red</font> are
+what you will have to change depending upon the parameters in the recipe.&nbsp;</font>
+<p><font size=-1>The first <font color="#CC0000">red</font> section, which
+loads data into these two tables <tt>t1</tt> and <tt>t2</tt> should reflect
+the set of termgroups that the recipe indicates should be used in this
+set.&nbsp; The table t1 corresponds to the&nbsp; "source termgroups" and
+the table t2 corresponds to the "target termgroups".&nbsp; Note, if the
+target options indicates that the termgroups should be <i>excluded</i>
+instead of <i>included</i>, you will have to select all termgroups minus
+the ones that are shown in "target termgroups".&nbsp; An example of this
+is shown in <a href="/MEME/Training/mid_merge_step">MID
+merge step</a>.</font>
+<p><font size=-1>The <tt>merge_set</tt>, <tt>change_status</tt>, and <tt>make_demotion</tt>
+flags should be pretty obvious.&nbsp; If the integrity vector in the recipe
+is empty, use a what is shown, an empty <tt>integrity_vector</tt> parameter.&nbsp;
+If the integrity vector in the recipy says ALL, uncomment the query in
+<font color="#CC0000">red</font>.,
+and if it is a specific set of checks (say <tt>'MGV_A2, MGV_A3, MGV_A4'</tt>),
+then set the <tt>integrity_vector</tt> parameter accordingly (in this case
+to <tt>'&lt;MGV_A2:E>&lt;MGV_A3:E>&lt;MGV_A4:E>'</tt>).&nbsp;</font>
+<p><font size=-1>Finally,the log name shown near the end should reflect
+the name of the merge set being processed (in this case M1).&nbsp; If the
+recipe shows has a "Pre Insert" value of something other than "None", you
+will need a <a href="#pre-insert_merge_step">pre-insert merge step</a>.</font></td>
+</tr>
+</table></center>
+
+<br>&nbsp;
+<center><table WIDTH="90%" >
+<tr>
+<td VALIGN=TOP><a NAME="mid_merge_step"></a><b><font size=-1>Step/Section:</font></b></td>
+
+<td><tt>MID Merge Step</tt></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP><b><font size=-1>Description:</font></b></td>
+
+<td><font size=-1>This is a special kind of generated merge step that almost
+<i>always</i>
+has the same parameters.</font></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP><b><font size=-1>Recipe:</font></b></td>
+
+<td>
+<h3>
+Merge Step - Generated Facts</h3>
+
+<table BORDER CELLPADDING=2 WIDTH="90%" >
+<tr>
+<th COLSPAN="2">Merge Parameters</th>
+</tr>
+
+<tr>
+<td><b>Merge Set:</b></td>
+
+<td>PDQ2001-MID</td>
+</tr>
+
+<tr>
+<td><b>String Match:</b></td>
+
+<td>BOTH</td>
+</tr>
+
+<tr>
+<td><b>Code Match:</b></td>
+
+<td>NONE</td>
+</tr>
+
+<tr>
+<td><b>Source Termgroups:</b></td>
+
+<td>PDQ2001/PT, PDQ2001/RT, PDQ2001/SY&nbsp;</td>
+</tr>
+
+<tr>
+<td><b>Source Options:</b></td>
+
+<td>
+<ul>
+<li>
+Include termgroups in list</li>
+</ul>
+</td>
+</tr>
+
+<tr>
+<td><b>Target Termgroups:</b></td>
+
+<td>PDQ2001/PT, PDQ2001/RT, PDQ2001/SY, PDQ2000/PT, PDQ2000/RT, PDQ2000/SY</td>
+</tr>
+
+<tr>
+<td><b>Target Options:</b></td>
+
+<td>
+<ul>
+<li>
+Use Exclude List</li>
+
+<li>
+Use Norm-Exclude List</li>
+
+<li>
+Exclude termgroups in list</li>
+</ul>
+</td>
+</tr>
+
+<tr>
+<td><b>Integrity Vector:</b></td>
+
+<td>ALL</td>
+</tr>
+
+<tr>
+<td><b>Demote:</b></td>
+
+<td>Yes</td>
+</tr>
+
+<tr>
+<td><b>Change Status:</b></td>
+
+<td>Yes</td>
+</tr>
+
+<tr>
+<td><b>Pre Insert:</b></td>
+
+<td>None</td>
+</tr>
+
+<tr>
+<td><b>Filters:</b></td>
+
+<td>
+<ol>
+<li>
+Exclude safe replacement atoms from source.</li>
+</ol>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+
+<tr>
+<td VALIGN=TOP><b><font size=-1>Script:</font></b></td>
+
+<td>
+<pre>#################################################################
+# MID Merge Step
+#################################################################
+$ORACLE_HOME/bin/sqlplus -s $user@$db &lt;&lt;EOF
+&nbsp;&nbsp;&nbsp; set feedback off
+&nbsp;&nbsp;&nbsp; set serveroutput on size 100000
+
+&nbsp;&nbsp;&nbsp; drop table t1;
+&nbsp;&nbsp;&nbsp; drop table t2;
+&nbsp;&nbsp;&nbsp; create table t1 (termgroup varchar2(20) not null);
+&nbsp;&nbsp;&nbsp; create table t2 (termgroup varchar2(20) not null);
+&nbsp;&nbsp;&nbsp; insert into t1 select termgroup from termgroup_rank
+&nbsp;&nbsp;&nbsp; where termgroup like '$new_source%';
+&nbsp;&nbsp;&nbsp; insert into t2 select termgroup from termgroup_rank
+&nbsp;&nbsp;&nbsp; where termgroup not like '$stripped_source%';&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+&nbsp;&nbsp;&nbsp; exec MEME_SOURCE_PROCESSING.generate_facts ( -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; termgroup_table_1 => 't1', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; termgroup_table_2 => 't2', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; merge_set => '$new_source-MID', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; string_parameter => 'NOT', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; code_parameter => 'EXACT', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; table_name => 'classes', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; source => '$new_source', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; authority => '$authority', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; work_id => $work_id );
+
+&nbsp;&nbsp;&nbsp; -- Filter facts&nbsp;
+&nbsp;&nbsp;&nbsp; -- Exclude safe replacement
+&nbsp;&nbsp;&nbsp; exec MEME_SOURCE_PROCESSING.filter_facts ( -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; type_1 => 'SAFE_REPLACEMENT', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; arg_1 => '', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; not_1 => '', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; type_2 => '', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; arg_2 => '', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; not_2 => '', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; merge_set => '$new_source-MID', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; source => '$new_source', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; authority => '$authority', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; work_id => $work_id );
+
+&nbsp;&nbsp;&nbsp; -- Remove matches from the exclude list
+&nbsp;&nbsp;&nbsp; exec MEME_SOURCE_PROCESSING.filter_facts ( -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; type_1 => 'EXCLUDE_LIST', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; arg_1 => '', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; not_1 => '', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; type_2 => '', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; arg_2 => '', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; not_2 => '', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; merge_set => '$new_source-MID', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; source => '$new_source', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; authority => '$authority', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; work_id => $work_id );
+
+&nbsp;&nbsp;&nbsp; -- Remove matches from the exclude list
+&nbsp;&nbsp;&nbsp; exec MEME_SOURCE_PROCESSING.filter_facts ( -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; type_1 => '', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; arg_1 => '', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; not_1 => '', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; type_2 => 'EXCLUDE_LIST', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; arg_2 => '', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; not_2 => '', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; merge_set => '$new_source-MID', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; source => '$new_source', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; authority => '$authority', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; work_id => $work_id );
+
+&nbsp;&nbsp;&nbsp; -- Remove matches from the norm exclude list
+&nbsp;&nbsp;&nbsp; exec MEME_SOURCE_PROCESSING.filter_facts ( -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; type_1 => 'NORM_EXCLUDE_LIST', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; arg_1 => '', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; not_1 => '', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; type_2 => '', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; arg_2 => '', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; not_2 => '', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; merge_set => '$new_source-MID', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; source => '$new_source', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; authority => '$authority', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; work_id => $work_id );
+
+&nbsp;&nbsp;&nbsp; -- Remove matches from the norm exclude list
+&nbsp;&nbsp;&nbsp; exec MEME_SOURCE_PROCESSING.filter_facts ( -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; type_1 => '', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; arg_1 => '', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; not_1 => '', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; type_2 => 'NORM_EXCLUDE_LIST', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; arg_2 => '', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; not_2 => '', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; merge_set => '$new_source-MID', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; source => '$new_source', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; authority => '$authority', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; work_id => $work_id );
+
+&nbsp;&nbsp;&nbsp; exec MEME_SOURCE_PROCESSING.load_facts ( -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; merge_set => '$new_source-MID', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; integrity_vector => '', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; change_status => 'Y', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; make_demotion => 'Y', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; authority => '$authority', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; work_id => $work_id);
+
+&nbsp;&nbsp;&nbsp; -- Set integrity vector
+&nbsp;&nbsp;&nbsp; -- MID merging always uses all integrity checks
+&nbsp;&nbsp;&nbsp; update mom_merge_facts
+&nbsp;&nbsp;&nbsp; set integrity_vector = (select integrity_Vector from
+&nbsp;&nbsp;&nbsp; ic_applications where application='MERGE_O_MATIC');
+EOF
+
+#
+# Write ORWeL package for merge engine
+# For MID merging use an ENG- authority
+#
+cat &lt;&lt; EOF >! /tmp/package
+&lt;PACKAGE>
+&lt;SERVICE>merge_engine_wrapper&lt;/SERVICE>
+&lt;PARAMETERS>
+work_id|$work_id&lt;R>
+authority|ENG-$new_source&lt;R>
+&lt;/PARAMETERS>
+&lt;/PACKAGE>
+EOF
+
+#
+# Run Merge Engine
+#
+ORWeL.pl -m$MEME_HOME/bin $db /tmp/package >&amp;! merge.MID.log&nbsp;
+
+#
+# Move Processed Facts
+#
+$ORACLE_HOME/bin/sqlplus -s $user@$db &lt;&lt;EOF
+&nbsp;&nbsp;&nbsp; set feedback off
+&nbsp;&nbsp;&nbsp; set serveroutput on size 100000
+&nbsp;&nbsp;&nbsp; exec meme_source_processing.move_processed_facts( -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; authority => '$authority', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; work_id => $work_id);
+EOF</pre>
+</td>
+</tr>
+
+<tr>
+<td VALIGN=TOP><b><font size=-1>Notes:</font></b></td>
+
+<td><font size=-1>Because this code uses <tt>$new_source</tt> and <tt>$stripped_source</tt>
+it should not be necessary to change <i>any</i> of the parameters.</font></td>
+</tr>
+</table></center>
+
+<br>&nbsp;
+<center><table WIDTH="90%" >
+<tr>
+<td VALIGN=TOP><a NAME="safe_replacement_source"></a><b><font size=-1>Step/Section:</font></b></td>
+
+<td><tt>Safe Replacement Step (Source)</tt></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP><b><font size=-1>Description:</font></b></td>
+
+<td><font size=-1>This step is only used for <i>update</i> sources.&nbsp;
+It is the part of the recipe where we determine which atoms from the update
+source replace which atoms from the obsolete source.&nbsp; There are two
+ways to calculate safe replacement, by <i>source</i> or by <i><a href="#safe_replacement_termgroup">termgroup</a></i>.&nbsp;
+In this case, we are calculating safe replacement by source, meaning that
+a whole update source replaces a whole existing (obsolete) source.</font></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP><b><font size=-1>Recipe:</font></b></td>
+
+<td>
+<h2>
+Safe Replacement Section</h2>
+
+<ol>
+<h3>
+Source Safe Replacement</h3>
+source name : PDQ2001
+<br>old source name : PDQ2000
+<br>string match : NORM
+<br>code match : EXACT
+<ul>
+<li>
+Change Status.</li>
+</ul>
+</ol>
+</td>
+</tr>
+
+<tr>
+<td VALIGN=TOP><b><font size=-1>Script:</font></b></td>
+
+<td>
+<pre>#################################################################
+# Safe Replacement Section
+#################################################################
+#
+# Calculate for whole source
+#
+$ORACLE_HOME/bin/sqlplus -s $user@$db &lt;&lt;EOF
+&nbsp;&nbsp;&nbsp; set feedback off
+&nbsp;&nbsp;&nbsp; set serveroutput on size 100000
+
+&nbsp;&nbsp;&nbsp; drop table t1;&nbsp;
+&nbsp;&nbsp;&nbsp; drop table t2;
+&nbsp;&nbsp;&nbsp; create table t1 (source varchar2(20));
+&nbsp;&nbsp;&nbsp; create table t2 (source varchar2(20));
+<font color="#CC0000">&nbsp;&nbsp;&nbsp; insert into t2 values ('$new_source');
+&nbsp;&nbsp;&nbsp; insert into t1 values ('$old_source');
+
+</font>&nbsp;&nbsp;&nbsp; -- Safe replacement predicate:
+&nbsp;&nbsp;&nbsp; exec meme_source_processing.safe_replacement( -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; string_parameter => <font color="#CC0000">'NORM'</font>, -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; code_parameter => <font color="#CC0000">'EXACT'</font>, -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; tty_parameter => <font color="#CC0000">'N'</font>, -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; old_source_table => 't1', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; new_source_table => 't2', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; old_termgroup_table => '', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; new_termgroup_table => '', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; change_status => 'Y', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; source => '$new_source', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; authority => '$authority', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; work_id => $work_id);
+EOF</pre>
+</td>
+</tr>
+
+<tr>
+<td VALIGN=TOP><b><font size=-1>Notes:</font></b></td>
+
+<td><font size=-1>The above code specifies what source is the new source
+and what is the old source and then uses three parameters (much like a
+merge set) to specify the predicate.&nbsp; Typically, the <tt>$new_source</tt>
+(in this case PDQ2001) will replace the <tt>$old_source</tt> (in this case
+PDQ2000), in which case the insert statements in <font color="#CC0000">red</font>
+will not need changing.&nbsp; In more complex cases, there are several
+source values that will have to be put into the tables <tt>t1</tt> and
+<tt>t2</tt>.&nbsp;
+As for the other parameters in <font color="#CC0000">red</font>, you can
+specify that strings sould be the same (EXACT), have the same norm string
+(NORM), be different (NOT), or that you don't care (NONE).&nbsp; For the
+code parameter, you can specify that codes should be the same (EXACT),
+different (NOT), or that you don't care (NONE).&nbsp; For the tty parameter,
+you either indicate that tty's should be the same (Y) or you don't care
+(N).&nbsp; The values of these parameters should come from the recipe.</font></td>
+</tr>
+</table></center>
+
+<br>&nbsp;
+<center><table WIDTH="90%" >
+<tr>
+<td VALIGN=TOP><a NAME="safe_replacement_termgroup"></a><b><font size=-1>Step/Section:</font></b></td>
+
+<td><tt>Safe Replacement Step (Termgroup)</tt></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP><b><font size=-1>Description:</font></b></td>
+
+<td><font size=-1>This step is only used for <i>update</i> sources.&nbsp;
+It is the part of the recipe where we determine which atoms from the update
+source replace which atoms from the obsolete source.&nbsp; There are two
+ways to calculate safe replacement, by <i><a href="#safe_replacement_source">source</a></i>
+or by <i>termgroup</i>.&nbsp; In this case, we are calculating safe replacement
+by termgroup, meaning that only certain termgroups of the update source
+replace certain termgroups of the existing (obsolete) source.&nbsp; Usually,
+when termgroup safe replacement is used, it is because there are different
+predicates for different termgroups, and therefore there will be multiple
+safe replacement steps in the safe replacement section..</font></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP><b><font size=-1>Recipe:</font></b></td>
+
+<td>
+<h2>
+Safe Replacement Section</h2>
+
+<ol>
+<h3>
+Termgroup Safe Replacement Step</h3>
+
+<table BORDER CELLPADDING=2 WIDTH="90%" >
+<tr>
+<th COLSPAN="2">Safe Replacement Parameters</th>
+</tr>
+
+<tr>
+<td><b>String Match:</b></td>
+
+<td>NONE</td>
+</tr>
+
+<tr>
+<td><b>Code Match:</b></td>
+
+<td>EXACT</td>
+</tr>
+
+<tr>
+<td><b>Source</b>
+<br><b>Termgroups:</b></td>
+
+<td>MTHCH01/HT</td>
+</tr>
+
+<tr>
+<td><b>Source Options:</b></td>
+
+<td>
+<ul>
+<li>
+Include termgroups in list</li>
+</ul>
+</td>
+</tr>
+
+<tr>
+<td><b>Target Termgroups:</b></td>
+
+<td>MTHCH00/HT&nbsp;</td>
+</tr>
+
+<tr>
+<td><b>Target Options:</b></td>
+
+<td>
+<ul>
+<li>
+Include termgroups in list</li>
+</ul>
+</td>
+</tr>
+
+<tr>
+<td><b>Change Status:</b></td>
+
+<td>Yes</td>
+</tr>
+</table>
+</ol>
+</td>
+</tr>
+
+<tr>
+<td VALIGN=TOP><b><font size=-1>Script:</font></b></td>
+
+<td>
+<pre>#################################################################
+# Safe Replacement Section
+#################################################################
+#
+# Calculate for whole source
+#
+$ORACLE_HOME/bin/sqlplus -s $user@$db &lt;&lt;EOF
+&nbsp;&nbsp;&nbsp; set feedback off
+&nbsp;&nbsp;&nbsp; set serveroutput on size 100000
+
+&nbsp;&nbsp;&nbsp; drop table t1;&nbsp;
+&nbsp;&nbsp;&nbsp; drop table t2;
+&nbsp;&nbsp;&nbsp; create table t1 (termgroup varchar2(20));
+&nbsp;&nbsp;&nbsp; create table t2 (termgroup varchar2(20));
+&nbsp;&nbsp;&nbsp; <font color="#CC0000">insert into t2 values ('MTHCH01/HT');
+&nbsp;&nbsp;&nbsp; insert into t1 values ('MTHCH00/HT');
+
+</font>&nbsp;&nbsp;&nbsp; -- Safe replacement predicate:
+&nbsp;&nbsp;&nbsp; exec meme_source_processing.safe_replacement( -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; string_parameter => <font color="#CC0000">'NONE'</font>, -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; code_parameter => <font color="#CC0000">'EXACT'</font>, -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; tty_parameter => <font color="#CC0000">'N'</font>, -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; old_source_table => '', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; new_source_table => '', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; old_termgroup_table => 't1', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; new_termgroup_table => 't2', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; change_status => 'Y', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; source => '$new_source', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; authority => '$authority', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; work_id => $work_id);
+EOF</pre>
+</td>
+</tr>
+
+<tr>
+<td VALIGN=TOP><b><font size=-1>Notes:</font></b></td>
+
+<td><font size=-1>The above code specifies what termgroups are from the
+old source and what termgroups are from the new source&nbsp; and then uses
+three parameters (much like a merge set) to specify the predicate.&nbsp;
+The list of termgroups will have to be edited depending on the needs of
+the particular source.&nbsp; As for the other parameters in <font color="#CC0000">red</font>,
+you can specify that strings sould be the same (EXACT), have the same norm
+string (NORM), be different (NOT), or that you don't care (NONE).&nbsp;
+For the code parameter, you can specify that codes should be the same (EXACT),
+different (NOT), or that you don't care (NONE).&nbsp; For the tty parameter,
+you either indicate that tty's should be the same (Y) or you don't care
+(N).&nbsp; The values of these parameters should come from the recipe.</font></td>
+</tr>
+</table></center>
+
+<br>&nbsp;
+<center><table WIDTH="90%" >
+<tr>
+<td VALIGN=TOP><a NAME="resolve_stys_step"></a><b><font size=-1>Step/Section:</font></b></td>
+
+<td><tt>Resolve Semantic Types Step</tt></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP><b><font size=-1>Description:</font></b></td>
+
+<td><font size=-1>This step is only used to manage the default semantic
+types created during inversion.&nbsp; This step allows you to specify whether
+or not the defaults supplied in the source files should replace any existing
+ones, or if they should be replaced themselves.&nbsp; Typically, defaults
+are not trusted and so they are deleted if the concepts they wind up in
+already have semantic types.&nbsp; The notable exception is <i>MSH</i>.</font></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP><b><font size=-1>Recipe:</font></b></td>
+
+<td>
+<h3>
+Resolve Semantic Types</h3>
+
+<table BORDER CELLPADDING=2 WIDTH="90%" >
+<tr>
+<td><b>Sources:</b></td>
+
+<td>MDR33&nbsp;</td>
+</tr>
+
+<tr>
+<td><b>Win or Lose:</b></td>
+
+<td>Lose</td>
+</tr>
+</table>
+</td>
+</tr>
+
+<tr>
+<td VALIGN=TOP><b><font size=-1>Script:</font></b></td>
+
+<td>
+<pre>#################################################################
+# Resolve Semantic Types
+#################################################################
+if ($mode eq "test") then
+
+&nbsp;&nbsp;&nbsp; $ORACLE_HOME/bin/sqlplus -s $user@$db &lt;&lt;EOF >! sty_term_ids
+
+&nbsp;&nbsp;&nbsp; set wrap off
+&nbsp;&nbsp;&nbsp; set feedback off
+&nbsp;&nbsp;&nbsp; set pagesize 0
+&nbsp;&nbsp;&nbsp; set verify off
+&nbsp;&nbsp;&nbsp; set trimspool on
+&nbsp;&nbsp;&nbsp; set linesize 9999
+&nbsp;&nbsp;&nbsp; SELECT DISTINCT source_row_id || '|' ||
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; attribute_value
+&nbsp;&nbsp;&nbsp; FROM attributes a, source_id_map b,&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (SELECT concept_id,atom_id FROM classes
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; WHERE source='$new_source') c
+&nbsp;&nbsp;&nbsp; WHERE a.concept_id = c.concept_id
+&nbsp;&nbsp;&nbsp; AND c.atom_id=local_row_id
+&nbsp;&nbsp;&nbsp; AND table_name='C'
+&nbsp;&nbsp;&nbsp; AND attribute_name='SEMANTIC_TYPE';
+EOF
+endif
+
+$ORACLE_HOME/bin/sqlplus -s $user@$db &lt;&lt;EOF
+&nbsp;&nbsp;&nbsp; set serveroutput on size 100000
+&nbsp;&nbsp;&nbsp; set feedback off
+&nbsp;&nbsp;&nbsp; exec MEME_SOURCE_PROCESSING.resolve_stys ( -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; source => '$new_source', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sty_fate => <font color="#CC0000">'L'</font>, -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; authority => '$authority', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; work_id => $work_id );
+EOF</pre>
+</td>
+</tr>
+
+<tr>
+<td VALIGN=TOP><b><font size=-1>Notes:</font></b></td>
+
+<td><font size=-1>When performing a test insertion, we run a section of
+code that generates a file called <tt>sty_term_ids</tt>. This file is used
+by inverters to create better default semantic types for the real insertion.&nbsp;
+This file should be FTP'd back to our local machines and put into the directory
+where the other source files are (and the inverter should be informed).&nbsp;
+The second piece of code above actually resolves the STYs.&nbsp; Typically,
+the <tt>sty_fate</tt> parameter will have a value of </font><tt>L</tt><font size=-1>
+meaning that defaults from this source should "lose", or be deleted if
+the concepts they wind up in already have semantic types.&nbsp; The other
+option is </font><tt>W</tt><font size=-1> for "win" which means that the
+semantic types from touer sources (in the same concept as semantic types
+from <i>this</i> source)&nbsp; should be deleted.</font></td>
+</tr>
+</table></center>
+
+<br>&nbsp;
+<center><table WIDTH="90%" >
+<tr>
+<td VALIGN=TOP><a NAME="update_releasibility_step"></a><b><font size=-1>Step/Section:</font></b></td>
+
+<td><tt>Update Releasability Step</tt></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP><b><font size=-1>Description:</font></b></td>
+
+<td><font size=-1>This step is only used by <i>update</i> sources.&nbsp;
+It is the step where we make the obsolete source unreleasable.</font></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP><b><font size=-1>Recipe:</font></b></td>
+
+<td>
+<h3>
+Update Source Releasability</h3>
+
+<table BORDER CELLPADDING=2 WIDTH="90%" >
+<tr>
+<td><b>Sources:</b></td>
+
+<td>MDR31&nbsp;</td>
+</tr>
+
+<tr>
+<td><b>TBR:</b></td>
+
+<td>n</td>
+</tr>
+</table>
+</td>
+</tr>
+
+<tr>
+<td VALIGN=TOP><b><font size=-1>Script:</font></b></td>
+
+<td>
+<pre>#################################################################
+# Update Releasability
+#################################################################
+$ORACLE_HOME/bin/sqlplus -s $user@$db &lt;&lt;EOF
+&nbsp;&nbsp;&nbsp; set serveroutput on size 100000
+&nbsp;&nbsp;&nbsp; set feedback off
+&nbsp;&nbsp;&nbsp; exec MEME_SOURCE_PROCESSING.update_releasability (-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; old_source => '$old_source', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; new_source => '$new_source', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; authority => '$authority', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; new_value => <font color="#CC0000">'n'</font>, -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; work_id => $work_id );
+EOF</pre>
+</td>
+</tr>
+
+<tr>
+<td VALIGN=TOP><b><font size=-1>Notes:</font></b></td>
+
+<td><font size=-1>The only thing that needs to be <i>potentially</i> changed
+is the <tt>new_value</tt> parameter whose value should be taken from the
+recipe.&nbsp; To date, we have <i>never</i> had a case of it being something
+other than </font><tt>n</tt><font size=-1>.</font></td>
+</tr>
+</table></center>
+
+<br>&nbsp;
+<center><table WIDTH="90%" >
+<tr>
+<td VALIGN=TOP><a NAME="add_words"></a><b><font size=-1>Step/Section:</font></b></td>
+
+<td><tt>Standard Post Merge Step - Update string/word indexes</tt></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP><b><font size=-1>Description:</font></b></td>
+
+<td><font size=-1>This step is used to maintain index tables within the
+database called <tt>word_index</tt>, <tt>normwrd</tt>, and <tt>normstr</tt>.</font></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP><b><font size=-1>Recipe:</font></b></td>
+
+<td>
+<h3>
+Standard Post Merge Steps</h3>
+
+<table BORDER CELLPADDING=2 WIDTH="90%" >
+<tr>
+<td><b>Update String/Word Indexes</b></td>
+</tr>
+</table>
+</td>
+</tr>
+
+<tr>
+<td VALIGN=TOP><b><font size=-1>Script:</font></b></td>
+
+<td>
+<pre>#
+# String indexes
+#
+$MEME_HOME/bin/add_words.csh $db >&amp;! add_words.log &amp;</pre>
+</td>
+</tr>
+
+<tr>
+<td VALIGN=TOP><b><font size=-1>Notes:</font></b></td>
+
+<td><font size=-1>This step should <i>always</i> be run.&nbsp; It does
+not overlap with other ones so it may be run in the background.</font></td>
+</tr>
+</table></center>
+
+<br>&nbsp;
+<center><table WIDTH="90%" >
+<tr>
+<td VALIGN=TOP><a NAME="mthtm"></a><b><font size=-1>Step/Section:</font></b></td>
+
+<td><tt>Standard Post Merge Step - Manage MTH/{MM,TM}</tt></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP><b><font size=-1>Description:</font></b></td>
+
+<td><font size=-1>This step is used to create temporary multiple meaning
+atoms with termgroup MTH/TM.</font></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP><b><font size=-1>Recipe:</font></b></td>
+
+<td>
+<h3>
+Standard Post Merge Steps</h3>
+
+<table BORDER CELLPADDING=2 WIDTH="90%" >
+<tr>
+<td><b>Delete unneeded MTH/TM atoms, insert new ones</b></td>
+</tr>
+</table>
+</td>
+</tr>
+
+<tr>
+<td VALIGN=TOP><b><font size=-1>Script:</font></b></td>
+
+<td>
+<pre>#
+# Generate temporary MTH/MM atoms for new ambiguous strings
+#
+$MEME_HOME/bin/mthtm.pl -dMERGED -i -tMTH/TM -sR $db $authority >&amp;! mthtm.log</pre>
+</td>
+</tr>
+
+<tr>
+<td VALIGN=TOP><b><font size=-1>Notes:</font></b></td>
+
+<td><font size=-1>This step should <i>always</i> be run.&nbsp; It will
+delete redundant MTH/TM atoms and insert new ones for all cases where the
+insertion produced new ambiguous strings.</font></td>
+</tr>
+</table></center>
+
+<br>&nbsp;
+<center><table WIDTH="90%" >
+<tr>
+<td VALIGN=TOP><a NAME="map_relationships"></a><b><font size=-1>Step/Section:</font></b></td>
+
+<td><tt>Standard Post Merge Step - Map Relationships</tt></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP><b><font size=-1>Description:</font></b></td>
+
+<td><font size=-1>This step is used to create temporary multiple meaning
+atoms with termgroup MTH/TM.</font></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP><b><font size=-1>Recipe:</font></b></td>
+
+<td>
+<h3>
+Standard Post Merge Steps</h3>
+
+<table BORDER CELLPADDING=2 WIDTH="90%" >
+<tr>
+<td><b>Map sg and obsolete relationships.&nbsp;</b></td>
+</tr>
+</table>
+</td>
+</tr>
+
+<tr>
+<td VALIGN=TOP><b><font size=-1>Script:</font></b></td>
+
+<td>
+<pre>#
+# Map Obsolete relationships
+#
+$ORACLE_HOME/bin/sqlplus -s $user@$db &lt;&lt;EOF
+&nbsp;&nbsp;&nbsp; set serveroutput on size 100000
+&nbsp;&nbsp;&nbsp; set feedback off
+&nbsp;&nbsp;&nbsp; exec MEME_SOURCE_PROCESSING.map_obsolete_rels (-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; stripped_source => '$stripped_source', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; authority => '$authority', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; work_id => $work_id );
+EOF
+
+#
+# Map SG Data
+#
+$ORACLE_HOME/bin/sqlplus -s $user@$db &lt;&lt;EOF
+&nbsp;&nbsp;&nbsp; set serveroutput on size 100000
+&nbsp;&nbsp;&nbsp; set feedback off
+&nbsp;&nbsp;&nbsp; exec MEME_SOURCE_PROCESSING.map_sg_data( -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; authority => '$authority', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; work_id => '$work_id' );
+EOF</pre>
+</td>
+</tr>
+
+<tr>
+<td VALIGN=TOP><b><font size=-1>Notes:</font></b></td>
+
+<td><font size=-1>This step should <i>always</i> be run. The first operation
+will map relationships connected to the obsolete source to the new source
+instead.&nbsp; This is important for relationships that connect one source
+to another (such as MMSL and HCPCS).&nbsp; The second operation re-maps
+relationships and attributes that are connected to things like CUIs.&nbsp;
+These operations should be run <i>before</i> the <a href="#update_releasibility_step">update
+releasability step</a>.</font></td>
+</tr>
+</table></center>
+
+<br>&nbsp;
+<center><table WIDTH="90%" >
+<tr>
+<td VALIGN=TOP><a NAME="report_tables"></a><b><font size=-1>Step/Section:</font></b></td>
+
+<td><tt>Standard Post Merge Step - Generate Report Tables</tt></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP><b><font size=-1>Description:</font></b></td>
+
+<td><font size=-1>This step generates some counts to be used for reviewing
+the content and gauging the potential editing load.</font></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP><b><font size=-1>Recipe:</font></b></td>
+
+<td>
+<h3>
+Standard Post Merge Steps</h3>
+
+<table BORDER CELLPADDING=2 WIDTH="90%" >
+<tr>
+<td><b>Generate standard report tables</b></td>
+</tr>
+</table>
+</td>
+</tr>
+
+<tr>
+<td VALIGN=TOP><b><font size=-1>Script:</font></b></td>
+
+<td>
+<pre>#
+# Generate report tables
+#&nbsp;
+$ORACLE_HOME/bin/sqlplus -s $user@$db &lt;&lt;EOF
+&nbsp;&nbsp;&nbsp; set serveroutput on size 100000
+&nbsp;&nbsp;&nbsp; set feedback off
+&nbsp;&nbsp;&nbsp; exec MEME_SOURCE_PROCESSING.report_tables( -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; source => '$new_source', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; authority => '$authority', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; work_id => '$work_id' );
+EOF</pre>
+</td>
+</tr>
+
+<tr>
+<td VALIGN=TOP><b><font size=-1>Notes:</font></b></td>
+
+<td><font size=-1>This step should <i>always</i> be run.&nbsp; It generates
+some sample report tables and outputs the results.&nbsp; Following is sample
+output:</font>
+<br><tt><font size=-1>[17-feb-2001 17:28:25] 241 rows inserted in table
+MDR33_demotions</font></tt>
+<br><tt><font size=-1>[17-feb-2001 17:28:25] 443 rows inserted in table
+MDR33_merges</font></tt>
+<br><tt><font size=-1>[17-feb-2001 17:28:25] 830 rows inserted in table
+MDR33_need_review</font></tt>
+<br><tt><font size=-1>[17-feb-2001 17:28:25] 33762 rows inserted in table
+MDR33_replaced</font></tt></td>
+</tr>
+</table></center>
+
+<br>&nbsp;
+<center><table WIDTH="90%" >
+<tr>
+<td VALIGN=TOP><a NAME="monster_qa"></a><b><font size=-1>Step/Section:</font></b></td>
+
+<td><tt>Standard Post Merge Step - SRC Monster QA</tt></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP><b><font size=-1>Description:</font></b></td>
+
+<td><font size=-1>This step generates qa counts for the new data.&nbsp;
+These counts are used by the <a href="/cgi-lti-oracle/automated_qa.cgi">automated
+qa system</a>.</font></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP><b><font size=-1>Recipe:</font></b></td>
+
+<td>
+<h3>
+Standard Post Merge Steps</h3>
+
+<table BORDER CELLPADDING=2 WIDTH="90%" >
+<tr>
+<td><b>Generate monster QA counts</b></td>
+</tr>
+</table>
+</td>
+</tr>
+
+<tr>
+<td VALIGN=TOP><b><font size=-1>Script:</font></b></td>
+
+<td>
+<pre>#
+# Generate QA counts for the new insertion
+#
+$ORACLE_HOME/bin/sqlplus -s $user@$db &lt;&lt;EOF
+&nbsp;&nbsp;&nbsp; set serveroutput on size 100000
+&nbsp;&nbsp;&nbsp; set feedback off
+&nbsp;&nbsp;&nbsp; exec MEME_INTEGRITY.src_monster_qa;
+EOF</pre>
+</td>
+</tr>
+
+<tr>
+<td VALIGN=TOP><b><font size=-1>Notes:</font></b></td>
+
+<td><font size=-1>This step should <i>always</i> be run.</font></td>
+</tr>
+</table></center>
+
+<br>&nbsp;
+<center><table WIDTH="90%" >
+<tr>
+<td VALIGN=TOP><a NAME="set_preference"></a><b><font size=-1>Step/Section:</font></b></td>
+
+<td><tt>Standard Post Merge Step - Set Preference/Precedence</tt></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP><b><font size=-1>Description:</font></b></td>
+
+<td><font size=-1>This step re-assignes rank values to the core tables
+and recalculates the preferred atom for each concept.</font></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP><b><font size=-1>Recipe:</font></b></td>
+
+<td>
+<h3>
+Standard Post Merge Steps</h3>
+
+<table BORDER CELLPADDING=2 WIDTH="90%" >
+<tr>
+<td><b>Set Core Table Ranks</b></td>
+</tr>
+</table>
+</td>
+</tr>
+
+<tr>
+<td VALIGN=TOP><b><font size=-1>Script:</font></b></td>
+
+<td>
+<pre>#
+# Make sure that the ranks/preferences are set correctly
+#
+$ORACLE_HOME/bin/sqlplus -s $user@$db &lt;&lt;EOF
+&nbsp;&nbsp;&nbsp; set serveroutput on size 100000
+&nbsp;&nbsp;&nbsp; set feedback off
+&nbsp;&nbsp;&nbsp; exec MEME_RANKS.set_ranks( -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; classes_flag => 'Y', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; attributes_flag => 'N', -
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; relationships_flag => 'N' );
+&nbsp;&nbsp;&nbsp; exec MEME_RANKS.set_preference;
+EOF</pre>
+</td>
+</tr>
+
+<tr>
+<td VALIGN=TOP><b><font size=-1>Notes:</font></b></td>
+
+<td><font size=-1>This step should <i>always</i> be run.</font></td>
+</tr>
+</table></center>
+
+<br>&nbsp;
+<center><table WIDTH="90%" >
+<tr>
+<td VALIGN=TOP><a NAME="matrix_initializer"></a><b><font size=-1>Step/Section:</font></b></td>
+
+<td><tt>Standard Post Merge Step - Matrix Initializer</tt></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP><b><font size=-1>Description:</font></b></td>
+
+<td><font size=-1>This step calculates the status of each concept in the
+database and correctly assigns it.</font></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP><b><font size=-1>Recipe:</font></b></td>
+
+<td>
+<h3>
+Standard Post Merge Steps</h3>
+
+<table BORDER CELLPADDING=2 WIDTH="90%" >
+<tr>
+<td><b>Run matrix initializer</b></td>
+</tr>
+</table>
+</td>
+</tr>
+
+<tr>
+<td VALIGN=TOP><b><font size=-1>Script:</font></b></td>
+
+<td>
+<pre>#
+# Run the matrix initializer
+#
+$MEME_HOME/bin/matrixinit.pl -I $db >&amp;! matrixinit.log</pre>
+</td>
+</tr>
+
+<tr>
+<td VALIGN=TOP><b><font size=-1>Notes:</font></b></td>
+
+<td><font size=-1>This step should <i>always</i> be run and it should always
+be the final step of the recipe.</font></td>
+</tr>
+</table></center>
+
+<p>
+<hr WIDTH="100%">
+<table BORDER=0 COLS=2 WIDTH="100%" NOSAVE >
+<tr NOSAVE>
+<td ALIGN=LEFT VALIGN=TOP NOSAVE>
+<address>
+<a href="/MEME/">MEME Home</a></address>
+</td>
+
+<td ALIGN=RIGHT VALIGN=TOP NOSAVE>
+<address>
+<font size=-1>Contact: <a href="mailto:bcarlsen@apelon.com">Brian A. Carlsen</a></font></address>
+
+<address>
+<font size=-1>Created: 8/16/2001</font></address>
+
+<address>
+<font size=-1>Last Updated: 10/18/2001</font></address>
+</td>
+</tr>
+</table>
+
+</body>
+</html>

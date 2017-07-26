@@ -1,0 +1,349 @@
+<html>
+<head>
+        
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=utf8">
+        
+   <title>MEME - Developer Guides - PL/SQL Documentation - MEME_BATCH_ACTIONS</title>
+   
+</head>
+  <body bgcolor="#ffffff">
+    
+<center>  
+<h2> MEME_BATCH_ACTIONS</h2>
+ </center>
+    
+<center>  
+<hr width="100%"></center>
+    
+<dl>
+&nbsp;
+  <center>   
+  <table cols="1" width="90%">
+  <tbody>
+       <tr>
+  <td>This PLSQL package performs batch actions for improved performance
+when large numbers of actions are needed.          
+        <p>The <tt><a href="#batch_action">batch_action</a></tt> and <tt><a
+ href="#macro_action">macro_action</a></tt> functions expect necessary input 
+parameters to perform a batch or macro action operation.&nbsp; It calls internal 
+function to produced the desired results.&nbsp; The difference between these 
+two actions are batch action logs one row for each atomic and molecular action, 
+while macro action logs each atomic action into a single molecular action.
+         </p>
+         
+        <p>The <tt><a href="#batch_undo">batch_undo</a></tt>, <tt><a
+ href="#macro_undo">macro_undo</a></tt>, <tt><a href="#batch_redo">batch_redo</a></tt> 
+and <tt><a href="#macro_redo">macro_redo</a></tt> expect <tt>transaction_id</tt> 
+and <tt>authority</tt> as input parameters to perform a batch or macro undo/redo 
+operation.&nbsp; The undo action undoes the transaction and the redo action 
+redoes a previously undone transaction. If the transaction being undone or 
+redone was originally performed by a batch action then the batch redo and 
+undo procedures should be used, likewise if the transaction being undone or
+redone was originally performed by a macro action then the macro redo and
+undo procedures should be used.&nbsp; The primary difference between the
+two is in how they report data changes to the MRD. </p>
+         
+        <h2> <img src="/images/methods.gif"
+ height="38" width="151">
+         </h2>
+  <a name="action_check"></a><img
+ src="/images/green-ball.gif" height="12"
+ width="12">
+         <b>action_check</b>          
+        <pre>&nbsp;&nbsp;&nbsp; FUNCTION action_check(<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; action&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; id_type&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; table_name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; new_value&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; action_field&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2<br>&nbsp;&nbsp;&nbsp; ) RETURN INTEGER;</pre>
+            
+        <dl>
+          <dd> This function validates all of the action parameters.&nbsp; 
+There are a number of rules, including (but not limited to):</dd>
+          <ul>
+  <li> .The ID type must represent a core table</li>
+   <li> Change <tt>atom_id</tt> actions must use R or A as table name</li>
+   <li> Change <tt>concept_id</tt> actions must not use CS as table name</li>
+   <li> The action name passed in to <tt>batch_action</tt> or <tt>macro_action</tt>
+ must have a corresponding <tt>action_field</tt> in <tt>code_map</tt>.</li>
+   <li> Change <tt>tobereleased</tt> actions must not use CS as table name</li>
+   <li> The <tt>new_value</tt> must be valid for the action type (e.g. if 
+changing <tt>tobereleased</tt>, must be <tt>Yy?nN</tt>)</li>
+   <li> The driving table for the action must have the right form.&nbsp;
+Typically  the right form is just an integer <tt>row_id</tt> field.&nbsp;
+For change  field actions, there must also be a character <tt>new_value</tt>
+field.&nbsp;  For actions changing <tt>concept_id</tt> or <tt>atom_id</tt>
+fields there  must be an integer <tt>row_id</tt> field as well as integer
+              <tt>old_value</tt>  and <tt>new_value</tt> fields         
+     
+              <p>&nbsp; &nbsp;</p>
+             </li>
+             
+          </ul>
+        </dl>
+  <a name="action_log"></a><img
+ src="/images/green-ball.gif" height="12"
+ width="12">
+         <b>action_log</b>          
+        <pre>&nbsp;&nbsp;&nbsp; FUNCTION action_log(<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; action&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; id_type&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; authority&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; table_name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; action_name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; action_short&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; work_id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN NUMBER,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; status&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; new_value&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; action_field&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2<br>&nbsp;&nbsp;&nbsp; ) RETURN INTEGER;</pre>
+            
+        <dl>
+          <dd> This function supports both batch and macro actions.&nbsp; 
+For batch actions, this function creates and inserts molecular and atomic 
+action rows.&nbsp; For macro actions, where some insert operations are too 
+big to individually log every row change as molecular actions (like inserting 
+400000 MSH atoms), <tt>action_log</tt> summarizes the action into a single 
+molecular action row with one atomic action for each change.</dd>
+        </dl>
+ &nbsp;<br>
+  <a name="action_redo"></a><img
+ src="/images/green-ball.gif" height="12"
+ width="12">
+  <b>action_redo</b>          
+        <pre>&nbsp;&nbsp;&nbsp; PROCEDURE action_redo(<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; transaction_id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN INTEGER,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; authority&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; batch_or_macro&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2<br>&nbsp;&nbsp;&nbsp; );</pre>
+             
+        <dl>
+          <dd> This procedure implements the redo operation. &nbsp;It is called
+by <tt><a href="#batch_redo">batch_redo</a></tt> 
+and <tt><a href="#macro_redo">macro_redo</a></tt>.</dd>
+        </dl>
+  &nbsp; <br>
+   <br>
+  <a name="action_undo"></a><img
+ src="/images/green-ball.gif" height="12"
+ width="12">
+         <b>action_uedo</b>          
+        <pre>&nbsp;&nbsp;&nbsp; PROCEDURE action_undo(<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; transaction_id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN INTEGER,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; authority&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; batch_or_macro&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2<br>&nbsp;&nbsp;&nbsp; );</pre>
+            
+        <dl>
+          <dd> This procedure implements the undo operation. &nbsp;It is called
+by <tt><a href="#batch_undo">batch_undo</a></tt> and <tt><a
+ href="#macro_undo">macro_undo</a></tt>.</dd>
+        </dl>
+ &nbsp; <br>
+  <br>
+  <a name="macro_insert"></a><img
+ src="/images/green-ball.gif" height="12"
+ width="12">
+         <b>macro_insert</b>          
+        <pre>&nbsp;&nbsp;&nbsp; PROCEDURE macro_insert(<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; id_type&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; authority&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; transaction_id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; INTEGER<br>&nbsp;&nbsp;&nbsp; );</pre>
+            
+        <dl>
+          <dd> This procedure implements a macro insert operation. (used by
+            <tt><a href="#meme_source_processing">MEME_SOURCE_PROCESSING</a></tt>).&nbsp;
+ This procedure directly calls <tt><a
+ href="plsql_mu.html#report_table_change">MEME_UTILITY.report_table_change</a></tt>
+ to report the necessary data changes to the MRD.</dd>
+        </dl>
+ &nbsp; <br>
+  <a name="batch_insert"></a><img
+ src="/images/green-ball.gif" height="12"
+ width="12">
+         <b>batch_insert</b>          
+        <pre>&nbsp;&nbsp;&nbsp; PROCEDURE batch_insert(<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; id_type&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; authority&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; transaction_id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; INTEGER<br>&nbsp;&nbsp;&nbsp; );</pre>
+            
+        <dl>
+          <dd> This procedure implements a batch insert operation. (used by
+            <tt><a href="#meme_source_processing">MEME_SOURCE_PROCESSING</a></tt>).
+ This procedure uses the same mechansim to report inserts to the MRD as the 
+atomic insert actions in <tt><a href="plsql_ma.html">MEME_APROCS</a></tt>.</dd>
+        </dl>
+ &nbsp; <br>
+  <a name="action_change_field"></a><img
+ src="/images/green-ball.gif" height="12"
+ width="12">
+         <b>action_change_field</b>          
+        <pre>&nbsp;&nbsp;&nbsp; FUNCTION action_change_field(<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; id_type&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; transaction_id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN INTEGER,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; action_field&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2<br>&nbsp;&nbsp;&nbsp; ) RETURN INTEGER;</pre>
+            
+        <dl>
+          <dd> This function supports both batch and macro actions to implement 
+an operation for changing an arbitrary field.</dd>
+        </dl>
+ &nbsp; <br>
+  <a name="action_move"></a><img
+ src="/images/green-ball.gif" height="12"
+ width="12">
+         <b>action_move</b>          
+        <pre>&nbsp;&nbsp;&nbsp; FUNCTION action_move(<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; id_type&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; transaction_id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN INTEGER<br>&nbsp;&nbsp;&nbsp; ) RETURN INTEGER;</pre>
+            
+        <dl>
+          <dd> This function supports both batch and macro actions to implement 
+an operation to move rows from one concept to another.</dd>
+        </dl>
+ &nbsp; <br>
+  <a name="action_change_atom_id"></a><img
+ src="/images/green-ball.gif" height="12"
+ width="12">
+         <b>action_change_atom_id</b>          
+        <pre>&nbsp;&nbsp;&nbsp; FUNCTION action_change_atom_id(<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; id_type&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; transaction_id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN INTEGER<br>&nbsp;&nbsp;&nbsp; ) RETURN INTEGER;</pre>
+            
+        <dl>
+          <dd> This function supports both batch and macro actions to implement 
+an operation to change atom ID's.&nbsp; Typically this is only used for re-mapping 
+relationships from obsolete sources to current ones.</dd>
+        </dl>
+ &nbsp; <br>
+            
+        <dl>
+          <a name="action_delete"></a><img
+ src="/images/green-ball.gif" height="12"
+ width="12">
+          <b>action_delete</b>
+        </dl>
+            
+        <pre>&nbsp;&nbsp;&nbsp; FUNCTION action_delete(<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; id_type&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; transaction_id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN INTEGER<br>&nbsp;&nbsp;&nbsp; ) RETURN INTEGER;</pre>
+            
+        <dl>
+          <dd> This function supports both batch and macro actions to implement 
+a delete operation.&nbsp; (used by <tt><a href="#meme_source_processing">MEME_SOURCE_PROCESSING</a></tt>).</dd>
+        </dl>
+ &nbsp; <br>
+  <a name="action_change_status"></a><img
+ src="/images/green-ball.gif" height="12"
+ width="12">
+         <b>action_change_status</b>          
+        <pre>&nbsp;&nbsp;&nbsp; FUNCTION action_change_status(<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; id_type&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; transaction_id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN INTEGER<br>&nbsp;&nbsp;&nbsp; ) RETURN INTEGER;</pre>
+            
+        <dl>
+          <dd> This function supports both batch and macro actions to implement 
+a change status operation.</dd>
+        </dl>
+ &nbsp; <br>
+  <a name="action_change_tobereleased"></a><img
+ src="/images/green-ball.gif" height="12"
+ width="12">
+         <b>action_change_tobereleased</b>          
+        <pre>&nbsp;&nbsp;&nbsp; FUNCTION action_change_tobereleased(<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; id_type&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; transaction_id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN INTEGER<br>&nbsp;&nbsp;&nbsp; ) RETURN INTEGER;</pre>
+            
+        <dl>
+          <dd> This function supports both batch and macro actions to implement 
+a change tobereleased operation.&nbsp; (used by <a
+ href="#meme_source_processing">MEME_SOURCE_PROCESSING</a>).</dd>
+        </dl>
+ &nbsp; <br>
+  <a name="report_macro_change"></a><img
+ src="/images/green-ball.gif" height="12"
+ width="12">
+         <b>report_macro_change</b>          
+        <pre>&nbsp;&nbsp;&nbsp; FUNCTION report_macro_change(<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; molecule_id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN NUMBER,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; authority&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; atomic_action_field IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; core_table_field&nbsp;&nbsp;&nbsp; IN VARCHAR2<br>&nbsp;&nbsp;&nbsp; ) RETURN INTEGER;</pre>
+            
+        <dl>
+          <dd> This function is responsible for reporting changes resulting 
+from a macro action to the MRD.&nbsp; It generates appropriate XML TableEvent 
+fragments based on the <tt>atomic_actions</tt> rows.&nbsp; Batch actions do
+not need to perform any special reporting functions because their actions 
+are picked up from the log tables.</dd>
+        </dl>
+ &nbsp; <br>
+  <a name="macro_redo"></a><img
+ src="/images/green-ball.gif" height="12"
+ width="12">
+         <b>macro_redo</b>          
+        <pre>&nbsp;&nbsp;&nbsp; FUNCTION macro_redo(<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; transaction_id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN INTEGER,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; authority&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2<br>&nbsp;&nbsp;&nbsp; ) RETURN INTEGER;</pre>
+            
+        <dl>
+          <dd> This function implements a redo operation for a macro action.</dd>
+        </dl>
+ &nbsp; <br>
+  <a name="batch_redo"></a><img
+ src="/images/green-ball.gif" height="12"
+ width="12">
+         <b>batch_redo</b>          
+        <pre>&nbsp;&nbsp;&nbsp; FUNCTION batch_redo(<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; transaction_id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN INTEGER,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; authority&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2<br>&nbsp;&nbsp;&nbsp; ) RETURN INTEGER;</pre>
+            
+        <dl>
+          <dd> This function implements a redo operation for a batch action.</dd>
+        </dl>
+ &nbsp; <br>
+  <a name="macro_undo"></a><img
+ src="/images/green-ball.gif" height="12"
+ width="12">
+         <b>macro_undo</b>          
+        <pre>&nbsp;&nbsp;&nbsp; FUNCTION macro_undo(<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; transaction_id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN INTEGER,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; authority&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2<br>&nbsp;&nbsp;&nbsp; ) RETURN INTEGER;</pre>
+            
+        <dl>
+          <dd> This function implements an undo operation for a macro action.</dd>
+        </dl>
+ &nbsp; <br>
+  <a name="batch_undo"></a><img
+ src="/images/green-ball.gif" height="12"
+ width="12">
+         <b>batch_undo</b>          
+        <pre>&nbsp;&nbsp;&nbsp; FUNCTION batch_undo(<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; transaction_id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN INTEGER,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; authority&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2<br>&nbsp;&nbsp;&nbsp; ) RETURN INTEGER;</pre>
+            
+        <dl>
+          <dd> This function implements an undo operation for a batch action.</dd>
+        </dl>
+ &nbsp; <br>
+  <a name="macro_action"></a><img
+ src="/images/green-ball.gif" height="12"
+ width="12">
+         <b>macro_action</b>          
+        <pre>&nbsp;&nbsp;&nbsp; FUNCTION macro_action(<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; action&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; id_type&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; authority&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; table_name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; index_limit&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN NUMBER DEFAULT 30000,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; work_id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN NUMBER,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; status&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; new_value&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; action_field&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2 DEFAULT 'NONE'<br>        set_preferred_flag  IN VARCHAR2 DEFAULT MEME_CONSTANTS.YES<br>&nbsp;&nbsp;&nbsp; ) RETURN INTEGER;</pre>
+            
+        <dl>
+          <dd> This function takes all necessary parameters to produce a macro
+action and calls all of the internal procedures to produce the desired result.&nbsp;
+The action can be specified as macro action name (e.g. <tt>MACRO_INSERT</tt>).
+ The <tt>id_type</tt> is a core table abbreviation (e.g. <tt>C</tt> for <tt>classes</tt>).&nbsp;
+ The <tt>table_name</tt> for all actions except insert should contain <tt>row_id</tt>s
+ of the appropriate type (e.g. <tt>relationship_id</tt> for actions on <tt>relationships</tt>).
+  <tt>status</tt> is the "status" of the action (now logged in molecular/atomic
+ actions).&nbsp; <tt>new_value</tt> is used for operations which change<tt>tobereleased</tt>
+ or <tt>status</tt>. <tt>action_field</tt> is used by change_field to specify
+ which field is to be updated.</dd>
+        </dl>
+ &nbsp; <br>
+  <a name="batch_action"></a><img
+ src="/images/green-ball.gif" height="12"
+ width="12">
+         <b>batch_action</b>          
+        <pre>&nbsp;&nbsp;&nbsp; FUNCTION batch_action(<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; action&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; id_type&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; authority&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; table_name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; index_limit&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN NUMBER DEFAULT 30000,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; work_id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN NUMBER,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; status&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; new_value&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; action_field&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN VARCHAR2 DEFAULT 'NONE'<br>        set_preferred_flag  IN VARCHAR2 DEFAULT MEME_CONSTANTS.YES<br>&nbsp;&nbsp;&nbsp; ) RETURN INTEGER;</pre>
+            
+        <dl>
+          <dd> This function takes all necessary parameters to produce a batch
+action and calls all of the internal procedures to produce the desired result.&nbsp;
+The action can be specified as an atomic action name (e.g. 'I') or as a molecular
+action name (e.g. <tt>MOLECULAR_INSERT</tt>). The             <tt>id_type</tt>
+is a core table abbreviation (e.g. <tt>C</tt> for <tt>classes</tt>).&nbsp;
+The <tt>table_name</tt> for all actions except insert should contain <tt>row_id</tt>s
+of the appropriate type (e.g. <tt>relationship_id</tt> for actions on <tt>relationships</tt>).&nbsp;
+status is the "status" of the action (now logged in molecular/atomic actions).&nbsp;
+operations which change             <tt>tobereleased</tt> or <tt>status</tt>.
+            <tt>action_field</tt>  is used by change_field to specify which
+field is to be updated.</dd>
+          <br>
+&nbsp;&nbsp;
+        </dl>
+  </td>
+  </tr>
+       
+    </tbody>   
+  </table>
+   </center>
+  <hr width="100%">
+</dl>
+    
+<table border="0" cols="2" width="100%" nosave="">
+  <tbody>
+     <tr nosave="">
+  <td align="left" valign="top" nosave="">        
+      <address> <a href="/MEME/">MEME Home</a></address>
+  </td>
+   <td align="right" valign="top" nosave="">        
+      <address> <font size="-1">Contact: <a
+ href="mailto:bcarlsen@apelon.com">Brian A. Carlsen</a></font></address>
+          
+      <address> <font size="-1">Created: 8/10/2000</font></address>
+          
+      <address> <font size="-1">Last Updated: 09/23/2003</font></address>
+  </td>
+  </tr>
+     
+  </tbody> 
+</table>
+<!-- These comments are used by the What's new Generator -->
+<!-- Changed On: 2003/09/23 -->
+<!-- Changed by: Brian Carlsen -->
+<!-- Change Note: MEME - Developer Guides - PL/SQL Documentation - MEME_BATCH_ACTIONS -->
+<!-- Fresh for: 1 month --> 
+         <br>
+ 
+</body>
+</html>

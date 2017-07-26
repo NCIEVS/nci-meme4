@@ -1,0 +1,65 @@
+# Configuration for ME bins
+# suresh@nlm.nih.gov 01/2000
+
+# Fields are:
+# ME Bin|Description|generator|orderer|contents
+
+# ME Bin: the name of bin, e.g., demotions
+# Description: a short description for the bin (this displays on the Web page for ME bins)
+# generator: How to generate concepts for this bin - consists of a prefix and then a
+#   component.  E.g.,
+#   SAB:SNOMEDCT,
+#   SUB:demotions
+#   SCRIPT:<path to script>
+#   ORDER_ID:SNOMEDCT:23982:32221
+# orderer: one of ATOM_ORDERING, ALPHA, CONCEPT_ID, CODE
+# content_type: Contents of bin are chemicals (C or chem), non-chemicals (N or nonchem) or mixed (leave field empty or "mixed" or M).
+
+# Order in the file is important!
+# NOTE: historical information can be archived in the same file - those definitions follow
+# the HISTORICAL keyword.
+
+# PRE-defined bins are now in the EMSUtils.pm module - suresh 3/2005
+
+# CURRENTLY DEFINED BINS
+go|Gene Ontology|SAB:GO|code|mixed
+#icpc2p|International Classification of Primary Care|SAB:ICPC2P|ALPHA|mixed
+#csp|CRISP Thesaurus|SAB:CSP|ALPHA|mixed
+#ncbi|NCBI Taxonomy|SAB:NCBI|ALPHA|mixed
+
+#--------------------- do not remove below ---------------------
+# HISTORICAL
+
+alt|Alternative Billing Concepts|SAB:ALT|alpha|mixed
+ccs|Clinical Classifications Software|SAB:CCS|alpha|mixed
+cpm|Columbia Entities Dictionary|SAB:CPM|atom_ordering|mixed
+cpt|Current Procedural Terminology|SAB:CPT,MTHCH|atom_ordering|mixed
+csp|CRISP Thesaurus|SAB:CSP|atom_ordering|mixed
+go|Gene Ontology|SAB:GO|atom_ordering|mixed
+hcpcs|HCFA Procedure Coding System|SAB:HCPCS,HCPT,HCDT,CDT,MTHHH|atom_ordering|mixed
+hhc|Home Health Care Classification|SAB:HHC|alpha|mixed
+hl7|HL7 drug forms|SAB:HL7|atom_ordering|mixed
+hugo|HUGO Gene Nomenclature|SAB:HUGO|alpha|mixed
+icd9cm|International Classification of Diseases, Clinical Modifications|SAB:ICD9CM|alpha|mixed
+icpc2icd10|ICPC2-ICD10 Thesaurus|SAB:ICPC2ICD10ENG|atom_ordering|mixed
+loinc|Logical Observation Identifiers|SAB:LNC|alpha|mixed
+mddb|Master Drug Data Base|SAB:MDDB|alpha|mixed
+mdr|Medical Dictionary for Regulatory Activities Terminology|SAB:MDR,MDRAE,MDREA,MDREX|alpha|mixed
+medlineplus|MedlinePlus Health Topics|SAB:MEDLINEPLUS|alpha|mixed
+mesh|Medical Subject Headings|SAB:MSH|atom_ordering|mixed
+mmsl|Multum MediSource Lexicon|SAB:MMSL|alpha|mixed
+mmx|Micromedix DRUGDEX|SAB:MMX|atom_ordering|mixed
+mthfda|FDA National Drug Code Directory|SAB:MTHFDA|atom_ordering|mixed
+mthmst|Minimal Standard Terminology Digestive Endoscopy|SAB:MST,MTHMST|alpha|mixed
+ncbi|NCBI Taxonomy|SAB:NCBI|alpha|mixed
+nci|NCI Thesaurus|SAB:NCI|atom_ordering|mixed
+nddf|National Drug Data File|SAB:NDDF|alpha|mixed
+nddf|National Drug Data File|SAB:NDDF|atom_ordering|mixed
+ndfrt|National Drug File - Reference Terminology|SAB:NDFRT|alpha|mixed
+pdq|NCI Physician's Data Query|SAB:PDQ|atom_ordering|mixed
+psy|Thesaurus of Psychological Index Terms|SAB:PSY|atom_ordering|mixed
+rxnorm|RxNorm Project|SAB:RXNORM|alpha|mixed
+snomedct|SNOMED-CT concepts|SAB:SNOMEDCT|atom_ordering|mixed
+spn|FDA Standard Product Nomenclature|SAB:SPN|atom_ordering|mixed
+umdns|Universal Medical Device Nomenclature|SAB:UMD|atom_ordering|mixed
+uwda|University of Washington Digital Anatomist|SAB:UWDA|atom_ordering|nonchem

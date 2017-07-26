@@ -1,0 +1,79 @@
+README - 03/22/2007
+
+MAPPING FILE UPLOAD. Authenticated users are allowed to upload the files into mapping directories.
+
+
+README - 03/02/2005
+
+There are a variety of MRD applications
+
+1. Server Adminstration
+
+  Simple server administration utility.
+  Represented by the page AdminClient.jsp
+  Accessed with the URL /webapps-meme/meme/controller?state=AdminClient
+
+2. Server Life Cycle
+
+  Simple web application for managing the server life-cycle.
+  Represented by the page ServerLifeCycle.jsp
+  Accessed with the URL /webapps-meme/meme/controller?state=ServerLifeCycle
+
+3. Test Suite Manager
+
+  Manage MEME test suites
+  Represented by the page TestSuiteSet.jsp
+  Accessed with the URL /webapps-meme/meme/controller?state=TestSuiteSet
+ 
+4. MRCOLS/FILES Editor
+
+  Editor for MRFILES/MRCOLS data.
+  Represented by the page MRCOLSFILESEditor.jsp
+  Accessed with the URL /webapps-meme/meme/controller?state=MRCOLSFILESEditor
+
+5. MRDOC Editor
+
+  Editor for MRDOC data.
+  Represented by the page MRDOCEditor.jsp
+  Accessed with the URL /webapps-meme/meme/controller?state=MRDOCEditor
+
+6. MRSAB Editor
+
+  Editor for MRSAB data.
+  Represented by the page SourceInfoEditor.jsp
+  Accessed with the URL /webapps-meme/meme/controller?state=SourceInfoEditor
+
+7. Action Harvester
+
+  Retrieve/search action logs.
+  Represented by the page ActionHarvester.jsp
+  Accessed with the URL /webapps-meme/meme/controller?state=ActionHarvester
+
+8. Code Map Editor
+
+  Manage various codes used by the editing system.  
+  Represented by the page MetaCodeEditor.jsp
+  Accessed with the URL /webapps-meme/meme/controller?state=MetaCodeEditor
+
+9. Content View Editor
+
+  Manage content views.
+  Represented by the page ContentViewEditor.jsp
+  Accessed with the URL /webapps-meme/meme/controller?state=ContentViewEditor
+
+10. Integrity Editor
+  
+  Tool for editing the integrity system configuration, 
+   including adding/removing/updating checks, 
+   application vectors and editor override vectors.
+  Represented by the page IntegrityEditor.jsp
+  Accessed with the URL /webapps-meme/meme/controller?state=IntegrityEditor
+
+11.MEME Properties Editor
+
+  Edit metadata, for now only used to edit data for the DA attributes in MRSAT.
+  Represented by the page MetaPropertyEditor.jsp
+  Accessed with the URL /webapps-meme/meme/controller?state=MetaPropertyEditor
+  
+
+
